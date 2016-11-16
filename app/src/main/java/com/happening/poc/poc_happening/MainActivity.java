@@ -2,6 +2,7 @@ package com.happening.poc.poc_happening;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
@@ -23,6 +24,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -32,6 +38,9 @@ public class MainActivity extends AppCompatActivity
 
     private BluetoothAdapter mBluetoothAdapter = null;
     private ScanCallback mScanCallback = null;
+
+    private ArrayList<BluetoothDevice> mDiscoveredDevices = new ArrayList<>();
+    private DeviceListAdapter deviceListAdapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +100,12 @@ public class MainActivity extends AppCompatActivity
                         Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION },
                         TAG_CODE_PERMISSION_LOCATION);
+
+        // init list view
+        ListView deviceList = (ListView) findViewById(R.id.discovered_devices_list);
+        deviceListAdapter = new DeviceListAdapter(this, mDiscoveredDevices);
+
+        deviceList.setAdapter(deviceListAdapter);
     }
 
     private void startDiscoverMode() {
@@ -103,13 +118,18 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 super.onScanResult(callbackType, result);
-                Log.d("bt scan result", result.getDevice().getName().toString());
+                if(!mDiscoveredDevices.contains(result.getDevice())) {
+                    mDiscoveredDevices.add(result.getDevice());
+                }
+                deviceListAdapter.notifyDataSetChanged();
+//                Log.d("bt scan result", result.getDevice().getName().toString());
             }
         };
 
         Handler handler = new Handler();
         final Runnable r = new Runnable() {
             public void run() {
+                // start bluetooth discover
                 mBluetoothAdapter.getBluetoothLeScanner().startScan(mScanCallback);
             }
         };
@@ -121,6 +141,7 @@ public class MainActivity extends AppCompatActivity
         View view = getCurrentFocus();
         Snackbar.make(view, "stop discover", Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
+        // stop bluetooth discover
         mBluetoothAdapter.getBluetoothLeScanner().stopScan(mScanCallback);
     }
 
