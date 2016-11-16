@@ -1,20 +1,37 @@
 package com.happening.poc.poc_happening;
 
+import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private static final int REQUEST_ENABLE_BT = 1;
+    private static final int TAG_CODE_PERMISSION_LOCATION = 2 ;
+
+    private BluetoothAdapter mBluetoothAdapter = null;
+    private ScanCallback mScanCallback = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +57,71 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // set event Listener
+        Button discoverStartButtom = (Button) findViewById(R.id.discover_start_button);
+        discoverStartButtom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startDiscoverMode();
+            }
+        });
+
+        Button discoverStopButtom = (Button) findViewById(R.id.discover_stop_button);
+        discoverStopButtom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopDiscoverMode();
+            }
+        });
+
+        // Initializes Bluetooth adapter.
+        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        this.mBluetoothAdapter = bluetoothManager.getAdapter();
+
+        // Ensures Bluetooth is available on the device and it is enabled. If not,
+        // displays a dialog requesting user permission to enable Bluetooth.
+        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
+
+        // request location permission
+        ActivityCompat.requestPermissions(this, new String[] {
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION },
+                        TAG_CODE_PERMISSION_LOCATION);
+    }
+
+    private void startDiscoverMode() {
+//        Toast.makeText(this, "start discover", Toast.LENGTH_LONG).show();
+
+        View view = getCurrentFocus();
+        Snackbar.make(view, "start discover", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+
+        this.mScanCallback = new ScanCallback() {
+            @Override
+            public void onScanResult(int callbackType, ScanResult result) {
+                super.onScanResult(callbackType, result);
+                Log.d("bt scan result", result.getDevice().getName().toString());
+            }
+        };
+
+        Handler handler = new Handler();
+        final Runnable r = new Runnable() {
+            public void run() {
+                mBluetoothAdapter.getBluetoothLeScanner().startScan(mScanCallback);
+            }
+        };
+        handler.postDelayed(r, 1000);
+
+    }
+
+    private void stopDiscoverMode() {
+        View view = getCurrentFocus();
+        Snackbar.make(view, "stop discover", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+
+        mBluetoothAdapter.getBluetoothLeScanner().stopScan(mScanCallback);
     }
 
     @Override
