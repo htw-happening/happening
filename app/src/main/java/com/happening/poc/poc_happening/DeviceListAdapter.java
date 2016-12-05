@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -25,6 +26,7 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
     private ArrayList<BluetoothDevice> deviceList = null;
     private ViewHolder vh = null;
     private Context context = null;
+    private String TAG = this.getClass().getSimpleName();
 
     private static final class ViewHolder {
         TextView deviceName = null;
@@ -87,28 +89,42 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
 
         int pos = (int) v.getTag(R.layout.device_list_item);
         Log.d("clicked on", "" + pos);
+        Log.d(TAG, deviceList.get(pos).getName() + " "+deviceList.get(pos).getAddress());
 
-        this.deviceList.get(pos).connectGatt(context, false, new BluetoothGattCallback() {
+        final BluetoothDevice bluetoothDevice = this.deviceList.get(pos);
+
+        final BluetoothGatt bluetoothGatt = bluetoothDevice.connectGatt(context, false, new BluetoothGattCallback() {
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status,
                                                 int newState) {
-                Log.i("onConnectionStateChange", "Changed from " + status + " to " + newState);
-                Log.i("onConnectionStateChange", "Changed from " + status + " to " + newState);
+                log("onConnectionStateChanged");
+                if (newState == BluetoothProfile.STATE_CONNECTED){
+                    gatt.discoverServices();
+                    log("starting discover services");
+
+                }
             }
 
             @Override
-            // New services discovered
             public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-
+                log("onServicesDiscovered");
             }
 
             @Override
-            // Result of a characteristic read operation
             public void onCharacteristicRead(BluetoothGatt gatt,
                                              BluetoothGattCharacteristic characteristic,
                                              int status) {
             }
         });
+        bluetoothGatt.connect();
+
+
+        Log.i("DeviceListAdapter", ""+bluetoothGatt.getServices());
+
+    }
+
+    private void log (String msg){
+        Log.d(TAG, msg);
     }
 
 }

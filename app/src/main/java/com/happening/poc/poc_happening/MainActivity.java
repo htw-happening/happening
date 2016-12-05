@@ -38,6 +38,8 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private String TAG = this.getClass().getSimpleName();
+
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int TAG_CODE_PERMISSION_LOCATION = 2 ;
 
@@ -121,6 +123,8 @@ public class MainActivity extends AppCompatActivity
         deviceListAdapter = new DeviceListAdapter(this, mDiscoveredDevices);
 
         deviceList.setAdapter(deviceListAdapter);
+
+        Log.d("I am ", mBluetoothAdapter.getName() + " "+mBluetoothAdapter.getAddress());
     }
 
     private void startServer() {
@@ -140,14 +144,12 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
             super.onConnectionStateChange(device, status, newState);
-            Log.d("MainActivity", "BluetoothGattServerCallback");
+            Log.d("MainActivity", "BluetoothGattServerCallback from "+device.getName());
         }
 
     };
 
     private void startDiscoverMode() {
-//        Toast.makeText(this, "start discover", Toast.LENGTH_LONG).show();
-
         View view = getCurrentFocus();
         Snackbar.make(view, "start discover", Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
