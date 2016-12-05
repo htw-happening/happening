@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity
     private BluetoothManager mBluetoothManager = null;
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothGattServer mBluetoothGattServer = null;
+    private BluetoothAdapter.LeScanCallback mLeScanCallback = null;
     private ScanCallback mScanCallback = null;
 
     private ArrayList<BluetoothDevice> mDiscoveredDevices = new ArrayList<>();
@@ -163,16 +164,31 @@ public class MainActivity extends AppCompatActivity
                 deviceListAdapter.notifyDataSetChanged();
 //                Log.d("bt scan result", result.getDevice().getName().toString());
             }
+
+
+        };
+
+        this.mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
+            @Override
+            public void onLeScan(BluetoothDevice bluetoothDevice, int i, byte[] bytes) {
+                Log.d("leScan", bluetoothDevice.toString());
+                Log.d("alles", bluetoothDevice.getName());
+                if(!mDiscoveredDevices.contains(bluetoothDevice)) {
+                    mDiscoveredDevices.add(bluetoothDevice);
+                }
+                deviceListAdapter.notifyDataSetChanged();
+            }
         };
 
         Handler handler = new Handler();
         final Runnable r = new Runnable() {
             public void run() {
                 // start bluetooth discover
-                mBluetoothAdapter.getBluetoothLeScanner().startScan(mScanCallback);
+                //mBluetoothAdapter.getBluetoothLeScanner().startScan(mScanCallback);
+                mBluetoothAdapter.startLeScan(mLeScanCallback);
             }
         };
-        handler.postDelayed(r, 1000);
+        handler.postDelayed(r, 250);
 
     }
 
