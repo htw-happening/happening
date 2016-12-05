@@ -30,10 +30,18 @@
         android:layout_below="@+id/discover_start_button"
         android:layout_alignParentStart="true" />
 
+    <Button
+        android:text="server start"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/server_start_button"
+        android:layout_below="@+id/discover_stop_button"
+        android:layout_alignParentStart="true" />
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/discover_stop_button"
+        android:layout_below="@+id/server_start_button"
         android:id="@+id/discovered_devices_list"
         android:layout_alignParentStart="true" />
 

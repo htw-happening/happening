@@ -2,7 +2,13 @@ package com.happening.poc.poc_happening;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothClass;
+import android.bluetooth.BluetoothClass.Service;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattServer;
+import android.bluetooth.BluetoothGattServerCallback;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
@@ -27,8 +33,7 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -36,7 +41,9 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int TAG_CODE_PERMISSION_LOCATION = 2 ;
 
+    private BluetoothManager mBluetoothManager = null;
     private BluetoothAdapter mBluetoothAdapter = null;
+    private BluetoothGattServer mBluetoothGattServer = null;
     private ScanCallback mScanCallback = null;
 
     private ArrayList<BluetoothDevice> mDiscoveredDevices = new ArrayList<>();
@@ -84,9 +91,17 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        Button serverStartButton = (Button) findViewById(R.id.server_start_button);
+        serverStartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startServer();
+            }
+        });
+
         // Initializes Bluetooth adapter.
-        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        this.mBluetoothAdapter = bluetoothManager.getAdapter();
+        this.mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        this.mBluetoothAdapter = mBluetoothManager.getAdapter();
 
         // Ensures Bluetooth is available on the device and it is enabled. If not,
         // displays a dialog requesting user permission to enable Bluetooth.
@@ -107,6 +122,28 @@ public class MainActivity extends AppCompatActivity
 
         deviceList.setAdapter(deviceListAdapter);
     }
+
+    private void startServer() {
+        UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        mBluetoothGattServer = mBluetoothManager.openGattServer(this, mGattServerCallback);
+        BluetoothGattService service = new BluetoothGattService(uuid, BluetoothGattService.SERVICE_TYPE_PRIMARY);
+        BluetoothGattCharacteristic characteristic = new BluetoothGattCharacteristic(uuid, BluetoothGattCharacteristic.FORMAT_UINT8, BluetoothGattCharacteristic.PERMISSION_WRITE);
+
+        service.addCharacteristic(characteristic);
+        mBluetoothGattServer.addService(service);
+
+        Log.d("MainActivity", "start Gatt server");
+    }
+
+    private final BluetoothGattServerCallback mGattServerCallback = new BluetoothGattServerCallback() {
+
+        @Override
+        public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
+            super.onConnectionStateChange(device, status, newState);
+            Log.d("MainActivity", "BluetoothGattServerCallback");
+        }
+
+    };
 
     private void startDiscoverMode() {
 //        Toast.makeText(this, "start discover", Toast.LENGTH_LONG).show();

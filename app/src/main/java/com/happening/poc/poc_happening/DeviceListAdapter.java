@@ -1,6 +1,10 @@
 package com.happening.poc.poc_happening;
 
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,12 +24,14 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
     private LayoutInflater inflater = null;
     private ArrayList<BluetoothDevice> deviceList = null;
     private ViewHolder vh = null;
+    private Context context = null;
 
     private static final class ViewHolder {
         TextView deviceName = null;
     }
 
     public DeviceListAdapter(Context context, ArrayList<BluetoothDevice> deviceList) {
+        this.context = context;
         this.inflater = LayoutInflater.from(context);
         this.deviceList = deviceList;
     }
@@ -48,7 +54,7 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View v = convertView;
-        if(v == null) {
+        if (v == null) {
             v = inflater.inflate(R.layout.device_list_item, parent, false);
 
             vh = new ViewHolder();
@@ -56,13 +62,13 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
 
             vh.deviceName = (TextView) v.findViewById(R.id.device_name);
 
-        } else  {
+        } else {
             vh = (ViewHolder) v.getTag();
         }
 
         vh.deviceName.setOnClickListener(this);
         vh.deviceName.setTag(R.layout.device_list_item, position);
-        if(deviceList.get(position).getName() != null) {
+        if (deviceList.get(position).getName() != null) {
             vh.deviceName.setText(deviceList.get(position).getName());
         } else if (deviceList.get(position).getAddress() != null) {
             vh.deviceName.setText(deviceList.get(position).getAddress().toString());
@@ -75,13 +81,34 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
-        if(v == null){
+        if (v == null) {
             Log.d("device list", "error");
         }
 
         int pos = (int) v.getTag(R.layout.device_list_item);
         Log.d("clicked on", "" + pos);
 
+        this.deviceList.get(pos).connectGatt(context, false, new BluetoothGattCallback() {
+            @Override
+            public void onConnectionStateChange(BluetoothGatt gatt, int status,
+                                                int newState) {
+                Log.i("onConnectionStateChange", "Changed from " + status + " to " + newState);
+                Log.i("onConnectionStateChange", "Changed from " + status + " to " + newState);
+            }
+
+            @Override
+            // New services discovered
+            public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+
+            }
+
+            @Override
+            // Result of a characteristic read operation
+            public void onCharacteristicRead(BluetoothGatt gatt,
+                                             BluetoothGattCharacteristic characteristic,
+                                             int status) {
+            }
+        });
     }
 
 }
