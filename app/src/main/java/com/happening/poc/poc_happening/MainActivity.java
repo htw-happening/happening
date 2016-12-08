@@ -2,21 +2,20 @@ package com.happening.poc.poc_happening;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothClass;
-import android.bluetooth.BluetoothClass.Service;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattServer;
-import android.bluetooth.BluetoothGattServerCallback;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.AdvertiseCallback;
+import android.bluetooth.le.AdvertiseData;
+import android.bluetooth.le.AdvertiseSettings;
+import android.bluetooth.le.BluetoothLeAdvertiser;
+import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
+import android.os.ParcelUuid;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -33,23 +32,28 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.UUID;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private String TAG = this.getClass().getSimpleName();
-
     private static final int REQUEST_ENABLE_BT = 1;
-    private static final int TAG_CODE_PERMISSION_LOCATION = 2 ;
+    private static final int TAG_CODE_PERMISSION_LOCATION = 2;
+    private static final String HAPPENING_SERVICE_UUID = "11111111-1337-1337-1337-000000000000";
+    public static final ParcelUuid parcelUuid = ParcelUuid.fromString(HAPPENING_SERVICE_UUID);
 
     private BluetoothManager mBluetoothManager = null;
     private BluetoothAdapter mBluetoothAdapter = null;
-    private BluetoothGattServer mBluetoothGattServer = null;
-    private BluetoothAdapter.LeScanCallback mLeScanCallback = null;
-    private ScanCallback mScanCallback = null;
 
-    private ArrayList<BluetoothDevice> mDiscoveredDevices = new ArrayList<>();
+    private BluetoothLeScanner mBluetoothLeScanner = null;
+    private BluetoothLeAdvertiser mBluetoothLeAdvertiser = null;
+
+    private ScanCallback mScanCallback = null;
+    private AdvertiseCallback mAdvertiseCallback = null;
+
+    private HashMap<String, ScanResult> mScanResults = new LinkedHashMap<>();
     private DeviceListAdapter deviceListAdapter = null;
 
     @Override
@@ -58,15 +62,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -78,126 +73,148 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         // set event Listener
-        Button discoverStartButtom = (Button) findViewById(R.id.discover_start_button);
-        discoverStartButtom.setOnClickListener(new View.OnClickListener() {
+        Button startDiscoverButton = (Button) findViewById(R.id.discover_start_button);
+        startDiscoverButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startDiscoverMode();
+                startDiscover();
             }
         });
 
-        Button discoverStopButtom = (Button) findViewById(R.id.discover_stop_button);
-        discoverStopButtom.setOnClickListener(new View.OnClickListener() {
+        Button stopDiscoverButton = (Button) findViewById(R.id.discover_stop_button);
+        stopDiscoverButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                stopDiscoverMode();
+                stopDiscover();
             }
         });
 
-        Button serverStartButton = (Button) findViewById(R.id.server_start_button);
-        serverStartButton.setOnClickListener(new View.OnClickListener() {
+        Button startAdvertiseButton = (Button) findViewById(R.id.advertise_start_button);
+        startAdvertiseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startServer();
+                startAdvertise();
             }
         });
 
-        // Initializes Bluetooth adapter.
+        Button stopAdvertiseButton = (Button) findViewById(R.id.advertise_stop_button);
+        stopAdvertiseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopAdvertise();
+            }
+        });
+
+        // initialize bluetooth adapter
         this.mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         this.mBluetoothAdapter = mBluetoothManager.getAdapter();
 
-        // Ensures Bluetooth is available on the device and it is enabled. If not,
-        // displays a dialog requesting user permission to enable Bluetooth.
+        // ensure bluetooth is available and enabled
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
         // request location permission
-        ActivityCompat.requestPermissions(this, new String[] {
+        ActivityCompat.requestPermissions(this, new String[]{
                         Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION },
-                        TAG_CODE_PERMISSION_LOCATION);
+                        Manifest.permission.ACCESS_COARSE_LOCATION},
+                TAG_CODE_PERMISSION_LOCATION);
 
-        // init list view
+        // initialize list view
         ListView deviceList = (ListView) findViewById(R.id.discovered_devices_list);
-        deviceListAdapter = new DeviceListAdapter(this, mDiscoveredDevices);
-
+        deviceListAdapter = new DeviceListAdapter(this, mScanResults);
         deviceList.setAdapter(deviceListAdapter);
 
-        Log.d("I am ", mBluetoothAdapter.getName() + " "+mBluetoothAdapter.getAddress());
-    }
+        this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
+        this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
 
-    private void startServer() {
-        UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000000");
-        mBluetoothGattServer = mBluetoothManager.openGattServer(this, mGattServerCallback);
-        BluetoothGattService service = new BluetoothGattService(uuid, BluetoothGattService.SERVICE_TYPE_PRIMARY);
-        BluetoothGattCharacteristic characteristic = new BluetoothGattCharacteristic(uuid, BluetoothGattCharacteristic.FORMAT_UINT8, BluetoothGattCharacteristic.PERMISSION_WRITE);
-
-        service.addCharacteristic(characteristic);
-        mBluetoothGattServer.addService(service);
-
-        Log.d("MainActivity", "start Gatt server");
-    }
-
-    private final BluetoothGattServerCallback mGattServerCallback = new BluetoothGattServerCallback() {
-
-        @Override
-        public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
-            super.onConnectionStateChange(device, status, newState);
-            Log.d("MainActivity", "BluetoothGattServerCallback from "+device.getName());
-        }
-
-    };
-
-    private void startDiscoverMode() {
-        View view = getCurrentFocus();
-        Snackbar.make(view, "start discover", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-
+        // set scanning callback
         this.mScanCallback = new ScanCallback() {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 super.onScanResult(callbackType, result);
-                if(!mDiscoveredDevices.contains(result.getDevice())) {
-                    mDiscoveredDevices.add(result.getDevice());
+                if (!mScanResults.containsKey(result.getDevice().getAddress())) {
+                    mScanResults.put(result.getDevice().getAddress(), result);
+                    deviceListAdapter.notifyDataSetChanged();
                 }
-                deviceListAdapter.notifyDataSetChanged();
-//                Log.d("bt scan result", result.getDevice().getName().toString());
             }
-
-
         };
 
-        this.mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
+        // set advertising callback
+        this.mAdvertiseCallback = new AdvertiseCallback() {
             @Override
-            public void onLeScan(BluetoothDevice bluetoothDevice, int i, byte[] bytes) {
-                Log.d("leScan", bluetoothDevice.toString());
-                Log.d("alles", bluetoothDevice.getName());
-                if(!mDiscoveredDevices.contains(bluetoothDevice)) {
-                    mDiscoveredDevices.add(bluetoothDevice);
-                }
-                deviceListAdapter.notifyDataSetChanged();
+            public void onStartSuccess(AdvertiseSettings settingsInEffect) {
+                super.onStartSuccess(settingsInEffect);
+                Log.d("DEBUG", "advertising started");
+            }
+
+            @Override
+            public void onStartFailure(int errorCode) {
+                super.onStartFailure(errorCode);
+                Log.d("DEBUG", "advertising error " + errorCode);
             }
         };
 
-        Handler handler = new Handler();
-        final Runnable r = new Runnable() {
-            public void run() {
-                // start bluetooth discover
-                //mBluetoothAdapter.getBluetoothLeScanner().startScan(mScanCallback);
-                mBluetoothAdapter.startLeScan(mLeScanCallback);
-            }
-        };
-        handler.postDelayed(r, 250);
-
+        Log.d("SELF", mBluetoothAdapter.getName() + " " + mBluetoothAdapter.getAddress());
     }
 
-    private void stopDiscoverMode() {
+    private void startAdvertise() {
+
+        View view = getCurrentFocus();
+        Snackbar.make(view, "start advertise", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+
+        AdvertiseSettings.Builder advertiseSettingsBuilder = new AdvertiseSettings.Builder();
+        advertiseSettingsBuilder
+                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                .setConnectable(true);
+        AdvertiseSettings advertiseSettings = advertiseSettingsBuilder.build();
+
+        byte[] payload = "happen".getBytes();
+        AdvertiseData.Builder advertiseDataBuilder = new AdvertiseData.Builder();
+        advertiseDataBuilder
+                .addServiceData(parcelUuid, payload)
+                .setIncludeDeviceName(true)
+                .setIncludeTxPowerLevel(true);
+        AdvertiseData advertiseData = advertiseDataBuilder.build();
+
+        mBluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, mAdvertiseCallback);
+    }
+
+    private void stopAdvertise() {
+        View view = getCurrentFocus();
+        Snackbar.make(view, "stop advertise", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+
+        mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
+    }
+
+    private void startDiscover() {
+        View view = getCurrentFocus();
+        Snackbar.make(view, "start discover", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+
+        ScanSettings.Builder scanSettingsBuilder = new ScanSettings.Builder();
+        scanSettingsBuilder
+                .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE);
+        ScanSettings scanSettings = scanSettingsBuilder.build();
+
+        List<ScanFilter> scanFilters = new ArrayList<>();
+
+        mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
+        mBluetoothLeScanner.stopScan(mScanCallback);
+        deviceListAdapter.deviceList.clear();
+        deviceListAdapter.notifyDataSetChanged();
+        mBluetoothLeScanner.startScan(scanFilters, scanSettings, mScanCallback);
+    }
+
+    private void stopDiscover() {
         View view = getCurrentFocus();
         Snackbar.make(view, "stop discover", Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
-        // stop bluetooth discover
-        mBluetoothAdapter.getBluetoothLeScanner().stopScan(mScanCallback);
+        mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
+        mBluetoothLeScanner.stopScan(mScanCallback);
     }
 
     @Override
@@ -212,34 +229,17 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            // Handle the camera action
+
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {
