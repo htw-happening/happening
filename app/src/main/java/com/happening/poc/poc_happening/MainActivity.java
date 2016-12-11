@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity
             if (this.mainFragment == null) {
                 this.mainFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_MAIN);
                 if (this.mainFragment == null) {
-                    this.mainFragment = ChatFragment.getInstance();
+                    this.mainFragment = MainFragment.getInstance();
                 }
             }
 
