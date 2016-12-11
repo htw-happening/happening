@@ -1,11 +1,17 @@
 package com.happening.poc.poc_happening.fragment;
 
+import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.happening.poc.poc_happening.R;
 import com.happening.poc.poc_happening.adapter.ChatEntriesAdapter;
@@ -39,6 +45,22 @@ public class ChatFragment extends Fragment {
         chatEntriesAdapter = new ChatEntriesAdapter(getContext(), chatEntryModelArrayList);
         listView = (ListView) rootView.findViewById(R.id.listView_chat_entries);
         listView.setAdapter(chatEntriesAdapter);
+
+        rootView.findViewById(R.id.imageView_send_message).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Handle Message for Sending
+                String message = ((EditText)rootView.findViewById(R.id.editText_message_input)).getText().toString();
+                if (message.length() == 0){
+                    //was empty
+                    Toast.makeText(rootView.getContext(),"Type Something",Toast.LENGTH_SHORT).show();
+                }else{
+                    addChatEntry("You", message);
+                    ((EditText)rootView.findViewById(R.id.editText_message_input)).setText("");
+                    // TODO - Send message via Bluetooth
+                }
+            }
+        });
 
         return rootView;
     }
