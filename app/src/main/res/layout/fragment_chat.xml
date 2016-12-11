@@ -7,15 +7,22 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_weight="20"
         android:fillViewport="true">
 
-        <ListView
-            android:id="@+id/listView_chat_entries"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:transcriptMode="alwaysScroll"
-            android:stackFromBottom="true">
-        </ListView>
+            android:layout_height="match_parent">
+
+            <ListView
+                android:id="@+id/listView_chat_entries"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:transcriptMode="alwaysScroll"
+                android:stackFromBottom="true">
+            </ListView>
+
+        </RelativeLayout>
 
     </ScrollView>
 
