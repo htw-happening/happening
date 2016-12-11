@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -171,7 +172,9 @@ public class MainActivity extends AppCompatActivity
                 .setConnectable(true);
         AdvertiseSettings advertiseSettings = advertiseSettingsBuilder.build();
 
-        byte[] payload = "happen".getBytes();
+        String[] loads = {"happen", "foobar", "lekker", "service", "matetee"};
+        int index = new Random().nextInt(loads.length);
+        byte[] payload = loads[index].getBytes();
         AdvertiseData.Builder advertiseDataBuilder = new AdvertiseData.Builder();
         advertiseDataBuilder
                 .addServiceData(parcelUuid, payload)

@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
+import android.os.ParcelUuid;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class DeviceListAdapter extends BaseAdapter implements View.OnClickListener {
@@ -82,16 +84,13 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
             vh.deviceDbm.setText(result.getRssi() + "dBm");
         }
 
-        if (result.getScanRecord().getServiceData().containsKey(MainActivity.parcelUuid)) {
-            Log.d("DEBUG", result.getScanRecord().getServiceData().toString());
-            if (result.getScanRecord().getServiceData().get(MainActivity.parcelUuid) != null) {
-                vh.devicePayload.setText(new String(
-                        result.getScanRecord().getServiceData().get(MainActivity.parcelUuid)));
-            } else {
-                vh.devicePayload.setText("bytes N/A");
-            }
+        String serviceData = new String();
+
+        for (Map.Entry<ParcelUuid, byte[]> entry : result.getScanRecord().getServiceData().entrySet()) {
+            serviceData += new String(entry.getValue());
         }
 
+        vh.devicePayload.setText(serviceData);
         return v;
     }
 
