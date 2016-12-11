@@ -176,6 +176,15 @@ public class Bt4Controls extends Fragment implements View.OnClickListener {
             }
         });
 
+        if (!mBluetoothAdapter.isMultipleAdvertisementSupported() ||
+                !mBluetoothAdapter.isOffloadedFilteringSupported() ||
+                !mBluetoothAdapter.isOffloadedScanBatchingSupported()) {
+            advertiseButton.setChecked(false);
+            advertiseButton.setEnabled(false);
+            gattServerButton.setChecked(false);
+            gattServerButton.setEnabled(false);
+        }
+
         return rootView;
     }
 
