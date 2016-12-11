@@ -68,8 +68,8 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        this.currentFragment = MainFragment.getInstance();
-        this.currentFragmentTag = TAG_FRAGMENT_MAIN;
+        this.currentFragment = BtStatus.getInstance();
+        this.currentFragmentTag = TAG_FRAGMENT_BTSTATUS;
         fm.beginTransaction()
                 .replace(R.id.main_fragment_holder, currentFragment, currentFragmentTag)
                 .commit();
