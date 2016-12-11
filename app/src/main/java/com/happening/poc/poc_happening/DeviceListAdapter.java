@@ -4,6 +4,8 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
@@ -24,6 +26,8 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
 
     public HashMap<String, ScanResult> deviceList = null;
     private LayoutInflater inflater = null;
+    private Context context = null;
+    private BluetoothGattCallback mBluetoothGattCallback = null;
     private ViewHolder vh = null;
 
     private static final class ViewHolder {
@@ -35,7 +39,20 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
 
     public DeviceListAdapter(Context context, HashMap<String, ScanResult> deviceList) {
         this.inflater = LayoutInflater.from(context);
+        this.context = context;
         this.deviceList = deviceList;
+
+        this.mBluetoothGattCallback = new BluetoothGattCallback() {
+            @Override
+            public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+                super.onServicesDiscovered(gatt, status);
+                if (status == BluetoothGatt.GATT_SUCCESS) {
+                    Log.d("GATT", "services discovered");
+                } else {
+                    Log.e("GATT", "service discovery failed " + status);
+                }
+            }
+        };
     }
 
     @Override
@@ -90,6 +107,8 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
             serviceData += new String(entry.getValue());
         }
 
+        result.getDevice().connectGatt(context, true, mBluetoothGattCallback);
+
         vh.devicePayload.setText(serviceData);
         return v;
     }
@@ -98,6 +117,18 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
     public void onClick(View v) {
         int position = (int) v.getTag(R.layout.device_list_item);
         final ScanResult result = (ScanResult) deviceList.values().toArray()[position];
+        final BluetoothDevice bluetoothDevice = result.getDevice();
+        final BluetoothGatt gatt = bluetoothDevice.connectGatt(
+                context, false, mBluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
+
+        for (BluetoothGattService service : gatt.getServices()) {
+            for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
+                for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
+                    String value = new String(descriptor.getValue());
+                    Log.d("DESC", value);
+                }
+            }
+        }
         Log.d("CLICK", result.toString());
     }
 }
