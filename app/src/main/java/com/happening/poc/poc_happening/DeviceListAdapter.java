@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +42,16 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
         this.deviceList = deviceList;
 
         this.mBluetoothGattCallback = new BluetoothGattCallback() {
+
+            @Override
+            public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+                super.onConnectionStateChange(gatt, status, newState);
+                Log.d("GATT", "connection state changed " + newState);
+                if (newState == BluetoothProfile.STATE_CONNECTED) {
+                    gatt.discoverServices();
+                }
+            }
+
             @Override
             public void onServicesDiscovered(BluetoothGatt gatt, int status) {
                 super.onServicesDiscovered(gatt, status);
@@ -51,6 +60,22 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
                 } else {
                     Log.e("GATT", "service discovery failed " + status);
                 }
+
+                for (BluetoothGattService service : gatt.getServices()) {
+                    for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
+                        for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
+                            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                            gatt.writeDescriptor(descriptor);
+                            Log.d("DESC", descriptor.toString());
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+                String value = new String(characteristic.getValue());
+                Log.d("WHOOP", value);
             }
         };
     }
@@ -118,17 +143,8 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
         int position = (int) v.getTag(R.layout.device_list_item);
         final ScanResult result = (ScanResult) deviceList.values().toArray()[position];
         final BluetoothDevice bluetoothDevice = result.getDevice();
-        final BluetoothGatt gatt = bluetoothDevice.connectGatt(
-                context, false, mBluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
+        bluetoothDevice.connectGatt(context, false, mBluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
 
-        for (BluetoothGattService service : gatt.getServices()) {
-            for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
-                for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
-                    String value = new String(descriptor.getValue());
-                    Log.d("DESC", value);
-                }
-            }
-        }
         Log.d("CLICK", result.toString());
     }
 }
