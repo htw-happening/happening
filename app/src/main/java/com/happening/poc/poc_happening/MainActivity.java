@@ -19,6 +19,7 @@ import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.ParcelUuid;
 import android.support.design.widget.NavigationView;
@@ -52,8 +53,6 @@ public class MainActivity extends AppCompatActivity
     private static final int TAG_CODE_PERMISSION_LOCATION = 2;
     private static final String HAPPENING_SERVICE_UUID = "11111111-1337-1337-1337-000000000000";
     public static final ParcelUuid parcelUuid = ParcelUuid.fromString(HAPPENING_SERVICE_UUID);
-
-    private Switch mAdvertiseButton = null;
 
     private BluetoothManager mBluetoothManager = null;
     private BluetoothAdapter mBluetoothAdapter = null;
@@ -97,8 +96,8 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        this.mAdvertiseButton = (Switch) findViewById(R.id.advertise_button);
-        this.mAdvertiseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        Switch advertiseButton = (Switch) findViewById(R.id.advertise_button);
+        advertiseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     startAdvertise();
@@ -127,6 +126,15 @@ public class MainActivity extends AppCompatActivity
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
+
+        if (!mBluetoothAdapter.isMultipleAdvertisementSupported() ||
+                !mBluetoothAdapter.isOffloadedFilteringSupported() ||
+                !mBluetoothAdapter.isOffloadedScanBatchingSupported()) {
+            advertiseButton.setChecked(false);
+            advertiseButton.setEnabled(false);
+            gattServerButton.setChecked(false);
+            gattServerButton.setEnabled(false);
         }
 
         // request location permission
@@ -228,7 +236,6 @@ public class MainActivity extends AppCompatActivity
 
         } else {
             Snackbar.make(view, "BLE Advertising is not supported!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-            this.mAdvertiseButton.setChecked(false);
         }
     }
 
@@ -244,10 +251,14 @@ public class MainActivity extends AppCompatActivity
         Snackbar.make(view, "Start Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
         ScanSettings.Builder scanSettingsBuilder = new ScanSettings.Builder();
-        scanSettingsBuilder
-                //.setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY);
-                //.setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            scanSettingsBuilder
+                .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE);
+        } else {
+            scanSettingsBuilder.setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY);
+        }
         ScanSettings scanSettings = scanSettingsBuilder.build();
 
         List<ScanFilter> scanFilters = new ArrayList<>();

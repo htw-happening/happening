@@ -1,5 +1,6 @@
 package com.happening.poc.poc_happening;
 
+import android.annotation.TargetApi;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
@@ -9,6 +10,7 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
+import android.os.Build;
 import android.os.ParcelUuid;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -138,12 +140,17 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
         return v;
     }
 
+
     @Override
     public void onClick(View v) {
         int position = (int) v.getTag(R.layout.device_list_item);
         final ScanResult result = (ScanResult) deviceList.values().toArray()[position];
         final BluetoothDevice bluetoothDevice = result.getDevice();
-        bluetoothDevice.connectGatt(context, false, mBluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            bluetoothDevice.connectGatt(context, false, mBluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
+        } else {
+            bluetoothDevice.connectGatt(context, false, mBluetoothGattCallback);
+        }
 
         Log.d("CLICK", result.toString());
     }
