@@ -4,7 +4,6 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattServerCallback;
 import android.bluetooth.BluetoothGattService;
@@ -34,10 +33,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,6 +52,8 @@ public class MainActivity extends AppCompatActivity
     private static final int TAG_CODE_PERMISSION_LOCATION = 2;
     private static final String HAPPENING_SERVICE_UUID = "11111111-1337-1337-1337-000000000000";
     public static final ParcelUuid parcelUuid = ParcelUuid.fromString(HAPPENING_SERVICE_UUID);
+
+    private Switch mAdvertiseButton = null;
 
     private BluetoothManager mBluetoothManager = null;
     private BluetoothAdapter mBluetoothAdapter = null;
@@ -96,8 +97,8 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        Switch advertiseButton = (Switch) findViewById(R.id.advertise_button);
-        advertiseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        this.mAdvertiseButton = (Switch) findViewById(R.id.advertise_button);
+        this.mAdvertiseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     startAdvertise();
@@ -192,43 +193,55 @@ public class MainActivity extends AppCompatActivity
         };
 
         Log.d("SELF", mBluetoothAdapter.getName() + " " + mBluetoothAdapter.getAddress());
+
+        Context context = getApplicationContext();
+        String macAddress = android.provider.Settings.Secure.getString(context.getContentResolver(), "bluetooth_address");
+        TextView bleAddress = (TextView) findViewById(R.id.ble_mac_address);
+        bleAddress.setText(macAddress);
     }
 
     private void startAdvertise() {
-
         View view = getCurrentFocus();
-        Snackbar.make(view, "start advertise", Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
-        AdvertiseSettings.Builder advertiseSettingsBuilder = new AdvertiseSettings.Builder();
-        advertiseSettingsBuilder
-                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
-                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
-                .setConnectable(true);
-        AdvertiseSettings advertiseSettings = advertiseSettingsBuilder.build();
+        if (mBluetoothAdapter.isMultipleAdvertisementSupported()) {
 
-        String[] loads = {"happen", "foobar", "lekker", "service", "matetee"};
-        int index = new Random().nextInt(loads.length);
-        byte[] payload = loads[index].getBytes();
-        AdvertiseData.Builder advertiseDataBuilder = new AdvertiseData.Builder();
-        advertiseDataBuilder
-                .addServiceData(parcelUuid, payload)
-                .setIncludeDeviceName(true)
-                .setIncludeTxPowerLevel(true);
-        AdvertiseData advertiseData = advertiseDataBuilder.build();
+            Snackbar.make(view, "Start Advertising", Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
-        mBluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, mAdvertiseCallback);
+            AdvertiseSettings.Builder advertiseSettingsBuilder = new AdvertiseSettings.Builder();
+            advertiseSettingsBuilder
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                    .setConnectable(true);
+            AdvertiseSettings advertiseSettings = advertiseSettingsBuilder.build();
+
+            String[] loads = {"happen", "foobar", "lekker", "service", "matetee"};
+            int index = new Random().nextInt(loads.length);
+            byte[] payload = loads[index].getBytes();
+            AdvertiseData.Builder advertiseDataBuilder = new AdvertiseData.Builder();
+            advertiseDataBuilder
+                    .addServiceData(parcelUuid, payload)
+                    .setIncludeDeviceName(true)
+                    .setIncludeTxPowerLevel(true);
+            AdvertiseData advertiseData = advertiseDataBuilder.build();
+
+            mBluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, mAdvertiseCallback);
+
+        } else {
+            Snackbar.make(view, "BLE Advertising is not supported!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+            this.mAdvertiseButton.setChecked(false);
+        }
     }
 
     private void stopAdvertise() {
         View view = getCurrentFocus();
-        Snackbar.make(view, "stop advertise", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        Snackbar.make(view, "Stop Advertising", Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
         mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
     }
 
     private void startDiscover() {
         View view = getCurrentFocus();
-        Snackbar.make(view, "start discover", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        Snackbar.make(view, "Start Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
         ScanSettings.Builder scanSettingsBuilder = new ScanSettings.Builder();
         scanSettingsBuilder
@@ -248,7 +261,7 @@ public class MainActivity extends AppCompatActivity
 
     private void stopDiscover() {
         View view = getCurrentFocus();
-        Snackbar.make(view, "stop discover", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        Snackbar.make(view, "Stop Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
         mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
         mBluetoothLeScanner.stopScan(mScanCallback);
@@ -256,14 +269,14 @@ public class MainActivity extends AppCompatActivity
 
     private void createGattServer() {
         View view = getCurrentFocus();
-        Snackbar.make(view, "gatt server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        Snackbar.make(view, "Start Gatt-Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
         this.mBluetoothGattServer = mBluetoothManager.openGattServer(MainActivity.this, mGattServerCallback);
 
-        byte[] payload = "happen".getBytes();
+        byte[] payload = "services".getBytes();
         UUID uuid = UUID.fromString(HAPPENING_SERVICE_UUID);
         BluetoothGattService gattService = new BluetoothGattService(uuid, BluetoothGattService.SERVICE_TYPE_PRIMARY);
-        BluetoothGattCharacteristic gattCharacteristic = new BluetoothGattCharacteristic(uuid, BluetoothGattCharacteristic.FORMAT_UINT8,BluetoothGattCharacteristic.PERMISSION_READ);
+        BluetoothGattCharacteristic gattCharacteristic = new BluetoothGattCharacteristic(uuid, BluetoothGattCharacteristic.PROPERTY_BROADCAST, BluetoothGattCharacteristic.PERMISSION_READ);
         gattCharacteristic.setValue(payload);
 
         gattService.addCharacteristic(gattCharacteristic);
@@ -271,7 +284,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void stopGattServer() {
+        View view = getCurrentFocus();
+        Snackbar.make(view, "Stop Gatt-Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         mBluetoothGattServer.close();
+    }
+
+    private void makeDeviceDiscoverable() {
+        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+        startActivity(discoverableIntent);
     }
 
     @Override

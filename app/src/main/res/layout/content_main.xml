@@ -40,11 +40,22 @@
         android:layout_marginBottom="5sp"
         android:text="Gatt-Server" />
 
+    <TextView
+        android:text="BLE Address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/gatt_server_button"
+        android:textSize="16sp"
+        android:layout_marginBottom="5sp"
+        android:id="@+id/ble_mac_address" />
+
     <ListView
         android:id="@+id/discovered_devices_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/gatt_server_button" />
+        android:layout_below="@+id/ble_mac_address" />
+
+
 
 </RelativeLayout>
