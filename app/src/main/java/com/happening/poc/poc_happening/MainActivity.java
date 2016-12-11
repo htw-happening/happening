@@ -19,6 +19,8 @@ import android.os.ParcelUuid;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -31,6 +33,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.happening.poc.poc_happening.fragment.ChatFragment;
+import com.happening.poc.poc_happening.fragment.MainFragment;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -38,6 +43,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private FragmentManager fm = getSupportFragmentManager();
 
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int TAG_CODE_PERMISSION_LOCATION = 2;
@@ -56,6 +63,17 @@ public class MainActivity extends AppCompatActivity
     private HashMap<String, ScanResult> mScanResults = new LinkedHashMap<>();
     private DeviceListAdapter deviceListAdapter = null;
 
+    // Fragment
+    private Fragment currentFragment = null;
+    private String currentFragmentTag = null;
+
+    private Fragment mainFragment;
+    private Fragment chatFragment;
+
+    // Fragment Tags
+    private static final String TAG_FRAGMENT_MAIN = "main";
+    private static final String TAG_FRAGMENT_CHAT = "chat";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,91 +90,98 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // set event Listener
-        Button startDiscoverButton = (Button) findViewById(R.id.discover_start_button);
-        startDiscoverButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startDiscover();
-            }
-        });
+        this.currentFragment = MainFragment.getInstance();
+        this.currentFragmentTag = TAG_FRAGMENT_MAIN;
+        fm.beginTransaction()
+                .add(currentFragment, currentFragmentTag)
+                .commit();
 
-        Button stopDiscoverButton = (Button) findViewById(R.id.discover_stop_button);
-        stopDiscoverButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopDiscover();
-            }
-        });
 
-        Button startAdvertiseButton = (Button) findViewById(R.id.advertise_start_button);
-        startAdvertiseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startAdvertise();
-            }
-        });
-
-        Button stopAdvertiseButton = (Button) findViewById(R.id.advertise_stop_button);
-        stopAdvertiseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopAdvertise();
-            }
-        });
-
-        // initialize bluetooth adapter
-        this.mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        this.mBluetoothAdapter = mBluetoothManager.getAdapter();
-
-        // ensure bluetooth is available and enabled
-        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }
-
-        // request location permission
-        ActivityCompat.requestPermissions(this, new String[]{
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION},
-                TAG_CODE_PERMISSION_LOCATION);
-
-        // initialize list view
-        ListView deviceList = (ListView) findViewById(R.id.discovered_devices_list);
-        deviceListAdapter = new DeviceListAdapter(this, mScanResults);
-        deviceList.setAdapter(deviceListAdapter);
-
-        this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
-        this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
-
-        // set scanning callback
-        this.mScanCallback = new ScanCallback() {
-            @Override
-            public void onScanResult(int callbackType, ScanResult result) {
-                super.onScanResult(callbackType, result);
-                if (!mScanResults.containsKey(result.getDevice().getAddress())) {
-                    mScanResults.put(result.getDevice().getAddress(), result);
-                    deviceListAdapter.notifyDataSetChanged();
-                }
-            }
-        };
-
-        // set advertising callback
-        this.mAdvertiseCallback = new AdvertiseCallback() {
-            @Override
-            public void onStartSuccess(AdvertiseSettings settingsInEffect) {
-                super.onStartSuccess(settingsInEffect);
-                Log.d("DEBUG", "advertising started");
-            }
-
-            @Override
-            public void onStartFailure(int errorCode) {
-                super.onStartFailure(errorCode);
-                Log.d("DEBUG", "advertising error " + errorCode);
-            }
-        };
-
-        Log.d("SELF", mBluetoothAdapter.getName() + " " + mBluetoothAdapter.getAddress());
+//        // set event Listener
+//        Button startDiscoverButton = (Button) findViewById(R.id.discover_start_button);
+//        startDiscoverButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                startDiscover();
+//            }
+//        });
+//
+//        Button stopDiscoverButton = (Button) findViewById(R.id.discover_stop_button);
+//        stopDiscoverButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                stopDiscover();
+//            }
+//        });
+//
+//        Button startAdvertiseButton = (Button) findViewById(R.id.advertise_start_button);
+//        startAdvertiseButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                startAdvertise();
+//            }
+//        });
+//
+//        Button stopAdvertiseButton = (Button) findViewById(R.id.advertise_stop_button);
+//        stopAdvertiseButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                stopAdvertise();
+//            }
+//        });
+//
+//        // initialize bluetooth adapter
+//        this.mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+//        this.mBluetoothAdapter = mBluetoothManager.getAdapter();
+//
+//        // ensure bluetooth is available and enabled
+//        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+//            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+//        }
+//
+//        // request location permission
+//        ActivityCompat.requestPermissions(this, new String[]{
+//                        Manifest.permission.ACCESS_FINE_LOCATION,
+//                        Manifest.permission.ACCESS_COARSE_LOCATION},
+//                TAG_CODE_PERMISSION_LOCATION);
+//
+//        // initialize list view
+//        ListView deviceList = (ListView) findViewById(R.id.discovered_devices_list);
+//        deviceListAdapter = new DeviceListAdapter(this, mScanResults);
+//        deviceList.setAdapter(deviceListAdapter);
+//
+//        this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
+//        this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
+//
+//        // set scanning callback
+//        this.mScanCallback = new ScanCallback() {
+//            @Override
+//            public void onScanResult(int callbackType, ScanResult result) {
+//                super.onScanResult(callbackType, result);
+//                if (!mScanResults.containsKey(result.getDevice().getAddress())) {
+//                    mScanResults.put(result.getDevice().getAddress(), result);
+//                    deviceListAdapter.notifyDataSetChanged();
+//                }
+//            }
+//        };
+//
+//        // set advertising callback
+//        this.mAdvertiseCallback = new AdvertiseCallback() {
+//            @Override
+//            public void onStartSuccess(AdvertiseSettings settingsInEffect) {
+//                super.onStartSuccess(settingsInEffect);
+//                Log.d("DEBUG", "advertising started");
+//            }
+//
+//            @Override
+//            public void onStartFailure(int errorCode) {
+//                super.onStartFailure(errorCode);
+//                Log.d("DEBUG", "advertising error " + errorCode);
+//            }
+//        };
+//
+//        Log.d("SELF", mBluetoothAdapter.getName() + " " + mBluetoothAdapter.getAddress());
     }
 
     private void startAdvertise() {
@@ -168,6 +193,7 @@ public class MainActivity extends AppCompatActivity
         advertiseSettingsBuilder
                 .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
                 .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                .setTimeout(10000)
                 .setConnectable(true);
         AdvertiseSettings advertiseSettings = advertiseSettingsBuilder.build();
 
@@ -238,7 +264,17 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.chat) {
+            if (this.chatFragment == null) {
+                this.chatFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_CHAT);
+                if (this.chatFragment == null) {
+                    this.chatFragment = ChatFragment.getInstance();
+                }
+            }
+
+            loadFragment(currentFragment, chatFragment, TAG_FRAGMENT_CHAT);
+            this.currentFragment = chatFragment;
+            this.currentFragmentTag = TAG_FRAGMENT_CHAT;
 
         } else if (id == R.id.nav_gallery) {
 
@@ -256,4 +292,16 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    private void loadFragment(Fragment current, Fragment fragment, String tag) {
+        if (fm == null) {
+            fm = getSupportFragmentManager();
+        }
+
+        fm.beginTransaction()
+                .replace(current.getId(), fragment, tag)
+                .addToBackStack(null)
+                .commit();
+    }
+
 }
