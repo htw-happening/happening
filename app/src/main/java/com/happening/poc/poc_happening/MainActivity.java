@@ -4,6 +4,7 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattServerCallback;
 import android.bluetooth.BluetoothGattService;
@@ -19,6 +20,7 @@ import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ParcelUuid;
@@ -43,8 +45,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.UUID;
 import java.util.Random;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -83,6 +85,11 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            View view = getCurrentFocus();
+            Snackbar.make(view, "BLE features are not supported!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        }
 
         // set event Listener
         Switch discoverButton = (Switch) findViewById(R.id.discover_button);
@@ -234,8 +241,6 @@ public class MainActivity extends AppCompatActivity
 
             mBluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, mAdvertiseCallback);
 
-        } else {
-            Snackbar.make(view, "BLE Advertising is not supported!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
     }
 
@@ -276,6 +281,8 @@ public class MainActivity extends AppCompatActivity
 
         mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
         mBluetoothLeScanner.stopScan(mScanCallback);
+        deviceListAdapter.deviceList.clear();
+        deviceListAdapter.notifyDataSetChanged();
     }
 
     private void createGattServer() {
@@ -284,10 +291,12 @@ public class MainActivity extends AppCompatActivity
 
         this.mBluetoothGattServer = mBluetoothManager.openGattServer(MainActivity.this, mGattServerCallback);
 
-        byte[] payload = "services".getBytes();
+        byte[] payload = "awesome characteristic!".getBytes();
         UUID uuid = UUID.fromString(HAPPENING_SERVICE_UUID);
         BluetoothGattService gattService = new BluetoothGattService(uuid, BluetoothGattService.SERVICE_TYPE_PRIMARY);
-        BluetoothGattCharacteristic gattCharacteristic = new BluetoothGattCharacteristic(uuid, BluetoothGattCharacteristic.PROPERTY_BROADCAST, BluetoothGattCharacteristic.PERMISSION_READ);
+        BluetoothGattCharacteristic gattCharacteristic = new BluetoothGattCharacteristic(uuid, BluetoothGattCharacteristic.PROPERTY_READ, BluetoothGattCharacteristic.PERMISSION_READ);
+        BluetoothGattDescriptor gattDescriptor = new BluetoothGattDescriptor(uuid, BluetoothGattDescriptor.PERMISSION_READ);
+        gattCharacteristic.addDescriptor(gattDescriptor);
         gattCharacteristic.setValue(payload);
 
         gattService.addCharacteristic(gattCharacteristic);
@@ -298,12 +307,6 @@ public class MainActivity extends AppCompatActivity
         View view = getCurrentFocus();
         Snackbar.make(view, "Stop Gatt-Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         mBluetoothGattServer.close();
-    }
-
-    private void makeDeviceDiscoverable() {
-        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-        startActivity(discoverableIntent);
     }
 
     @Override
