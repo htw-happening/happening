@@ -4,10 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
     <TextView
-        android:id="@+id/main_test"
+        android:id="@+id/bt2controls_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="main" />
+        android:text="bt2controls" />
 
 </LinearLayout>

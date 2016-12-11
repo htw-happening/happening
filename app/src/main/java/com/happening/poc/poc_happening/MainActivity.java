@@ -1,6 +1,5 @@
 package com.happening.poc.poc_happening;
 
-import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.AdvertiseCallback;
@@ -12,13 +11,10 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.ParcelUuid;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
@@ -30,9 +26,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ListView;
 
+import com.happening.poc.poc_happening.adapter.DeviceListAdapter;
+import com.happening.poc.poc_happening.fragment.Bt2Controls;
+import com.happening.poc.poc_happening.fragment.Bt4Controls;
+import com.happening.poc.poc_happening.fragment.BtStatus;
 import com.happening.poc.poc_happening.fragment.ChatFragment;
 import com.happening.poc.poc_happening.fragment.MainFragment;
 
@@ -40,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -69,10 +68,16 @@ public class MainActivity extends AppCompatActivity
 
     private Fragment mainFragment;
     private Fragment chatFragment;
+    private Fragment bt4ControlsFragment;
+    private Fragment bt2ControlsFragment;
+    private Fragment btStatusFragment;
 
     // Fragment Tags
     private static final String TAG_FRAGMENT_MAIN = "main";
     private static final String TAG_FRAGMENT_CHAT = "chat";
+    private static final String TAG_FRAGMENT_BT4CONTROLS = "bt4";
+    private static final String TAG_FRAGMENT_BT2CONTROLS = "bt2";
+    private static final String TAG_FRAGMENT_BTSTATUS = "btstatus";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,9 +98,8 @@ public class MainActivity extends AppCompatActivity
         this.currentFragment = MainFragment.getInstance();
         this.currentFragmentTag = TAG_FRAGMENT_MAIN;
         fm.beginTransaction()
-                .add(currentFragment, currentFragmentTag)
+                .replace(R.id.main_fragment_holder, currentFragment, currentFragmentTag)
                 .commit();
-
 
 //        // set event Listener
 //        Button startDiscoverButton = (Button) findViewById(R.id.discover_start_button);
@@ -184,64 +188,66 @@ public class MainActivity extends AppCompatActivity
 //        Log.d("SELF", mBluetoothAdapter.getName() + " " + mBluetoothAdapter.getAddress());
     }
 
-    private void startAdvertise() {
-
-        View view = getCurrentFocus();
-        Snackbar.make(view, "start advertise", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-
-        AdvertiseSettings.Builder advertiseSettingsBuilder = new AdvertiseSettings.Builder();
-        advertiseSettingsBuilder
-                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
-                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
-                .setTimeout(10000)
-                .setConnectable(true);
-        AdvertiseSettings advertiseSettings = advertiseSettingsBuilder.build();
-
-        byte[] payload = "happen".getBytes();
-        AdvertiseData.Builder advertiseDataBuilder = new AdvertiseData.Builder();
-        advertiseDataBuilder
-                .addServiceData(parcelUuid, payload)
-                .setIncludeDeviceName(true)
-                .setIncludeTxPowerLevel(true);
-        AdvertiseData advertiseData = advertiseDataBuilder.build();
-
-        mBluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, mAdvertiseCallback);
-    }
-
-    private void stopAdvertise() {
-        View view = getCurrentFocus();
-        Snackbar.make(view, "stop advertise", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-
-        mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
-    }
-
-    private void startDiscover() {
-        View view = getCurrentFocus();
-        Snackbar.make(view, "start discover", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-
-        ScanSettings.Builder scanSettingsBuilder = new ScanSettings.Builder();
-        scanSettingsBuilder
-                .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE);
-        ScanSettings scanSettings = scanSettingsBuilder.build();
-
-        List<ScanFilter> scanFilters = new ArrayList<>();
-
-        mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
-        mBluetoothLeScanner.stopScan(mScanCallback);
-        deviceListAdapter.deviceList.clear();
-        deviceListAdapter.notifyDataSetChanged();
-        mBluetoothLeScanner.startScan(scanFilters, scanSettings, mScanCallback);
-    }
-
-    private void stopDiscover() {
-        View view = getCurrentFocus();
-        Snackbar.make(view, "stop discover", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-
-        mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
-        mBluetoothLeScanner.stopScan(mScanCallback);
-    }
+//    private void startAdvertise() {
+//
+//        View view = getCurrentFocus();
+//        Snackbar.make(view, "start advertise", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+//
+//        AdvertiseSettings.Builder advertiseSettingsBuilder = new AdvertiseSettings.Builder();
+//        advertiseSettingsBuilder
+//                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+//                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+//                .setTimeout(10000)
+//                .setConnectable(true);
+//        AdvertiseSettings advertiseSettings = advertiseSettingsBuilder.build();
+//
+//        String[] loads = {"happen", "foobar", "lekker", "service", "matetee"};
+//        int index = new Random().nextInt(loads.length);
+//        byte[] payload = loads[index].getBytes();
+//        AdvertiseData.Builder advertiseDataBuilder = new AdvertiseData.Builder();
+//        advertiseDataBuilder
+//                .addServiceData(parcelUuid, payload)
+//                .setIncludeDeviceName(true)
+//                .setIncludeTxPowerLevel(true);
+//        AdvertiseData advertiseData = advertiseDataBuilder.build();
+//
+//        mBluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, mAdvertiseCallback);
+//    }
+//
+//    private void stopAdvertise() {
+//        View view = getCurrentFocus();
+//        Snackbar.make(view, "stop advertise", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+//
+//        mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
+//    }
+//
+//    private void startDiscover() {
+//        View view = getCurrentFocus();
+//        Snackbar.make(view, "start discover", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+//
+//        ScanSettings.Builder scanSettingsBuilder = new ScanSettings.Builder();
+//        scanSettingsBuilder
+//                .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+//                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+//                .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE);
+//        ScanSettings scanSettings = scanSettingsBuilder.build();
+//
+//        List<ScanFilter> scanFilters = new ArrayList<>();
+//
+//        mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
+//        mBluetoothLeScanner.stopScan(mScanCallback);
+//        deviceListAdapter.deviceList.clear();
+//        deviceListAdapter.notifyDataSetChanged();
+//        mBluetoothLeScanner.startScan(scanFilters, scanSettings, mScanCallback);
+//    }
+//
+//    private void stopDiscover() {
+//        View view = getCurrentFocus();
+//        Snackbar.make(view, "stop discover", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+//
+//        mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
+//        mBluetoothLeScanner.stopScan(mScanCallback);
+//    }
 
     @Override
     public void onBackPressed() {
@@ -264,7 +270,19 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.chat) {
+        if (id == R.id.main) {
+            if (this.mainFragment == null) {
+                this.mainFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_MAIN);
+                if (this.mainFragment == null) {
+                    this.mainFragment = ChatFragment.getInstance();
+                }
+            }
+
+            loadFragment(currentFragment, mainFragment, TAG_FRAGMENT_MAIN);
+            this.currentFragment = mainFragment;
+            this.currentFragmentTag = TAG_FRAGMENT_MAIN;
+
+        } else if (id == R.id.chat) {
             if (this.chatFragment == null) {
                 this.chatFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_CHAT);
                 if (this.chatFragment == null) {
@@ -276,11 +294,41 @@ public class MainActivity extends AppCompatActivity
             this.currentFragment = chatFragment;
             this.currentFragmentTag = TAG_FRAGMENT_CHAT;
 
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.bt4controls) {
+            if (this.bt4ControlsFragment == null) {
+                this.bt4ControlsFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_BT4CONTROLS);
+                if (this.bt4ControlsFragment == null) {
+                    this.bt4ControlsFragment = Bt4Controls.getInstance();
+                }
+            }
 
-        } else if (id == R.id.nav_slideshow) {
+            loadFragment(currentFragment, bt4ControlsFragment, TAG_FRAGMENT_BT4CONTROLS);
+            this.currentFragment = bt4ControlsFragment;
+            this.currentFragmentTag = TAG_FRAGMENT_BT4CONTROLS;
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.bt2controls) {
+            if (this.bt2ControlsFragment == null) {
+                this.bt2ControlsFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_BT2CONTROLS);
+                if (this.bt2ControlsFragment == null) {
+                    this.bt2ControlsFragment = Bt2Controls.getInstance();
+                }
+            }
+
+            loadFragment(currentFragment, bt2ControlsFragment, TAG_FRAGMENT_BT2CONTROLS);
+            this.currentFragment = bt2ControlsFragment;
+            this.currentFragmentTag = TAG_FRAGMENT_BT2CONTROLS;
+
+        } else if (id == R.id.bt_status) {
+            if (this.btStatusFragment == null) {
+                this.btStatusFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_BTSTATUS);
+                if (this.btStatusFragment == null) {
+                    this.btStatusFragment = BtStatus.getInstance();
+                }
+            }
+
+            loadFragment(currentFragment, btStatusFragment, TAG_FRAGMENT_BTSTATUS);
+            this.currentFragment = btStatusFragment;
+            this.currentFragmentTag = TAG_FRAGMENT_BTSTATUS;
 
         } else if (id == R.id.nav_share) {
 

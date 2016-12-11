@@ -1,7 +1,14 @@
-package com.happening.poc.poc_happening;
+package com.happening.poc.poc_happening.adapter;
 
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
+import android.os.ParcelUuid;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,13 +16,18 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.happening.poc.poc_happening.R;
+
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class DeviceListAdapter extends BaseAdapter implements View.OnClickListener {
 
     public HashMap<String, ScanResult> deviceList = null;
     private LayoutInflater inflater = null;
+    private Context context = null;
+    private BluetoothGattCallback mBluetoothGattCallback = null;
     private ViewHolder vh = null;
 
     private static final class ViewHolder {
@@ -27,7 +39,20 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
 
     public DeviceListAdapter(Context context, HashMap<String, ScanResult> deviceList) {
         this.inflater = LayoutInflater.from(context);
+        this.context = context;
         this.deviceList = deviceList;
+
+        this.mBluetoothGattCallback = new BluetoothGattCallback() {
+            @Override
+            public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+                super.onServicesDiscovered(gatt, status);
+                if (status == BluetoothGatt.GATT_SUCCESS) {
+                    Log.d("GATT", "services discovered");
+                } else {
+                    Log.e("GATT", "service discovery failed " + status);
+                }
+            }
+        };
     }
 
     @Override
@@ -76,16 +101,15 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
             vh.deviceDbm.setText(result.getRssi() + "dBm");
         }
 
-        if (result.getScanRecord().getServiceData().containsKey(MainActivity.parcelUuid)) {
-            Log.d("DEBUG", result.getScanRecord().getServiceData().toString());
-            if (result.getScanRecord().getServiceData().get(MainActivity.parcelUuid) != null) {
-                vh.devicePayload.setText(new String(
-                        result.getScanRecord().getServiceData().get(MainActivity.parcelUuid)));
-            } else {
-                vh.devicePayload.setText("bytes N/A");
-            }
+        String serviceData = new String();
+
+        for (Map.Entry<ParcelUuid, byte[]> entry : result.getScanRecord().getServiceData().entrySet()) {
+            serviceData += new String(entry.getValue());
         }
 
+        result.getDevice().connectGatt(context, true, mBluetoothGattCallback);
+
+        vh.devicePayload.setText(serviceData);
         return v;
     }
 
@@ -93,6 +117,18 @@ public class DeviceListAdapter extends BaseAdapter implements View.OnClickListen
     public void onClick(View v) {
         int position = (int) v.getTag(R.layout.device_list_item);
         final ScanResult result = (ScanResult) deviceList.values().toArray()[position];
+        final BluetoothDevice bluetoothDevice = result.getDevice();
+        final BluetoothGatt gatt = bluetoothDevice.connectGatt(
+                context, false, mBluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
+
+        for (BluetoothGattService service : gatt.getServices()) {
+            for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
+                for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
+                    String value = new String(descriptor.getValue());
+                    Log.d("DESC", value);
+                }
+            }
+        }
         Log.d("CLICK", result.toString());
     }
 }

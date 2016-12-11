@@ -23,6 +23,4 @@
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/activity_main_drawer" />
 
-    <include layout="@layout/fragment_main" />
-
 </android.support.v4.widget.DrawerLayout>

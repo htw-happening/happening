@@ -9,22 +9,23 @@ import android.view.ViewGroup;
 import com.happening.poc.poc_happening.R;
 
 /**
- * Created by kaischulz on 10.12.16.
+ * Created by kaischulz on 11.12.16.
  */
 
-public class ChatFragment extends Fragment {
+public class Bt2Controls extends Fragment {
 
-    private static ChatFragment instance = null;
+    private static Bt2Controls instance = null;
     private View rootView = null;
 
-    public static ChatFragment getInstance() {
-        instance = new ChatFragment();
+    public static Bt2Controls getInstance() {
+        instance = new Bt2Controls();
         return instance;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_chat, container, false);
+        rootView = inflater.inflate(R.layout.fragment_b2controls, container, false);
         return rootView;
     }
+
 }
