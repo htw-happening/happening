@@ -263,10 +263,7 @@ public class MainActivity extends AppCompatActivity
 
         List<ScanFilter> scanFilters = new ArrayList<>();
 
-        mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
-        mBluetoothLeScanner.stopScan(mScanCallback);
-        deviceListAdapter.deviceList.clear();
-        deviceListAdapter.notifyDataSetChanged();
+        stopDiscover();
         mBluetoothLeScanner.startScan(scanFilters, scanSettings, mScanCallback);
     }
 
@@ -276,6 +273,8 @@ public class MainActivity extends AppCompatActivity
 
         mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
         mBluetoothLeScanner.stopScan(mScanCallback);
+        deviceListAdapter.deviceList.clear();
+        deviceListAdapter.notifyDataSetChanged();
     }
 
     private void createGattServer() {
