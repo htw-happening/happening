@@ -13,39 +13,38 @@
     tools:context="com.happening.poc.poc_happening.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-    <Button
-        android:id="@+id/discover_start_button"
+    <Switch
+        android:id="@+id/discover_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:text="discover start" />
+        android:textSize="16sp"
+        android:layout_marginBottom="5sp"
+        android:text="Discovering" />
 
-    <Button
-        android:id="@+id/discover_stop_button"
+    <Switch
+        android:id="@+id/advertise_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/discover_start_button"
-        android:text="discover stop" />
+        android:layout_below="@+id/discover_button"
+        android:textSize="16sp"
+        android:layout_marginBottom="5sp"
+        android:text="Advertising" />
 
-    <Button
-        android:id="@+id/advertise_start_button"
+    <Switch
+        android:id="@+id/gatt_server_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/discover_stop_button"
-        android:text="advertise start" />
-
-    <Button
-        android:id="@+id/advertise_stop_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/advertise_start_button"
-        android:text="advertise stop" />
+        android:layout_below="@+id/advertise_button"
+        android:textSize="16sp"
+        android:layout_marginBottom="5sp"
+        android:text="Gatt-Server" />
 
     <ListView
         android:id="@+id/discovered_devices_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/advertise_stop_button" />
+        android:layout_below="@+id/gatt_server_button" />
 
 </RelativeLayout>

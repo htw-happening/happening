@@ -2,6 +2,12 @@ package com.happening.poc.poc_happening;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattServer;
+import android.bluetooth.BluetoothGattServerCallback;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseData;
@@ -29,12 +35,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ListView;
+import android.widget.Switch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity
@@ -50,9 +59,11 @@ public class MainActivity extends AppCompatActivity
 
     private BluetoothLeScanner mBluetoothLeScanner = null;
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser = null;
+    private BluetoothGattServer mBluetoothGattServer = null;
 
     private ScanCallback mScanCallback = null;
     private AdvertiseCallback mAdvertiseCallback = null;
+    private BluetoothGattServerCallback mGattServerCallback = null;
 
     private HashMap<String, ScanResult> mScanResults = new LinkedHashMap<>();
     private DeviceListAdapter deviceListAdapter = null;
@@ -74,35 +85,36 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         // set event Listener
-        Button startDiscoverButton = (Button) findViewById(R.id.discover_start_button);
-        startDiscoverButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startDiscover();
+        Switch discoverButton = (Switch) findViewById(R.id.discover_button);
+        discoverButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    startDiscover();
+                } else {
+                    stopDiscover();
+                }
             }
         });
 
-        Button stopDiscoverButton = (Button) findViewById(R.id.discover_stop_button);
-        stopDiscoverButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopDiscover();
+        Switch advertiseButton = (Switch) findViewById(R.id.advertise_button);
+        advertiseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    startAdvertise();
+                } else {
+                    stopAdvertise();
+                }
             }
         });
 
-        Button startAdvertiseButton = (Button) findViewById(R.id.advertise_start_button);
-        startAdvertiseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startAdvertise();
-            }
-        });
-
-        Button stopAdvertiseButton = (Button) findViewById(R.id.advertise_stop_button);
-        stopAdvertiseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopAdvertise();
+        Switch gattServerButton = (Switch) findViewById(R.id.gatt_server_button);
+        gattServerButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    createGattServer();
+                } else {
+                    stopGattServer();
+                }
             }
         });
 
@@ -157,6 +169,28 @@ public class MainActivity extends AppCompatActivity
             }
         };
 
+        this.mGattServerCallback = new BluetoothGattServerCallback() {
+            @Override
+            public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
+                super.onConnectionStateChange(device, status, newState);
+            }
+
+            @Override
+            public void onServiceAdded(int status, BluetoothGattService service) {
+                super.onServiceAdded(status, service);
+            }
+
+            @Override
+            public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
+                super.onCharacteristicReadRequest(device, requestId, offset, characteristic);
+            }
+
+            @Override
+            public void onCharacteristicWriteRequest(BluetoothDevice device, int requestId, BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean responseNeeded, int offset, byte[] value) {
+                super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value);
+            }
+        };
+
         Log.d("SELF", mBluetoothAdapter.getName() + " " + mBluetoothAdapter.getAddress());
     }
 
@@ -198,9 +232,9 @@ public class MainActivity extends AppCompatActivity
 
         ScanSettings.Builder scanSettingsBuilder = new ScanSettings.Builder();
         scanSettingsBuilder
-                .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE);
+                //.setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY);
+                //.setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE);
         ScanSettings scanSettings = scanSettingsBuilder.build();
 
         List<ScanFilter> scanFilters = new ArrayList<>();
@@ -218,6 +252,26 @@ public class MainActivity extends AppCompatActivity
 
         mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
         mBluetoothLeScanner.stopScan(mScanCallback);
+    }
+
+    private void createGattServer() {
+        View view = getCurrentFocus();
+        Snackbar.make(view, "gatt server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+
+        this.mBluetoothGattServer = mBluetoothManager.openGattServer(MainActivity.this, mGattServerCallback);
+
+        byte[] payload = "happen".getBytes();
+        UUID uuid = UUID.fromString(HAPPENING_SERVICE_UUID);
+        BluetoothGattService gattService = new BluetoothGattService(uuid, BluetoothGattService.SERVICE_TYPE_PRIMARY);
+        BluetoothGattCharacteristic gattCharacteristic = new BluetoothGattCharacteristic(uuid, BluetoothGattCharacteristic.FORMAT_UINT8,BluetoothGattCharacteristic.PERMISSION_READ);
+        gattCharacteristic.setValue(payload);
+
+        gattService.addCharacteristic(gattCharacteristic);
+        mBluetoothGattServer.addService(gattService);
+    }
+
+    private void stopGattServer() {
+        mBluetoothGattServer.close();
     }
 
     @Override
