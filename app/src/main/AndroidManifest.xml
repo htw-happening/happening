@@ -33,7 +33,7 @@
         </activity>
 
         <service
-            android:name=".TutorialService"
+            android:name=".Bluetooth4Service"
             android:enabled="true"
             android:exported="false">
         </service>
