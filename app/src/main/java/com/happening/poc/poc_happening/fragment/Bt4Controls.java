@@ -33,13 +33,11 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.happening.poc.poc_happening.MainActivity;
 import com.happening.poc.poc_happening.R;
 import com.happening.poc.poc_happening.adapter.DeviceListAdapter;
+import com.happening.poc.poc_happening.adapter.DeviceModel;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -64,7 +62,7 @@ public class Bt4Controls extends Fragment implements View.OnClickListener {
     private BluetoothGattServerCallback mGattServerCallback = null;
     private AdvertiseCallback mAdvertiseCallback = null;
 
-    private HashMap<String, ScanResult> mScanResults = new LinkedHashMap<>();
+    private ArrayList<DeviceModel> mDeviceList = new ArrayList<>();
     private DeviceListAdapter deviceListAdapter = null;
 
     public static Bt4Controls getInstance() {
@@ -82,7 +80,7 @@ public class Bt4Controls extends Fragment implements View.OnClickListener {
 
         // initialize list view
         ListView deviceList = (ListView) rootView.findViewById(R.id.discovered_devices_list);
-        deviceListAdapter = new DeviceListAdapter(rootView.getContext(), mScanResults);
+        deviceListAdapter = new DeviceListAdapter(rootView.getContext(), mDeviceList);
         deviceList.setAdapter(deviceListAdapter);
 
         // initialize bluetooth adapter
@@ -97,8 +95,9 @@ public class Bt4Controls extends Fragment implements View.OnClickListener {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 super.onScanResult(callbackType, result);
-                if (!mScanResults.containsKey(result.getDevice().getAddress())) {
-                    mScanResults.put(result.getDevice().getAddress(), result);
+                DeviceModel deviceModel = new DeviceModel(rootView.getContext(), result);
+                if (!mDeviceList.contains(deviceModel)) {
+                    mDeviceList.add(deviceModel);
                     deviceListAdapter.notifyDataSetChanged();
                 }
             }
@@ -244,7 +243,7 @@ public class Bt4Controls extends Fragment implements View.OnClickListener {
         List<ScanFilter> scanFilters = new ArrayList<>();
 
         mBluetoothLeScanner.stopScan(mScanCallback);
-        deviceListAdapter.deviceList.clear();
+        mDeviceList.clear();
         deviceListAdapter.notifyDataSetChanged();
         mBluetoothLeScanner.startScan(scanFilters, scanSettings, mScanCallback);
     }
@@ -254,7 +253,7 @@ public class Bt4Controls extends Fragment implements View.OnClickListener {
 
         mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
         mBluetoothLeScanner.stopScan(mScanCallback);
-        deviceListAdapter.deviceList.clear();
+        mDeviceList.clear();
         deviceListAdapter.notifyDataSetChanged();
     }
 
