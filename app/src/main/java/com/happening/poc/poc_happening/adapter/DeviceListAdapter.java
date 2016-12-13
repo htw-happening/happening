@@ -11,7 +11,7 @@ import com.happening.poc.poc_happening.R;
 
 import java.util.ArrayList;
 
-public class DeviceListAdapter extends ArrayAdapter<DeviceModel> implements View.OnClickListener {
+public class DeviceListAdapter extends ArrayAdapter<DeviceModel> {
 
     public DeviceListAdapter(Context context, ArrayList<DeviceModel> deviceList) {
         super(context, 0, deviceList);
@@ -38,19 +38,4 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceModel> implements View
 
         return convertView;
     }
-
-
-    @Override
-    public void onClick(View v) {}/*
-        int position = (int) v.getTag(R.layout.device_list_item);
-        final ScanResult result = (ScanResult) deviceList.values().toArray()[position];
-        final BluetoothDevice bluetoothDevice = result.getDevice();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            bluetoothDevice.connectGatt(context, false, mBluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
-        } else {
-            bluetoothDevice.connectGatt(context, false, mBluetoothGattCallback);
-        }
-
-        Log.d("CLICK", result.toString());
-    }*/
 }

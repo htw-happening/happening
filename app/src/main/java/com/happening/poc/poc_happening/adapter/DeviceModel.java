@@ -71,10 +71,7 @@ public class DeviceModel {
                 for (BluetoothGattService service : gatt.getServices()) {
                     for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
                         for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
-                            descriptor.getValue();
                             gatt.readDescriptor(descriptor);
-                            Log.d("DESC", descriptor.toString());
-                            Log.d("DESC", new String(descriptor.getValue()));
                         }
                     }
                 }
@@ -82,9 +79,8 @@ public class DeviceModel {
 
             @Override
             public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-                Log.d("DESC2", "onDescriptorRead status changed " + status);
-                Log.d("DESC2", descriptor.toString());
-                Log.d("DESC2", new String(descriptor.getValue()));
+                Log.d("GATT", "onDescriptorRead status changed " + status);
+                Log.d("GATT", new String(descriptor.getValue()));
             }
 
         };
@@ -133,7 +129,7 @@ public class DeviceModel {
     }
 
     public void connectDevice() {
-        if (bluetoothGatt != null) {
+        if (bluetoothGatt == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 bluetoothGatt = bluetoothDevice.connectGatt(context, true, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
             } else {

@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattServerCallback;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
@@ -28,6 +29,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
@@ -43,7 +45,7 @@ import java.util.Random;
 import java.util.UUID;
 
 
-public class Bt4Controls extends Fragment implements View.OnClickListener {
+public class Bt4Controls extends Fragment {
 
     private static Bt4Controls instance = null;
     private View rootView = null;
@@ -79,9 +81,17 @@ public class Bt4Controls extends Fragment implements View.OnClickListener {
         }
 
         // initialize list view
-        ListView deviceList = (ListView) rootView.findViewById(R.id.discovered_devices_list);
+        ListView deviceListView = (ListView) rootView.findViewById(R.id.discovered_devices_list);
         deviceListAdapter = new DeviceListAdapter(rootView.getContext(), mDeviceList);
-        deviceList.setAdapter(deviceListAdapter);
+        deviceListView.setAdapter(deviceListAdapter);
+
+        deviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                DeviceModel device = deviceListAdapter.getItem(position);
+                device.connectDevice();
+            }
+        });
 
         // initialize bluetooth adapter
         this.mBluetoothManager = (BluetoothManager) getActivity().getSystemService(Context.BLUETOOTH_SERVICE);
@@ -146,6 +156,11 @@ public class Bt4Controls extends Fragment implements View.OnClickListener {
         String macAddress = android.provider.Settings.Secure.getString(context.getContentResolver(), "bluetooth_address");
         TextView bleAddress = (TextView) rootView.findViewById(R.id.ble_mac_address);
         bleAddress.setText(macAddress);
+
+        for (BluetoothDevice bluetoothDevice : mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT)) {
+            // TODO: Clear connected devices
+            mBluetoothManager.getConnectionState(bluetoothDevice, BluetoothProfile.GATT);
+        }
 
         // set event Listener
         Switch discoverButton = (Switch) rootView.findViewById(R.id.discover_button);
@@ -262,15 +277,17 @@ public class Bt4Controls extends Fragment implements View.OnClickListener {
 
         this.mBluetoothGattServer = mBluetoothManager.openGattServer(rootView.getContext(), mGattServerCallback);
 
-        byte[] payload = "awesome characteristic!".getBytes();
         UUID uuid = UUID.fromString(HAPPENING_SERVICE_UUID);
+
         BluetoothGattService gattService = new BluetoothGattService(uuid, BluetoothGattService.SERVICE_TYPE_PRIMARY);
         BluetoothGattCharacteristic gattCharacteristic = new BluetoothGattCharacteristic(uuid, BluetoothGattCharacteristic.PROPERTY_READ, BluetoothGattCharacteristic.PERMISSION_READ);
         BluetoothGattDescriptor gattDescriptor = new BluetoothGattDescriptor(uuid, BluetoothGattDescriptor.PERMISSION_READ);
-        gattCharacteristic.addDescriptor(gattDescriptor);
-        gattCharacteristic.setValue(payload);
 
+        gattDescriptor.setValue("awesome descriptor!".getBytes());
+        gattCharacteristic.addDescriptor(gattDescriptor);
+        gattCharacteristic.setValue("awesome characteristic!".getBytes());
         gattService.addCharacteristic(gattCharacteristic);
+
         mBluetoothGattServer.addService(gattService);
     }
 
@@ -279,7 +296,4 @@ public class Bt4Controls extends Fragment implements View.OnClickListener {
         mBluetoothGattServer.close();
     }
 
-    @Override
-    public void onClick(View v) {
-    }
 }
