@@ -1,5 +1,7 @@
 package com.happening.poc.poc_happening.fragment;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
@@ -10,7 +12,9 @@ import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +32,10 @@ public class BtStatus extends Fragment {
     private WifiP2pManager wifiP2pManager;
     private String availableTxt = "Läuft";
     private String unAvailableTxt = "Läuft Nicht!";
+
+    public BtStatus() {
+        super();
+    }
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -107,6 +115,28 @@ public class BtStatus extends Fragment {
         filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         rootView.getContext().registerReceiver(receiver, filter);
 
+//        Intent alarm = new Intent(rootView.getContext(), AlarmReceiver.class);
+//        boolean alarmRunning = (PendingIntent.getBroadcast(rootView.getContext(), 0, alarm, PendingIntent.FLAG_NO_CREATE) != null);
+//        if(alarmRunning == false) {
+//            Log.d("start service", "start the service in activity");
+//            PendingIntent pendingIntent = PendingIntent.getBroadcast(rootView.getContext(), 0, alarm, 0);
+//            AlarmManager alarmManager = (AlarmManager) rootView.getContext().getSystemService(Context.ALARM_SERVICE);
+//            alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), 100, pendingIntent);
+//        }
+//
+//        // Construct an intent that will execute the AlarmReceiver
+//        Intent intent = new Intent(rootView.getContext().getApplicationContext(), AlarmReceiver.class);
+//        // Create a PendingIntent to be triggered when the alarm goes off
+//        final PendingIntent pIntent = PendingIntent.getBroadcast(rootView.getContext(), AlarmReceiver.REQUEST_CODE,
+//                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        // Setup periodic alarm every 5 seconds
+//        long firstMillis = System.currentTimeMillis(); // alarm is set right away
+//        AlarmManager alarm = (AlarmManager) rootView.getContext().getSystemService(Context.ALARM_SERVICE);
+//        // First parameter is the type: ELAPSED_REALTIME, ELAPSED_REALTIME_WAKEUP, RTC_WAKEUP
+//        // Interval can be INTERVAL_FIFTEEN_MINUTES, INTERVAL_HALF_HOUR, INTERVAL_HOUR, INTERVAL_DAY
+//        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis,
+//                AlarmManager.INTERVAL_HALF_HOUR, pIntent);
+
         rootView.findViewById(R.id.button_start_service).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,5 +154,22 @@ public class BtStatus extends Fragment {
 
         return rootView;
     }
+
+//
+//    public class AlarmReceiver extends BroadcastReceiver {
+//        public static final int REQUEST_CODE = 12345;
+//        public static final String ACTION = "com.codepath.example.servicesdemo.alarm";
+//
+//        public AlarmReceiver() {
+//            Log.d(this.getClass().getSimpleName(), "constructor");
+//        }
+//
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            Intent background = new Intent(context, TutorialService.class);
+//            context.startService(background);
+//        }
+//
+//    }
 
 }

@@ -1,11 +1,14 @@
 package com.happening.poc.poc_happening;
 
 import android.Manifest;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -15,6 +18,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -51,6 +55,10 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG_FRAGMENT_BT4CONTROLS = "bt4";
     private static final String TAG_FRAGMENT_BT2CONTROLS = "bt2";
     private static final String TAG_FRAGMENT_BTSTATUS = "btstatus";
+
+    public MainActivity() {
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +97,37 @@ public class MainActivity extends AppCompatActivity
                         Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION},
                 TAG_CODE_PERMISSION_LOCATION);
+
+
+        Intent alarm = new Intent(this, AlarmReceiver.class);
+        boolean alarmRunning = (PendingIntent.getBroadcast(this, 0, alarm, PendingIntent.FLAG_NO_CREATE) != null);
+//        if(alarmRunning == false) {
+            Log.d("start service", "start the service in activity");
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarm, 0);
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), 1000, pendingIntent);
+//        }
+
+
+
+//        // Construct an intent that will execute the AlarmReceiver
+//        Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
+//        // Create a PendingIntent to be triggered when the alarm goes off
+//        final PendingIntent pIntent = PendingIntent.getBroadcast(this, AlarmReceiver.REQUEST_CODE,
+//                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        // Setup periodic alarm every 5 seconds
+//        long firstMillis = System.currentTimeMillis(); // alarm is set right away
+//        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+//        // First parameter is the type: ELAPSED_REALTIME, ELAPSED_REALTIME_WAKEUP, RTC_WAKEUP
+//        // Interval can be INTERVAL_FIFTEEN_MINUTES, INTERVAL_HALF_HOUR, INTERVAL_HOUR, INTERVAL_DAY
+//        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis,
+//                AlarmManager.INTERVAL_HALF_HOUR, pIntent);
+//        Log.d(this.getClass().getSimpleName(), intent.toString());
+
+
+
+
+
     }
 
     @Override

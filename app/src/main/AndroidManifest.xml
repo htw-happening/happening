@@ -35,8 +35,11 @@
         <service
             android:name=".TutorialService"
             android:enabled="true"
-            android:exported="true">
-            </service>
+            android:exported="false">
+        </service>
+        <receiver
+            android:name=".AlarmReceiver"
+            android:process=":remote" ></receiver>
     </application>
 
 </manifest>
