@@ -123,4 +123,25 @@
         android:layout_alignParentRight="true"
         android:splitTrack="true" />
 
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/wifi_enabled"
+        android:layout_alignParentStart="true">
+
+        <Button
+            android:id="@+id/button_start_service"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start Service"/>
+
+        <Button
+            android:id="@+id/button_stop_service"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Stop Service"/>
+
+    </LinearLayout>
+
 </RelativeLayout>

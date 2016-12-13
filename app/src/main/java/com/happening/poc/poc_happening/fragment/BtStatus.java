@@ -18,6 +18,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.happening.poc.poc_happening.R;
+import com.happening.poc.poc_happening.TutorialService;
 
 public class BtStatus extends Fragment {
 
@@ -105,6 +106,21 @@ public class BtStatus extends Fragment {
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         rootView.getContext().registerReceiver(receiver, filter);
+
+        rootView.findViewById(R.id.button_start_service).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent startServiceIntent = new Intent(rootView.getContext(), TutorialService.class);
+                    rootView.getContext().startService(startServiceIntent);
+            }
+        });
+
+        rootView.findViewById(R.id.button_stop_service).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rootView.getContext().stopService(new Intent(rootView.getContext(), TutorialService.class));
+            }
+        });
 
         return rootView;
     }
