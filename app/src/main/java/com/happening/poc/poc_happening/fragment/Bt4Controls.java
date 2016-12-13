@@ -243,7 +243,6 @@ public class Bt4Controls extends Fragment implements View.OnClickListener {
 
         List<ScanFilter> scanFilters = new ArrayList<>();
 
-        mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
         mBluetoothLeScanner.stopScan(mScanCallback);
         deviceListAdapter.deviceList.clear();
         deviceListAdapter.notifyDataSetChanged();
