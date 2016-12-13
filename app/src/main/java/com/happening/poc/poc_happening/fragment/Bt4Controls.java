@@ -18,6 +18,7 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ParcelUuid;
@@ -32,6 +33,7 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.happening.poc.poc_happening.MainActivity;
 import com.happening.poc.poc_happening.R;
 import com.happening.poc.poc_happening.adapter.DeviceListAdapter;
 
@@ -73,6 +75,10 @@ public class Bt4Controls extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_bt4controls, container, false);
+
+        if (!getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Snackbar.make(rootView, "BLE features are not supported!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        }
 
         // initialize list view
         ListView deviceList = (ListView) rootView.findViewById(R.id.discovered_devices_list);
@@ -176,6 +182,15 @@ public class Bt4Controls extends Fragment implements View.OnClickListener {
             }
         });
 
+        if (!mBluetoothAdapter.isMultipleAdvertisementSupported() ||
+                !mBluetoothAdapter.isOffloadedFilteringSupported() ||
+                !mBluetoothAdapter.isOffloadedScanBatchingSupported()) {
+            advertiseButton.setChecked(false);
+            advertiseButton.setEnabled(false);
+            gattServerButton.setChecked(false);
+            gattServerButton.setEnabled(false);
+        }
+
         return rootView;
     }
 
@@ -228,7 +243,10 @@ public class Bt4Controls extends Fragment implements View.OnClickListener {
 
         List<ScanFilter> scanFilters = new ArrayList<>();
 
-        stopDiscover();
+        mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
+        mBluetoothLeScanner.stopScan(mScanCallback);
+        deviceListAdapter.deviceList.clear();
+        deviceListAdapter.notifyDataSetChanged();
         mBluetoothLeScanner.startScan(scanFilters, scanSettings, mScanCallback);
     }
 

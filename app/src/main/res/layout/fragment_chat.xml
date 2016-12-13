@@ -4,10 +4,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/chat_text"
+    <ScrollView
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="20"
+        android:fillViewport="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ListView
+                android:id="@+id/listView_chat_entries"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:transcriptMode="alwaysScroll"
+                android:stackFromBottom="true">
+            </ListView>
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+    <include
+        layout="@layout/chat_input"
+        android:layout_width="match_parent"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:text="chat" />
+        android:gravity="bottom" />
 
 </LinearLayout>
