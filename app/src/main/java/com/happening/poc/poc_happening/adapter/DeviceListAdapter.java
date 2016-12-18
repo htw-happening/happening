@@ -1,10 +1,14 @@
 package com.happening.poc.poc_happening.adapter;
 
 import android.content.Context;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.happening.poc.poc_happening.R;
@@ -20,22 +24,41 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceModel> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        DeviceModel device = getItem(position);
+        final DeviceModel device = getItem(position);
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.device_list_item, parent, false);
         }
 
-        TextView name = (TextView) convertView.findViewById(R.id.device_name);
         TextView address = (TextView) convertView.findViewById(R.id.device_address);
+        TextView name = (TextView) convertView.findViewById(R.id.device_name);
         TextView payload = (TextView) convertView.findViewById(R.id.device_payload);
         TextView deviceDbm = (TextView) convertView.findViewById(R.id.device_dbm);
 
-        name.setText(device.getName());
         address.setText(device.getAddress());
+        name.setText(device.getName());
         payload.setText(device.getPayload());
         deviceDbm.setText(device.getSignalStrength() + " | " + device.getPathloss());
 
+        TypedValue color = new TypedValue();
+        getContext().getTheme().resolveAttribute(R.attr.colorAccent, color, true);
+        int colorAccent = color.data;
+        getContext().getTheme().resolveAttribute(R.attr.colorPrimary, color, true);
+        int colorPrimary = color.data;
+        address.setTextColor(device.isBonded() ? colorPrimary : colorAccent);
+
+        Switch connectSwitch = (Switch) convertView.findViewById(R.id.connect_switch);
+        connectSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    Log.d("CLICK", "Connect to " + device.getAddress());
+                    device.connectDevice();
+                } else {
+                    Log.d("CLICK", "Disconnect from " + device.getAddress());
+                    device.disconnectDevice();
+                }
+            }
+        });
         return convertView;
     }
 }

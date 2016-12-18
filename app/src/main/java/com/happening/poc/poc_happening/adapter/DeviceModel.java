@@ -15,7 +15,6 @@ import android.os.ParcelUuid;
 import android.util.Log;
 
 import java.util.Map;
-import java.util.Objects;
 
 public class DeviceModel {
 
@@ -33,7 +32,6 @@ public class DeviceModel {
         this.context = context;
 
         this.bluetoothGattCallback = new BluetoothGattCallback() {
-
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
                 switch (newState) {
@@ -43,7 +41,7 @@ public class DeviceModel {
                         break;
                     case BluetoothProfile.STATE_DISCONNECTED:
                         Log.d("GATT", "state disconnected");
-                        gatt.close();
+                        // gatt.close();
                         break;
                     default:
                         Log.d("GATT", "connection state changed " + newState);
@@ -82,14 +80,14 @@ public class DeviceModel {
                 Log.d("GATT", "onDescriptorRead status changed " + status);
                 Log.d("GATT", new String(descriptor.getValue()));
             }
-
         };
     }
 
-    //region Getter
-
     public String getName() {
-        return bluetoothDevice.getName() != null ? bluetoothDevice.getName() : "n/a";
+        if (bluetoothDevice.getName() != null) {
+            return bluetoothDevice.getName();
+        }
+        return "n/a";
     }
 
     public String getAddress() {
@@ -109,9 +107,10 @@ public class DeviceModel {
     }
 
     public String getPathloss() {
-        return scanRecord.getTxPowerLevel() != Integer.MIN_VALUE ?
-                (scanRecord.getTxPowerLevel() - this.rssi) + "dBm" :
-                "n/a";
+        if (scanRecord.getTxPowerLevel() != Integer.MIN_VALUE) {
+            return (scanRecord.getTxPowerLevel() - this.rssi) + "dBm";
+        }
+        return "n/a";
     }
 
     public Map<ParcelUuid, byte[]> getServiceData() {
@@ -122,35 +121,44 @@ public class DeviceModel {
         return bluetoothDevice;
     }
 
-    //endregion
-
     public boolean isBonded() {
         return bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED;
     }
 
     public void connectDevice() {
+        /* TODO: From BluetoothGatt docs
+        * The autoConnect parameter determines whether to actively connect to
+        * the remote device, or rather passively scan and finalize the connection
+        * when the remote device is in range/available. Generally, the first ever
+        * connection to a device should be direct (autoConnect set to false) and
+        * subsequent connections to known devices should be invoked with the
+        * autoConnect parameter set to true.
+        */
+
         if (bluetoothGatt == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 bluetoothGatt = bluetoothDevice.connectGatt(context, true, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
             } else {
                 bluetoothGatt = bluetoothDevice.connectGatt(context, true, bluetoothGattCallback);
             }
+        } else {
+            Log.d("GATT", "Already connected");
         }
     }
 
     public void disconnectDevice() {
         if (bluetoothGatt != null) {
             bluetoothGatt.disconnect();
+        } else {
+            Log.d("GATT", "Nothing to disconnect");
         }
     }
 
     @Override
     public boolean equals(Object object) {
-
         if (object != null && object instanceof DeviceModel) {
             return getBluetoothDevice().equals(((DeviceModel) object).getBluetoothDevice());
         }
-
         return false;
     }
 

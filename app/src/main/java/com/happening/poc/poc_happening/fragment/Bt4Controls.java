@@ -29,7 +29,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
@@ -84,14 +83,6 @@ public class Bt4Controls extends Fragment {
         ListView deviceListView = (ListView) rootView.findViewById(R.id.discovered_devices_list);
         deviceListAdapter = new DeviceListAdapter(rootView.getContext(), mDeviceList);
         deviceListView.setAdapter(deviceListAdapter);
-
-        deviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                DeviceModel device = deviceListAdapter.getItem(position);
-                device.connectDevice();
-            }
-        });
 
         // initialize bluetooth adapter
         this.mBluetoothManager = (BluetoothManager) getActivity().getSystemService(Context.BLUETOOTH_SERVICE);
@@ -150,7 +141,7 @@ public class Bt4Controls extends Fragment {
             }
         };
 
-        Log.d("SELF", mBluetoothAdapter.getName() + " " + mBluetoothAdapter.getAddress());
+        Log.i("SELF", mBluetoothAdapter.getName() + " " + mBluetoothAdapter.getAddress());
 
         Context context = rootView.getContext();
         String macAddress = android.provider.Settings.Secure.getString(context.getContentResolver(), "bluetooth_address");
@@ -256,6 +247,16 @@ public class Bt4Controls extends Fragment {
         ScanSettings scanSettings = scanSettingsBuilder.build();
 
         List<ScanFilter> scanFilters = new ArrayList<>();
+
+        int[] c = {BluetoothProfile.STATE_CONNECTED, BluetoothProfile.STATE_CONNECTING};
+        List<BluetoothDevice> connectedDevices = mBluetoothManager.getDevicesMatchingConnectionStates(
+                BluetoothProfile.GATT_SERVER, c);
+        Log.i("MATCH", "Conntected gatt devices: " + connectedDevices.size());
+
+        int[] d = {BluetoothProfile.STATE_DISCONNECTED, BluetoothProfile.STATE_DISCONNECTING};
+        List<BluetoothDevice> disconnectedDevices = mBluetoothManager.getDevicesMatchingConnectionStates(
+                BluetoothProfile.GATT_SERVER, d);
+        Log.i("MATCH", "Disconntected gatt devices: " + disconnectedDevices.size());
 
         mBluetoothLeScanner.stopScan(mScanCallback);
         mDeviceList.clear();
