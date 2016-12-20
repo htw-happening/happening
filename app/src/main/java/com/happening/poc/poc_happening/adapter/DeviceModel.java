@@ -41,7 +41,7 @@ public class DeviceModel {
                         break;
                     case BluetoothProfile.STATE_DISCONNECTED:
                         Log.d("GATT", "state disconnected");
-                        // gatt.close();
+                        gatt.close();
                         break;
                     default:
                         Log.d("GATT", "connection state changed " + newState);
@@ -125,6 +125,10 @@ public class DeviceModel {
         return bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED;
     }
 
+    public boolean isConnected() {
+        return bluetoothGatt != null;
+    }
+
     public void connectDevice() {
         /* TODO: From BluetoothGatt docs
         * The autoConnect parameter determines whether to actively connect to
@@ -135,20 +139,23 @@ public class DeviceModel {
         * autoConnect parameter set to true.
         */
 
-        if (bluetoothGatt == null) {
+        if (isConnected()) {
+            Log.d("GATT", "Already connected");
+        } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 bluetoothGatt = bluetoothDevice.connectGatt(context, true, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
             } else {
                 bluetoothGatt = bluetoothDevice.connectGatt(context, true, bluetoothGattCallback);
             }
-        } else {
-            Log.d("GATT", "Already connected");
+            Log.d("GATT", "Connecting");
         }
     }
 
     public void disconnectDevice() {
-        if (bluetoothGatt != null) {
+        if (isConnected()) {
             bluetoothGatt.disconnect();
+            Log.d("GATT", "Disconnecting");
+            bluetoothGatt = null;
         } else {
             Log.d("GATT", "Nothing to disconnect");
         }
