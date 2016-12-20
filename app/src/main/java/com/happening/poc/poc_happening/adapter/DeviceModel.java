@@ -3,10 +3,6 @@ package com.happening.poc.poc_happening.adapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
@@ -14,11 +10,14 @@ import android.os.Build;
 import android.os.ParcelUuid;
 import android.util.Log;
 
+import com.happening.poc.poc_happening.bluetooth.HappeningGattCallback;
+
 import java.util.Map;
 
 public class DeviceModel {
 
     private int rssi;
+    private boolean firstConnect;
     private Context context;
     private ScanRecord scanRecord;
     private BluetoothGatt bluetoothGatt;
@@ -30,57 +29,9 @@ public class DeviceModel {
         this.scanRecord = scanResult.getScanRecord();
         this.rssi = scanResult.getRssi();
         this.context = context;
+        this.firstConnect = false;
 
-        this.bluetoothGattCallback = new BluetoothGattCallback() {
-            @Override
-            public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-                switch (newState) {
-                    case BluetoothProfile.STATE_CONNECTED:
-                        Log.d("GATT", "state connected");
-                        gatt.discoverServices();
-                        break;
-                    case BluetoothProfile.STATE_DISCONNECTED:
-                        Log.d("GATT", "state disconnected");
-                        gatt.close();
-                        break;
-                    default:
-                        Log.d("GATT", "connection state changed " + newState);
-                        break;
-                }
-            }
-
-            @Override
-            public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-                switch (status) {
-                    case BluetoothGatt.GATT_SUCCESS:
-                        Log.d("GATT", "services discovered");
-                        readCharacteristics(gatt);
-                        break;
-                    case BluetoothGatt.GATT_FAILURE:
-                        Log.e("GATT", "service discovery failed");
-                        break;
-                    default:
-                        Log.e("GATT", "no service discovered " + status);
-                        break;
-                }
-            }
-
-            private void readCharacteristics(BluetoothGatt gatt) {
-                for (BluetoothGattService service : gatt.getServices()) {
-                    for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
-                        for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
-                            gatt.readDescriptor(descriptor);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-                Log.d("GATT", "onDescriptorRead status changed " + status);
-                Log.d("GATT", new String(descriptor.getValue()));
-            }
-        };
+        this.bluetoothGattCallback = new HappeningGattCallback();
     }
 
     public String getName() {
@@ -143,10 +94,11 @@ public class DeviceModel {
             Log.d("GATT", "Already connected");
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                bluetoothGatt = bluetoothDevice.connectGatt(context, true, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
+                bluetoothGatt = bluetoothDevice.connectGatt(context, !firstConnect, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
             } else {
-                bluetoothGatt = bluetoothDevice.connectGatt(context, true, bluetoothGattCallback);
+                bluetoothGatt = bluetoothDevice.connectGatt(context, !firstConnect, bluetoothGattCallback);
             }
+            firstConnect = true;
             Log.d("GATT", "Connecting");
         }
     }

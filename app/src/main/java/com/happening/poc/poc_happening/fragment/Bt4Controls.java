@@ -37,6 +37,7 @@ import android.widget.TextView;
 import com.happening.poc.poc_happening.R;
 import com.happening.poc.poc_happening.adapter.DeviceListAdapter;
 import com.happening.poc.poc_happening.adapter.DeviceModel;
+import com.happening.poc.poc_happening.bluetooth.HappeningGattServerCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +50,7 @@ public class Bt4Controls extends Fragment {
     private static Bt4Controls instance = null;
     private View rootView = null;
 
-    private static final String HAPPENING_SERVICE_UUID = "11111111-1337-1337-1337-000000000000";
+    public static final String HAPPENING_SERVICE_UUID = "11111111-1337-1337-1337-000000000000";
     public static final ParcelUuid parcelUuid = ParcelUuid.fromString(HAPPENING_SERVICE_UUID);
 
     private BluetoothManager mBluetoothManager = null;
@@ -91,6 +92,8 @@ public class Bt4Controls extends Fragment {
         this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
         this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
 
+        this.mGattServerCallback = new HappeningGattServerCallback();
+
         // set scanning callback
         this.mScanCallback = new ScanCallback() {
             @Override
@@ -119,39 +122,11 @@ public class Bt4Controls extends Fragment {
             }
         };
 
-        this.mGattServerCallback = new BluetoothGattServerCallback() {
-            @Override
-            public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
-                super.onConnectionStateChange(device, status, newState);
-            }
-
-            @Override
-            public void onServiceAdded(int status, BluetoothGattService service) {
-                super.onServiceAdded(status, service);
-            }
-
-            @Override
-            public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
-                super.onCharacteristicReadRequest(device, requestId, offset, characteristic);
-            }
-
-            @Override
-            public void onCharacteristicWriteRequest(BluetoothDevice device, int requestId, BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean responseNeeded, int offset, byte[] value) {
-                super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value);
-            }
-        };
-
-        Log.i("SELF", mBluetoothAdapter.getName() + " " + mBluetoothAdapter.getAddress());
-
         Context context = rootView.getContext();
         String macAddress = android.provider.Settings.Secure.getString(context.getContentResolver(), "bluetooth_address");
         TextView bleAddress = (TextView) rootView.findViewById(R.id.ble_mac_address);
         bleAddress.setText(macAddress);
-
-        for (BluetoothDevice bluetoothDevice : mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT)) {
-            // TODO: Clear connected devices
-            mBluetoothManager.getConnectionState(bluetoothDevice, BluetoothProfile.GATT);
-        }
+        Log.i("SELF", mBluetoothAdapter.getName() + " " + macAddress);
 
         // set event Listener
         Switch discoverButton = (Switch) rootView.findViewById(R.id.discover_button);
@@ -250,13 +225,23 @@ public class Bt4Controls extends Fragment {
 
         int[] c = {BluetoothProfile.STATE_CONNECTED, BluetoothProfile.STATE_CONNECTING};
         List<BluetoothDevice> connectedDevices = mBluetoothManager.getDevicesMatchingConnectionStates(
-                BluetoothProfile.GATT_SERVER, c);
+                BluetoothProfile.GATT, c);
         Log.i("MATCH", "Conntected gatt devices: " + connectedDevices.size());
 
         int[] d = {BluetoothProfile.STATE_DISCONNECTED, BluetoothProfile.STATE_DISCONNECTING};
         List<BluetoothDevice> disconnectedDevices = mBluetoothManager.getDevicesMatchingConnectionStates(
-                BluetoothProfile.GATT_SERVER, d);
+                BluetoothProfile.GATT, d);
         Log.i("MATCH", "Disconntected gatt devices: " + disconnectedDevices.size());
+
+        int[] e = {BluetoothProfile.STATE_CONNECTED, BluetoothProfile.STATE_CONNECTING};
+        List<BluetoothDevice> connectedServer = mBluetoothManager.getDevicesMatchingConnectionStates(
+                BluetoothProfile.GATT_SERVER, e);
+        Log.i("MATCH", "Conntected gatt server: " + connectedServer.size());
+
+        int[] f = {BluetoothProfile.STATE_DISCONNECTED, BluetoothProfile.STATE_DISCONNECTING};
+        List<BluetoothDevice> disconnectedServer = mBluetoothManager.getDevicesMatchingConnectionStates(
+                BluetoothProfile.GATT_SERVER, f);
+        Log.i("MATCH", "Disconntected gatt server: " + disconnectedServer.size());
 
         mBluetoothLeScanner.stopScan(mScanCallback);
         mDeviceList.clear();
@@ -296,5 +281,4 @@ public class Bt4Controls extends Fragment {
         Snackbar.make(rootView, "Stop Gatt-Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         mBluetoothGattServer.close();
     }
-
 }

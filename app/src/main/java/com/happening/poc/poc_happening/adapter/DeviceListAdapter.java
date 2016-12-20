@@ -45,7 +45,7 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceModel> {
         int colorAccent = color.data;
         getContext().getTheme().resolveAttribute(R.attr.colorPrimary, color, true);
         int colorPrimary = color.data;
-        address.setTextColor(device.isConnected() ? colorPrimary : colorAccent);
+        address.setTextColor(device.isConnected() ? colorAccent : colorPrimary);
 
         Switch connectSwitch = (Switch) convertView.findViewById(R.id.connect_switch);
         connectSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
