@@ -148,4 +148,11 @@
         android:layout_alignParentRight="true"
         android:splitTrack="true" />
 
+    <Button
+        android:id="@+id/button_notify"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/switch_background_service"
+        android:text="Notify" />
+
 </RelativeLayout>

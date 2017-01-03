@@ -1,5 +1,8 @@
 package com.happening.poc.poc_happening.fragment;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
@@ -11,6 +14,7 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.happening.poc.poc_happening.MainActivity;
 import com.happening.poc.poc_happening.R;
 import com.happening.poc.poc_happening.service.Bluetooth4Service;
 
@@ -114,7 +119,7 @@ public class BtStatus extends Fragment {
         filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         rootView.getContext().registerReceiver(receiver, filter);
 
-        final Switch bt4ServiceSwitch = (Switch) rootView.findViewById(R.id.switch_background_service);
+        Switch bt4ServiceSwitch = (Switch) rootView.findViewById(R.id.switch_background_service);
 
         bt4ServiceSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -129,10 +134,42 @@ public class BtStatus extends Fragment {
                     ((TextView) rootView.findViewById(R.id.background_service_value)).setText(unAvailableTxt);
                     bt4BackgroundService = null;
                 }
+                rootView.findViewById(R.id.button_notify).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        doNotification();
+                    }
+                });
+
+
             }
         });
 
         return rootView;
+    }
+
+    private void doNotification() {
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this.getContext())
+                        .setSmallIcon(R.drawable.side_nav_bar)
+                        .setContentTitle("Happening")
+                        .setContentText("Hi, ich bin in deiner Notification Bar zu sehen. Muahaaahaaaaa")
+                        .setAutoCancel(true)
+                        .setPriority(2)
+                        .setVibrate(new long[]{1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2});
+        Intent resultIntent = new Intent(this.getContext(), MainActivity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(rootView.getContext());
+        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager =
+                (NotificationManager) rootView.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(47474747, mBuilder.build());
     }
 
     private void startBt4Service() {
@@ -147,3 +184,4 @@ public class BtStatus extends Fragment {
     }
 
 }
+
