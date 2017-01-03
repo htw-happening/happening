@@ -30,6 +30,7 @@ public class Bluetooth4Service extends Service {
      * indicates whether onRebind should be used
      */
     boolean mAllowRebind;
+
     private BluetoothManager mBluetoothManager = null;
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser = null;
@@ -92,6 +93,7 @@ public class Bluetooth4Service extends Service {
         mBluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, mAdvertiseCallback);
 
         return mStartMode;
+//        return START_STICKY;
     }
 
     /**
@@ -123,8 +125,7 @@ public class Bluetooth4Service extends Service {
      */
     @Override
     public void onDestroy() {
-
+        mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
     }
-
 
 }

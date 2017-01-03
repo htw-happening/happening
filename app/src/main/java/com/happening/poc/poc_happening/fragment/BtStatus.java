@@ -59,6 +59,7 @@ public class BtStatus extends Fragment {
     private WifiP2pManager wifiP2pManager;
     private String availableTxt = "Läuft";
     private String unAvailableTxt = "Läuft Nicht!";
+    private Intent btStatus = null;
 
     public BtStatus() {
         super();
@@ -132,12 +133,13 @@ public class BtStatus extends Fragment {
     }
 
     private void startBtService() {
-        rootView.getContext().startService(new Intent(this.getContext(), Bluetooth4Service.class));
+        btStatus = new Intent(this.getContext(), Bluetooth4Service.class);
+        rootView.getContext().startService(btStatus);
     }
 
     private void stopBtService() {
         Log.d(this.getClass().getSimpleName(), "stop service in activity");
-        rootView.getContext().stopService(new Intent(this.getContext(), Bluetooth4Service.class));
+        rootView.getContext().stopService(btStatus);
     }
 
 }
