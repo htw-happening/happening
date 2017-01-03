@@ -36,30 +36,31 @@ public class BtStatus extends Fragment {
                         BluetoothAdapter.ERROR);
                 switch (state) {
                     case BluetoothAdapter.STATE_OFF:
-                        ((Switch) rootView.findViewById(R.id.bluetooth_enabled)).setChecked(false);
+                        ((Switch) rootView.findViewById(R.id.switch_bluetooth_enabled)).setChecked(false);
                         break;
                     case BluetoothAdapter.STATE_ON:
-                        ((Switch) rootView.findViewById(R.id.bluetooth_enabled)).setChecked(true);
+                        ((Switch) rootView.findViewById(R.id.switch_bluetooth_enabled)).setChecked(true);
                         break;
                 }
             } else if (action.equals(WifiManager.WIFI_STATE_CHANGED_ACTION)) {
                 final int state = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, -1);
                 switch (state) {
                     case WifiManager.WIFI_STATE_ENABLED:
-                        ((Switch) rootView.findViewById(R.id.wifi_enabled)).setChecked(true);
+                        ((Switch) rootView.findViewById(R.id.switch_wifi_enabled)).setChecked(true);
                         break;
                     case WifiManager.WIFI_STATE_DISABLED:
-                        ((Switch) rootView.findViewById(R.id.wifi_enabled)).setChecked(false);
+                        ((Switch) rootView.findViewById(R.id.switch_wifi_enabled)).setChecked(false);
                         break;
                 }
             }
         }
     };
+
     private BluetoothManager bluetoothManager;
     private WifiP2pManager wifiP2pManager;
     private String availableTxt = "Läuft";
     private String unAvailableTxt = "Läuft Nicht!";
-    private Intent btStatus = null;
+    private Intent bt4BackgroundService = null;
 
     public BtStatus() {
         super();
@@ -87,7 +88,7 @@ public class BtStatus extends Fragment {
             ((TextView) rootView.findViewById(R.id.bluetooth_value)).setText(availableTxt);
             ((TextView) rootView.findViewById(R.id.bluetooth_value)).setText(availableTxt);
             ((TextView) rootView.findViewById(R.id.bluetooth_address_value)).setText(bluetoothAddress);
-            ((Switch) rootView.findViewById(R.id.bluetooth_enabled)).setChecked(bluetoothAdapter.isEnabled());
+            ((Switch) rootView.findViewById(R.id.switch_bluetooth_enabled)).setChecked(bluetoothAdapter.isEnabled());
             if (bluetoothAdapter.isMultipleAdvertisementSupported()) {
                 ((TextView) rootView.findViewById(R.id.bluetooth_le_adv_value)).setText(availableTxt);
             } else {
@@ -105,7 +106,7 @@ public class BtStatus extends Fragment {
             ((TextView) rootView.findViewById(R.id.wifi_value)).setText(unAvailableTxt);
         } else {
             ((TextView) rootView.findViewById(R.id.wifi_value)).setText(availableTxt);
-            ((Switch) rootView.findViewById(R.id.wifi_enabled)).setChecked(wifiManager.isWifiEnabled());
+            ((Switch) rootView.findViewById(R.id.switch_wifi_enabled)).setChecked(wifiManager.isWifiEnabled());
         }
 
         IntentFilter filter = new IntentFilter();
@@ -113,33 +114,36 @@ public class BtStatus extends Fragment {
         filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         rootView.getContext().registerReceiver(receiver, filter);
 
-//        if()
+        final Switch bt4ServiceSwitch = (Switch) rootView.findViewById(R.id.switch_background_service);
 
-        rootView.findViewById(R.id.button_start_service).setOnClickListener(new View.OnClickListener() {
+        bt4ServiceSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startBtService();
-            }
-        });
-
-        rootView.findViewById(R.id.button_stop_service).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopBtService();
+                if (bt4BackgroundService == null) {
+                    startBt4Service();
+                    ((Switch) rootView.findViewById(R.id.switch_background_service)).setChecked(true);
+                    ((TextView) rootView.findViewById(R.id.background_service_value)).setText(availableTxt);
+                } else if (bt4BackgroundService != null) {
+                    stopBt4Service();
+                    ((Switch) rootView.findViewById(R.id.switch_background_service)).setChecked(false);
+                    ((TextView) rootView.findViewById(R.id.background_service_value)).setText(unAvailableTxt);
+                    bt4BackgroundService = null;
+                }
             }
         });
 
         return rootView;
     }
 
-    private void startBtService() {
-        btStatus = new Intent(this.getContext(), Bluetooth4Service.class);
-        rootView.getContext().startService(btStatus);
+    private void startBt4Service() {
+        bt4BackgroundService = new Intent(this.getContext(), Bluetooth4Service.class);
+        rootView.getContext().startService(bt4BackgroundService);
     }
 
-    private void stopBtService() {
+    private void stopBt4Service() {
         Log.d(this.getClass().getSimpleName(), "stop service in activity");
-        rootView.getContext().stopService(btStatus);
+        rootView.getContext().stopService(bt4BackgroundService);
+        bt4BackgroundService = null;
     }
 
 }
