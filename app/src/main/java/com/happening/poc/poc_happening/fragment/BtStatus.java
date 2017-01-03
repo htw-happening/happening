@@ -1,7 +1,5 @@
 package com.happening.poc.poc_happening.fragment;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
@@ -12,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,12 +19,13 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.happening.poc.poc_happening.R;
-import com.happening.poc.poc_happening.service.AlarmReceiver;
+import com.happening.poc.poc_happening.service.Bluetooth4Service;
 
 public class BtStatus extends Fragment {
 
     private static BtStatus instance = null;
     private View rootView = null;
+
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -61,9 +59,7 @@ public class BtStatus extends Fragment {
     private WifiP2pManager wifiP2pManager;
     private String availableTxt = "Läuft";
     private String unAvailableTxt = "Läuft Nicht!";
-    private Intent alarm = null;
-    private AlarmManager alarmManager = null;
-    private PendingIntent pendingIntent = null;
+
     public BtStatus() {
         super();
     }
@@ -116,6 +112,8 @@ public class BtStatus extends Fragment {
         filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         rootView.getContext().registerReceiver(receiver, filter);
 
+//        if()
+
         rootView.findViewById(R.id.button_start_service).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -134,15 +132,12 @@ public class BtStatus extends Fragment {
     }
 
     private void startBtService() {
-        alarm = new Intent(rootView.getContext(), AlarmReceiver.class);
-        Log.d(this.getClass().getSimpleName(), "start service in activity");
-        pendingIntent = PendingIntent.getBroadcast(rootView.getContext(), AlarmReceiver.REQUEST_CODE, alarm, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager = (AlarmManager) rootView.getContext().getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), 10, pendingIntent);
+        rootView.getContext().startService(new Intent(this.getContext(), Bluetooth4Service.class));
     }
 
     private void stopBtService() {
         Log.d(this.getClass().getSimpleName(), "stop service in activity");
-        alarmManager.cancel(pendingIntent);
+        rootView.getContext().stopService(new Intent(this.getContext(), Bluetooth4Service.class));
     }
+
 }

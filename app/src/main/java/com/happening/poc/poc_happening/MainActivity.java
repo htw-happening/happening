@@ -27,30 +27,25 @@ import com.happening.poc.poc_happening.fragment.MainFragment;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private FragmentManager fm = getSupportFragmentManager();
-
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int TAG_CODE_PERMISSION_LOCATION = 2;
-
-    private BluetoothManager mBluetoothManager = null;
-    private BluetoothAdapter mBluetoothAdapter = null;
-
-    // Fragment
-    private Fragment currentFragment = null;
-    private String currentFragmentTag = null;
-
-    private Fragment mainFragment;
-    private Fragment chatFragment;
-    private Fragment bt4ControlsFragment;
-    private Fragment bt2ControlsFragment;
-    private Fragment btStatusFragment;
-
     // Fragment Tags
     private static final String TAG_FRAGMENT_MAIN = "main";
     private static final String TAG_FRAGMENT_CHAT = "chat";
     private static final String TAG_FRAGMENT_BT4CONTROLS = "bt4";
     private static final String TAG_FRAGMENT_BT2CONTROLS = "bt2";
     private static final String TAG_FRAGMENT_BTSTATUS = "btstatus";
+    private FragmentManager fm = getSupportFragmentManager();
+    private BluetoothManager mBluetoothManager = null;
+    private BluetoothAdapter mBluetoothAdapter = null;
+    // Fragment
+    private Fragment currentFragment = null;
+    private String currentFragmentTag = null;
+    private Fragment mainFragment;
+    private Fragment chatFragment;
+    private Fragment bt4ControlsFragment;
+    private Fragment bt2ControlsFragment;
+    private Fragment btStatusFragment;
 
     public MainActivity() {
 
