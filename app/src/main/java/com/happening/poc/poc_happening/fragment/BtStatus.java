@@ -21,18 +21,13 @@ import android.view.ViewGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.happening.poc.poc_happening.AlarmReceiver;
 import com.happening.poc.poc_happening.R;
+import com.happening.poc.poc_happening.service.AlarmReceiver;
 
 public class BtStatus extends Fragment {
 
     private static BtStatus instance = null;
     private View rootView = null;
-
-    public BtStatus() {
-        super();
-    }
-
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -69,6 +64,9 @@ public class BtStatus extends Fragment {
     private Intent alarm = null;
     private AlarmManager alarmManager = null;
     private PendingIntent pendingIntent = null;
+    public BtStatus() {
+        super();
+    }
 
     public static BtStatus getInstance() {
         instance = new BtStatus();

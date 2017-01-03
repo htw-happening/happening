@@ -1,4 +1,4 @@
-package com.happening.poc.poc_happening;
+package com.happening.poc.poc_happening.service;
 
 import android.app.IntentService;
 import android.bluetooth.BluetoothAdapter;
@@ -8,9 +8,7 @@ import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Intent;
-import android.os.IBinder;
 import android.os.ParcelUuid;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.util.Random;

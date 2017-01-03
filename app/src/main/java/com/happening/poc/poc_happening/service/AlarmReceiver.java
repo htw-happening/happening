@@ -1,4 +1,4 @@
-package com.happening.poc.poc_happening;
+package com.happening.poc.poc_happening.service;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

@@ -33,12 +33,12 @@
         </activity>
 
         <service
-            android:name=".Bluetooth4Service"
+            android:name=".service.Bluetooth4Service"
             android:enabled="true"
             android:exported="false">
         </service>
         <receiver
-            android:name=".AlarmReceiver"
+            android:name=".service.AlarmReceiver"
             android:process=":remote" ></receiver>
     </application>
 
