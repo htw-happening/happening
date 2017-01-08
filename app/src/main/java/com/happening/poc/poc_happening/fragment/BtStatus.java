@@ -1,18 +1,23 @@
 package com.happening.poc.poc_happening.fragment;
 
+import android.app.ActivityManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -60,12 +65,33 @@ public class BtStatus extends Fragment {
             }
         }
     };
-
     private BluetoothManager bluetoothManager;
     private WifiP2pManager wifiP2pManager;
     private String availableTxt = "Läuft";
     private String unAvailableTxt = "Läuft Nicht!";
+
     private Intent bt4BackgroundService = null;
+    private Bluetooth4Service mService = null;
+    private boolean mBound = false;
+    private ServiceConnection mConnection = new ServiceConnection() {
+        // Called when the connection with the service is established
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            Log.d(this.getClass().getSimpleName(), "onServiceConnected");
+            // Because we have bound to an explicit
+            // service that is running in our own process, we can
+            // cast its IBinder to a concrete class and directly access it.
+            Bluetooth4Service.LocalBinder binder = (Bluetooth4Service.LocalBinder) service;
+            mService = binder.getService();
+            mBound = true;
+            Log.d(this.getClass().getSimpleName(), "service loaded " + mService.toString());
+        }
+
+        // Called when the connection with the service disconnects unexpectedly
+        public void onServiceDisconnected(ComponentName className) {
+            Log.d(this.getClass().getSimpleName(), "onServiceDisconnected");
+            mBound = false;
+        }
+    };
 
     public BtStatus() {
         super();
@@ -82,7 +108,7 @@ public class BtStatus extends Fragment {
 
         bluetoothManager = (BluetoothManager) rootView.getContext().getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-        String bluetoothAddress = android.provider.Settings.Secure.getString(rootView.getContext().getApplicationContext().getContentResolver(), "bluetooth_address");
+        String bluetoothAddress = Settings.Secure.getString(rootView.getContext().getApplicationContext().getContentResolver(), "bluetooth_address");
         wifiP2pManager = (WifiP2pManager) rootView.getContext().getSystemService(Context.WIFI_P2P_SERVICE);
         WifiManager wifiManager = (WifiManager) rootView.getContext().getSystemService(Context.WIFI_SERVICE);
         boolean hasBLE = rootView.getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
@@ -119,7 +145,14 @@ public class BtStatus extends Fragment {
         filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         rootView.getContext().registerReceiver(receiver, filter);
 
+        // Bluetooth Background Service Switch
         Switch bt4ServiceSwitch = (Switch) rootView.findViewById(R.id.switch_background_service);
+        bt4ServiceSwitch.setChecked(isMyServiceRunning(Bluetooth4Service.class));
+        if (isMyServiceRunning(Bluetooth4Service.class)) {
+            ((TextView) rootView.findViewById(R.id.background_service_value)).setText(availableTxt);
+        } else {
+            ((TextView) rootView.findViewById(R.id.background_service_value)).setText(unAvailableTxt);
+        }
 
         bt4ServiceSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -173,7 +206,9 @@ public class BtStatus extends Fragment {
     }
 
     private void startBt4Service() {
+        Log.d(this.getClass().getSimpleName(), "start service in activity");
         bt4BackgroundService = new Intent(this.getContext(), Bluetooth4Service.class);
+//        rootView.getContext().bindService(bt4BackgroundService, mConnection, Context.BIND_AUTO_CREATE);
         rootView.getContext().startService(bt4BackgroundService);
     }
 
@@ -183,5 +218,27 @@ public class BtStatus extends Fragment {
         bt4BackgroundService = null;
     }
 
-}
+    @Override
+    public void onStop() {
+        super.onStop();
 
+        if (receiver != null) {
+            rootView.getContext().unregisterReceiver(receiver);
+        }
+
+        if (mBound) {
+            rootView.getContext().unbindService(mConnection);
+        }
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) rootView.getContext().getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+}

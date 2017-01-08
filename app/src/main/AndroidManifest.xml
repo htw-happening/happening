@@ -35,7 +35,10 @@
         <service
             android:name=".service.Bluetooth4Service"
             android:enabled="true"
-            android:exported="false">
+            android:exported="false"
+            android:persistent="true"
+        >
+
         </service>
     </application>
 
