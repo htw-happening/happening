@@ -23,6 +23,9 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.os.ParcelUuid;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -30,6 +33,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
@@ -40,8 +44,10 @@ import com.happening.poc.poc_happening.adapter.DeviceListAdapter;
 import com.happening.poc.poc_happening.adapter.DeviceModel;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 
@@ -69,6 +75,10 @@ public class Bt4Controls extends Fragment {
     private ArrayList<DeviceModel> mDeviceList = new ArrayList<>();
     private DeviceListAdapter deviceListAdapter = null;
 
+    private Set<BluetoothDevice> connectedDevices;
+
+    private int notifyCounter = 42;
+
     public static Bt4Controls getInstance() {
         instance = new Bt4Controls();
         return instance;
@@ -77,6 +87,8 @@ public class Bt4Controls extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_bt4controls, container, false);
+
+        connectedDevices = new HashSet<>();
 
         if (!getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Snackbar.make(rootView, "BLE features are not supported!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
@@ -173,6 +185,20 @@ public class Bt4Controls extends Fragment {
                 } else {
                     stopGattServer();
                 }
+            }
+        });
+        Button notifyButton = (Button) rootView.findViewById(R.id.button_notify);
+        notifyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("Bt4Controls","on notify button clicked");
+                BluetoothGattCharacteristic ch = mBluetoothGattServer.getService(UUID.fromString(SERVICE_UUID))
+                        .getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
+                ch.setValue(""+notifyCounter);
+                for (BluetoothDevice device: connectedDevices) {
+                    mBluetoothGattServer.notifyCharacteristicChanged(device, ch, false);
+                }
+                notifyCounter++;
             }
         });
 
@@ -294,7 +320,14 @@ public class Bt4Controls extends Fragment {
                 serviceUuid, BluetoothGattService.SERVICE_TYPE_PRIMARY);
 
         BluetoothGattCharacteristic gattCharacteristic = new BluetoothGattCharacteristic(
-                characteristicUuid, BluetoothGattCharacteristic.PROPERTY_READ, BluetoothGattCharacteristic.PERMISSION_READ);
+                characteristicUuid,
+                        BluetoothGattCharacteristic.PROPERTY_BROADCAST |
+                        BluetoothGattCharacteristic.PROPERTY_WRITE |
+                        BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE |
+                        BluetoothGattCharacteristic.PROPERTY_READ |
+                        BluetoothGattCharacteristic.PROPERTY_NOTIFY,
+                        BluetoothGattCharacteristic.PERMISSION_READ |
+                        BluetoothGattCharacteristic.PERMISSION_WRITE);
         gattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
 
 //        BluetoothGattDescriptor gattDescriptor = new BluetoothGattDescriptor(
@@ -321,6 +354,34 @@ public class Bt4Controls extends Fragment {
 
     }
 
+    private Handler guiHandler = new Handler(Looper.getMainLooper()) {
+        /**
+         * Callback method
+         * @param msg see Constants
+         */
+        @Override
+        public void handleMessage(Message msg) {
+            Log.d("Bt4Controls", "Message received from Handler");
+            switch (msg.what) {
+                case 42:
+                    Log.d("Bt4Controls","42 Message receievd");
+                    Log.d("Bt4Controls",msg.getData().getString("content"));
+                    String content = msg.getData().getString("content");
+                    Snackbar.make(rootView, content, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                    break;
+                case 100:
+                    //TextView tv = (TextView) rootView.findViewById(R.id.ble_connect_count);
+                    //tv.setText("jjod");
+                    //((TextView)Bt4Controls.getInstance().rootView.findViewById(R.id.ble_connect_count)).setText("Num: "+connectedDevices.size());
+            }
+        }
+    };
+
+    public static Handler getHandler(){
+        return Bt4Controls.getInstance().guiHandler;
+    }
+
+
     //region GattServerCallback
 
     public class GattServerCallback extends BluetoothGattServerCallback {
@@ -343,6 +404,17 @@ public class Bt4Controls extends Fragment {
         @Override
         public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
             Log.d("CONN_CHANGE", "state changed to " + newState);
+            if (newState == BluetoothProfile.STATE_CONNECTED){
+                connectedDevices.add(device);
+                getHandler().obtainMessage(100).sendToTarget();
+                Log.d("CONN_CHANGE", "Added a Device to List "+device.getName());
+
+            }
+            if (newState == BluetoothProfile.STATE_DISCONNECTED){
+                connectedDevices.remove(device);
+                getHandler().obtainMessage(100).sendToTarget();
+                Log.d("CONN_CHANGE", "Removed a Device from List "+device.getName());
+            }
         }
 
         @Override

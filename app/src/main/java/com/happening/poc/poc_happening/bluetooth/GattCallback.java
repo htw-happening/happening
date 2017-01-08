@@ -1,12 +1,17 @@
 package com.happening.poc.poc_happening.bluetooth;
 
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
+import android.os.Bundle;
+import android.os.Message;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 
+import com.happening.poc.poc_happening.MainActivity;
 import com.happening.poc.poc_happening.fragment.Bt4Controls;
 
 import java.util.UUID;
@@ -55,7 +60,7 @@ public class GattCallback extends android.bluetooth.BluetoothGattCallback {
                 BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUuid);
                 Log.d("SERVICE_DISCO", "triggered");
 
-                // gatt.setCharacteristicNotification(characteristic, false);
+                gatt.setCharacteristicNotification(characteristic, true);
                 gatt.readCharacteristic(characteristic);
                 // BluetoothGattDescriptor desc = characteristic.getDescriptor(descriptorUuid);
 
@@ -78,6 +83,13 @@ public class GattCallback extends android.bluetooth.BluetoothGattCallback {
         Log.d("CHAR_CHANGE", "get-pro " + characteristic.getProperties());
         Log.d("CHAR_CHANGE", "get-per " + characteristic.getPermissions());
         Log.d("CHAR_CHANGE", "get-wri " + characteristic.getWriteType());
+
+        Message msg = Bt4Controls.getHandler().obtainMessage(42);
+        Bundle bundle = new Bundle();
+        bundle.putString("content", characteristic.getStringValue(0));
+        msg.setData(bundle);
+        Bt4Controls.getHandler().sendMessage(msg);
+        Log.d("CHAR_CHANGE", "Send data to gui handler");
     }
 
     @Override
@@ -89,8 +101,8 @@ public class GattCallback extends android.bluetooth.BluetoothGattCallback {
         Log.d("CHAR_READ", "get-wri " + characteristic.getWriteType());
         Log.d("CHAR_READ", "status be like " + status);
         UUID descriptorUuid = UUID.fromString(Bt4Controls.DESCRIPTOR_UUID);
-        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(descriptorUuid);
-        gatt.readDescriptor(descriptor);
+        //BluetoothGattDescriptor descriptor = characteristic.getDescriptor(descriptorUuid);
+        //gatt.readDescriptor(descriptor);
     }
 
     @Override
