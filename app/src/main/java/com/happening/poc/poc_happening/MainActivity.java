@@ -1,15 +1,11 @@
 package com.happening.poc.poc_happening;
 
 import android.Manifest;
-import android.app.ActivityManager;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -19,7 +15,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -28,7 +23,6 @@ import com.happening.poc.poc_happening.fragment.Bt4Controls;
 import com.happening.poc.poc_happening.fragment.BtStatus;
 import com.happening.poc.poc_happening.fragment.ChatFragment;
 import com.happening.poc.poc_happening.fragment.MainFragment;
-import com.happening.poc.poc_happening.service.Bluetooth4Service;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -94,14 +88,6 @@ public class MainActivity extends AppCompatActivity
                         Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION},
                 TAG_CODE_PERMISSION_LOCATION);
-
-        Log.d(this.getClass().getSimpleName(), "SERVICE IST RUNNING " + isMyServiceRunning(Bluetooth4Service.class));
-
-        if (isMyServiceRunning(Bluetooth4Service.class)) {
-            Log.d(this.getClass().getSimpleName(), " active since " + mService.activeSince);
-        }
-
-//        Bluetooth4Service.is
     }
 
     @Override
@@ -205,18 +191,6 @@ public class MainActivity extends AppCompatActivity
                 .replace(current.getId(), fragment, tag)
                 .addToBackStack(null)
                 .commit();
-    }
-
-    private ActivityManager.RunningServiceInfo mService = null;
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                mService = service;
-                return true;
-            }
-        }
-        return false;
     }
 
 }

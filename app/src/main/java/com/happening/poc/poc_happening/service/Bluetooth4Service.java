@@ -1,7 +1,5 @@
 package com.happening.poc.poc_happening.service;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
@@ -9,7 +7,6 @@ import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
@@ -28,8 +25,6 @@ public class Bluetooth4Service extends Service {
     /**
      * interface for clients that bind
      */
-//    IBinder mBinder;
-    // Random number generator
     private final Random mGenerator = new Random();
     /**
      * indicates how to behave if the service is killed
@@ -44,14 +39,6 @@ public class Bluetooth4Service extends Service {
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser = null;
     private AdvertiseCallback mAdvertiseCallback = null;
     private int number = -1;
-
-    /**
-     * A client is binding to the service with bindService()
-     */
-//    @Override
-//    public IBinder onBind(Intent intent) {
-//        return mBinder;
-//    }
 
     /**
      * Called when the service is being created.
@@ -135,7 +122,6 @@ public class Bluetooth4Service extends Service {
     @Override
     public void onRebind(Intent intent) {
         Log.d(this.getClass().getSimpleName(), "onRebind");
-
     }
 
     /**
@@ -147,6 +133,9 @@ public class Bluetooth4Service extends Service {
         mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
     }
 
+    /**
+     * A client is binding to the service with bindService()
+     */
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(this.getClass().getSimpleName(), "onBind");
@@ -157,7 +146,7 @@ public class Bluetooth4Service extends Service {
      * method for clients
      */
     public int getRandomNumber() {
-        Log.d("CALL", "AWESSSSOOOOMMME");
+        Log.d("CALL", "getRandomNumber");
         if (number == -1) {
             number = mGenerator.nextInt(100);
         }
