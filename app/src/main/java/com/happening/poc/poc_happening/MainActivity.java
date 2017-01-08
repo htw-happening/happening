@@ -18,10 +18,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.happening.poc.poc_happening.dataStore.DBHelper;
 import com.happening.poc.poc_happening.fragment.Bt2Controls;
 import com.happening.poc.poc_happening.fragment.Bt4Controls;
 import com.happening.poc.poc_happening.fragment.BtStatus;
 import com.happening.poc.poc_happening.fragment.ChatFragment;
+import com.happening.poc.poc_happening.fragment.DBTestFragment;
 import com.happening.poc.poc_happening.fragment.MainFragment;
 
 public class MainActivity extends AppCompatActivity
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity
     private Fragment bt4ControlsFragment;
     private Fragment bt2ControlsFragment;
     private Fragment btStatusFragment;
+    private Fragment dbTestFragment;
 
     // Fragment Tags
     private static final String TAG_FRAGMENT_MAIN = "main";
@@ -51,6 +54,8 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG_FRAGMENT_BT4CONTROLS = "bt4";
     private static final String TAG_FRAGMENT_BT2CONTROLS = "bt2";
     private static final String TAG_FRAGMENT_BTSTATUS = "btstatus";
+    private static final String TAG_FRAGMENT_DB_TEST = "db_test";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +72,9 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // Init DB (SQLLite)
+        DBHelper mDbHelper = DBHelper.getInstance(this);
 
         this.currentFragment = BtStatus.getInstance();
         this.currentFragmentTag = TAG_FRAGMENT_BTSTATUS;
@@ -171,6 +179,18 @@ public class MainActivity extends AppCompatActivity
             loadFragment(currentFragment, btStatusFragment, TAG_FRAGMENT_BTSTATUS);
             this.currentFragment = btStatusFragment;
             this.currentFragmentTag = TAG_FRAGMENT_BTSTATUS;
+
+        } else if (id == R.id.db_test) {
+            if (this.dbTestFragment == null) {
+                this.dbTestFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_DB_TEST);
+                if (this.dbTestFragment == null) {
+                    this.dbTestFragment = DBTestFragment.getInstance();
+                }
+            }
+
+            loadFragment(currentFragment, dbTestFragment, TAG_FRAGMENT_DB_TEST);
+            this.currentFragment = dbTestFragment;
+            this.currentFragmentTag = TAG_FRAGMENT_DB_TEST;
 
         } else if (id == R.id.nav_share) {
 
