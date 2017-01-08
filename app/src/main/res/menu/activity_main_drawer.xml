@@ -22,6 +22,10 @@
             android:id="@+id/bt_status"
             android:icon="@drawable/ic_menu_manage"
             android:title="BT Status" />
+        <item
+            android:id="@+id/db_test"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="DB Test" />
     </group>
 
     <item android:title="Communicate">
