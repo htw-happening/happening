@@ -17,7 +17,6 @@ import java.util.Map;
 public class DeviceModel {
 
     private int rssi;
-    private boolean firstConnect;
     private Context context;
     private ScanRecord scanRecord;
     private BluetoothGatt bluetoothGatt;
@@ -29,8 +28,6 @@ public class DeviceModel {
         this.scanRecord = scanResult.getScanRecord();
         this.rssi = scanResult.getRssi();
         this.context = context;
-        this.firstConnect = false;
-
         this.bluetoothGattCallback = new GattCallback();
     }
 
@@ -119,5 +116,4 @@ public class DeviceModel {
         }
         return false;
     }
-
 }

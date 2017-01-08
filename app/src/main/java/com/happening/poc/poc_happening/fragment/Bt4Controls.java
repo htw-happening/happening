@@ -191,12 +191,18 @@ public class Bt4Controls extends Fragment {
         notifyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("Bt4Controls","on notify button clicked");
+                Log.d("Bt4Controls", "on notify button clicked");
                 BluetoothGattCharacteristic ch = mBluetoothGattServer.getService(UUID.fromString(SERVICE_UUID))
                         .getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
-                ch.setValue(""+notifyCounter);
-                for (BluetoothDevice device: connectedDevices) {
+                ch.setValue("" + notifyCounter);
+
+                int[] c = {BluetoothProfile.STATE_CONNECTED, BluetoothProfile.STATE_CONNECTING};
+                List<BluetoothDevice> cd = mBluetoothManager.getDevicesMatchingConnectionStates(
+                        BluetoothProfile.GATT, c);
+
+                for (BluetoothDevice device : cd) {
                     mBluetoothGattServer.notifyCharacteristicChanged(device, ch, false);
+                    Log.d("BT4CONTROLS", device.getAddress() + " notified");
                 }
                 notifyCounter++;
             }
@@ -321,12 +327,12 @@ public class Bt4Controls extends Fragment {
 
         BluetoothGattCharacteristic gattCharacteristic = new BluetoothGattCharacteristic(
                 characteristicUuid,
-                        BluetoothGattCharacteristic.PROPERTY_BROADCAST |
+                BluetoothGattCharacteristic.PROPERTY_BROADCAST |
                         BluetoothGattCharacteristic.PROPERTY_WRITE |
                         BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE |
                         BluetoothGattCharacteristic.PROPERTY_READ |
                         BluetoothGattCharacteristic.PROPERTY_NOTIFY,
-                        BluetoothGattCharacteristic.PERMISSION_READ |
+                BluetoothGattCharacteristic.PERMISSION_READ |
                         BluetoothGattCharacteristic.PERMISSION_WRITE);
         gattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
 
@@ -364,10 +370,8 @@ public class Bt4Controls extends Fragment {
             Log.d("Bt4Controls", "Message received from Handler");
             switch (msg.what) {
                 case 42:
-                    Log.d("Bt4Controls","42 Message receievd");
-                    Log.d("Bt4Controls",msg.getData().getString("content"));
                     String content = msg.getData().getString("content");
-                    Snackbar.make(rootView, content, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                    Log.d("Bt4Controls", "content: " + content);
                     break;
                 case 100:
                     //TextView tv = (TextView) rootView.findViewById(R.id.ble_connect_count);
@@ -377,10 +381,9 @@ public class Bt4Controls extends Fragment {
         }
     };
 
-    public static Handler getHandler(){
+    public static Handler getHandler() {
         return Bt4Controls.getInstance().guiHandler;
     }
-
 
     //region GattServerCallback
 
@@ -393,7 +396,7 @@ public class Bt4Controls extends Fragment {
 
             Log.d("CHAR_READ", "server " + mBluetoothGattServer);
             if (mBluetoothGattServer != null)
-                mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, (characteristic.getStringValue(0)+"Peter").getBytes());
+                mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, (characteristic.getStringValue(0) + "Peter").getBytes());
         }
 
         @Override
@@ -404,16 +407,16 @@ public class Bt4Controls extends Fragment {
         @Override
         public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
             Log.d("CONN_CHANGE", "state changed to " + newState);
-            if (newState == BluetoothProfile.STATE_CONNECTED){
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
                 connectedDevices.add(device);
                 getHandler().obtainMessage(100).sendToTarget();
-                Log.d("CONN_CHANGE", "Added a Device to List "+device.getName());
+                Log.d("CONN_CHANGE", "Added a Device to List " + device.getName());
 
             }
-            if (newState == BluetoothProfile.STATE_DISCONNECTED){
+            if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connectedDevices.remove(device);
                 getHandler().obtainMessage(100).sendToTarget();
-                Log.d("CONN_CHANGE", "Removed a Device from List "+device.getName());
+                Log.d("CONN_CHANGE", "Removed a Device from List " + device.getName());
             }
         }
 

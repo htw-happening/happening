@@ -8,9 +8,6 @@ import android.view.ViewGroup;
 
 import com.happening.poc.poc_happening.R;
 
-/**
- * Created by kaischulz on 10.12.16.
- */
 
 public class MainFragment extends Fragment {
 
