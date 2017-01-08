@@ -1,4 +1,4 @@
-package com.happening.poc.poc_happening.adapter;
+package com.happening.poc.poc_happening.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -10,25 +10,19 @@ import android.os.Build;
 import android.os.ParcelUuid;
 import android.util.Log;
 
-import com.happening.poc.poc_happening.bluetooth.GattCallback;
-
 import java.util.Map;
 
 public class DeviceModel {
 
     private int rssi;
-    private Context context;
     private ScanRecord scanRecord;
     private BluetoothGatt bluetoothGatt;
     private BluetoothDevice bluetoothDevice;
-    private BluetoothGattCallback bluetoothGattCallback;
 
-    public DeviceModel(Context context, ScanResult scanResult) {
+    public DeviceModel(ScanResult scanResult) {
         this.bluetoothDevice = scanResult.getDevice();
         this.scanRecord = scanResult.getScanRecord();
         this.rssi = scanResult.getRssi();
-        this.context = context;
-        this.bluetoothGattCallback = new GattCallback();
     }
 
     public String getName() {
@@ -77,26 +71,8 @@ public class DeviceModel {
         return bluetoothGatt != null;
     }
 
-    public void connectDevice() {
-        /* TODO: maybe give a shit about firstConnect again
-        * The autoConnect parameter determines whether to actively connect to
-        * the remote device, or rather passively scan and finalize the connection
-        * when the remote device is in range/available. Generally, the first ever
-        * connection to a device should be direct (autoConnect set to false) and
-        * subsequent connections to known devices should be invoked with the
-        * autoConnect parameter set to true.
-        */
-
-        if (isConnected()) {
-            Log.d("GATT", "Already connected");
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                bluetoothGatt = bluetoothDevice.connectGatt(context, false, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
-            } else {
-                bluetoothGatt = bluetoothDevice.connectGatt(context, false, bluetoothGattCallback);
-            }
-            Log.d("GATT", "Connecting");
-        }
+    public void setBluetoothGatt(BluetoothGatt bluetoothGatt) {
+        this.bluetoothGatt = bluetoothGatt;
     }
 
     public void disconnectDevice() {

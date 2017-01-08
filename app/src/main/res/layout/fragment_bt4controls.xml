@@ -64,20 +64,18 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="5sp"
             android:layout_weight="1"
+            android:text="Num: 0"
             android:textAlignment="textEnd"
-            android:textSize="16sp"
-            android:text="Num: 0" />
-
+            android:textSize="16sp" />
 
     </LinearLayout>
 
-
     <Button
         android:id="@+id/button_notify"
-        android:text="Notify"
-        android:layout_below="@+id/linLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linLayout"
+        android:text="Notify" />
 
     <ListView
         android:id="@+id/discovered_devices_list"

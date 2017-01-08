@@ -12,6 +12,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.happening.poc.poc_happening.R;
+import com.happening.poc.poc_happening.bluetooth.DeviceModel;
 
 import java.util.ArrayList;
 
@@ -47,18 +48,18 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceModel> {
         int colorPrimary = color.data;
         address.setTextColor(device.isConnected() ? colorAccent : colorPrimary);
 
-        Switch connectSwitch = (Switch) convertView.findViewById(R.id.connect_switch);
-        connectSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    Log.d("CLICK", "Connect to " + device.getAddress());
-                    device.connectDevice();
-                } else {
-                    Log.d("CLICK", "Disconnect from " + device.getAddress());
-                    device.disconnectDevice();
-                }
-            }
-        });
+//        Switch connectSwitch = (Switch) convertView.findViewById(R.id.connect_switch);
+//        connectSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                if (isChecked) {
+//                    Log.d("CLICK", "Connect to " + device.getAddress());
+//                    device.connectDevice();
+//                } else {
+//                    Log.d("CLICK", "Disconnect from " + device.getAddress());
+//                    device.disconnectDevice();
+//                }
+//            }
+//        });
         return convertView;
     }
 }
