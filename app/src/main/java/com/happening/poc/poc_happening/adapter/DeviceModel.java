@@ -10,7 +10,7 @@ import android.os.Build;
 import android.os.ParcelUuid;
 import android.util.Log;
 
-import com.happening.poc.poc_happening.bluetooth.HappeningGattCallback;
+import com.happening.poc.poc_happening.bluetooth.GattCallback;
 
 import java.util.Map;
 
@@ -31,7 +31,7 @@ public class DeviceModel {
         this.context = context;
         this.firstConnect = false;
 
-        this.bluetoothGattCallback = new HappeningGattCallback();
+        this.bluetoothGattCallback = new GattCallback();
     }
 
     public String getName() {
@@ -81,7 +81,7 @@ public class DeviceModel {
     }
 
     public void connectDevice() {
-        /* TODO: From BluetoothGatt docs
+        /* TODO: maybe give a shit about firstConnect again
         * The autoConnect parameter determines whether to actively connect to
         * the remote device, or rather passively scan and finalize the connection
         * when the remote device is in range/available. Generally, the first ever
@@ -94,19 +94,18 @@ public class DeviceModel {
             Log.d("GATT", "Already connected");
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                bluetoothGatt = bluetoothDevice.connectGatt(context, !firstConnect, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
+                bluetoothGatt = bluetoothDevice.connectGatt(context, false, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
             } else {
-                bluetoothGatt = bluetoothDevice.connectGatt(context, !firstConnect, bluetoothGattCallback);
+                bluetoothGatt = bluetoothDevice.connectGatt(context, false, bluetoothGattCallback);
             }
-            firstConnect = true;
             Log.d("GATT", "Connecting");
         }
     }
 
     public void disconnectDevice() {
         if (isConnected()) {
-            bluetoothGatt.disconnect();
             Log.d("GATT", "Disconnecting");
+            bluetoothGatt.disconnect();
             bluetoothGatt = null;
         } else {
             Log.d("GATT", "Nothing to disconnect");

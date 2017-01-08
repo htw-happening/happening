@@ -3,7 +3,6 @@ package com.happening.poc.poc_happening.fragment;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattServerCallback;
 import android.bluetooth.BluetoothGattService;
@@ -37,7 +36,7 @@ import android.widget.TextView;
 import com.happening.poc.poc_happening.R;
 import com.happening.poc.poc_happening.adapter.DeviceListAdapter;
 import com.happening.poc.poc_happening.adapter.DeviceModel;
-import com.happening.poc.poc_happening.bluetooth.HappeningGattServerCallback;
+import com.happening.poc.poc_happening.bluetooth.GattServerCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,12 +49,14 @@ public class Bt4Controls extends Fragment {
     private static Bt4Controls instance = null;
     private View rootView = null;
 
-    public static final String HAPPENING_SERVICE_UUID = "11111111-1337-1337-1337-000000000000";
-    public static final ParcelUuid parcelUuid = ParcelUuid.fromString(HAPPENING_SERVICE_UUID);
+    public static final String ADVERTISE_UUID = "11111111-0000-0000-0000-000ad7e9415e";
+    public static final String SERVICE_UUID = "11111111-0000-0000-0000-000005e971ce";
+    public static final String CHARACTERISTIC_UUID = "11111111-0000-0000-00c8-a9ac4e91541c";
+    public static final String DESCRIPTOR_UUID = "11111111-0000-0000-0000-00de5c919409";
 
     private BluetoothManager mBluetoothManager = null;
     private BluetoothAdapter mBluetoothAdapter = null;
-    private BluetoothGattServer mBluetoothGattServer = null;
+    public BluetoothGattServer mBluetoothGattServer = null;
 
     private BluetoothLeScanner mBluetoothLeScanner = null;
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser = null;
@@ -92,7 +93,7 @@ public class Bt4Controls extends Fragment {
         this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
         this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
 
-        this.mGattServerCallback = new HappeningGattServerCallback();
+        this.mGattServerCallback = new GattServerCallback();
 
         // set scanning callback
         this.mScanCallback = new ScanCallback() {
@@ -129,6 +130,18 @@ public class Bt4Controls extends Fragment {
         Log.i("SELF", mBluetoothAdapter.getName() + " " + macAddress);
 
         // set event Listener
+        Switch adapterButton = (Switch) rootView.findViewById(R.id.adapter_button);
+        adapterButton.setChecked(mBluetoothAdapter.isEnabled());
+        adapterButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    enableAdapter();
+                } else {
+                    disableAdapter();
+                }
+            }
+        });
+
         Switch discoverButton = (Switch) rootView.findViewById(R.id.discover_button);
         discoverButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -174,6 +187,16 @@ public class Bt4Controls extends Fragment {
         return rootView;
     }
 
+    private void enableAdapter() {
+        Snackbar.make(rootView, "Enable Adapter", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        mBluetoothAdapter.enable();
+    }
+
+    private void disableAdapter() {
+        Snackbar.make(rootView, "Disable Adapter", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        mBluetoothAdapter.disable();
+    }
+
     private void startAdvertise() {
         if (mBluetoothAdapter.isMultipleAdvertisementSupported()) {
 
@@ -190,14 +213,14 @@ public class Bt4Controls extends Fragment {
             int index = new Random().nextInt(loads.length);
             byte[] payload = loads[index].getBytes();
             AdvertiseData.Builder advertiseDataBuilder = new AdvertiseData.Builder();
+            ParcelUuid advertiseUuid = ParcelUuid.fromString(ADVERTISE_UUID);
             advertiseDataBuilder
-                    .addServiceData(parcelUuid, payload)
+                    .addServiceData(advertiseUuid, payload)
                     .setIncludeDeviceName(true)
                     .setIncludeTxPowerLevel(true);
             AdvertiseData advertiseData = advertiseDataBuilder.build();
 
             mBluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, mAdvertiseCallback);
-
         }
     }
 
@@ -261,24 +284,44 @@ public class Bt4Controls extends Fragment {
     private void createGattServer() {
         Snackbar.make(rootView, "Start Gatt-Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
-        this.mBluetoothGattServer = mBluetoothManager.openGattServer(rootView.getContext(), mGattServerCallback);
 
-        UUID uuid = UUID.fromString(HAPPENING_SERVICE_UUID);
+        UUID serviceUuid = UUID.fromString(SERVICE_UUID);
+        UUID characteristicUuid = UUID.fromString(CHARACTERISTIC_UUID);
+        UUID descriptorUuid = UUID.fromString(DESCRIPTOR_UUID);
 
-        BluetoothGattService gattService = new BluetoothGattService(uuid, BluetoothGattService.SERVICE_TYPE_PRIMARY);
-        BluetoothGattCharacteristic gattCharacteristic = new BluetoothGattCharacteristic(uuid, BluetoothGattCharacteristic.PROPERTY_READ, BluetoothGattCharacteristic.PERMISSION_READ);
-        BluetoothGattDescriptor gattDescriptor = new BluetoothGattDescriptor(uuid, BluetoothGattDescriptor.PERMISSION_READ);
+        BluetoothGattService gattService = new BluetoothGattService(
+                serviceUuid, BluetoothGattService.SERVICE_TYPE_PRIMARY);
 
-        gattDescriptor.setValue("awesome descriptor!".getBytes());
-        gattCharacteristic.addDescriptor(gattDescriptor);
-        gattCharacteristic.setValue("awesome characteristic!".getBytes());
+        BluetoothGattCharacteristic gattCharacteristic = new BluetoothGattCharacteristic(
+                characteristicUuid, BluetoothGattCharacteristic.PROPERTY_READ, BluetoothGattCharacteristic.PERMISSION_READ);
+        gattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+
+//        BluetoothGattDescriptor gattDescriptor = new BluetoothGattDescriptor(
+//                descriptorUuid, BluetoothGattDescriptor.PERMISSION_WRITE);
+
+//        gattDescriptor.setValue("awesome descriptor".getBytes());
+//        gattCharacteristic.addDescriptor(gattDescriptor);
+
+        gattCharacteristic.setValue("moep".getBytes());
         gattService.addCharacteristic(gattCharacteristic);
 
-        mBluetoothGattServer.addService(gattService);
+        getBluetoothGattServer().addService(gattService);
     }
 
     private void stopGattServer() {
-        Snackbar.make(rootView, "Stop Gatt-Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        mBluetoothGattServer.close();
+        if (mBluetoothGattServer != null) {
+            Snackbar.make(rootView, "Stop Gatt-Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+            getBluetoothGattServer().close();
+        } else {
+            Snackbar.make(rootView, "Nuttin to close", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        }
+
+    }
+
+    public BluetoothGattServer getBluetoothGattServer() {
+        if (mBluetoothGattServer == null) {
+            mBluetoothGattServer = mBluetoothManager.openGattServer(rootView.getContext(), mGattServerCallback);
+        }
+        return mBluetoothGattServer;
     }
 }
