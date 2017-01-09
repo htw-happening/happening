@@ -70,19 +70,12 @@
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/button_notify"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/linLayout"
-        android:text="Notify" />
-
     <ListView
         android:id="@+id/discovered_devices_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/button_notify"
+        android:layout_below="@+id/gatt_server_button"
         android:focusable="true" />
 
 </LinearLayout>

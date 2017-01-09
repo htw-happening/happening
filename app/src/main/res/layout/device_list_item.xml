@@ -32,12 +32,11 @@
         android:text="signal N/A"
         android:textSize="14dp" />
 
-    <Switch
-        android:id="@+id/connect_switch"
-        android:focusable="false"
+    <TextView
+        android:id="@+id/server_value"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Connect"
+        android:text="N/A"
         android:textSize="14dp" />
 
 </LinearLayout>
