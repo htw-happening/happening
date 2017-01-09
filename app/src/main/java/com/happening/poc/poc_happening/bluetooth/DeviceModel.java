@@ -19,6 +19,8 @@ public class DeviceModel {
     private BluetoothGatt bluetoothGatt;
     private BluetoothDevice bluetoothDevice;
 
+    private String currentMessage = "";
+
     public DeviceModel(ScanResult scanResult) {
         this.bluetoothDevice = scanResult.getDevice();
         this.scanRecord = scanResult.getScanRecord();
@@ -30,6 +32,14 @@ public class DeviceModel {
             return bluetoothDevice.getName();
         }
         return "n/a";
+    }
+
+    public String getCurrentMessage() {
+        return currentMessage;
+    }
+
+    public void setCurrentMessage(String currentMessage) {
+        this.currentMessage = currentMessage;
     }
 
     public String getAddress() {

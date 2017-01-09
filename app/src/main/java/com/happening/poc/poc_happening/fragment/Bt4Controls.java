@@ -1,6 +1,8 @@
 package com.happening.poc.poc_happening.fragment;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import com.happening.poc.poc_happening.R;
 import com.happening.poc.poc_happening.adapter.DeviceListAdapter;
@@ -157,10 +160,32 @@ public class Bt4Controls extends Fragment {
     private Handler guiHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
-            Log.d("HANDLER", "Message received from layer");
+            Log.d("HANDLER", "Message received from layer with Code " + msg.what);
             switch (msg.what) {
                 case Layer.DEVICE_POOL_UPDATED:
                     deviceListAdapter.notifyDataSetChanged();
+                    TextView textViewCount = (TextView) getActivity().findViewById(R.id.ble_connect_count);
+                    textViewCount.setText("Num: "+bluetoothLayer.getNumOfConnectedDevices());
+                    break;
+                case Layer.MESSAGE_RECEIVED:
+
+                    String message = msg.getData().getString("content");
+                    Log.d("HANDLER", "Content was "+message);
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User clicked OK button
+                        }
+                    });
+                    builder.setMessage(message);
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+
+
+                    break;
+                default:
+                    Log.d("HANDLER", "Unresolved Message Code");
                     break;
             }
         }
