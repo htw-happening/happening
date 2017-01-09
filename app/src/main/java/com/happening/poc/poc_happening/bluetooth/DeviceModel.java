@@ -2,11 +2,8 @@ package com.happening.poc.poc_happening.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
-import android.content.Context;
-import android.os.Build;
 import android.os.ParcelUuid;
 import android.util.Log;
 

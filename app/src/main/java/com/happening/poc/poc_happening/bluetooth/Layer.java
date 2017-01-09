@@ -23,8 +23,6 @@ import android.os.Message;
 import android.os.ParcelUuid;
 import android.util.Log;
 
-import com.happening.poc.poc_happening.MainActivity;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -32,17 +30,14 @@ import java.util.UUID;
 
 public class Layer {
 
-    private static Layer instance = null;
-
     public static final String ADVERTISE_UUID = "11111111-0000-0000-0000-000ad7e9415e";
     public static final String SERVICE_UUID = "11111111-0000-0000-0000-000005e971ce";
     public static final String CHARACTERISTIC_UUID = "11111111-0000-0000-00c8-a9ac4e91541c";
-
     public static final int DEFAULT_MTU_BYTES = 128;
     public static final int DEVICE_POOL_UPDATED = 1;
     public static final int MESSAGE_RECEIVED = 2;
     public static final int MESSAGE_SENT = 3;
-
+    private static Layer instance = null;
     private BluetoothManager mBluetoothManager = null;
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothGattServer mBluetoothGattServer = null;
@@ -51,7 +46,7 @@ public class Layer {
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser = null;
 
     private DevicePool devicePool = new DevicePool();
-    private List<Handler> handlers = new ArrayList<Handler>();
+    private List<Handler> handlers = new ArrayList<>();
     private Context context = null;
 
     private ScanCallback mScanCallback = new ScanCallback();
@@ -59,19 +54,19 @@ public class Layer {
     private BluetoothGattCallback mGattCallback = new BluetoothGattCallback();
     private BluetoothGattServerCallback mGattServerCallback = new BluetoothGattServerCallback();
 
-    public static Layer getInstance() {
-        if (instance == null)
-            instance = new Layer();
-        return instance;
-    }
-
-    private Layer() {
-        context = MainActivity.getContext();
+    private Layer(Context context) {
+        this.context = context;
         this.mBluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.mBluetoothAdapter = mBluetoothManager.getAdapter();
         this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
         this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
         Log.i("SELF", mBluetoothAdapter.getName());
+    }
+
+    public static Layer getInstance(Context context) {
+        if (instance == null || instance.context != context)
+            instance = new Layer(context);
+        return instance;
     }
 
     private void notifyHandlers(int code) {

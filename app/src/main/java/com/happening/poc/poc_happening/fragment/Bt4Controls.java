@@ -44,7 +44,7 @@ public class Bt4Controls extends Fragment {
             Snackbar.make(rootView, "BLE features are not supported!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
 
-        bluetoothLayer = Layer.getInstance();
+        bluetoothLayer = Layer.getInstance(this.getContext());
         bluetoothLayer.addHandler(guiHandler);
 
         ListView deviceListView = (ListView) rootView.findViewById(R.id.discovered_devices_list);
