@@ -3,6 +3,7 @@ package com.happening.poc.poc_happening.fragment;
 import android.app.ActivityManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.app.TaskStackBuilder;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
@@ -72,8 +73,10 @@ public class BtStatus extends Fragment {
     private String unAvailableTxt = "Läuft Nicht!";
 
     private Intent bt4BackgroundService = null;
+    private boolean bt4BackgroundServiceRunning = false;
     private Bluetooth4Service mService = null;
     private boolean mBound = false;
+
     private ServiceConnection mConnection = new ServiceConnection() {
         // Called when the connection with the service is established
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -148,9 +151,12 @@ public class BtStatus extends Fragment {
 
         // Bluetooth Background Service Switch
         Switch bt4ServiceSwitch = (Switch) rootView.findViewById(R.id.switch_background_service);
-        bt4ServiceSwitch.setChecked(isMyServiceRunning(Bluetooth4Service.class));
-        if (isMyServiceRunning(Bluetooth4Service.class)) {
+        bt4BackgroundServiceRunning = isMyServiceRunning(Bluetooth4Service.class);
+        bt4ServiceSwitch.setChecked(bt4BackgroundServiceRunning);
+
+        if (bt4BackgroundServiceRunning) {
             ((TextView) rootView.findViewById(R.id.background_service_value)).setText(availableTxt);
+            startBt4Service();
         } else {
             ((TextView) rootView.findViewById(R.id.background_service_value)).setText(unAvailableTxt);
         }
@@ -158,15 +164,14 @@ public class BtStatus extends Fragment {
         bt4ServiceSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (bt4BackgroundService == null) {
+                if (bt4BackgroundServiceRunning == false) {
                     startBt4Service();
                     ((Switch) rootView.findViewById(R.id.switch_background_service)).setChecked(true);
                     ((TextView) rootView.findViewById(R.id.background_service_value)).setText(availableTxt);
-                } else if (bt4BackgroundService != null) {
+                } else if (bt4BackgroundServiceRunning) {
                     stopBt4Service();
                     ((Switch) rootView.findViewById(R.id.switch_background_service)).setChecked(false);
                     ((TextView) rootView.findViewById(R.id.background_service_value)).setText(unAvailableTxt);
-                    bt4BackgroundService = null;
                 }
 
             }
@@ -180,12 +185,13 @@ public class BtStatus extends Fragment {
         bt4BackgroundService = new Intent(this.getContext(), Bluetooth4Service.class);
 //        rootView.getContext().bindService(bt4BackgroundService, mConnection, Context.BIND_AUTO_CREATE);
         rootView.getContext().startService(bt4BackgroundService);
+        bt4BackgroundServiceRunning = true;
     }
 
     private void stopBt4Service() {
         Log.d(this.getClass().getSimpleName(), "stop service in activity");
         rootView.getContext().stopService(bt4BackgroundService);
-        bt4BackgroundService = null;
+        bt4BackgroundServiceRunning = false;
     }
 
     @Override
