@@ -241,6 +241,33 @@ public class Layer {
         public void onStartFailure(int errorCode) {
             super.onStartFailure(errorCode);
             Log.d("ADV_CALLBACK", "advertising error " + errorCode);
+
+            //TODO add proper error handling
+            switch (errorCode) {
+                case 0:
+                    Log.d("ADV_CALLBACK", "ADVERTISE_SUCCESS");
+                    break;
+                case 1:
+                    Log.d("ADV_CALLBACK", "ADVERTISE_FAILED_DATA_TOO_LARGE");
+                    startAdvertising();
+                    break;
+                case 2:
+                    Log.d("ADV_CALLBACK", "ADVERTISE_FAILED_TOO_MANY_ADVERTISERS");
+                    break;
+                case 3:
+                    Log.d("ADV_CALLBACK", "ADVERTISE_FAILED_ALREADY_STARTED");
+                    break;
+                case 4:
+                    Log.d("ADV_CALLBACK", "ADVERTISE_FAILED_INTERNAL_ERROR");
+                    break;
+                case 5:
+                    Log.d("ADV_CALLBACK", "ADVERTISE_FAILED_FEATURE_UNSUPPORTED");
+                    break;
+                default:
+                    Log.d("ADV_CALLBACK", "unknown error code");
+                    break;
+            }
+
         }
     }
 
