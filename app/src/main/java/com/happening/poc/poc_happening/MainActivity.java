@@ -1,7 +1,6 @@
 package com.happening.poc.poc_happening;
 
 import android.Manifest;
-import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
@@ -103,11 +102,6 @@ public class MainActivity extends AppCompatActivity
                         Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION},
                 TAG_CODE_PERMISSION_LOCATION);
-    }
-
-    public static Context getContext() {
-        // XXX This may return null...
-        return MainActivity.context;
     }
 
     @Override
