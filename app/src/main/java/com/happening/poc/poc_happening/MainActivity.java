@@ -1,6 +1,7 @@
 package com.happening.poc.poc_happening;
 
 import android.Manifest;
+import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
@@ -28,6 +29,8 @@ import com.happening.poc.poc_happening.fragment.MainFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private static Context context = null;
 
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int TAG_CODE_PERMISSION_LOCATION = 2;
@@ -59,6 +62,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        MainActivity.context = getApplicationContext();
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -77,6 +83,7 @@ public class MainActivity extends AppCompatActivity
 
         this.currentFragment = BtStatus.getInstance();
         this.currentFragmentTag = TAG_FRAGMENT_BTSTATUS;
+
         fm.beginTransaction()
                 .replace(R.id.main_fragment_holder, currentFragment, currentFragmentTag)
                 .commit();
@@ -96,6 +103,11 @@ public class MainActivity extends AppCompatActivity
                         Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION},
                 TAG_CODE_PERMISSION_LOCATION);
+    }
+
+    public static Context getContext() {
+        // XXX This may return null...
+        return MainActivity.context;
     }
 
     @Override

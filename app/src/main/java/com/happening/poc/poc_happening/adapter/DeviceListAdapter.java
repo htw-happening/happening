@@ -1,157 +1,65 @@
 package com.happening.poc.poc_happening.adapter;
 
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothProfile;
-import android.bluetooth.le.ScanResult;
 import android.content.Context;
-import android.os.Build;
-import android.os.ParcelUuid;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.happening.poc.poc_happening.R;
+import com.happening.poc.poc_happening.bluetooth.DeviceModel;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
+public class DeviceListAdapter extends ArrayAdapter<DeviceModel> {
 
-public class DeviceListAdapter extends BaseAdapter implements View.OnClickListener {
-
-    public HashMap<String, ScanResult> deviceList = null;
-    private LayoutInflater inflater = null;
-    private Context context = null;
-    private BluetoothGattCallback mBluetoothGattCallback = null;
-    private ViewHolder vh = null;
-
-    private static final class ViewHolder {
-        TextView deviceName = null;
-        TextView deviceAddress = null;
-        TextView devicePayload = null;
-        TextView deviceDbm = null;
-    }
-
-    public DeviceListAdapter(Context context, HashMap<String, ScanResult> deviceList) {
-        this.inflater = LayoutInflater.from(context);
-        this.context = context;
-        this.deviceList = deviceList;
-
-        this.mBluetoothGattCallback = new BluetoothGattCallback() {
-
-            @Override
-            public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-                super.onConnectionStateChange(gatt, status, newState);
-                Log.d("GATT", "connection state changed " + newState);
-                if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    gatt.discoverServices();
-                }
-            }
-
-            @Override
-            public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-                super.onServicesDiscovered(gatt, status);
-                if (status == BluetoothGatt.GATT_SUCCESS) {
-                    Log.d("GATT", "services discovered");
-                } else {
-                    Log.e("GATT", "service discovery failed " + status);
-                }
-
-                for (BluetoothGattService service : gatt.getServices()) {
-                    for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
-                        for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
-                            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                            gatt.writeDescriptor(descriptor);
-                            Log.d("DESC", descriptor.toString());
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-                String value = new String(characteristic.getValue());
-                Log.d("WHOOP", value);
-            }
-        };
-    }
-
-    @Override
-    public int getCount() {
-        return this.deviceList.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return this.deviceList.values().toArray()[position];
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
+    public DeviceListAdapter(Context context, ArrayList<DeviceModel> deviceList) {
+        super(context, 0, deviceList);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View v = convertView;
-        if (v == null) {
-            v = inflater.inflate(R.layout.device_list_item, parent, false);
-            vh = new ViewHolder();
-            v.setTag(vh);
-            vh.deviceName = (TextView) v.findViewById(R.id.device_name);
-            vh.deviceAddress = (TextView) v.findViewById(R.id.device_address);
-            vh.devicePayload = (TextView) v.findViewById(R.id.device_payload);
-            vh.deviceDbm = (TextView) v.findViewById(R.id.device_dbm);
-        } else {
-            vh = (ViewHolder) v.getTag();
+
+        final DeviceModel device = getItem(position);
+
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.device_list_item, parent, false);
         }
 
-        vh.deviceName.setOnClickListener(this);
-        vh.deviceName.setTag(R.layout.device_list_item, position);
-        ScanResult result = (ScanResult) deviceList.values().toArray()[position];
+        TextView address = (TextView) convertView.findViewById(R.id.device_address);
+        TextView name = (TextView) convertView.findViewById(R.id.device_name);
+        TextView payload = (TextView) convertView.findViewById(R.id.device_payload);
+        TextView deviceDbm = (TextView) convertView.findViewById(R.id.device_dbm);
 
-        if (result.getDevice().getAddress() != null) {
-            vh.deviceAddress.setText(result.getDevice().getAddress());
-        }
+        address.setText(device.getAddress());
+        name.setText(device.getName());
+        payload.setText(device.getPayload());
+        deviceDbm.setText(device.getSignalStrength() + " | " + device.getPathloss());
 
-        if (result.getDevice().getName() != null) {
-            vh.deviceName.setText(result.getDevice().getName());
-        }
+        TypedValue color = new TypedValue();
+        getContext().getTheme().resolveAttribute(R.attr.colorAccent, color, true);
+        int colorAccent = color.data;
+        getContext().getTheme().resolveAttribute(R.attr.colorPrimary, color, true);
+        int colorPrimary = color.data;
+        address.setTextColor(device.isConnected() ? colorAccent : colorPrimary);
 
-        if (result.getRssi() != 0) {
-            vh.deviceDbm.setText(result.getRssi() + "dBm");
-        }
-
-        String serviceData = new String();
-
-        for (Map.Entry<ParcelUuid, byte[]> entry : result.getScanRecord().getServiceData().entrySet()) {
-            serviceData += new String(entry.getValue());
-        }
-
-        result.getDevice().connectGatt(context, true, mBluetoothGattCallback);
-
-        vh.devicePayload.setText(serviceData);
-        return v;
-    }
-
-    @Override
-    public void onClick(View v) {
-        int position = (int) v.getTag(R.layout.device_list_item);
-        final ScanResult result = (ScanResult) deviceList.values().toArray()[position];
-        final BluetoothDevice bluetoothDevice = result.getDevice();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            bluetoothDevice.connectGatt(context, false, mBluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
-        } else {
-            bluetoothDevice.connectGatt(context, false, mBluetoothGattCallback);
-        }
-
-        Log.d("CLICK", result.toString());
+//        Switch connectSwitch = (Switch) convertView.findViewById(R.id.connect_switch);
+//        connectSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                if (isChecked) {
+//                    Log.d("CLICK", "Connect to " + device.getAddress());
+//                    device.connectDevice();
+//                } else {
+//                    Log.d("CLICK", "Disconnect from " + device.getAddress());
+//                    device.disconnectDevice();
+//                }
+//            }
+//        });
+        return convertView;
     }
 }
