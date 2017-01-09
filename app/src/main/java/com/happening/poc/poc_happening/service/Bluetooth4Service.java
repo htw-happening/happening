@@ -7,6 +7,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.happening.poc.poc_happening.bluetooth.Layer;
+import com.happening.poc.poc_happening.handler.NotificationHandler;
 
 public class Bluetooth4Service extends Service {
 
@@ -45,6 +46,8 @@ public class Bluetooth4Service extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(this.getClass().getSimpleName(), "onStartCommand");
         bt4Layer.startAdvertising();
+
+        NotificationHandler.getInstance().doNotification("Happening", "This is an awseom Notification...");
 
         return mStartMode;
     }
