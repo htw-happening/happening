@@ -223,7 +223,11 @@ public class BtStatus extends Fragment {
         super.onStop();
 
         if (receiver != null) {
-            rootView.getContext().unregisterReceiver(receiver);
+            try {
+                rootView.getContext().unregisterReceiver(receiver);
+            } catch (IllegalArgumentException illegalArgumentException) {
+                illegalArgumentException.printStackTrace();
+            }
         }
 
         if (mBound) {
