@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
@@ -33,6 +34,8 @@ public class Layer {
     public static final String ADVERTISE_UUID = "11111111-0000-0000-0000-000ad7e9415e";
     public static final String SERVICE_UUID = "11111111-0000-0000-0000-000005e971ce";
     public static final String CHARACTERISTIC_UUID = "11111111-0000-0000-00c8-a9ac4e91541c";
+    public static final String DESCRIPTOR_UUID = "00002902-0000-0000-00c8-a9ac4e91541c";
+
     public static final int DEFAULT_MTU_BYTES = 128;
     public static final int DEVICE_POOL_UPDATED = 1;
     public static final int MESSAGE_RECEIVED = 2;
@@ -67,6 +70,17 @@ public class Layer {
         if (instance == null || instance.context != context)
             instance = new Layer(context);
         return instance;
+    }
+
+    public int getNumOfConnectedDevices(){
+        String s = "";
+        for (BluetoothDevice device: mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT)) {
+            s += device.getName() + " "+ device.getAddress() +"\n";
+        }
+        Log.d("NumOfConnectedDevices", s);
+
+        return mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT).size();
+
     }
 
     private void notifyHandlers(int code) {
@@ -202,6 +216,11 @@ public class Layer {
         gattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
 
         gattCharacteristic.setValue("moep".getBytes());
+
+        BluetoothGattDescriptor descriptor = new BluetoothGattDescriptor(UUID.fromString(DESCRIPTOR_UUID),
+                BluetoothGattDescriptor.PERMISSION_READ);
+
+        gattCharacteristic.addDescriptor(descriptor);
         gattService.addCharacteristic(gattCharacteristic);
 
         mBluetoothGattServer = mBluetoothManager.openGattServer(context, mGattServerCallback);
@@ -221,7 +240,7 @@ public class Layer {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
-            Log.d("SCAN_CALLBACK", "result found " + result);
+            //Log.d("SCAN_CALLBACK", "result found " + result);
             DeviceModel deviceModel = new DeviceModel(result);
             if (!devicePool.contains(deviceModel)) {
                 devicePool.add(deviceModel);
@@ -304,6 +323,13 @@ public class Layer {
         @Override
         public void onCharacteristicWriteRequest(BluetoothDevice device, int requestId, BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean responseNeeded, int offset, byte[] value) {
             Log.d("CHAR_WRITE", "device: " + device.getAddress() + " preparedWrite: " + preparedWrite + " responseNeeded: " + responseNeeded);
+            //TODO for non advertising devices
+            characteristic.setValue(value);
+            for (BluetoothDevice deviceModel: mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT)) {
+                Log.d("FOO", ""+ deviceModel.getAddress() + " " + deviceModel.getName());
+                mBluetoothGattServer.notifyCharacteristicChanged(deviceModel,characteristic,false);
+            }
+            Log.d("CHAR_WRITE", "Changed to "+new String(value));
         }
 
         @Override
@@ -354,9 +380,15 @@ public class Layer {
 
                     BluetoothGattService service = gatt.getService(serviceUuid);
                     BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUuid);
+
                     Log.d("SERVICE_DISCO", "triggered");
 
                     gatt.setCharacteristicNotification(characteristic, true);
+
+                    BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID.fromString(DESCRIPTOR_UUID));
+                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+
+                    gatt.writeDescriptor(descriptor);
                     gatt.readCharacteristic(characteristic);
 
                     break;
@@ -373,19 +405,21 @@ public class Layer {
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             Log.d("CHAR_CHANGE", "string value: " + characteristic.getStringValue(0));
             notifyHandlers(MESSAGE_RECEIVED, characteristic.getStringValue(0));
+
         }
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             Log.d("CHAR_READ", "string value: " + characteristic.getStringValue(0) + " status: " + status);
-            notifyHandlers(MESSAGE_RECEIVED, characteristic.getStringValue(0));
+            //notifyHandlers(MESSAGE_RECEIVED, characteristic.getStringValue(0));
         }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             Log.d("CHAR_WRITE", "string value: " + characteristic.getStringValue(0) + " status: " + status);
-            notifyHandlers(MESSAGE_SENT, characteristic.getStringValue(0));
+            //notifyHandlers(MESSAGE_SENT, characteristic.getStringValue(0));
         }
+
     }
 
     //endregion
