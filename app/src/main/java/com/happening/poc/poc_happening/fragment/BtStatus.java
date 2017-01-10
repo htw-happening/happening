@@ -1,10 +1,6 @@
 package com.happening.poc.poc_happening.fragment;
 
 import android.app.ActivityManager;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.Service;
-import android.app.TaskStackBuilder;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
@@ -20,7 +16,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,9 +23,7 @@ import android.view.ViewGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.happening.poc.poc_happening.MainActivity;
 import com.happening.poc.poc_happening.R;
-import com.happening.poc.poc_happening.handler.NotificationHandler;
 import com.happening.poc.poc_happening.service.Bluetooth4Service;
 
 public class BtStatus extends Fragment {
@@ -183,6 +176,7 @@ public class BtStatus extends Fragment {
     private void startBt4Service() {
         Log.d(this.getClass().getSimpleName(), "start service in activity");
         bt4BackgroundService = new Intent(this.getContext(), Bluetooth4Service.class);
+//        bt4BackgroundService = new Intent(MyApp.getAppContext(), com.happening.poc.poc_happening.service.Bluetooth4Service.class);
 //        rootView.getContext().bindService(bt4BackgroundService, mConnection, Context.BIND_AUTO_CREATE);
         rootView.getContext().startService(bt4BackgroundService);
         bt4BackgroundServiceRunning = true;

@@ -72,10 +72,10 @@ public class Layer {
         return instance;
     }
 
-    public int getNumOfConnectedDevices(){
+    public int getNumOfConnectedDevices() {
         String s = "";
-        for (BluetoothDevice device: mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT)) {
-            s += device.getName() + " "+ device.getAddress() +"\n";
+        for (BluetoothDevice device : mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT)) {
+            s += device.getName() + " " + device.getAddress() + "\n";
         }
         Log.d("NumOfConnectedDevices", s);
 
@@ -325,11 +325,11 @@ public class Layer {
             Log.d("CHAR_WRITE", "device: " + device.getAddress() + " preparedWrite: " + preparedWrite + " responseNeeded: " + responseNeeded);
             //TODO for non advertising devices
             characteristic.setValue(value);
-            for (BluetoothDevice deviceModel: mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT)) {
-                Log.d("FOO", ""+ deviceModel.getAddress() + " " + deviceModel.getName());
-                mBluetoothGattServer.notifyCharacteristicChanged(deviceModel,characteristic,false);
+            for (BluetoothDevice deviceModel : mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT)) {
+                Log.d("FOO", "" + deviceModel.getAddress() + " " + deviceModel.getName());
+                mBluetoothGattServer.notifyCharacteristicChanged(deviceModel, characteristic, false);
             }
-            Log.d("CHAR_WRITE", "Changed to "+new String(value));
+            Log.d("CHAR_WRITE", "Changed to " + new String(value));
         }
 
         @Override
