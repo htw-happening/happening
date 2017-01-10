@@ -3,30 +3,44 @@ package com.happening.poc.poc_happening.service;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 
+import com.happening.poc.poc_happening.MyApp;
 import com.happening.poc.poc_happening.bluetooth.Layer;
 import com.happening.poc.poc_happening.handler.NotificationHandler;
 
 public class Bluetooth4Service extends Service {
 
-    private Layer bt4Layer = null;
-
     /**
      * interface for clients that bind
      */
     private final IBinder mBinder = new LocalBinder();
-
     /**
      * indicates how to behave if the service is killed
      */
     int mStartMode = START_STICKY;
-
     /**
      * indicates whether onRebind should be used
      */
     boolean mAllowRebind = false;
+    private Layer bt4Layer = null;
+    private Handler backgroundServiceHandler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(Message msg) {
+            NotificationHandler.getInstance().doNotification("Happening", "This is an awseom Notification...");
+        }
+    };
+
+    private Handler foregroundServiceHandler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(Message msg) {
+            //TODO Do the magic for GUI
+        }
+    };
 
     /**
      * Called when the service is being created.
@@ -37,6 +51,13 @@ public class Bluetooth4Service extends Service {
         Log.d(this.getClass().getSimpleName(), "onCreate " + this.toString());
 
         bt4Layer = Layer.getInstance(this);
+
+        if (MyApp.appInForeground()) {
+            bt4Layer.addHandler(foregroundServiceHandler);
+        } else {
+            bt4Layer.addHandler(backgroundServiceHandler);
+        }
+
     }
 
     /**
@@ -45,9 +66,9 @@ public class Bluetooth4Service extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(this.getClass().getSimpleName(), "onStartCommand");
-        bt4Layer.startAdvertising();
 
-        NotificationHandler.getInstance().doNotification("Happening", "This is an awseom Notification...");
+        bt4Layer.startAdvertising();
+        bt4Layer.startScan();
 
         return mStartMode;
     }
@@ -76,6 +97,7 @@ public class Bluetooth4Service extends Service {
     public void onDestroy() {
         Log.d(this.getClass().getSimpleName(), "onDestroy");
         bt4Layer.stopAdvertising();
+        bt4Layer.stopScan();
     }
 
     /**
