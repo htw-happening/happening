@@ -149,7 +149,7 @@ public class BtStatus extends Fragment {
 
         if (bt4BackgroundServiceRunning) {
             ((TextView) rootView.findViewById(R.id.background_service_value)).setText(availableTxt);
-            startBt4Service();
+            bt4BackgroundService = new Intent(this.getContext(), Bluetooth4Service.class);
         } else {
             ((TextView) rootView.findViewById(R.id.background_service_value)).setText(unAvailableTxt);
         }
@@ -170,6 +170,18 @@ public class BtStatus extends Fragment {
             }
         });
 
+//        Intent notificationIntent = new Intent(this.getContext(), Bluetooth4Service.class);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this.getContext(), 0, notificationIntent, 0);
+//
+//        Notification notification = new Notification.Builder(this.getContext())
+//                .setContentTitle("jojo")
+//                .setContentText("super")
+//                .setContentIntent(pendingIntent)
+//                .setTicker("ticker")
+//                .build();
+//
+//        MyApp.getAppContext().startForeground(1, notification);
+
         return rootView;
     }
 
@@ -181,6 +193,7 @@ public class BtStatus extends Fragment {
 //        bt4BackgroundService = new Intent(MyApp.getAppContext(), com.happening.poc.poc_happening.service.Bluetooth4Service.class);
         rootView.getContext().startService(bt4BackgroundService);
 //        rootView.getContext().bindService(bt4BackgroundService, mConnection, Context.BIND_AUTO_CREATE);
+//        mService.getTimestamp();
         bt4BackgroundServiceRunning = true;
     }
 

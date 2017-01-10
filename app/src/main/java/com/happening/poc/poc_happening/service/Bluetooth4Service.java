@@ -63,6 +63,15 @@ public class Bluetooth4Service extends Service {
 
     }
 
+//    public String getTimestamp() {
+//        long elapsedMillis = SystemClock.elapsedRealtime();
+//        int hours = (int) (elapsedMillis / 3600000);
+//        int minutes = (int) (elapsedMillis - hours * 3600000) / 60000;
+//        int seconds = (int) (elapsedMillis - hours * 3600000 - minutes * 60000) / 1000;
+//        int millis = (int) (elapsedMillis - hours * 3600000 - minutes * 60000 - seconds * 1000);
+//        return hours + ":" + minutes + ":" + seconds + ":" + millis;
+//    }
+
     /**
      * The service is starting, due to a call to startService()
      */
