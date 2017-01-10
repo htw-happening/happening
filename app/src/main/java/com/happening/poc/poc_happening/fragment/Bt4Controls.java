@@ -165,7 +165,7 @@ public class Bt4Controls extends Fragment {
                 case Layer.DEVICE_POOL_UPDATED:
                     deviceListAdapter.notifyDataSetChanged();
                     TextView textViewCount = (TextView) getActivity().findViewById(R.id.ble_connect_count);
-                    textViewCount.setText("Num: "+bluetoothLayer.getNumOfConnectedDevices());
+                    textViewCount.setText("Num: "+ bluetoothLayer.getNumOfConnectedDevices());
                     break;
                 case Layer.MESSAGE_RECEIVED:
 
@@ -181,7 +181,6 @@ public class Bt4Controls extends Fragment {
                     builder.setMessage(message);
                     AlertDialog dialog = builder.create();
                     dialog.show();
-
 
                     break;
                 default:

@@ -77,14 +77,7 @@ public class Layer {
     }
 
     public int getNumOfConnectedDevices(){
-        String s = "";
-        for (BluetoothDevice device: mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT)) {
-            s += device.getName() + " "+ device.getAddress() +"\n";
-        }
-        Log.d("NumOfConnectedDevices", s);
-
-        return mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT).size();
-
+        return devicePool.getConnectedDevices().size();
     }
 
     private void notifyHandlers(int code) {
@@ -158,14 +151,11 @@ public class Layer {
                 .setConnectable(true);
         AdvertiseSettings advertiseSettings = advertiseSettingsBuilder.build();
 
-        String[] loads = {"happen", "foobar", "lekker", "service", "matetee"};
-        int index = new Random().nextInt(loads.length);
-        byte[] payload = loads[index].getBytes();
         AdvertiseData.Builder advertiseDataBuilder = new AdvertiseData.Builder();
         ParcelUuid advertiseUuid = ParcelUuid.fromString(ADVERTISE_UUID);
         advertiseDataBuilder
-                .addServiceData(advertiseUuid, payload)
-                .setIncludeDeviceName(true)
+                .addServiceUuid(advertiseUuid)
+                .setIncludeDeviceName(false)
                 .setIncludeTxPowerLevel(true);
         AdvertiseData advertiseData = advertiseDataBuilder.build();
 
@@ -188,7 +178,15 @@ public class Layer {
         }
 
         ScanSettings scanSettings = scanSettingsBuilder.build();
+        ScanFilter.Builder scanFilterBuilder = new ScanFilter.Builder();
+
+        ParcelUuid advertiseUuid = ParcelUuid.fromString(ADVERTISE_UUID);
+
+        scanFilterBuilder.setServiceUuid(advertiseUuid);
+
+        ScanFilter scanFilter = scanFilterBuilder.build();
         List<ScanFilter> scanFilters = new ArrayList<>();
+        scanFilters.add(scanFilter);
 
         mBluetoothLeScanner.stopScan(mScanCallback);
         devicePool.clear();
@@ -283,12 +281,12 @@ public class Layer {
             devicePool.changeState(device, newState);
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                notifyHandlers(DEVICE_POOL_UPDATED);
                 Log.d("CONN_CHANGE", "Added a Device to List " + device.getName());
+                notifyHandlers(DEVICE_POOL_UPDATED);
             }
             if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                notifyHandlers(DEVICE_POOL_UPDATED);
                 Log.d("CONN_CHANGE", "Removed a Device from List " + device.getName());
+                notifyHandlers(DEVICE_POOL_UPDATED);
             }
         }
 
@@ -302,9 +300,9 @@ public class Layer {
             Log.d("CHAR_WRITE", "device: " + device.getAddress() + " preparedWrite: " + preparedWrite + " responseNeeded: " + responseNeeded);
             //TODO for non advertising devices
             characteristic.setValue(value);
-            for (BluetoothDevice deviceModel: mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT)) {
+            for (DeviceModel deviceModel: devicePool.getConnectedDevices()) {
                 Log.d("FOO", ""+ deviceModel.getAddress() + " " + deviceModel.getName());
-                mBluetoothGattServer.notifyCharacteristicChanged(deviceModel,characteristic,false);
+                mBluetoothGattServer.notifyCharacteristicChanged(deviceModel.getBluetoothDevice(),characteristic,false);
             }
             Log.d("CHAR_WRITE", "Changed to "+new String(value));
         }
@@ -329,9 +327,11 @@ public class Layer {
                     Log.d("CONN_CHANGE", "state connected");
                     boolean mtuSuccess = gatt.requestMtu(DEFAULT_MTU_BYTES);
                     Log.d("CONN_CHANGE", "mtu request success " + mtuSuccess);
+                    notifyHandlers(DEVICE_POOL_UPDATED);
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
                     Log.d("CONN_CHANGE", "state disconnected");
+                    notifyHandlers(DEVICE_POOL_UPDATED);
                     gatt.close();
                     break;
                 default:
@@ -388,13 +388,13 @@ public class Layer {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             Log.d("CHAR_READ", "string value: " + characteristic.getStringValue(0) + " status: " + status);
-            //notifyHandlers(MESSAGE_RECEIVED, characteristic.getStringValue(0));
+            notifyHandlers(MESSAGE_RECEIVED, characteristic.getStringValue(0));
         }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             Log.d("CHAR_WRITE", "string value: " + characteristic.getStringValue(0) + " status: " + status);
-            //notifyHandlers(MESSAGE_SENT, characteristic.getStringValue(0));
+            notifyHandlers(MESSAGE_SENT, characteristic.getStringValue(0));
         }
 
     }

@@ -3,6 +3,7 @@ package com.happening.poc.poc_happening.bluetooth;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
@@ -20,6 +21,7 @@ public class DeviceModel {
     private BluetoothDevice bluetoothDevice;
 
     private String currentMessage = "";
+    private int state = BluetoothProfile.STATE_DISCONNECTED;
 
     public DeviceModel(ScanResult scanResult) {
         this.bluetoothDevice = scanResult.getDevice();
@@ -95,6 +97,14 @@ public class DeviceModel {
         }
     }
 
+    public void setState(int state) {
+        this.state = state;
+    }
+
+    public int getState() {
+        return this.state;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (object != null && object instanceof DeviceModel) {
@@ -102,4 +112,6 @@ public class DeviceModel {
         }
         return false;
     }
+
+
 }
