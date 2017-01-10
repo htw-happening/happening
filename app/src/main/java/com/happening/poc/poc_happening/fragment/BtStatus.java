@@ -176,9 +176,11 @@ public class BtStatus extends Fragment {
     private void startBt4Service() {
         Log.d(this.getClass().getSimpleName(), "start service in activity");
         bt4BackgroundService = new Intent(this.getContext(), Bluetooth4Service.class);
+        // potentially add data to the intent
+        bt4BackgroundService.putExtra("KEY1", "Value to be used by the service");
 //        bt4BackgroundService = new Intent(MyApp.getAppContext(), com.happening.poc.poc_happening.service.Bluetooth4Service.class);
-//        rootView.getContext().bindService(bt4BackgroundService, mConnection, Context.BIND_AUTO_CREATE);
         rootView.getContext().startService(bt4BackgroundService);
+//        rootView.getContext().bindService(bt4BackgroundService, mConnection, Context.BIND_AUTO_CREATE);
         bt4BackgroundServiceRunning = true;
     }
 

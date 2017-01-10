@@ -36,12 +36,15 @@
 
         <service
             android:name=".service.Bluetooth4Service"
+            android:process=":happening"
             android:enabled="true"
             android:exported="false"
             android:persistent="true"
+            android:icon="@drawable/ic_menu_manage"
+            android:label="HappeningBackgroundService"
         >
-
         </service>
+
     </application>
 
 </manifest>

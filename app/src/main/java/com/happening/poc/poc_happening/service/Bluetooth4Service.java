@@ -58,6 +58,9 @@ public class Bluetooth4Service extends Service {
             bt4Layer.addHandler(backgroundServiceHandler);
         }
 
+        bt4Layer.startAdvertising();
+        bt4Layer.startScan();
+
     }
 
     /**
@@ -66,9 +69,6 @@ public class Bluetooth4Service extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(this.getClass().getSimpleName(), "onStartCommand");
-
-        bt4Layer.startAdvertising();
-        bt4Layer.startScan();
 
         return mStartMode;
     }
