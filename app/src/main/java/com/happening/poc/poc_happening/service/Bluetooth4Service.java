@@ -27,6 +27,7 @@ public class Bluetooth4Service extends Service {
      * indicates whether onRebind should be used
      */
     boolean mAllowRebind = false;
+
     private Layer bt4Layer = null;
     private Handler backgroundServiceHandler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -51,12 +52,7 @@ public class Bluetooth4Service extends Service {
         Log.d(this.getClass().getSimpleName(), "onCreate " + this.toString());
 
         bt4Layer = Layer.getInstance(this);
-
-        if (MyApp.appInForeground()) {
-            bt4Layer.addHandler(foregroundServiceHandler);
-        } else {
-            bt4Layer.addHandler(backgroundServiceHandler);
-        }
+        registerHandler();
 
         bt4Layer.startAdvertising();
         bt4Layer.startScan();
@@ -78,7 +74,7 @@ public class Bluetooth4Service extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(this.getClass().getSimpleName(), "onStartCommand");
-
+        registerHandler();
         return mStartMode;
     }
 
@@ -122,6 +118,17 @@ public class Bluetooth4Service extends Service {
     public void onTaskRemoved(Intent rootIntent) {
         Log.d(this.getClass().getSimpleName(), "onTaskRemoved");
         super.onTaskRemoved(rootIntent);
+    }
+
+    public void registerHandler() {
+        Log.d("HANDLER", MyApp.appInForeground().toString());
+        Log.d("HANDLER", "" + System.identityHashCode(MyApp.class));
+
+        if (MyApp.appInForeground()) {
+            bt4Layer.addHandler(foregroundServiceHandler);
+        } else {
+            bt4Layer.addHandler(backgroundServiceHandler);
+        }
     }
 
     /**
