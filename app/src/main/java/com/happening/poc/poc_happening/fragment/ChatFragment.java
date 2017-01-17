@@ -35,16 +35,23 @@ public class ChatFragment extends Fragment {
     private ChatEntriesAdapter chatEntriesAdapter;
 
     public static ChatFragment getInstance() {
-        instance = new ChatFragment();
+        if (instance == null){
+            instance = new ChatFragment();
+        }
         return instance;
+    }
+
+    public ChatFragment() {
+        bluetoothLayer = Layer.getInstance();
+        bluetoothLayer.setAutoConnect(true);
+        bluetoothLayer.createGattServer();
+        bluetoothLayer.startAdvertising();
+        bluetoothLayer.startScan();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_chat, container, false);
-
-        bluetoothLayer = Layer.getInstance();
-        bluetoothLayer.addHandler(guiHandler);
 
         chatEntryModelArrayList = new ArrayList<>();
         chatEntriesAdapter = new ChatEntriesAdapter(getContext(), chatEntryModelArrayList);
@@ -78,12 +85,14 @@ public class ChatFragment extends Fragment {
 
     @Override
     public void onResume() {
+        bluetoothLayer.addHandler(guiHandler);
         super.onResume();
+    }
 
-        //TODO - remove
-        addChatEntry("Peter", "Hi");
-        addChatEntry("Hans", "Selber Hai!");
-        addChatEntry("Torben", "Wer is Kai?");
+    @Override
+    public void onPause() {
+        bluetoothLayer.removeHandler(guiHandler);
+        super.onPause();
     }
 
     private Handler guiHandler = new Handler(Looper.getMainLooper()) {

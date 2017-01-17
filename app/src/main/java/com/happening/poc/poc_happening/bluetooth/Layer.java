@@ -53,13 +53,15 @@ public class Layer {
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser = null;
 
     private DevicePool devicePool = new DevicePool();
-    private List<Handler> handlers = new ArrayList<Handler>();
+    private List<Handler> handlers = new ArrayList<>();
     private Context context = null;
 
     private ScanCallback mScanCallback = new ScanCallback();
     private AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback();
     private BluetoothGattCallback mGattCallback = new BluetoothGattCallback();
     private BluetoothGattServerCallback mGattServerCallback = new BluetoothGattServerCallback();
+
+    private boolean autoConnect = false;
 
     public static Layer getInstance() {
         if (instance == null)
@@ -114,6 +116,12 @@ public class Layer {
     }
 
     public void connectDevice(DeviceModel device) {
+
+        if (device.getState() == BluetoothProfile.STATE_CONNECTING ||
+                device.getState() == BluetoothProfile.STATE_CONNECTED){
+            return;
+        }
+
         BluetoothDevice bluetoothDevice = device.getBluetoothDevice();
         BluetoothGatt bluetoothGatt = null;
 
@@ -197,14 +205,16 @@ public class Layer {
         scanFilters.add(scanFilter);
 
         mBluetoothLeScanner.stopScan(mScanCallback);
-        devicePool.clear();
+//        Log.d("POOL", "CLEARED");
+//        devicePool.clear();
         mBluetoothLeScanner.startScan(scanFilters, scanSettings, mScanCallback);
     }
 
     public void stopScan() {
+        Log.d("POOL", "CLEARED");
         mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
         mBluetoothLeScanner.stopScan(mScanCallback);
-        devicePool.clear();
+//        devicePool.clear();
     }
 
     public void createGattServer() {
@@ -244,16 +254,24 @@ public class Layer {
 
     public void broadcastMessage(String message) {
         Log.d("BROADCAST", "braodcast message"+message);
-        for (DeviceModel deviceModel: devicePool.getConnectedDevices()) {
 
-            Log.d("BROADCAST", "Device "+deviceModel.getAddress());
-            BluetoothGatt bluetoothGatt = deviceModel.getBluetoothGatt();
-            BluetoothGattService bluetoothGattService = bluetoothGatt.getService(UUID.fromString(SERVICE_UUID));
-            BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
-            characteristic.setValue(message.getBytes());
-            bluetoothGatt.writeCharacteristic(characteristic);
+        synchronized (devicePool.getConnectedDevices()) {
+            for (DeviceModel deviceModel : devicePool.getConnectedDevices()) {
+
+                Log.d("BROADCAST", "Device " + deviceModel.getAddress());
+                BluetoothGatt bluetoothGatt = deviceModel.getBluetoothGatt();
+                BluetoothGattService bluetoothGattService = bluetoothGatt.getService(UUID.fromString(SERVICE_UUID));
+                BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
+                characteristic.setValue(message.getBytes());
+                bluetoothGatt.writeCharacteristic(characteristic);
+
+            }
         }
         Log.d("BROADCAST", "Done");
+    }
+
+    public void setAutoConnect(boolean autoConnect) {
+        this.autoConnect = autoConnect;
     }
 
     //endregion
@@ -264,11 +282,12 @@ public class Layer {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
-            //Log.d("SCAN_CALLBACK", "result found " + result);
+//            Log.d("SCAN_CALLBACK", "result found " + result);
             DeviceModel deviceModel = new DeviceModel(result);
             if (!devicePool.contains(deviceModel)) {
                 devicePool.add(deviceModel);
                 notifyHandlers(DEVICE_POOL_UPDATED);
+                if (autoConnect) connectDevice(deviceModel);
             }
         }
     }
