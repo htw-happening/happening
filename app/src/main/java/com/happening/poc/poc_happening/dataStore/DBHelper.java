@@ -3,11 +3,10 @@ package com.happening.poc.poc_happening.dataStore;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteOpenHelper;
 
 import com.happening.poc.poc_happening.adapter.ChatEntryModel;
-import com.happening.poc.poc_happening.fragment.ChatFragment;
 
 import java.util.ArrayList;
 
@@ -99,7 +98,7 @@ public class DBHelper extends SQLiteOpenHelper {
     // Get Data
 
     public Cursor getDevice(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase("password");
 
         Cursor res =  db.rawQuery( "select * from " + DBContract.DBEntry.DEVICES_TABLE_NAME + " where " + DBContract.DBEntry._ID + " = " + id + "", null );
         return res;
@@ -108,7 +107,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public ArrayList<String> getAllDeviceNames() {
         ArrayList<String> list = new ArrayList<>();
 
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase("password");
         Cursor res =  db.rawQuery( "select * from " + DBContract.DBEntry.DEVICES_TABLE_NAME, null );
         res.moveToFirst();
 
@@ -121,7 +120,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public ArrayList<ChatEntryModel> getAllGlobalMessagesRaw() {
         ArrayList<ChatEntryModel> list = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase("password");
         Cursor res =  db.rawQuery( "select * from " + DBContract.DBEntry.GLOBAL_MESSAGES_TABLE_NAME, null );
 
         res.moveToFirst();
@@ -138,7 +137,7 @@ public class DBHelper extends SQLiteOpenHelper {
     // Insert Methods
 
     public boolean insertDevice (String name, String address, String lastSeen) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getWritableDatabase("password");
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(DBContract.DBEntry.DEVICES_COLUMN_NAME, name);
@@ -151,7 +150,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
     public boolean insertGlobalMessage (String name, String time, String type, String content) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getWritableDatabase("password");
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_FROM_DEVICE_ID, name);
@@ -168,7 +167,7 @@ public class DBHelper extends SQLiteOpenHelper {
     // Update Methods
 
     public boolean updateDevice (Integer id, String name, String address, String lastSeen) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getWritableDatabase("password");
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(DBContract.DBEntry.DEVICES_COLUMN_NAME, name);
@@ -184,7 +183,7 @@ public class DBHelper extends SQLiteOpenHelper {
     // Delete Methods
 
     public Integer deleteDevice (Integer id) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getWritableDatabase("password");
 
         return db.delete(DBContract.DBEntry.DEVICES_TABLE_NAME,
                 DBContract.DBEntry._ID + " = ? ",
