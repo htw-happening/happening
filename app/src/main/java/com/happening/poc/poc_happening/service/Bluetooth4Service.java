@@ -36,6 +36,7 @@ public class Bluetooth4Service extends Service {
         }
     };
 
+
     private Handler foregroundServiceHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {

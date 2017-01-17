@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.happening.poc.poc_happening.adapter.ChatEntryModel;
 import com.happening.poc.poc_happening.fragment.ChatFragment;
 
 import java.util.ArrayList;
@@ -20,37 +21,40 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "happening.db";
 
-    // Query Strings
+    // Query Strings - CREATE TABLES
     private static final String SQL_CREATE_PROFILE_ENTRIES =
-            "CREATE TABLE " + DBContract.DBEntry.PROFILE_TABLE_NAME + " (" +
-                    DBContract.DBEntry._ID + " INTEGER PRIMARY KEY," +
-                    DBContract.DBEntry.PROFILE_COLUMN_USERNAME + "," +
-                    DBContract.DBEntry.PROFILE_COLUMN_FIRSTNAME + "," +
-                    DBContract.DBEntry.PROFILE_COLUMN_LASTNAME + ")";
+            "CREATE TABLE " + DBContract.DBEntry.PROFILE_TABLE_NAME             + " (" +
+                    DBContract.DBEntry._ID                                      + " INTEGER PRIMARY KEY," +
+                    DBContract.DBEntry.PROFILE_COLUMN_USERNAME                  + " TEXT NOT NULL," +
+                    DBContract.DBEntry.PROFILE_COLUMN_FIRSTNAME                 + " TEXT NOT NULL," +
+                    DBContract.DBEntry.PROFILE_COLUMN_LASTNAME                  + " TEXT NOT NULL)";
 
     private static final String SQL_CREATE_DEVICE_ENTRIES =
-            "CREATE TABLE " + DBContract.DBEntry.DEVICES_TABLE_NAME + " (" +
-                    DBContract.DBEntry._ID + " INTEGER PRIMARY KEY," +
-                    DBContract.DBEntry.DEVICES_COLUMN_NAME + "," +
-                    DBContract.DBEntry.DEVICES_COLUMN_ADDRESS + "," +
-                    DBContract.DBEntry.DEVICES_COLUMN_LAST_SEEN + ")";
+            "CREATE TABLE " + DBContract.DBEntry.DEVICES_TABLE_NAME             + " (" +
+                    DBContract.DBEntry._ID                                      + " INTEGER PRIMARY KEY," +
+                    DBContract.DBEntry.DEVICES_COLUMN_NAME                      + " TEXT NOT NULL," +
+                    DBContract.DBEntry.DEVICES_COLUMN_ADDRESS                   + " TEXT NOT NULL," +
+                    DBContract.DBEntry.DEVICES_COLUMN_LAST_SEEN                 + " TEXT NOT NULL)";
 
     private static final String SQL_CREATE_PRIVATE_MESSAGES_ENTRIES =
-            "CREATE TABLE " + DBContract.DBEntry.PRIVATE_MESSAGES_TABLE_NAME + " (" +
-                    DBContract.DBEntry._ID + " INTEGER PRIMARY KEY," +
-                    DBContract.DBEntry.PRIVATE_MESSAGES_COLUMN_FROM_DEVICE_ID + "," +
-                    DBContract.DBEntry.PRIVATE_MESSAGES_COLUMN_CREATION_TIME + "," +
-                    DBContract.DBEntry.PRIVATE_MESSAGES_COLUMN_TYPE + "," +
-                    DBContract.DBEntry.PRIVATE_MESSAGES_COLUMN_CONTENT + ")";
+            "CREATE TABLE " + DBContract.DBEntry.PRIVATE_MESSAGES_TABLE_NAME    + " (" +
+                    DBContract.DBEntry._ID                                      + " INTEGER PRIMARY KEY," +
+                    DBContract.DBEntry.PRIVATE_MESSAGES_COLUMN_FROM_DEVICE_ID   + " TEXT NOT NULL," +
+                    DBContract.DBEntry.PRIVATE_MESSAGES_COLUMN_CREATION_TIME    + " TEXT NOT NULL," +
+                    DBContract.DBEntry.PRIVATE_MESSAGES_COLUMN_TYPE             + " TEXT NOT NULL," +
+                    DBContract.DBEntry.PRIVATE_MESSAGES_COLUMN_CONTENT          + " TEXT NOT NULL)";
 
     private static final String SQL_CREATE_GLOBAL_MESSAGES_ENTRIES =
-            "CREATE TABLE " + DBContract.DBEntry.GLOBAL_MESSAGES_TABLE_NAME + " (" +
-                    DBContract.DBEntry._ID + " INTEGER PRIMARY KEY," +
-                    DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_FROM_DEVICE_ID + "," +
-                    DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CREATION_TIME + "," +
-                    DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_TYPE + "," +
-                    DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CONTENT + ")";
+            "CREATE TABLE " + DBContract.DBEntry.GLOBAL_MESSAGES_TABLE_NAME     + " (" +
+                    DBContract.DBEntry._ID                                      + " INTEGER PRIMARY KEY," +
+                    DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_FROM_DEVICE_ID    + " TEXT NOT NULL," +
+                    DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CREATION_TIME     + " TEXT NOT NULL," +
+                    DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_TYPE              + " TEXT NOT NULL," +
+                    DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CONTENT           + " TEXT NOT NULL)";
 
+
+
+    // Query Strings - DROP TABLES
 
     private static final String SQL_DELETE_DEVICE_ENTRIES =
             "DROP TABLE IF EXISTS " +  DBContract.DBEntry.DEVICES_TABLE_NAME;
@@ -60,7 +64,9 @@ public class DBHelper extends SQLiteOpenHelper {
     private static DBHelper instance = null;
 
     public static DBHelper getInstance(Context context) {
-        instance = new DBHelper(context);
+        if (instance == null) {
+            instance = new DBHelper(context);
+        }
         return instance;
     }
 
@@ -100,7 +106,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public ArrayList<String> getAllDeviceNames() {
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<>();
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res =  db.rawQuery( "select * from " + DBContract.DBEntry.DEVICES_TABLE_NAME, null );
@@ -108,6 +114,21 @@ public class DBHelper extends SQLiteOpenHelper {
 
         while(res.isAfterLast() == false){
             list.add(res.getString(res.getColumnIndex(DBContract.DBEntry.DEVICES_COLUMN_NAME)));
+            res.moveToNext();
+        }
+        return list;
+    }
+
+    public ArrayList<ChatEntryModel> getAllGlobalMessagesRaw() {
+        ArrayList<ChatEntryModel> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res =  db.rawQuery( "select * from " + DBContract.DBEntry.GLOBAL_MESSAGES_TABLE_NAME, null );
+
+        res.moveToFirst();
+        while(res.isAfterLast() == false){
+            ChatEntryModel chatEntryModel = new ChatEntryModel(res.getString(res.getColumnIndex(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_FROM_DEVICE_ID)),
+                                                                res.getString(res.getColumnIndex(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CONTENT)));
+            list.add(chatEntryModel);
             res.moveToNext();
         }
         return list;
@@ -125,6 +146,20 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(DBContract.DBEntry.DEVICES_COLUMN_LAST_SEEN, lastSeen);
 
         db.insert(DBContract.DBEntry.DEVICES_TABLE_NAME, null, contentValues);
+        return true;
+    }
+
+
+    public boolean insertGlobalMessage (String name, String time, String type, String content) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_FROM_DEVICE_ID, name);
+        contentValues.put(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CREATION_TIME, time);
+        contentValues.put(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_TYPE, type);
+        contentValues.put(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CONTENT, content);
+
+        db.insert(DBContract.DBEntry.GLOBAL_MESSAGES_TABLE_NAME, null, contentValues);
         return true;
     }
 
