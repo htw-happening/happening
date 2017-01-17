@@ -102,6 +102,10 @@ public class DeviceModel {
         return this.state;
     }
 
+    public BluetoothGatt getBluetoothGatt() {
+        return bluetoothGatt;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (object != null && object instanceof DeviceModel) {

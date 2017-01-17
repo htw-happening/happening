@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.bluetooth.BluetoothSocket;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
@@ -120,6 +121,7 @@ public class Layer {
             Log.d("GATT", "Already connected");
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                //TODO new GattCallback
                 bluetoothGatt = bluetoothDevice.connectGatt(context, false, mGattCallback, BluetoothDevice.TRANSPORT_LE);
             } else {
                 bluetoothGatt = bluetoothDevice.connectGatt(context, false, mGattCallback);
@@ -241,18 +243,17 @@ public class Layer {
     }
 
     public void broadcastMessage(String message) {
-        if (mBluetoothGattServer == null) {
-            Log.d("BROADCAST", "No server running");
-            return;
+        Log.d("BROADCAST", "braodcast message"+message);
+        for (DeviceModel deviceModel: devicePool.getConnectedDevices()) {
+
+            Log.d("BROADCAST", "Device "+deviceModel.getAddress());
+            BluetoothGatt bluetoothGatt = deviceModel.getBluetoothGatt();
+            BluetoothGattService bluetoothGattService = bluetoothGatt.getService(UUID.fromString(SERVICE_UUID));
+            BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
+            characteristic.setValue(message.getBytes());
+            bluetoothGatt.writeCharacteristic(characteristic);
         }
-        UUID serviceUuid = UUID.fromString(SERVICE_UUID);
-        UUID characteristicUuid = UUID.fromString(CHARACTERISTIC_UUID);
-        BluetoothGattService service = mBluetoothGattServer.getService(serviceUuid);
-        BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUuid);
-        characteristic.setValue(message);
-        for (BluetoothDevice device : mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT)) {
-            mBluetoothGattServer.notifyCharacteristicChanged(device, characteristic, false);
-        }
+        Log.d("BROADCAST", "Done");
     }
 
     //endregion
@@ -318,14 +319,9 @@ public class Layer {
 
         @Override
         public void onCharacteristicWriteRequest(BluetoothDevice device, int requestId, BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean responseNeeded, int offset, byte[] value) {
-            Log.d("CHAR_WRITE", "device: " + device.getAddress() + " preparedWrite: " + preparedWrite + " responseNeeded: " + responseNeeded);
-            //TODO for non advertising devices
-            characteristic.setValue(value);
-            for (DeviceModel deviceModel : devicePool.getConnectedDevices()) {
-                Log.d("FOO", "" + deviceModel.getAddress() + " " + deviceModel.getName());
-                mBluetoothGattServer.notifyCharacteristicChanged(deviceModel.getBluetoothDevice(), characteristic, false);
-            }
-            Log.d("CHAR_WRITE", "Changed to " + new String(value));
+            Log.d("CHAR_WRITE_REQUEST:", "device: " + device.getAddress() + " preparedWrite: " + preparedWrite + " responseNeeded: " + responseNeeded);
+            String message =  new String(value);
+            notifyHandlers(MESSAGE_RECEIVED, message, device.getAddress());
         }
 
         @Override
@@ -402,8 +398,8 @@ public class Layer {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             Log.d("CHAR_CHANGE", "string value: " + characteristic.getStringValue(0));
-            DeviceModel device = devicePool.getModelByDevice(gatt.getDevice());
-            notifyHandlers(MESSAGE_RECEIVED, characteristic.getStringValue(0), device.getAddress());
+//            DeviceModel device = devicePool.getModelByDevice(gatt.getDevice());
+//            notifyHandlers(MESSAGE_RECEIVED, characteristic.getStringValue(0), device.getAddress());
         }
 
         @Override
