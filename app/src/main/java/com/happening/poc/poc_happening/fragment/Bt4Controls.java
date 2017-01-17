@@ -1,7 +1,6 @@
 package com.happening.poc.poc_happening.fragment;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -48,7 +47,6 @@ public class Bt4Controls extends Fragment {
         }
 
         bluetoothLayer = Layer.getInstance();
-        bluetoothLayer.addHandler(guiHandler);
 
         ListView deviceListView = (ListView) rootView.findViewById(R.id.discovered_devices_list);
         deviceListAdapter = new DeviceListAdapter(rootView.getContext(), bluetoothLayer.getDevicePool());
@@ -117,6 +115,20 @@ public class Bt4Controls extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onPause() {
+        Log.d("Bt4Controls", "onPause");
+        bluetoothLayer.removeHandler(guiHandler);
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        Log.d("Bt4Controls", "onResume");
+        super.onResume();
+        bluetoothLayer.addHandler(guiHandler);
+    }
+
     private void enableAdapter() {
         Snackbar.make(rootView, "Enable Adapter", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         bluetoothLayer.enableAdapter();
@@ -165,12 +177,13 @@ public class Bt4Controls extends Fragment {
                 case Layer.DEVICE_POOL_UPDATED:
                     deviceListAdapter.notifyDataSetChanged();
                     TextView textViewCount = (TextView) getActivity().findViewById(R.id.ble_connect_count);
-                    textViewCount.setText("Num: "+ bluetoothLayer.getNumOfConnectedDevices());
+                    if (textViewCount != null)
+                        textViewCount.setText("Num: " + bluetoothLayer.getNumOfConnectedDevices());
                     break;
                 case Layer.MESSAGE_RECEIVED:
 
                     String message = msg.getData().getString("content");
-                    Log.d("HANDLER", "Content was "+message);
+                    Log.d("HANDLER", "Content was " + message);
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -181,7 +194,6 @@ public class Bt4Controls extends Fragment {
                     builder.setMessage(message);
                     AlertDialog dialog = builder.create();
                     dialog.show();
-
                     break;
                 default:
                     Log.d("HANDLER", "Unresolved Message Code");

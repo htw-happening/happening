@@ -6,11 +6,11 @@
     android:orientation="horizontal">
 
     <EditText
+        android:id="@+id/editText_message_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:hint="Write a message"
-        android:id="@+id/editText_message_input" />
+        android:hint="Write a message" />
 
     <ImageView
         android:id="@+id/imageView_send_message"

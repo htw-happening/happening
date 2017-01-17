@@ -28,7 +28,6 @@ import com.happening.poc.poc_happening.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 public class Layer {
@@ -76,7 +75,7 @@ public class Layer {
         Log.i("SELF", mBluetoothAdapter.getName());
     }
 
-    public int getNumOfConnectedDevices(){
+    public int getNumOfConnectedDevices() {
         return devicePool.getConnectedDevices().size();
     }
 
@@ -86,11 +85,12 @@ public class Layer {
         }
     }
 
-    private void notifyHandlers(int code, String string) {
+    private void notifyHandlers(int code, String content, String author) {
         for (Handler handler : handlers) {
             Message message = handler.obtainMessage(code);
             Bundle bundle = new Bundle();
-            bundle.putString("content", string);
+            bundle.putString("content", content);
+            bundle.putString("author", author);
             message.setData(bundle);
             handler.sendMessage(message);
         }
@@ -99,6 +99,12 @@ public class Layer {
     public void addHandler(Handler handler) {
         if (!handlers.contains(handler)) {
             handlers.add(handler);
+        }
+    }
+
+    public void removeHandler(Handler handler) {
+        if (handlers.contains(handler)) {
+            handlers.remove(handler);
         }
     }
 
@@ -234,6 +240,21 @@ public class Layer {
         mBluetoothGattServer.close();
     }
 
+    public void broadcastMessage(String message) {
+        if (mBluetoothGattServer == null) {
+            Log.d("BROADCAST", "No server running");
+            return;
+        }
+        UUID serviceUuid = UUID.fromString(SERVICE_UUID);
+        UUID characteristicUuid = UUID.fromString(CHARACTERISTIC_UUID);
+        BluetoothGattService service = mBluetoothGattServer.getService(serviceUuid);
+        BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUuid);
+        characteristic.setValue(message);
+        for (BluetoothDevice device : mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT)) {
+            mBluetoothGattServer.notifyCharacteristicChanged(device, characteristic, false);
+        }
+    }
+
     //endregion
 
     //region Callbacks
@@ -281,11 +302,11 @@ public class Layer {
             devicePool.changeState(device, newState);
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                Log.d("CONN_CHANGE", "Added a Device to List " + device.getName());
+                Log.d("CONN_CHANGE", "Added a Device to List " + device.getAddress());
                 notifyHandlers(DEVICE_POOL_UPDATED);
             }
             if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                Log.d("CONN_CHANGE", "Removed a Device from List " + device.getName());
+                Log.d("CONN_CHANGE", "Removed a Device from List " + device.getAddress());
                 notifyHandlers(DEVICE_POOL_UPDATED);
             }
         }
@@ -300,11 +321,11 @@ public class Layer {
             Log.d("CHAR_WRITE", "device: " + device.getAddress() + " preparedWrite: " + preparedWrite + " responseNeeded: " + responseNeeded);
             //TODO for non advertising devices
             characteristic.setValue(value);
-            for (DeviceModel deviceModel: devicePool.getConnectedDevices()) {
-                Log.d("FOO", ""+ deviceModel.getAddress() + " " + deviceModel.getName());
-                mBluetoothGattServer.notifyCharacteristicChanged(deviceModel.getBluetoothDevice(),characteristic,false);
+            for (DeviceModel deviceModel : devicePool.getConnectedDevices()) {
+                Log.d("FOO", "" + deviceModel.getAddress() + " " + deviceModel.getName());
+                mBluetoothGattServer.notifyCharacteristicChanged(deviceModel.getBluetoothDevice(), characteristic, false);
             }
-            Log.d("CHAR_WRITE", "Changed to "+new String(value));
+            Log.d("CHAR_WRITE", "Changed to " + new String(value));
         }
 
         @Override
@@ -381,22 +402,21 @@ public class Layer {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             Log.d("CHAR_CHANGE", "string value: " + characteristic.getStringValue(0));
-            notifyHandlers(MESSAGE_RECEIVED, characteristic.getStringValue(0));
-
+            DeviceModel device = devicePool.getModelByDevice(gatt.getDevice());
+            notifyHandlers(MESSAGE_RECEIVED, characteristic.getStringValue(0), device.getAddress());
         }
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             Log.d("CHAR_READ", "string value: " + characteristic.getStringValue(0) + " status: " + status);
-            notifyHandlers(MESSAGE_RECEIVED, characteristic.getStringValue(0));
+            // notifyHandlers(MESSAGE_RECEIVED, characteristic.getStringValue(0));
         }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             Log.d("CHAR_WRITE", "string value: " + characteristic.getStringValue(0) + " status: " + status);
-            notifyHandlers(MESSAGE_SENT, characteristic.getStringValue(0));
+            // notifyHandlers(MESSAGE_SENT, characteristic.getStringValue(0), "n/a");
         }
-
     }
 
     //endregion

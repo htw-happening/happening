@@ -27,7 +27,7 @@ public class DevicePool extends ArrayList<DeviceModel> {
 
     public List<DeviceModel> getDevicesMatchingConnectionStates(int[] states) {
         List<DeviceModel> matchingDevices = new ArrayList<>();
-        for (DeviceModel model: this) {
+        for (DeviceModel model : this) {
             if (Arrays.asList(states).contains(model.getState())) {
                 matchingDevices.add(model);
             }
@@ -35,9 +35,11 @@ public class DevicePool extends ArrayList<DeviceModel> {
         return matchingDevices;
     }
 
-    private DeviceModel getModelByDevice(BluetoothDevice device) {
-        for (DeviceModel model: this) {
-            if (device.equals(model.getBluetoothDevice())) {
+    public DeviceModel getModelByDevice(BluetoothDevice device) {
+        Log.d("DEVICE-POOL-MINE", device.getAddress());
+        for (DeviceModel model : this) {
+            Log.d("DEVICE-POOL-SEARCH", model.getBluetoothDevice().getAddress());
+            if (device.getAddress().equals(model.getBluetoothDevice().getAddress())) {
                 return model;
             }
         }

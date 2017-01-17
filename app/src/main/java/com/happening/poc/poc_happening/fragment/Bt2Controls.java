@@ -8,10 +8,6 @@ import android.view.ViewGroup;
 
 import com.happening.poc.poc_happening.R;
 
-/**
- * Created by kaischulz on 11.12.16.
- */
-
 public class Bt2Controls extends Fragment {
 
     private static Bt2Controls instance = null;
