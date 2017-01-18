@@ -66,7 +66,7 @@ public class Bt4Controls extends Fragment {
         adapterButton.setChecked(bluetoothLayer.isEnabled());
         adapterButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d("Bt4Controls", "adapterButton - onCheckedChanged "+isChecked);
+                Log.d("Bt4Controls", "adapterButton - onCheckedChanged " + isChecked);
                 if (isChecked) {
                     enableAdapter();
                 } else {
@@ -78,7 +78,7 @@ public class Bt4Controls extends Fragment {
         Switch discoverButton = (Switch) rootView.findViewById(R.id.discover_button);
         discoverButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d("Bt4Controls", "advertiseButton - onCheckedChanged "+isChecked);
+                Log.d("Bt4Controls", "advertiseButton - onCheckedChanged " + isChecked);
                 if (isChecked) {
                     startScan();
                 } else {
@@ -90,7 +90,7 @@ public class Bt4Controls extends Fragment {
         Switch advertiseButton = (Switch) rootView.findViewById(R.id.advertise_button);
         advertiseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d("Bt4Controls", "advertiseButton - onCheckedChanged "+isChecked);
+                Log.d("Bt4Controls", "advertiseButton - onCheckedChanged " + isChecked);
                 if (isChecked) {
                     startAdvertising();
                 } else {
@@ -102,7 +102,7 @@ public class Bt4Controls extends Fragment {
         Switch gattServerButton = (Switch) rootView.findViewById(R.id.gatt_server_button);
         gattServerButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d("Bt4Controls", "gattServerButton - onCheckedChanged "+isChecked);
+                Log.d("Bt4Controls", "gattServerButton - onCheckedChanged " + isChecked);
                 if (isChecked) {
                     createGattServer();
                 } else {

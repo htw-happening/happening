@@ -1,7 +1,6 @@
 package com.happening.poc.poc_happening;
 
 import android.Manifest;
-import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;

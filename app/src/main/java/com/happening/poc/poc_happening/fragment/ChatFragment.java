@@ -1,7 +1,5 @@
 package com.happening.poc.poc_happening.fragment;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.happening.poc.poc_happening.R;
@@ -35,7 +32,7 @@ public class ChatFragment extends Fragment {
     private ChatEntriesAdapter chatEntriesAdapter;
 
     public static ChatFragment getInstance() {
-        if (instance == null){
+        if (instance == null) {
             instance = new ChatFragment();
         }
         return instance;

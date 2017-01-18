@@ -9,7 +9,6 @@ import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.bluetooth.BluetoothSocket;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
@@ -118,7 +117,7 @@ public class Layer {
     public void connectDevice(DeviceModel device) {
 
         if (device.getState() == BluetoothProfile.STATE_CONNECTING ||
-                device.getState() == BluetoothProfile.STATE_CONNECTED){
+                device.getState() == BluetoothProfile.STATE_CONNECTED) {
             return;
         }
 
@@ -253,7 +252,7 @@ public class Layer {
     }
 
     public void broadcastMessage(String message) {
-        Log.d("BROADCAST", "braodcast message"+message);
+        Log.d("BROADCAST", "braodcast message" + message);
 
         synchronized (devicePool.getConnectedDevices()) {
             for (DeviceModel deviceModel : devicePool.getConnectedDevices()) {
@@ -282,9 +281,9 @@ public class Layer {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
-//            Log.d("SCAN_CALLBACK", "result found " + result);
             DeviceModel deviceModel = new DeviceModel(result);
             if (!devicePool.contains(deviceModel)) {
+                Log.d("SCAN_CALLBACK", "new device found " + result);
                 devicePool.add(deviceModel);
                 notifyHandlers(DEVICE_POOL_UPDATED);
                 if (autoConnect) connectDevice(deviceModel);
@@ -339,7 +338,7 @@ public class Layer {
         @Override
         public void onCharacteristicWriteRequest(BluetoothDevice device, int requestId, BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean responseNeeded, int offset, byte[] value) {
             Log.d("CHAR_WRITE_REQUEST:", "device: " + device.getAddress() + " preparedWrite: " + preparedWrite + " responseNeeded: " + responseNeeded);
-            String message =  new String(value);
+            String message = new String(value);
             notifyHandlers(MESSAGE_RECEIVED, message, device.getAddress());
         }
 
@@ -433,6 +432,5 @@ public class Layer {
             // notifyHandlers(MESSAGE_SENT, characteristic.getStringValue(0), "n/a");
         }
     }
-
     //endregion
 }
