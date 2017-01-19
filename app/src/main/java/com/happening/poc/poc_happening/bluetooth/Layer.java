@@ -320,17 +320,15 @@ public class Layer {
 
         @Override
         public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
-
-            devicePool.changeState(device, newState);
-            notifyHandlers(DEVICE_POOL_UPDATED);
-
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                Log.i("CONN_CHANGE", "Added a Device to List " + device.getAddress());
+                Log.i("CONN_CHANGE", "Set device connected " + device.getAddress());
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                Log.i("CONN_CHANGE", "Removed a Device from List " + device.getAddress());
+                Log.i("CONN_CHANGE", "Set device disconnected " + device.getAddress());
             } else {
                 Log.i("CONN_CHANGE", "State changed to " + newState);
             }
+            devicePool.changeState(device, newState);
+            notifyHandlers(DEVICE_POOL_UPDATED);
         }
 
         @Override
