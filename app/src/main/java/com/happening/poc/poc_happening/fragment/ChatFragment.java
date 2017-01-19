@@ -52,7 +52,7 @@ public class ChatFragment extends Fragment {
 
         chatEntryModelArrayList = new ArrayList<>();
         chatEntriesAdapter = new ChatEntriesAdapter(getContext(), chatEntryModelArrayList);
-        listView = (ListView) rootView.findViewById(R.id.listView_chat_entries);
+        listView = (ListView) rootView.findViewById(R.id.chat_entries_list);
         listView.setAdapter(chatEntriesAdapter);
 
         rootView.findViewById(R.id.imageView_send_message).setOnClickListener(new View.OnClickListener() {

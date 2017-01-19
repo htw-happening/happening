@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,114 +10,114 @@
 
     <TextView
         android:id="@+id/bluetooth_label"
-        android:text="Bluetooth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text="Bluetooth" />
 
     <TextView
         android:id="@+id/bluetooth_value"
-        android:text="TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:text="TextView" />
 
     <Switch
+        android:id="@+id/bluetooth_enabled"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/bluetooth_enabled"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
         android:checked="false"
         android:splitTrack="true" />
 
     <TextView
-        android:text="Bluetooth Le"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/bluetooth_le_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
         android:layout_below="@+id/bluetooth_label"
-        android:layout_alignParentLeft="true"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="10dp"
+        android:text="Bluetooth Le" />
 
     <TextView
-        android:text="TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/bluetooth_le_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/bluetooth_le_label"
-        android:layout_alignLeft="@+id/bluetooth_value"/>
+        android:layout_alignLeft="@+id/bluetooth_value"
+        android:text="TextView" />
 
     <TextView
-        android:text="Bluetooth Address"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/bluetooth_address_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
         android:layout_below="@+id/bluetooth_le_label"
-        android:layout_alignParentLeft="true"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="10dp"
+        android:text="Bluetooth Address" />
 
     <TextView
-        android:text="TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/bluetooth_address_value"
-        android:layout_alignBaseline="@+id/bluetooth_address_label"
-        android:layout_alignLeft="@+id/bluetooth_value"/>
-
-    <TextView
-        android:text="Bluetooth\nAdvertising"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/bluetooth_address_label"
+        android:layout_alignLeft="@+id/bluetooth_value"
+        android:text="TextView" />
+
+    <TextView
         android:id="@+id/bluetooth_le_adv_label"
-        android:layout_below="@+id/bluetooth_address_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_marginTop="10dp" />
+        android:layout_below="@+id/bluetooth_address_label"
+        android:layout_marginTop="10dp"
+        android:text="Bluetooth\nAdvertising" />
 
     <TextView
         android:id="@+id/bluetooth_le_adv_value"
-        android:text="TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/bluetooth_le_adv_label"
-        android:layout_alignLeft="@+id/bluetooth_value"/>
+        android:layout_alignLeft="@+id/bluetooth_value"
+        android:text="TextView" />
 
     <Space
         android:id="@+id/spacer_bt"
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:layout_centerVertical="true"
+        android:layout_below="@+id/bluetooth_le_adv_label"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
+        android:layout_centerVertical="true"
         android:layout_marginBottom="20dp"
-        android:layout_below="@+id/bluetooth_le_adv_label"/>
+        android:layout_marginTop="20dp" />
 
     <TextView
         android:id="@+id/wifi_label"
-        android:text="WifiDirect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/spacer_bt"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="10dp" />
+        android:layout_below="@+id/spacer_bt"
+        android:layout_marginTop="10dp"
+        android:text="WifiDirect" />
 
     <TextView
         android:id="@+id/wifi_value"
-        android:text="TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/wifi_label"
-        android:layout_alignLeft="@+id/bluetooth_value"/>
+        android:layout_alignLeft="@+id/bluetooth_value"
+        android:text="TextView" />
 
     <Switch
+        android:id="@+id/wifi_enabled"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/wifi_enabled"
         android:layout_alignBaseline="@+id/wifi_label"
         android:layout_alignParentRight="true"
         android:splitTrack="true" />

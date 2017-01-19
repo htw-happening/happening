@@ -25,18 +25,16 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceModel> {
         final DeviceModel device = getItem(position);
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.device_list_item, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.discovered_device, parent, false);
         }
 
         TextView address = (TextView) convertView.findViewById(R.id.device_address);
         TextView name = (TextView) convertView.findViewById(R.id.device_name);
-        TextView payload = (TextView) convertView.findViewById(R.id.device_payload);
         TextView deviceDbm = (TextView) convertView.findViewById(R.id.device_dbm);
 
         address.setText(device.getAddress());
         name.setText(device.getName());
-        payload.setText(device.getPayload());
-        deviceDbm.setText(device.getSignalStrength() + " | " + device.getPathloss());
+        deviceDbm.setText(device.getPathloss());
 
         TypedValue color = new TypedValue();
         getContext().getTheme().resolveAttribute(R.attr.colorAccent, color, true);
@@ -45,18 +43,6 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceModel> {
         int colorPrimary = color.data;
         address.setTextColor(device.isConnected() ? colorAccent : colorPrimary);
 
-//        Switch connectSwitch = (Switch) convertView.findViewById(R.id.connect_switch);
-//        connectSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                if (isChecked) {
-//                    Log.i("CLICK", "Connect to " + device.getAddress());
-//                    device.connectDevice();
-//                } else {
-//                    Log.i("CLICK", "Disconnect from " + device.getAddress());
-//                    device.disconnectDevice();
-//                }
-//            }
-//        });
         return convertView;
     }
 }

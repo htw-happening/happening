@@ -36,27 +36,11 @@ public class DeviceModel {
         return bluetoothDevice.getAddress();
     }
 
-    public String getSignalStrength() {
-        return this.rssi + "dBm";
-    }
-
-    public String getPayload() {
-        String payload = "";
-        for (byte[] value : this.getServiceData().values()) {
-            payload += new String(value);
-        }
-        return payload;
-    }
-
     public String getPathloss() {
         if (scanRecord.getTxPowerLevel() != Integer.MIN_VALUE) {
             return (scanRecord.getTxPowerLevel() - this.rssi) + "dBm";
         }
         return "n/a";
-    }
-
-    public Map<ParcelUuid, byte[]> getServiceData() {
-        return scanRecord.getServiceData();
     }
 
     public BluetoothDevice getBluetoothDevice() {
