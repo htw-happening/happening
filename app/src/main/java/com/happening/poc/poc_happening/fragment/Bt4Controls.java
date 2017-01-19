@@ -81,10 +81,10 @@ public class Bt4Controls extends Fragment {
             }
         });
 
-        Switch discoverButton = (Switch) rootView.findViewById(R.id.discover_button);
-        discoverButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        Switch scanButton = (Switch) rootView.findViewById(R.id.scan_button);
+        scanButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.i("Bt4Controls", "advertiseButton - onCheckedChanged " + isChecked);
+                Log.i("Bt4Controls", "scanButton - onCheckedChanged " + isChecked);
                 if (isChecked) {
                     startScan();
                 } else {

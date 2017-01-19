@@ -15,20 +15,20 @@
         android:textSize="16sp" />
 
     <Switch
-        android:id="@+id/discover_button"
+        android:id="@+id/scan_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/bluetooth_adapter"
         android:layout_marginBottom="5sp"
-        android:text="Discovering"
+        android:text="Scanning"
         android:textSize="16sp" />
 
     <Switch
         android:id="@+id/advertise_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/discover_button"
+        android:layout_below="@+id/scan_button"
         android:layout_marginBottom="5sp"
         android:text="Advertising"
         android:textSize="16sp" />
