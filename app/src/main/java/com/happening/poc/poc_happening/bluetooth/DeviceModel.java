@@ -67,22 +67,20 @@ public class DeviceModel {
         return bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED;
     }
 
+    public boolean isUnbonded() {
+        return bluetoothDevice.getBondState() == BluetoothDevice.BOND_NONE;
+    }
+
     public boolean isConnected() {
-        return bluetoothGatt != null;
+        return (bluetoothGatt != null && getState() == BluetoothProfile.STATE_CONNECTED);
+    }
+
+    public boolean isDisconnected() {
+        return (bluetoothGatt == null || getState() == BluetoothProfile.STATE_DISCONNECTED);
     }
 
     public void setBluetoothGatt(BluetoothGatt bluetoothGatt) {
         this.bluetoothGatt = bluetoothGatt;
-    }
-
-    public void disconnectDevice() {
-        if (isConnected()) {
-            Log.i("GATT", "Disconnecting");
-            bluetoothGatt.disconnect();
-            bluetoothGatt = null;
-        } else {
-            Log.i("GATT", "Nothing to disconnect");
-        }
     }
 
     public void setState(int state) {

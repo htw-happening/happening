@@ -115,26 +115,29 @@ public class Layer {
     }
 
     public void connectDevice(DeviceModel device) {
-
-        if (device.getState() == BluetoothProfile.STATE_CONNECTING ||
-                device.getState() == BluetoothProfile.STATE_CONNECTED) {
-            return;
-        }
-
-        BluetoothDevice bluetoothDevice = device.getBluetoothDevice();
-        BluetoothGatt bluetoothGatt = null;
-
-        if (device.isConnected()) {
-            Log.i("GATT", "Already connected");
-        } else {
+        if (device.isDisconnected()) {
+            BluetoothDevice bluetoothDevice = device.getBluetoothDevice();
+            BluetoothGatt bluetoothGatt;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 //TODO new GattCallback
                 bluetoothGatt = bluetoothDevice.connectGatt(context, false, mGattCallback, BluetoothDevice.TRANSPORT_LE);
             } else {
                 bluetoothGatt = bluetoothDevice.connectGatt(context, false, mGattCallback);
             }
-            Log.i("GATT", "Connecting");
             device.setBluetoothGatt(bluetoothGatt);
+            Log.i("GATT", "Connecting " + device.getAddress());
+        } else {
+            Log.i("GATT", "Cannot connect state " + device.getState() + " gatt " + device.getBluetoothGatt());
+        }
+    }
+
+    public void disconnectDevice(DeviceModel device) {
+        if (device.isConnected()) {
+            device.getBluetoothGatt().disconnect();
+            device.setBluetoothGatt(null);
+            Log.i("GATT", "Disconnecting " + device.getAddress());
+        } else {
+            Log.i("GATT", "Cannot disconnect state " + device.getState() + " gatt " + device.getBluetoothGatt());
         }
     }
 
@@ -323,8 +326,7 @@ public class Layer {
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 Log.i("CONN_CHANGE", "Added a Device to List " + device.getAddress());
-            }
-            else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.i("CONN_CHANGE", "Removed a Device from List " + device.getAddress());
             } else {
                 Log.i("CONN_CHANGE", "State changed to " + newState);

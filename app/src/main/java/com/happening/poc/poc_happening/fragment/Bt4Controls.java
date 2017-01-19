@@ -57,7 +57,13 @@ public class Bt4Controls extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 DeviceModel device = (DeviceModel) parent.getItemAtPosition(position);
                 Log.i("CLICK", "Clicked on device " + device.getName());
-                bluetoothLayer.connectDevice(device);
+                if (device.isConnected()) {
+                    bluetoothLayer.disconnectDevice(device);
+                } else if (device.isDisconnected()) {
+                    bluetoothLayer.connectDevice(device);
+                } else {
+                    Log.i("GATT", "Enhance your calm");
+                }
             }
         });
 
