@@ -17,7 +17,6 @@ public class DeviceModel {
     private BluetoothGatt bluetoothGatt;
     private BluetoothDevice bluetoothDevice;
 
-    private String currentMessage = "";
     private int state = BluetoothProfile.STATE_DISCONNECTED;
 
     public DeviceModel(ScanResult scanResult) {
@@ -31,14 +30,6 @@ public class DeviceModel {
             return bluetoothDevice.getName();
         }
         return "n/a";
-    }
-
-    public String getCurrentMessage() {
-        return currentMessage;
-    }
-
-    public void setCurrentMessage(String currentMessage) {
-        this.currentMessage = currentMessage;
     }
 
     public String getAddress() {
@@ -113,6 +104,5 @@ public class DeviceModel {
         }
         return false;
     }
-
 
 }
