@@ -101,11 +101,11 @@ public class ChatFragment extends Fragment {
                 case Layer.MESSAGE_RECEIVED:
                     String content = msg.getData().getString("content");
                     String author = msg.getData().getString("author");
-                    Log.d("HANDLER", "" + author + " says " + content);
+                    Log.i("HANDLER", "" + author + " says " + content);
                     addChatEntry(author, content);
                     break;
                 default:
-                    Log.d("HANDLER", "Unresolved Message Code");
+                    Log.i("HANDLER", "Unresolved Message Code");
                     break;
             }
         }

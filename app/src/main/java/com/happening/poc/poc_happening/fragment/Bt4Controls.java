@@ -56,7 +56,7 @@ public class Bt4Controls extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 DeviceModel device = (DeviceModel) parent.getItemAtPosition(position);
-                Log.d("CLICK", "Clicked on device " + device.getName());
+                Log.i("CLICK", "Clicked on device " + device.getName());
                 bluetoothLayer.connectDevice(device);
             }
         });
@@ -66,7 +66,7 @@ public class Bt4Controls extends Fragment {
         adapterButton.setChecked(bluetoothLayer.isEnabled());
         adapterButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d("Bt4Controls", "adapterButton - onCheckedChanged " + isChecked);
+                Log.i("Bt4Controls", "adapterButton - onCheckedChanged " + isChecked);
                 if (isChecked) {
                     enableAdapter();
                 } else {
@@ -78,7 +78,7 @@ public class Bt4Controls extends Fragment {
         Switch discoverButton = (Switch) rootView.findViewById(R.id.discover_button);
         discoverButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d("Bt4Controls", "advertiseButton - onCheckedChanged " + isChecked);
+                Log.i("Bt4Controls", "advertiseButton - onCheckedChanged " + isChecked);
                 if (isChecked) {
                     startScan();
                 } else {
@@ -90,7 +90,7 @@ public class Bt4Controls extends Fragment {
         Switch advertiseButton = (Switch) rootView.findViewById(R.id.advertise_button);
         advertiseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d("Bt4Controls", "advertiseButton - onCheckedChanged " + isChecked);
+                Log.i("Bt4Controls", "advertiseButton - onCheckedChanged " + isChecked);
                 if (isChecked) {
                     startAdvertising();
                 } else {
@@ -102,7 +102,7 @@ public class Bt4Controls extends Fragment {
         Switch gattServerButton = (Switch) rootView.findViewById(R.id.gatt_server_button);
         gattServerButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d("Bt4Controls", "gattServerButton - onCheckedChanged " + isChecked);
+                Log.i("Bt4Controls", "gattServerButton - onCheckedChanged " + isChecked);
                 if (isChecked) {
                     createGattServer();
                 } else {
@@ -121,14 +121,14 @@ public class Bt4Controls extends Fragment {
 
     @Override
     public void onPause() {
-        Log.d("Bt4Controls", "onPause");
+        Log.i("Bt4Controls", "onPause");
         bluetoothLayer.removeHandler(guiHandler);
         super.onPause();
     }
 
     @Override
     public void onResume() {
-        Log.d("Bt4Controls", "onResume");
+        Log.i("Bt4Controls", "onResume");
         super.onResume();
         bluetoothLayer.addHandler(guiHandler);
     }
@@ -176,7 +176,7 @@ public class Bt4Controls extends Fragment {
     private Handler guiHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
-            Log.d("HANDLER", "Message received from layer with Code " + msg.what);
+            Log.i("HANDLER", "Message received from layer with Code " + msg.what);
             switch (msg.what) {
                 case Layer.DEVICE_POOL_UPDATED:
                     deviceListAdapter.notifyDataSetChanged();
@@ -187,7 +187,7 @@ public class Bt4Controls extends Fragment {
                 case Layer.MESSAGE_RECEIVED:
 
                     String message = msg.getData().getString("content");
-                    Log.d("HANDLER", "Content was " + message);
+                    Log.i("HANDLER", "Content was " + message);
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -200,7 +200,7 @@ public class Bt4Controls extends Fragment {
                     dialog.show();
                     break;
                 default:
-                    Log.d("HANDLER", "Unresolved Message Code");
+                    Log.i("HANDLER", "Unresolved Message Code");
                     break;
             }
         }

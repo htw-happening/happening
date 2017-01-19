@@ -86,11 +86,11 @@ public class DeviceModel {
 
     public void disconnectDevice() {
         if (isConnected()) {
-            Log.d("GATT", "Disconnecting");
+            Log.i("GATT", "Disconnecting");
             bluetoothGatt.disconnect();
             bluetoothGatt = null;
         } else {
-            Log.d("GATT", "Nothing to disconnect");
+            Log.i("GATT", "Nothing to disconnect");
         }
     }
 

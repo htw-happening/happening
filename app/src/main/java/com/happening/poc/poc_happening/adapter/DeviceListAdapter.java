@@ -49,10 +49,10 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceModel> {
 //        connectSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 //            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 //                if (isChecked) {
-//                    Log.d("CLICK", "Connect to " + device.getAddress());
+//                    Log.i("CLICK", "Connect to " + device.getAddress());
 //                    device.connectDevice();
 //                } else {
-//                    Log.d("CLICK", "Disconnect from " + device.getAddress());
+//                    Log.i("CLICK", "Disconnect from " + device.getAddress());
 //                    device.disconnectDevice();
 //                }
 //            }

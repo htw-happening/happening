@@ -15,10 +15,10 @@ public class DevicePool extends ArrayList<DeviceModel> {
         DeviceModel model = getModelByDevice(device);
         if (model != null) {
             model.setState(newState);
-            Log.d("DEVICE_POOL", "Changed State to " + newState);
+            Log.i("DEVICE_POOL", "Changed State to " + newState);
 
         } else {
-            Log.d("DEVICE_POOL", "Device not found, can't update state!");
+            Log.i("DEVICE_POOL", "Device not found, can't update state!");
         }
     }
 
@@ -49,10 +49,10 @@ public class DevicePool extends ArrayList<DeviceModel> {
     }
 
     public DeviceModel getModelByDevice(BluetoothDevice device) {
-        Log.d("DEVICE-POOL-MINE", device.getAddress());
+        Log.i("DEVICE-POOL-MINE", device.getAddress());
         for (DeviceModel model : this) {
             if (model.getBluetoothDevice().equals(device)) {
-                Log.d("DEVICE-POOL-SEARCH", "Found " + model.getBluetoothDevice().getAddress());
+                Log.i("DEVICE-POOL-SEARCH", "Found " + model.getBluetoothDevice().getAddress());
                 return model;
             }
         }
