@@ -63,14 +63,6 @@ public class DeviceModel {
         return bluetoothDevice;
     }
 
-    public boolean isBonded() {
-        return bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED;
-    }
-
-    public boolean isUnbonded() {
-        return bluetoothDevice.getBondState() == BluetoothDevice.BOND_NONE;
-    }
-
     public boolean isConnected() {
         return (bluetoothGatt != null && getState() == BluetoothProfile.STATE_CONNECTED);
     }
