@@ -207,16 +207,13 @@ public class Layer {
         scanFilters.add(scanFilter);
 
         mBluetoothLeScanner.stopScan(mScanCallback);
-//        Log.i("POOL", "CLEARED");
-//        devicePool.clear();
         mBluetoothLeScanner.startScan(scanFilters, scanSettings, mScanCallback);
     }
 
     public void stopScan() {
-        Log.i("POOL", "CLEARED");
+        Log.i("SCAN", "Stopping");
         mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
         mBluetoothLeScanner.stopScan(mScanCallback);
-//        devicePool.clear();
     }
 
     public void createGattServer() {
