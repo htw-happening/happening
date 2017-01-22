@@ -5,27 +5,46 @@ import android.bluetooth.BluetoothProfile;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class DevicePool extends ArrayList<DeviceModel> {
 
     public void changeState(BluetoothDevice device, int newState) {
-
         DeviceModel model = getModelByDevice(device);
+        changeState(model, newState);
+    }
+
+    public void changeState(DeviceModel model, int newState) {
         if (model != null) {
             model.setState(newState);
             Log.i("DEVICE_POOL", "Changed State to " + newState);
-
         } else {
             Log.i("DEVICE_POOL", "Device not found, can't update state!");
         }
     }
 
     public List<DeviceModel> getConnectedDevices() {
-//        int[] states = {BluetoothProfile.STATE_CONNECTED};
-//        return this.getDevicesMatchingConnectionStates(states);
-        return this.getDevicesMatchingConnectionState(BluetoothProfile.STATE_CONNECTED);
+        return getDevicesMatchingConnectionState(BluetoothProfile.STATE_CONNECTED);
+    }
+
+    public List<DeviceModel> getConnectedClients() {
+        List<DeviceModel> matchingDevices = new ArrayList<>();
+        for (DeviceModel model : getConnectedDevices()) {
+            if (model.getClientGatt() != null) {
+                matchingDevices.add(model);
+            }
+        }
+        return matchingDevices;
+    }
+
+    public List<DeviceModel> getConnectedServers() {
+        List<DeviceModel> matchingDevices = new ArrayList<>();
+        for (DeviceModel model : getConnectedDevices()) {
+            if (model.getServerGatt() != null) {
+                matchingDevices.add(model);
+            }
+        }
+        return matchingDevices;
     }
 
     public List<DeviceModel> getDevicesMatchingConnectionState(int state) {
@@ -38,21 +57,9 @@ public class DevicePool extends ArrayList<DeviceModel> {
         return matchingDevices;
     }
 
-    public List<DeviceModel> getDevicesMatchingConnectionStates(int[] states) {
-        List<DeviceModel> matchingDevices = new ArrayList<>();
-        for (DeviceModel model : this) {
-            if (Arrays.asList(states).contains(model.getState())) {
-                matchingDevices.add(model);
-            }
-        }
-        return matchingDevices;
-    }
-
     public DeviceModel getModelByDevice(BluetoothDevice device) {
-        Log.i("DEVICE-POOL-MINE", device.getAddress());
         for (DeviceModel model : this) {
-            if (model.getBluetoothDevice().equals(device)) {
-                Log.i("DEVICE-POOL-SEARCH", "Found " + model.getBluetoothDevice().getAddress());
+            if (model.getClientDevice().equals(device)) {
                 return model;
             }
         }

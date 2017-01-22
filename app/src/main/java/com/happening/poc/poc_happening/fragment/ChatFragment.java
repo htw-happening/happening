@@ -40,7 +40,7 @@ public class ChatFragment extends Fragment {
 
     public ChatFragment() {
         bluetoothLayer = Layer.getInstance();
-        bluetoothLayer.setAutoConnect(true);
+        // bluetoothLayer.setAutoConnect(true);
         bluetoothLayer.createGattServer();
         bluetoothLayer.startAdvertising();
         bluetoothLayer.startScan();

@@ -52,6 +52,10 @@ public class Bt4Controls extends Fragment {
         deviceListAdapter = new DeviceListAdapter(rootView.getContext(), bluetoothLayer.getDevicePool());
         deviceListView.setAdapter(deviceListAdapter);
 
+        TextView textViewCount = (TextView) getActivity().findViewById(R.id.ble_connect_count);
+        if (textViewCount != null)
+            textViewCount.setText("Num: " + bluetoothLayer.getNumOfConnectedDevices());
+
         deviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
