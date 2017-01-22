@@ -59,7 +59,7 @@ public class DevicePool extends ArrayList<DeviceModel> {
 
     public DeviceModel getModelByDevice(BluetoothDevice device) {
         for (DeviceModel model : this) {
-            if (model.getClientDevice().equals(device)) {
+            if (model.getClientDevice() != null && model.getClientDevice().equals(device)) {
                 return model;
             }
         }

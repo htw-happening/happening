@@ -101,8 +101,17 @@ public class DeviceModel {
 
     @Override
     public boolean equals(Object object) {
-        if (object != null && object instanceof DeviceModel)
-            return getClientDevice().equals(((DeviceModel) object).getClientDevice());
+        if (object != null && object instanceof DeviceModel) {
+            DeviceModel deviceModel = (DeviceModel) object;
+            if (getClientDevice() != null &&
+                    deviceModel.getClientDevice() != null &&
+                    getClientDevice().equals(deviceModel.getClientDevice()))
+                return true;
+            if (getServerDevice() != null &&
+                    deviceModel.getServerDevice() != null &&
+                    getServerDevice().equals(deviceModel.getServerDevice()))
+                return true;
+        }
         return false;
     }
 
