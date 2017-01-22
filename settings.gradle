@@ -1,1 +1,1 @@
-include ':app', ':happening_aidl_lib', ':happening_aidl_service'
+include ':app', ':happening_lib'

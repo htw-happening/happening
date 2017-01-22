@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.happening.poc.poc_happening">
+    package="com.happening.poc_happening">
 
     <!-- set bluetooth permission for app -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -15,7 +15,7 @@
         android:required="true" />
 
     <application
-        android:name="com.happening.poc.poc_happening.MyApp"
+        android:name="com.happening.poc_happening.MyApp"
 
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -23,7 +23,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.happening.poc.poc_happening.MainActivity"
+            android:name="com.happening.poc_happening.MainActivity"
             android:screenOrientation="portrait"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
@@ -32,16 +32,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <service
-            android:name="com.happening.poc.poc_happening.service.Bluetooth4Service"
-            android:process=":happening"
-            android:enabled="true"
-            android:exported="false"
-            android:persistent="true"
-            android:icon="@drawable/ic_menu_manage"
-            android:label="HappeningBackgroundService">
-        </service>
 
     </application>
 
