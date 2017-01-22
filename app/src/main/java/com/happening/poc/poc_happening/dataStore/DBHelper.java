@@ -6,7 +6,7 @@ import android.database.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
-import com.happening.poc.poc_happening.adapter.ChatEntryModel;
+import com.happening.poc.poc_happening.models.ChatEntryModel;
 
 import java.util.ArrayList;
 

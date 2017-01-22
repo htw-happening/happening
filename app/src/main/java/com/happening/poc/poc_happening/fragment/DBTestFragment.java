@@ -6,12 +6,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.happening.poc.poc_happening.R;
-import com.happening.poc.poc_happening.adapter.ChatEntryModel;
 import com.happening.poc.poc_happening.dataStore.DBEntryModel;
 import com.happening.poc.poc_happening.dataStore.DBHelper;
 import com.happening.poc.poc_happening.dataStore.DBTestAdapter;

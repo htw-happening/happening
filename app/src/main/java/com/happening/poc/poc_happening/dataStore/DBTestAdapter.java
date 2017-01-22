@@ -8,7 +8,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.happening.poc.poc_happening.R;
-import com.happening.poc.poc_happening.adapter.ChatEntryModel;
 
 import java.util.ArrayList;
 
