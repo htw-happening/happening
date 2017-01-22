@@ -13,16 +13,10 @@ public class ChatEntryModel extends ByteArrayModel {
     public ChatEntryModel(byte[] bytes){
         super(bytes);
         if(this.isBytesValide()) {
-            this.author         = new String(trim(Arrays.copyOfRange(bytes, 0, 31)), StandardCharsets.UTF_8);
-            this.creationTime   = new String(trim(Arrays.copyOfRange(bytes, 32, 63)), StandardCharsets.UTF_8);
-            this.type           = new String(trim(Arrays.copyOfRange(bytes, 64, 95)), StandardCharsets.UTF_8);
-            this.content        = new String(trim(Arrays.copyOfRange(bytes, 96, 127)), StandardCharsets.UTF_8);
-        }
-        else{
-            this.author         = null;
-            this.creationTime   = null;
-            this.type           = null;
-            this.content        = null;
+            this.author         = new String(trimZeros(Arrays.copyOfRange(bytes,  0,  31)), StandardCharsets.UTF_8);
+            this.creationTime   = new String(trimZeros(Arrays.copyOfRange(bytes, 32,  63)), StandardCharsets.UTF_8);
+            this.type           = new String(trimZeros(Arrays.copyOfRange(bytes, 64,  95)), StandardCharsets.UTF_8);
+            this.content        = new String(trimZeros(Arrays.copyOfRange(bytes, 96, 127)), StandardCharsets.UTF_8);
         }
     }
 
@@ -55,10 +49,10 @@ public class ChatEntryModel extends ByteArrayModel {
         byte[] tmp3 = type.getBytes(StandardCharsets.UTF_8);
         byte[] tmp4 = content.getBytes(StandardCharsets.UTF_8);
 
-        System.arraycopy(tmp1 , 0, bytes,   0, tmp1.length);
-        System.arraycopy(tmp2 , 0, bytes,  32, tmp2.length);
-        System.arraycopy(tmp3 , 0, bytes,  64, tmp3.length);
-        System.arraycopy(tmp4 , 0, bytes,  96, tmp4.length);
+        System.arraycopy(tmp1 , 0, bytes,   0, tmp1.length <= 32 ? tmp1.length : 32);
+        System.arraycopy(tmp2 , 0, bytes,  32, tmp2.length <= 32 ? tmp2.length : 32);
+        System.arraycopy(tmp3 , 0, bytes,  64, tmp3.length <= 32 ? tmp3.length : 32);
+        System.arraycopy(tmp4 , 0, bytes,  96, tmp4.length <= 32 ? tmp4.length : 32);
         return bytes;
     }
 

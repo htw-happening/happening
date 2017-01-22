@@ -155,7 +155,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public boolean insertGlobalMessage (String name, String time, String type, String content) {
         SQLiteDatabase db = this.getWritableDatabase("password");
-
         ContentValues contentValues = new ContentValues();
         contentValues.put(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_FROM_DEVICE_ID, name);
         contentValues.put(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CREATION_TIME, time);

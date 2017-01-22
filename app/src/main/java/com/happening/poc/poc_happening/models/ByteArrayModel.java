@@ -28,7 +28,7 @@ public abstract class ByteArrayModel {
 
     public abstract byte[] toBytes();
 
-    static byte[] trim(byte[] bytes)
+    static byte[] trimZeros(byte[] bytes)
     {
         int i = bytes.length - 1;
         while (i >= 0 && bytes[i] == 0){ --i; }

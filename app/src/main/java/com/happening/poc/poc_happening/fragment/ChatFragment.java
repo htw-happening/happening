@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.happening.poc.poc_happening.R;
 import com.happening.poc.poc_happening.adapter.ChatEntriesAdapter;
+import com.happening.poc.poc_happening.models.ByteArrayModelFactory;
 import com.happening.poc.poc_happening.models.ChatEntryModel;
 import com.happening.poc.poc_happening.dataStore.DBHelper;
 
@@ -78,6 +79,7 @@ public class ChatFragment extends Fragment {
     }
 
     private void addChatEntry(String author, String content) {
+        // Use ByteArrayModelFactory.createChatEntryModel(bytes); in the Future
         ChatEntryModel chatEntryModel = new ChatEntryModel(author, "test", "test", content);
         chatEntryModelArrayList.add(chatEntryModel);
         chatEntriesAdapter.notifyDataSetChanged();
