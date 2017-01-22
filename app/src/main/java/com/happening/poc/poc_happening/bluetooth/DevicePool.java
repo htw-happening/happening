@@ -16,7 +16,7 @@ public class DevicePool extends ArrayList<DeviceModel> {
 
     public void changeState(DeviceModel model, int newState) {
         if (model != null) {
-            model.setState(newState);
+            model.setCurrentState(newState);
             Log.i("DEVICE_POOL", "Changed State to " + newState);
         } else {
             Log.i("DEVICE_POOL", "Device not found, can't update state!");
@@ -50,7 +50,7 @@ public class DevicePool extends ArrayList<DeviceModel> {
     public List<DeviceModel> getDevicesMatchingConnectionState(int state) {
         List<DeviceModel> matchingDevices = new ArrayList<>();
         for (DeviceModel model : this) {
-            if (state == model.getState()) {
+            if (state == model.getCurrentState()) {
                 matchingDevices.add(model);
             }
         }

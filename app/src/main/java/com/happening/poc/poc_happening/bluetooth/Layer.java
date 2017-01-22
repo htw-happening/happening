@@ -125,13 +125,13 @@ public class Layer {
             boolean success = device.getClientGatt().connect();
             Log.i("GATT", "Connecting via open gatt " + device.getAddress() + (success ? " success" : "fail"));
         } else {
-            Log.i("GATT", "Cannot connect state " + device.getState() + " gatt " + device.getClientGatt());
+            Log.i("GATT", "Cannot connect state " + device.getCurrentState() + " gatt " + device.getClientGatt());
         }
     }
 
     public void disconnectDevice(DeviceModel device) {
         if (device.isConnected()) {
-            device.setStayConnected(false);
+            device.setTargetState(BluetoothProfile.STATE_DISCONNECTED);
             if (device.getName() == "client") {
                 mBluetoothGattServer.cancelConnection(device.getClientDevice());
             } else if (device.getName() == "server") {
@@ -139,7 +139,7 @@ public class Layer {
             }
             Log.i("GATT", "Disconnecting " + device.getAddress());
         } else {
-            Log.i("GATT", "Cannot disconnect state " + device.getState() + " gatt " + device.getClientGatt());
+            Log.i("GATT", "Cannot disconnect state " + device.getCurrentState() + " gatt " + device.getClientGatt());
         }
     }
 
@@ -387,11 +387,14 @@ public class Layer {
                     notifyHandlers(DEVICE_POOL_UPDATED);
                     BluetoothDevice bluetoothDevice = gatt.getDevice();
                     DeviceModel device = devicePool.getModelByDevice(bluetoothDevice);
-                    if (device.getStayConnected()) {
-                        device.getClientGatt().connect();
-                    } else {
-                        device.getClientGatt().close();
-                        device.setClientGatt(null);
+                    if (device.getTargetState() == BluetoothProfile.STATE_CONNECTED) {
+                        boolean success = device.getClientGatt().connect();
+                        if (success) break;
+                    }
+                    device.getClientGatt().close();
+                    device.setClientGatt(null);
+                    if (device.getTargetState() == BluetoothProfile.STATE_CONNECTED) {
+                        connectDevice(device);
                     }
                     break;
                 default:

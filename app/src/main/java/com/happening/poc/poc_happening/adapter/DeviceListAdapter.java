@@ -1,5 +1,6 @@
 package com.happening.poc.poc_happening.adapter;
 
+import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -41,7 +42,16 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceModel> {
         int colorAccent = color.data;
         getContext().getTheme().resolveAttribute(R.attr.colorPrimary, color, true);
         int colorPrimary = color.data;
-        address.setTextColor(device.isConnected() ? colorAccent : colorPrimary);
+        getContext().getTheme().resolveAttribute(R.attr.colorPrimaryDark, color, true);
+        int colorIdle = color.data;
+        switch (device.getCurrentState()) {
+            case BluetoothProfile.STATE_CONNECTED:
+                address.setTextColor(colorAccent);
+            case BluetoothProfile.STATE_DISCONNECTED:
+                address.setTextColor(colorAccent);
+            default:
+                address.setTextColor(colorIdle);
+        }
 
         return convertView;
     }

@@ -7,8 +7,8 @@ import android.bluetooth.le.ScanResult;
 
 public class DeviceModel {
 
-    private boolean stayConnected = true;
-    private int state = BluetoothProfile.STATE_DISCONNECTED;
+    private int currentState = BluetoothProfile.STATE_DISCONNECTED;
+    private int targetState = BluetoothProfile.STATE_CONNECTED;
     private BluetoothGatt clientGatt;
     private BluetoothGatt serverGatt;
     private BluetoothDevice clientDevice;
@@ -26,15 +26,16 @@ public class DeviceModel {
         StringBuilder s = new StringBuilder();
         if (clientDevice != null) s.append("client");
         if (serverDevice != null) s.append("server");
-        if (clientDevice == null || serverDevice == null) s.append("neither");
+        if (clientDevice == null && serverDevice == null) s.append("neither");
+        if (clientDevice != null && serverDevice != null) s.append("both");
         return s.toString();
     }
 
     public String getAddress() {
         StringBuilder s = new StringBuilder();
-        if (clientDevice != null) s.append("CLIENT:" + clientDevice.getAddress());
+        if (clientDevice != null) s.append("C:").append(clientDevice.getAddress());
         if (clientDevice != null && serverDevice != null) s.append(" ");
-        if (serverDevice != null) s.append("SERVER:" + serverDevice.getAddress());
+        if (serverDevice != null) s.append("S:").append(serverDevice.getAddress());
         return s.toString();
     }
 
@@ -75,19 +76,27 @@ public class DeviceModel {
     }
 
     public boolean isConnected() {
-        return (getState() == BluetoothProfile.STATE_CONNECTED);
+        return (getCurrentState() == BluetoothProfile.STATE_CONNECTED);
     }
 
     public boolean isDisconnected() {
-        return (getState() == BluetoothProfile.STATE_DISCONNECTED);
+        return (getCurrentState() == BluetoothProfile.STATE_DISCONNECTED);
     }
 
-    public void setState(int state) {
-        this.state = state;
+    public void setCurrentState(int currentState) {
+        this.currentState = currentState;
     }
 
-    public int getState() {
-        return this.state;
+    public int getCurrentState() {
+        return this.currentState;
+    }
+
+    public void setTargetState(int targetState) {
+        this.targetState = targetState;
+    }
+
+    public int getTargetState() {
+        return this.targetState;
     }
 
     @Override
@@ -97,18 +106,10 @@ public class DeviceModel {
         return false;
     }
 
-    public boolean getStayConnected() {
-        return stayConnected;
-    }
-
-    public void setStayConnected(boolean stayConnected) {
-        this.stayConnected = stayConnected;
-    }
-
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append(getName());
-        switch (getState()) {
+        switch (getCurrentState()) {
             case BluetoothProfile.STATE_CONNECTED:
                 s.append("connected");
             case BluetoothProfile.STATE_DISCONNECTED:
@@ -118,7 +119,8 @@ public class DeviceModel {
             case BluetoothProfile.STATE_DISCONNECTING:
                 s.append("disconnecting");
         }
-        s.append("stayConnected ").append(stayConnected);
+        s.append("currentState ").append(currentState);
+        s.append("targetState ").append(targetState);
         return s.toString();
     }
 }

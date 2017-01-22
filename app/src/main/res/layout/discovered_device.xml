@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="address N/A"
-        android:textSize="28dp" />
+        android:textSize="20dp" />
 
     <TextView
         android:id="@+id/device_name"
