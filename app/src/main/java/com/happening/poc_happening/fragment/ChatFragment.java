@@ -11,9 +11,12 @@ import android.widget.Toast;
 
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.ChatEntriesAdapter;
-import com.happening.poc_happening.adapter.ChatEntryModel;
+import com.happening.poc_happening.dataStore.DBHelper;
+import com.happening.poc_happening.models.ChatEntryModel;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Objects;
 
 /**
  * Created by kaischulz on 10.12.16.
@@ -22,10 +25,10 @@ import java.util.ArrayList;
 public class ChatFragment extends Fragment {
 
     private static ChatFragment instance = null;
-    private View rootView = null;
-
-    private ListView listView;
     public ArrayList<ChatEntryModel> chatEntryModelArrayList;
+    private View rootView = null;
+    private DBHelper dbHelper;
+    private ListView listView;
     private ChatEntriesAdapter chatEntriesAdapter;
 
     public static ChatFragment getInstance() {
@@ -35,9 +38,13 @@ public class ChatFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        dbHelper = DBHelper.getInstance(getContext());
+
         rootView = inflater.inflate(R.layout.fragment_chat, container, false);
 
-        chatEntryModelArrayList = new ArrayList<>();
+        // init chatEntryModel from DB+
+        chatEntryModelArrayList = dbHelper.getAllGlobalMessagesRaw();
+
         chatEntriesAdapter = new ChatEntriesAdapter(getContext(), chatEntryModelArrayList);
         listView = (ListView) rootView.findViewById(R.id.listView_chat_entries);
         listView.setAdapter(chatEntriesAdapter);
@@ -46,14 +53,20 @@ public class ChatFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //Handle Message for Sending
-                String message = ((EditText)rootView.findViewById(R.id.editText_message_input)).getText().toString();
-                if (message.length() == 0){
+                String message = ((EditText) rootView.findViewById(R.id.editText_message_input)).getText().toString();
+                if (message.length() == 0) {
                     //was empty
-                    Toast.makeText(rootView.getContext(),"Type Something",Toast.LENGTH_SHORT).show();
-                }else{
+                    Toast.makeText(rootView.getContext(), "Type Something", Toast.LENGTH_SHORT).show();
+                } else {
                     addChatEntry("You", message);
-                    ((EditText)rootView.findViewById(R.id.editText_message_input)).setText("");
+                    ((EditText) rootView.findViewById(R.id.editText_message_input)).setText("");
+
                     // TODO - Send message via Bluetooth
+
+                    //DB insert
+                    String time = Objects.toString(Calendar.getInstance().getTimeInMillis(), null);
+                    dbHelper.insertGlobalMessage("You", time, "text", message);
+
                 }
             }
         });
@@ -61,8 +74,9 @@ public class ChatFragment extends Fragment {
         return rootView;
     }
 
-    private void addChatEntry(String author, String content){
-        ChatEntryModel chatEntryModel = new ChatEntryModel(author, content);
+    private void addChatEntry(String author, String content) {
+        // Use ByteArrayModelFactory.createChatEntryModel(bytes); in the Future
+        ChatEntryModel chatEntryModel = new ChatEntryModel(author, "test", "test", content);
         chatEntryModelArrayList.add(chatEntryModel);
         chatEntriesAdapter.notifyDataSetChanged();
     }
@@ -72,8 +86,10 @@ public class ChatFragment extends Fragment {
         super.onResume();
 
         //TODO - remove
-        addChatEntry("Peter","Hi");
-        addChatEntry("Hans","Selber Hai!");
-        addChatEntry("Torben","Wer is Kai?");
+        //addChatEntry("Peter","Hi");
+        //addChatEntry("Hans","Selber Hai!");
+        //addChatEntry("Torben","Wer is Kai?");
+
+
     }
 }

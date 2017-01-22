@@ -26,6 +26,8 @@ import com.happening.poc_happening.fragment.ChatFragment;
 import com.happening.poc_happening.fragment.DBTestFragment;
 import com.happening.poc_happening.fragment.MainFragment;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -62,7 +64,11 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         MainActivity.context = getApplicationContext();
+
+        // load sqlcipher libs
+        SQLiteDatabase.loadLibs(this);
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
