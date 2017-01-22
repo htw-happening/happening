@@ -8,20 +8,19 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.happening.poc.poc_happening.R;
-import com.happening.poc.poc_happening.adapter.ChatEntryModel;
 
 import java.util.ArrayList;
 
-public class DBTestAdapter extends ArrayAdapter<DBEntryModel> {
+public class DBTestAdapter extends ArrayAdapter<DBTestEntryModel> {
 
-    public DBTestAdapter(Context context, ArrayList<DBEntryModel> entries) {
+    public DBTestAdapter(Context context, ArrayList<DBTestEntryModel> entries) {
         super(context, 0, entries);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        DBEntryModel dbEntryModel = getItem(position);
+        DBTestEntryModel dbTestEntryModel = getItem(position);
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.db_entry, parent, false);
@@ -31,9 +30,9 @@ public class DBTestAdapter extends ArrayAdapter<DBEntryModel> {
         TextView address = (TextView) convertView.findViewById(R.id.textView_db_entry_address);
         TextView lastSeen = (TextView) convertView.findViewById(R.id.textView_db_entry_lastSeen);
 
-        name.setText(dbEntryModel.getName());
-        address.setText(dbEntryModel.getAddress());
-        lastSeen.setText(dbEntryModel.getLastSeen());
+        name.setText(dbTestEntryModel.getName());
+        address.setText(dbTestEntryModel.getAddress());
+        lastSeen.setText(dbTestEntryModel.getLastSeen());
 
         return convertView;
     }

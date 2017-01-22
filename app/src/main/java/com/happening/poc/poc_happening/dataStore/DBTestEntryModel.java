@@ -1,13 +1,13 @@
 package com.happening.poc.poc_happening.dataStore;
 
-public class DBEntryModel {
+public class DBTestEntryModel {
 
     private String name;
     private String address;
     private String lastSeen;
 
 
-    public DBEntryModel(String name, String address, String lastSeen) {
+    public DBTestEntryModel(String name, String address, String lastSeen) {
         this.name = name;
         this.address = address;
         this.lastSeen = lastSeen;

@@ -6,7 +6,7 @@ import android.database.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
-import com.happening.poc.poc_happening.adapter.ChatEntryModel;
+import com.happening.poc.poc_happening.models.ChatEntryModel;
 
 import java.util.ArrayList;
 
@@ -125,8 +125,12 @@ public class DBHelper extends SQLiteOpenHelper {
 
         res.moveToFirst();
         while(res.isAfterLast() == false){
-            ChatEntryModel chatEntryModel = new ChatEntryModel(res.getString(res.getColumnIndex(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_FROM_DEVICE_ID)),
-                                                                res.getString(res.getColumnIndex(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CONTENT)));
+            ChatEntryModel chatEntryModel = new ChatEntryModel(
+                    res.getString(res.getColumnIndex(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_FROM_DEVICE_ID)),
+                    res.getString(res.getColumnIndex(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CREATION_TIME)),
+                    res.getString(res.getColumnIndex(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_TYPE)),
+                    res.getString(res.getColumnIndex(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CONTENT))
+            );
             list.add(chatEntryModel);
             res.moveToNext();
         }
@@ -151,7 +155,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public boolean insertGlobalMessage (String name, String time, String type, String content) {
         SQLiteDatabase db = this.getWritableDatabase("password");
-
         ContentValues contentValues = new ContentValues();
         contentValues.put(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_FROM_DEVICE_ID, name);
         contentValues.put(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CREATION_TIME, time);
