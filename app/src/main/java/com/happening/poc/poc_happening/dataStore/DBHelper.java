@@ -125,8 +125,12 @@ public class DBHelper extends SQLiteOpenHelper {
 
         res.moveToFirst();
         while(res.isAfterLast() == false){
-            ChatEntryModel chatEntryModel = new ChatEntryModel(res.getString(res.getColumnIndex(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_FROM_DEVICE_ID)),
-                                                                res.getString(res.getColumnIndex(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CONTENT)));
+            ChatEntryModel chatEntryModel = new ChatEntryModel(
+                    res.getString(res.getColumnIndex(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_FROM_DEVICE_ID)),
+                    res.getString(res.getColumnIndex(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CREATION_TIME)),
+                    res.getString(res.getColumnIndex(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_TYPE)),
+                    res.getString(res.getColumnIndex(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CONTENT))
+            );
             list.add(chatEntryModel);
             res.moveToNext();
         }

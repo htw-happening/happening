@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.happening.poc.poc_happening.R;
-import com.happening.poc.poc_happening.dataStore.DBEntryModel;
+import com.happening.poc.poc_happening.dataStore.DBTestEntryModel;
 import com.happening.poc.poc_happening.dataStore.DBHelper;
 import com.happening.poc.poc_happening.dataStore.DBTestAdapter;
 
@@ -24,7 +24,7 @@ public class DBTestFragment  extends Fragment {
     private static DBTestFragment instance = null;
     private View rootView = null;
     private ListView listView;
-    public ArrayList<DBEntryModel> dbEntryModelArrayList;
+    public ArrayList<DBTestEntryModel> dbTestEntryModelArrayList;
     private DBTestAdapter dbTestAdapter;
 
     private DBHelper dbHelper;
@@ -41,8 +41,8 @@ public class DBTestFragment  extends Fragment {
 
         rootView = inflater.inflate(R.layout.fragment_db_test, container, false);
 
-        dbEntryModelArrayList = new ArrayList<>();
-        dbTestAdapter = new DBTestAdapter(getContext(), dbEntryModelArrayList);
+        dbTestEntryModelArrayList = new ArrayList<>();
+        dbTestAdapter = new DBTestAdapter(getContext(), dbTestEntryModelArrayList);
 
         listView = (ListView) rootView.findViewById(R.id.listView_db_entries);
         listView.setAdapter(dbTestAdapter);
@@ -81,8 +81,8 @@ public class DBTestFragment  extends Fragment {
 
 
     private void addDeviceEntry(String name, String address, String lastSeen){
-        DBEntryModel chatEntryModel = new DBEntryModel(name, address, lastSeen);
-        dbEntryModelArrayList.add(chatEntryModel);
+        DBTestEntryModel chatEntryModel = new DBTestEntryModel(name, address, lastSeen);
+        dbTestEntryModelArrayList.add(chatEntryModel);
        dbTestAdapter.notifyDataSetChanged();
     }
 
@@ -99,8 +99,8 @@ public class DBTestFragment  extends Fragment {
     }
 
     private void addDeviceEntry(String id, String name, String address, String lastSeen){
-        DBEntryModel dbEntryModel = new DBEntryModel(name, address, lastSeen);
-        dbEntryModelArrayList.add(dbEntryModel);
+        DBTestEntryModel dbTestEntryModel = new DBTestEntryModel(name, address, lastSeen);
+        dbTestEntryModelArrayList.add(dbTestEntryModel);
         dbTestAdapter.notifyDataSetChanged();
     }
 

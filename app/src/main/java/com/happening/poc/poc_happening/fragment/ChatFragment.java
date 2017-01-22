@@ -78,7 +78,7 @@ public class ChatFragment extends Fragment {
     }
 
     private void addChatEntry(String author, String content) {
-        ChatEntryModel chatEntryModel = new ChatEntryModel(author, content);
+        ChatEntryModel chatEntryModel = new ChatEntryModel(author, "test", "test", content);
         chatEntryModelArrayList.add(chatEntryModel);
         chatEntriesAdapter.notifyDataSetChanged();
     }
