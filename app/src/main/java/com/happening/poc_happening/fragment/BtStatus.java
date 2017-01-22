@@ -28,7 +28,7 @@ public class BtStatus extends Fragment {
 
     private static BtStatus instance = null;
     private View rootView = null;
-    private ServiceHandler hs = null;
+    private ServiceHandler sh = null;
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -118,12 +118,12 @@ public class BtStatus extends Fragment {
         rootView.getContext().registerReceiver(receiver, filter);
 
         // Bluetooth Background Service Switch
-        hs = ServiceHandler.getInstance();
+        sh = ServiceHandler.getInstance();
 
         Switch bt4ServiceSwitch = (Switch) rootView.findViewById(R.id.switch_background_service);
-        bt4ServiceSwitch.setChecked(hs.isRunning());
+        bt4ServiceSwitch.setChecked(sh.isRunning());
 
-        if (hs.isRunning()) {
+        if (sh.isRunning()) {
             ((TextView) rootView.findViewById(R.id.background_service_value)).setText(availableTxt);
         } else {
             ((TextView) rootView.findViewById(R.id.background_service_value)).setText(unAvailableTxt);
@@ -132,12 +132,12 @@ public class BtStatus extends Fragment {
         bt4ServiceSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!hs.isRunning()) {
-                    hs.startService();
+                if (!sh.isRunning()) {
+                    sh.startService();
                     ((Switch) rootView.findViewById(R.id.switch_background_service)).setChecked(true);
                     ((TextView) rootView.findViewById(R.id.background_service_value)).setText(availableTxt);
-                } else if (hs.isRunning()) {
-                    hs.stopService();
+                } else if (sh.isRunning()) {
+                    sh.stopService();
                     ((Switch) rootView.findViewById(R.id.switch_background_service)).setChecked(false);
                     ((TextView) rootView.findViewById(R.id.background_service_value)).setText(unAvailableTxt);
                 }
@@ -149,11 +149,11 @@ public class BtStatus extends Fragment {
             @Override
             public void onClick(View v) {
                 try {
-                    hs.getService().addDevice("jojo " + System.currentTimeMillis());
-                    hs.getService().addDevice("jojo");
+                    sh.getService().addDevice("jojo " + System.currentTimeMillis());
+                    sh.getService().addDevice("jojo");
 
-                    Log.d("device jojo in main", "" + hs.getService().getDevice("jojo"));
-                    Log.d("devices in main", "" + hs.getService().getDevices());
+                    Log.d("device jojo in main", "" + sh.getService().getDevice("jojo"));
+                    Log.d("devices in main", "" + sh.getService().getDevices());
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
