@@ -46,19 +46,29 @@ public class Bt4Controls extends Fragment {
             Snackbar.make(rootView, "BLE features are not supported!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
 
-        bluetoothLayer = Layer.getInstance(this.getContext());
+        bluetoothLayer = Layer.getInstance();
         bluetoothLayer.addHandler(guiHandler);
 
         ListView deviceListView = (ListView) rootView.findViewById(R.id.discovered_devices_list);
         deviceListAdapter = new DeviceListAdapter(rootView.getContext(), bluetoothLayer.getDevicePool());
         deviceListView.setAdapter(deviceListAdapter);
 
+        TextView textViewCount = (TextView) getActivity().findViewById(R.id.ble_connect_count);
+        if (textViewCount != null)
+            textViewCount.setText("Num: " + bluetoothLayer.getNumOfConnectedDevices());
+
         deviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 DeviceModel device = (DeviceModel) parent.getItemAtPosition(position);
-                Log.d("CLICK", "Clicked on device " + device.getName());
-                bluetoothLayer.connectDevice(device);
+                Log.i("CLICK", "Clicked on device " + device.getName());
+                if (device.isConnected()) {
+                    bluetoothLayer.disconnectDevice(device);
+                } else if (device.isDisconnected()) {
+                    bluetoothLayer.connectDevice(device);
+                } else {
+                    Log.i("GATT", "Enhance your calm");
+                }
             }
         });
 
@@ -67,6 +77,7 @@ public class Bt4Controls extends Fragment {
         adapterButton.setChecked(bluetoothLayer.isEnabled());
         adapterButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.i("Bt4Controls", "adapterButton - onCheckedChanged " + isChecked);
                 if (isChecked) {
                     enableAdapter();
                 } else {
@@ -75,9 +86,10 @@ public class Bt4Controls extends Fragment {
             }
         });
 
-        Switch discoverButton = (Switch) rootView.findViewById(R.id.discover_button);
-        discoverButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        Switch scanButton = (Switch) rootView.findViewById(R.id.scan_button);
+        scanButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.i("Bt4Controls", "scanButton - onCheckedChanged " + isChecked);
                 if (isChecked) {
                     startScan();
                 } else {
@@ -89,6 +101,7 @@ public class Bt4Controls extends Fragment {
         Switch advertiseButton = (Switch) rootView.findViewById(R.id.advertise_button);
         advertiseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.i("Bt4Controls", "advertiseButton - onCheckedChanged " + isChecked);
                 if (isChecked) {
                     startAdvertising();
                 } else {
@@ -100,6 +113,7 @@ public class Bt4Controls extends Fragment {
         Switch gattServerButton = (Switch) rootView.findViewById(R.id.gatt_server_button);
         gattServerButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.i("Bt4Controls", "gattServerButton - onCheckedChanged " + isChecked);
                 if (isChecked) {
                     createGattServer();
                 } else {
@@ -114,6 +128,20 @@ public class Bt4Controls extends Fragment {
         }
 
         return rootView;
+    }
+
+    @Override
+    public void onPause() {
+        Log.i("Bt4Controls", "onPause");
+        bluetoothLayer.removeHandler(guiHandler);
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        Log.i("Bt4Controls", "onResume");
+        super.onResume();
+        bluetoothLayer.addHandler(guiHandler);
     }
 
     private void enableAdapter() {
@@ -159,32 +187,26 @@ public class Bt4Controls extends Fragment {
     private Handler guiHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
-            Log.d("HANDLER", "Message received from layer with Code " + msg.what);
+            Log.i("HANDLER", "Message received from layer with Code " + msg.what);
             switch (msg.what) {
                 case Layer.DEVICE_POOL_UPDATED:
                     deviceListAdapter.notifyDataSetChanged();
-                    TextView textViewCount = (TextView) getActivity().findViewById(R.id.ble_connect_count);
-                    textViewCount.setText("Num: "+bluetoothLayer.getNumOfConnectedDevices());
                     break;
                 case Layer.MESSAGE_RECEIVED:
 
                     String message = msg.getData().getString("content");
-                    Log.d("HANDLER", "Content was "+message);
-
+                    Log.i("HANDLER", "Content was " + message);
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            // User clicked OK button
                         }
                     });
                     builder.setMessage(message);
                     AlertDialog dialog = builder.create();
                     dialog.show();
-
-
                     break;
                 default:
-                    Log.d("HANDLER", "Unresolved Message Code");
+                    Log.i("HANDLER", "Unresolved Message Code");
                     break;
             }
         }

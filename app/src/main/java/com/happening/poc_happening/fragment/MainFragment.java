@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 
 import com.happening.poc_happening.R;
 
-
 public class MainFragment extends Fragment {
 
     private static MainFragment instance = null;
@@ -24,5 +23,4 @@ public class MainFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_main, container, false);
         return rootView;
     }
-
 }

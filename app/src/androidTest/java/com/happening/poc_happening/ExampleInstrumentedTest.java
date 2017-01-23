@@ -1,4 +1,4 @@
-package com.happening.poc.poc_happening;
+package com.happening.poc_happening;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
