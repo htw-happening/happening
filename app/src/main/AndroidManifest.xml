@@ -33,7 +33,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity android:name="com.happening.poc.poc_happening.dataStore.AndroidDatabaseManager"
+            android:theme="@style/Theme.AppCompat.Light"/>
         <service
             android:name=".service.Bluetooth4Service"
             android:process=":happening"
