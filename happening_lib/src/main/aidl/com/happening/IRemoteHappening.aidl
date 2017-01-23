@@ -10,14 +10,14 @@ interface IRemoteHappening {
     // for development only
     void enableAdapter();
     void disableAdapter();
-    void isBtAdapterEnabled();
+    boolean isBtAdapterEnabled();
 
     void startScan();
     void stopScan();
 
     void startAdvertising();
     void stopAdvertising();
-    void isAdvertisingSupported();
+    boolean isAdvertisingSupported();
 
     void createGattServer();
     void stopGattServer();

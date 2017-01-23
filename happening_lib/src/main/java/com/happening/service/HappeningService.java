@@ -7,6 +7,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.happening.IRemoteHappening;
+import com.happening.bluetooth.Layer;
 import com.happening.lib.BluetoothDevice;
 
 import java.util.ArrayList;
@@ -57,42 +58,52 @@ public class HappeningService extends Service {
 
         @Override
         public void enableAdapter() throws RemoteException {
+            Layer.getInstance().enableAdapter();
         }
 
         @Override
         public void disableAdapter() throws RemoteException {
+            Layer.getInstance().disableAdapter();
         }
 
         @Override
-        public void isBtAdapterEnabled() throws RemoteException {
+        public boolean isBtAdapterEnabled() throws RemoteException {
+            return Layer.getInstance().isEnabled();
         }
 
         @Override
         public void startScan() throws RemoteException {
+            Layer.getInstance().startScan();
         }
 
         @Override
         public void stopScan() throws RemoteException {
+            Layer.getInstance().stopScan();
         }
 
         @Override
         public void startAdvertising() throws RemoteException {
+            Layer.getInstance().startAdvertising();
         }
 
         @Override
         public void stopAdvertising() throws RemoteException {
+            Layer.getInstance().stopAdvertising();
         }
 
         @Override
-        public void isAdvertisingSupported() throws RemoteException {
+        public boolean isAdvertisingSupported() throws RemoteException {
+            return Layer.getInstance().isAdvertisingSupported();
         }
 
         @Override
         public void createGattServer() throws RemoteException {
+            Layer.getInstance().createGattServer();
         }
 
         @Override
         public void stopGattServer() throws RemoteException {
+            Layer.getInstance().stopGattServer();
         }
 
 //        @Override
