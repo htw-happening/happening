@@ -6,10 +6,13 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.happening.poc_happening.service.ServiceHandler;
+
 public class MyApp extends Application implements Application.ActivityLifecycleCallbacks {
 
     private static Context mContext;
     private static Boolean inForeground = false;
+    private static ServiceHandler sh = null;
 
     public static Context getAppContext() {
         return mContext;
@@ -24,6 +27,10 @@ public class MyApp extends Application implements Application.ActivityLifecycleC
         Log.d(this.getClass().getSimpleName(), "onCreate");
         mContext = getApplicationContext();
         registerActivityLifecycleCallbacks(this);
+
+        // connect to process - happening_lib
+        this.sh = ServiceHandler.getInstance();
+        sh.startService();
     }
 
     @Override
