@@ -18,7 +18,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.happening.poc_happening.datastore.DBHelper;
+import com.happening.poc_happening.bluetooth.DeviceModel;
+import com.happening.poc_happening.bluetooth.DevicePool;
+import com.happening.poc_happening.bluetooth.Layer;
 import com.happening.poc_happening.fragment.Bt2Controls;
 import com.happening.poc_happening.fragment.Bt4Controls;
 import com.happening.poc_happening.fragment.BtStatus;
@@ -30,8 +32,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
-    private static Context context = null;
 
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int TAG_CODE_PERMISSION_LOCATION = 2;
@@ -64,9 +64,6 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-        MainActivity.context = getApplicationContext();
-
         // load sqlcipher libs
         SQLiteDatabase.loadLibs(this);
 
@@ -83,11 +80,8 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // Init DB (SQLLite)
-        DBHelper mDbHelper = DBHelper.getInstance(this);
-
-        this.currentFragment = BtStatus.getInstance();
-        this.currentFragmentTag = TAG_FRAGMENT_BTSTATUS;
+        this.currentFragment = ChatFragment.getInstance();
+        this.currentFragmentTag = TAG_FRAGMENT_CHAT;
 
         fm.beginTransaction()
                 .replace(R.id.main_fragment_holder, currentFragment, currentFragmentTag)
@@ -203,10 +197,6 @@ public class MainActivity extends AppCompatActivity
             this.currentFragment = dbTestFragment;
             this.currentFragmentTag = TAG_FRAGMENT_DB_TEST;
 
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -225,4 +215,16 @@ public class MainActivity extends AppCompatActivity
                 .commit();
     }
 
+    @Override
+    protected void onDestroy() {
+        Layer layer = Layer.getInstance();
+        DevicePool devicePool = layer.getDevicePool();
+        for (DeviceModel deviceModel : devicePool) {
+            layer.disconnectDevice(deviceModel);
+        }
+        layer.stopScan();
+        layer.stopAdvertising();
+        layer.stopGattServer();
+        super.onDestroy();
+    }
 }

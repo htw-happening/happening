@@ -2,101 +2,79 @@ package com.happening.poc_happening.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.le.ScanRecord;
+import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.ScanResult;
-import android.os.ParcelUuid;
-import android.util.Log;
-
-import java.util.Map;
 
 public class DeviceModel {
 
-    private int rssi;
-    private ScanRecord scanRecord;
+    private String type;
+    private int currentState = BluetoothProfile.STATE_DISCONNECTED;
+    private int targetState = BluetoothProfile.STATE_CONNECTED;
     private BluetoothGatt bluetoothGatt;
     private BluetoothDevice bluetoothDevice;
 
-    private String currentMessage = "";
-
     public DeviceModel(ScanResult scanResult) {
         this.bluetoothDevice = scanResult.getDevice();
-        this.scanRecord = scanResult.getScanRecord();
-        this.rssi = scanResult.getRssi();
+        this.type = "server";
+    }
+
+    public DeviceModel(BluetoothDevice bluetoothDevice) {
+        this.bluetoothDevice = bluetoothDevice;
+        this.type = "client";
     }
 
     public String getName() {
-        if (bluetoothDevice.getName() != null) {
-            return bluetoothDevice.getName();
-        }
-        return "n/a";
-    }
-
-    public String getCurrentMessage() {
-        return currentMessage;
-    }
-
-    public void setCurrentMessage(String currentMessage) {
-        this.currentMessage = currentMessage;
+        return getType();
     }
 
     public String getAddress() {
         return bluetoothDevice.getAddress();
     }
 
-    public String getSignalStrength() {
-        return this.rssi + "dBm";
-    }
-
-    public String getPayload() {
-        String payload = "";
-        for (byte[] value : this.getServiceData().values()) {
-            payload += new String(value);
-        }
-        return payload;
-    }
-
-    public String getPathloss() {
-        if (scanRecord.getTxPowerLevel() != Integer.MIN_VALUE) {
-            return (scanRecord.getTxPowerLevel() - this.rssi) + "dBm";
-        }
-        return "n/a";
-    }
-
-    public Map<ParcelUuid, byte[]> getServiceData() {
-        return scanRecord.getServiceData();
-    }
-
     public BluetoothDevice getBluetoothDevice() {
         return bluetoothDevice;
-    }
-
-    public boolean isBonded() {
-        return bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED;
-    }
-
-    public boolean isConnected() {
-        return bluetoothGatt != null;
     }
 
     public void setBluetoothGatt(BluetoothGatt bluetoothGatt) {
         this.bluetoothGatt = bluetoothGatt;
     }
 
-    public void disconnectDevice() {
-        if (isConnected()) {
-            Log.d("GATT", "Disconnecting");
-            bluetoothGatt.disconnect();
-            bluetoothGatt = null;
-        } else {
-            Log.d("GATT", "Nothing to disconnect");
-        }
+    public BluetoothGatt getBluetoothGatt() {
+        return bluetoothGatt;
+    }
+
+    public boolean isConnected() {
+        return (getCurrentState() == BluetoothProfile.STATE_CONNECTED);
+    }
+
+    public boolean isDisconnected() {
+        return (getCurrentState() == BluetoothProfile.STATE_DISCONNECTED);
+    }
+
+    public void setCurrentState(int currentState) {
+        this.currentState = currentState;
+    }
+
+    public int getCurrentState() {
+        return this.currentState;
+    }
+
+    public void setTargetState(int targetState) {
+        this.targetState = targetState;
+    }
+
+    public int getTargetState() {
+        return this.targetState;
+    }
+
+    public String getType() {
+        return type;
     }
 
     @Override
     public boolean equals(Object object) {
-        if (object != null && object instanceof DeviceModel) {
+        if (object != null && object instanceof DeviceModel)
             return getBluetoothDevice().equals(((DeviceModel) object).getBluetoothDevice());
-        }
         return false;
     }
 }

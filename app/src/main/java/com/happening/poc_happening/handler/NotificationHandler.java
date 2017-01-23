@@ -50,6 +50,4 @@ public class NotificationHandler {
                 (NotificationManager) MyApp.getAppContext().getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(47474747, mBuilder.build());
     }
-
-
 }

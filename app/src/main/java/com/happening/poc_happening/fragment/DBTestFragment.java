@@ -16,11 +16,7 @@ import com.happening.poc_happening.datastore.DBTestAdapter;
 import java.util.ArrayList;
 import java.util.Random;
 
-/**
- * Created by daired on 08/01/17.
- */
-
-public class DBTestFragment  extends Fragment {
+public class DBTestFragment extends Fragment {
     private static DBTestFragment instance = null;
     private View rootView = null;
     private ListView listView;
@@ -34,10 +30,9 @@ public class DBTestFragment  extends Fragment {
         return instance;
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        dbHelper = DBHelper.getInstance(getContext());
+        dbHelper = DBHelper.getInstance();
 
         rootView = inflater.inflate(R.layout.fragment_db_test, container, false);
 
@@ -72,33 +67,30 @@ public class DBTestFragment  extends Fragment {
     }
 
 
-
     @Override
     public void onResume() {
         super.onResume();
     }
 
 
-
-    private void addDeviceEntry(String name, String address, String lastSeen){
+    private void addDeviceEntry(String name, String address, String lastSeen) {
         DBTestEntryModel chatEntryModel = new DBTestEntryModel(name, address, lastSeen);
         dbTestEntryModelArrayList.add(chatEntryModel);
-       dbTestAdapter.notifyDataSetChanged();
+        dbTestAdapter.notifyDataSetChanged();
     }
 
 
-    private static final String ALLOWED_CHARACTERS ="0123456789qwertyuiopasdfghjklzxcvbnm";
+    private static final String ALLOWED_CHARACTERS = "0123456789qwertyuiopasdfghjklzxcvbnm";
 
-    private static String getRandomString(final int sizeOfRandomString)
-    {
-        final Random random=new Random();
-        final StringBuilder sb=new StringBuilder(sizeOfRandomString);
-        for(int i=0;i<sizeOfRandomString;++i)
+    private static String getRandomString(final int sizeOfRandomString) {
+        final Random random = new Random();
+        final StringBuilder sb = new StringBuilder(sizeOfRandomString);
+        for (int i = 0; i < sizeOfRandomString; ++i)
             sb.append(ALLOWED_CHARACTERS.charAt(random.nextInt(ALLOWED_CHARACTERS.length())));
         return sb.toString();
     }
 
-    private void addDeviceEntry(String id, String name, String address, String lastSeen){
+    private void addDeviceEntry(String id, String name, String address, String lastSeen) {
         DBTestEntryModel dbTestEntryModel = new DBTestEntryModel(name, address, lastSeen);
         dbTestEntryModelArrayList.add(dbTestEntryModel);
         dbTestAdapter.notifyDataSetChanged();

@@ -1,7 +1,11 @@
 package com.happening.poc_happening.fragment;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,33 +16,41 @@ import android.widget.Toast;
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.ChatEntriesAdapter;
 import com.happening.poc_happening.datastore.DBHelper;
+import com.happening.poc_happening.bluetooth.Layer;
 import com.happening.poc_happening.models.ChatEntryModel;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Objects;
 
-/**
- * Created by kaischulz on 10.12.16.
- */
 
 public class ChatFragment extends Fragment {
 
     private static ChatFragment instance = null;
+    private Layer bluetoothLayer = null;
     public ArrayList<ChatEntryModel> chatEntryModelArrayList;
+
     private View rootView = null;
     private DBHelper dbHelper;
     private ListView listView;
     private ChatEntriesAdapter chatEntriesAdapter;
 
     public static ChatFragment getInstance() {
-        instance = new ChatFragment();
+        if (instance == null) {
+            instance = new ChatFragment();
+        }
         return instance;
+    }
+
+    public ChatFragment() {
+        bluetoothLayer = Layer.getInstance();
+        bluetoothLayer.setAutoConnect(true);
+        bluetoothLayer.createGattServer();
+        bluetoothLayer.startAdvertising();
+        bluetoothLayer.startScan();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        dbHelper = DBHelper.getInstance(getContext());
+        dbHelper = DBHelper.getInstance();
 
         rootView = inflater.inflate(R.layout.fragment_chat, container, false);
 
@@ -46,7 +58,7 @@ public class ChatFragment extends Fragment {
         chatEntryModelArrayList = dbHelper.getAllGlobalMessagesRaw();
 
         chatEntriesAdapter = new ChatEntriesAdapter(getContext(), chatEntryModelArrayList);
-        listView = (ListView) rootView.findViewById(R.id.listView_chat_entries);
+        listView = (ListView) rootView.findViewById(R.id.chat_entries_list);
         listView.setAdapter(chatEntriesAdapter);
 
         rootView.findViewById(R.id.imageView_send_message).setOnClickListener(new View.OnClickListener() {
@@ -61,12 +73,7 @@ public class ChatFragment extends Fragment {
                     addChatEntry("You", message);
                     ((EditText) rootView.findViewById(R.id.editText_message_input)).setText("");
 
-                    // TODO - Send message via Bluetooth
-
-                    //DB insert
-                    String time = Objects.toString(Calendar.getInstance().getTimeInMillis(), null);
-                    dbHelper.insertGlobalMessage("You", time, "text", message);
-
+                    bluetoothLayer.broadcastMessage(message);
                 }
             }
         });
@@ -75,21 +82,43 @@ public class ChatFragment extends Fragment {
     }
 
     private void addChatEntry(String author, String content) {
+
         // Use ByteArrayModelFactory.createChatEntryModel(bytes); in the Future
         ChatEntryModel chatEntryModel = new ChatEntryModel(author, "test", "test", content);
+
         chatEntryModelArrayList.add(chatEntryModel);
         chatEntriesAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onResume() {
+        bluetoothLayer.addHandler(guiHandler);
         super.onResume();
-
-        //TODO - remove
-        //addChatEntry("Peter","Hi");
-        //addChatEntry("Hans","Selber Hai!");
-        //addChatEntry("Torben","Wer is Kai?");
-
-
     }
+
+    @Override
+    public void onPause() {
+        bluetoothLayer.removeHandler(guiHandler);
+        super.onPause();
+    }
+
+    private Handler guiHandler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case Layer.DEVICE_POOL_UPDATED:
+                    break;
+                case Layer.MESSAGE_RECEIVED:
+                    String content = msg.getData().getString("content");
+                    String author = msg.getData().getString("author");
+                    Log.i("HANDLER", "" + author + " says " + content);
+                    addChatEntry(author, content);
+                    break;
+                default:
+                    Log.i("HANDLER", "Unresolved Message Code");
+                    break;
+            }
+        }
+    };
 }
+

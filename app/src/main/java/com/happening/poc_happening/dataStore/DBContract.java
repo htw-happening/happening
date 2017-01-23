@@ -11,6 +11,10 @@ public final class DBContract {
     /* Inner class that defines the table contents */
     public static class DBEntry implements BaseColumns {
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 26dbce526e4f90a1f285b7ed579201e2d9c21082
         public static final String PROFILE_TABLE_NAME = "profile";
         public static final String PROFILE_COLUMN_USERNAME = "username";
         public static final String PROFILE_COLUMN_FIRSTNAME = "firstname";
