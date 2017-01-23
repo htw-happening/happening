@@ -1,4 +1,4 @@
-package com.happening.poc_happening.dataStore;
+package com.happening.poc_happening.datastore;
 
 public class DBTestEntryModel {
 
@@ -6,18 +6,22 @@ public class DBTestEntryModel {
     private String address;
     private String lastSeen;
 
-
     public DBTestEntryModel(String name, String address, String lastSeen) {
         this.name = name;
         this.address = address;
         this.lastSeen = lastSeen;
-
     }
 
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
+
     public String getAddress() {
         return address;
     }
-    public String getLastSeen() { return lastSeen; }
+
+    public String getLastSeen() {
+        return lastSeen;
+    }
 
 }

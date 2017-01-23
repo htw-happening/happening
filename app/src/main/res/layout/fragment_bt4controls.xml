@@ -72,12 +72,18 @@
 
     </LinearLayout>
 
+    <Button
+        android:text="Bandwidth Tester"
+        android:id="@+id/button_bandwidth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <ListView
         android:id="@+id/discovered_devices_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/gatt_server_button"
+        android:layout_below="@+id/button_bandwidth"
         android:focusable="true" />
 
 </LinearLayout>

@@ -1,4 +1,4 @@
-package com.happening.poc_happening.dataStore;
+package com.happening.poc_happening.datastore;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,7 +8,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.happening.poc_happening.R;
-import com.happening.poc_happening.dataStore.DBTestEntryModel;
 
 import java.util.ArrayList;
 

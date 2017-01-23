@@ -1,10 +1,6 @@
-package com.happening.poc_happening.dataStore;
+package com.happening.poc_happening.datastore;
 
 import android.provider.BaseColumns;
-
-/**
- * Created by daired on 03/01/17.
- */
 
 public final class DBContract {
     // To prevent someone from accidentally instantiating the contract class,
@@ -14,7 +10,6 @@ public final class DBContract {
 
     /* Inner class that defines the table contents */
     public static class DBEntry implements BaseColumns {
-
 
         public static final String PROFILE_TABLE_NAME = "profile";
         public static final String PROFILE_COLUMN_USERNAME = "username";
@@ -37,6 +32,5 @@ public final class DBContract {
         public static final String GLOBAL_MESSAGES_COLUMN_CREATION_TIME = "creationTime";
         public static final String GLOBAL_MESSAGES_COLUMN_TYPE = "type";
         public static final String GLOBAL_MESSAGES_COLUMN_CONTENT = "content";
-
     }
 }

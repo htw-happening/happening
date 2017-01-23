@@ -15,8 +15,8 @@ import android.widget.Toast;
 
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.ChatEntriesAdapter;
+//import com.happening.poc_happening.datastore.DBHelper;
 import com.happening.poc_happening.bluetooth.Layer;
-import com.happening.poc_happening.dataStore.DBHelper;
 import com.happening.poc_happening.models.ChatEntryModel;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class ChatFragment extends Fragment {
     public ArrayList<ChatEntryModel> chatEntryModelArrayList;
 
     private View rootView = null;
-    private DBHelper dbHelper;
+//    private DBHelper dbHelper;
     private ListView listView;
     private ChatEntriesAdapter chatEntriesAdapter;
 
@@ -50,12 +50,13 @@ public class ChatFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        dbHelper = DBHelper.getInstance(getContext());
+//        dbHelper = DBHelper.getInstance();
 
         rootView = inflater.inflate(R.layout.fragment_chat, container, false);
 
         // init chatEntryModel from DB+
-        chatEntryModelArrayList = dbHelper.getAllGlobalMessagesRaw();
+//        chatEntryModelArrayList = dbHelper.getAllGlobalMessagesRaw();
+        chatEntryModelArrayList = new ArrayList<>();
 
         chatEntriesAdapter = new ChatEntriesAdapter(getContext(), chatEntryModelArrayList);
         listView = (ListView) rootView.findViewById(R.id.chat_entries_list);

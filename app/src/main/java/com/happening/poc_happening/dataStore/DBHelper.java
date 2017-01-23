@@ -1,20 +1,20 @@
-package com.happening.poc_happening.dataStore;
+package com.happening.poc_happening.datastore;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
+import com.happening.poc_happening.MyApp;
 import com.happening.poc_happening.models.ChatEntryModel;
 
 import java.util.ArrayList;
 
-/**
- * Created by daired on 03/01/17.
- */
-
 public class DBHelper extends SQLiteOpenHelper {
+
+    private static DBHelper instance = null;
 
     // If you change the database schema, you must increment the database version.
     public static final int DATABASE_VERSION = 1;
@@ -22,56 +22,51 @@ public class DBHelper extends SQLiteOpenHelper {
 
     // Query Strings - CREATE TABLES
     private static final String SQL_CREATE_PROFILE_ENTRIES =
-            "CREATE TABLE " + DBContract.DBEntry.PROFILE_TABLE_NAME             + " (" +
-                    DBContract.DBEntry._ID                                      + " INTEGER PRIMARY KEY," +
-                    DBContract.DBEntry.PROFILE_COLUMN_USERNAME                  + " TEXT NOT NULL," +
-                    DBContract.DBEntry.PROFILE_COLUMN_FIRSTNAME                 + " TEXT NOT NULL," +
-                    DBContract.DBEntry.PROFILE_COLUMN_LASTNAME                  + " TEXT NOT NULL)";
+            "CREATE TABLE " + DBContract.DBEntry.PROFILE_TABLE_NAME + " (" +
+                    DBContract.DBEntry._ID + " INTEGER PRIMARY KEY," +
+                    DBContract.DBEntry.PROFILE_COLUMN_USERNAME + " TEXT NOT NULL," +
+                    DBContract.DBEntry.PROFILE_COLUMN_FIRSTNAME + " TEXT NOT NULL," +
+                    DBContract.DBEntry.PROFILE_COLUMN_LASTNAME + " TEXT NOT NULL)";
 
     private static final String SQL_CREATE_DEVICE_ENTRIES =
-            "CREATE TABLE " + DBContract.DBEntry.DEVICES_TABLE_NAME             + " (" +
-                    DBContract.DBEntry._ID                                      + " INTEGER PRIMARY KEY," +
-                    DBContract.DBEntry.DEVICES_COLUMN_NAME                      + " TEXT NOT NULL," +
-                    DBContract.DBEntry.DEVICES_COLUMN_ADDRESS                   + " TEXT NOT NULL," +
-                    DBContract.DBEntry.DEVICES_COLUMN_LAST_SEEN                 + " TEXT NOT NULL)";
+            "CREATE TABLE " + DBContract.DBEntry.DEVICES_TABLE_NAME + " (" +
+                    DBContract.DBEntry._ID + " INTEGER PRIMARY KEY," +
+                    DBContract.DBEntry.DEVICES_COLUMN_NAME + " TEXT NOT NULL," +
+                    DBContract.DBEntry.DEVICES_COLUMN_ADDRESS + " TEXT NOT NULL," +
+                    DBContract.DBEntry.DEVICES_COLUMN_LAST_SEEN + " TEXT NOT NULL)";
 
     private static final String SQL_CREATE_PRIVATE_MESSAGES_ENTRIES =
-            "CREATE TABLE " + DBContract.DBEntry.PRIVATE_MESSAGES_TABLE_NAME    + " (" +
-                    DBContract.DBEntry._ID                                      + " INTEGER PRIMARY KEY," +
-                    DBContract.DBEntry.PRIVATE_MESSAGES_COLUMN_FROM_DEVICE_ID   + " TEXT NOT NULL," +
-                    DBContract.DBEntry.PRIVATE_MESSAGES_COLUMN_CREATION_TIME    + " TEXT NOT NULL," +
-                    DBContract.DBEntry.PRIVATE_MESSAGES_COLUMN_TYPE             + " TEXT NOT NULL," +
-                    DBContract.DBEntry.PRIVATE_MESSAGES_COLUMN_CONTENT          + " TEXT NOT NULL)";
+            "CREATE TABLE " + DBContract.DBEntry.PRIVATE_MESSAGES_TABLE_NAME + " (" +
+                    DBContract.DBEntry._ID + " INTEGER PRIMARY KEY," +
+                    DBContract.DBEntry.PRIVATE_MESSAGES_COLUMN_FROM_DEVICE_ID + " TEXT NOT NULL," +
+                    DBContract.DBEntry.PRIVATE_MESSAGES_COLUMN_CREATION_TIME + " TEXT NOT NULL," +
+                    DBContract.DBEntry.PRIVATE_MESSAGES_COLUMN_TYPE + " TEXT NOT NULL," +
+                    DBContract.DBEntry.PRIVATE_MESSAGES_COLUMN_CONTENT + " TEXT NOT NULL)";
 
     private static final String SQL_CREATE_GLOBAL_MESSAGES_ENTRIES =
-            "CREATE TABLE " + DBContract.DBEntry.GLOBAL_MESSAGES_TABLE_NAME     + " (" +
-                    DBContract.DBEntry._ID                                      + " INTEGER PRIMARY KEY," +
-                    DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_FROM_DEVICE_ID    + " TEXT NOT NULL," +
-                    DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CREATION_TIME     + " TEXT NOT NULL," +
-                    DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_TYPE              + " TEXT NOT NULL," +
-                    DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CONTENT           + " TEXT NOT NULL)";
-
+            "CREATE TABLE " + DBContract.DBEntry.GLOBAL_MESSAGES_TABLE_NAME + " (" +
+                    DBContract.DBEntry._ID + " INTEGER PRIMARY KEY," +
+                    DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_FROM_DEVICE_ID + " TEXT NOT NULL," +
+                    DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CREATION_TIME + " TEXT NOT NULL," +
+                    DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_TYPE + " TEXT NOT NULL," +
+                    DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CONTENT + " TEXT NOT NULL)";
 
 
     // Query Strings - DROP TABLES
 
     private static final String SQL_DELETE_DEVICE_ENTRIES =
-            "DROP TABLE IF EXISTS " +  DBContract.DBEntry.DEVICES_TABLE_NAME;
+            "DROP TABLE IF EXISTS " + DBContract.DBEntry.DEVICES_TABLE_NAME;
 
-
-    // Singelton Pattern
-    private static DBHelper instance = null;
-
-    public static DBHelper getInstance(Context context) {
+    public static DBHelper getInstance() {
         if (instance == null) {
+            Context context = MyApp.getAppContext();
             instance = new DBHelper(context);
         }
         return instance;
     }
 
-    public DBHelper(Context context) {
+    private DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-
     }
 
     public void onCreate(SQLiteDatabase db) {
@@ -89,18 +84,17 @@ public class DBHelper extends SQLiteOpenHelper {
         // db.execSQL(SQL_CREATE_GLOBAL_MESSAGES_ENTRIES);
         onCreate(db);
     }
+
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
     }
-
-
 
     // Get Data
 
     public Cursor getDevice(int id) {
         SQLiteDatabase db = this.getReadableDatabase("password");
 
-        Cursor res =  db.rawQuery( "select * from " + DBContract.DBEntry.DEVICES_TABLE_NAME + " where " + DBContract.DBEntry._ID + " = " + id + "", null );
+        Cursor res = db.rawQuery("select * from " + DBContract.DBEntry.DEVICES_TABLE_NAME + " where " + DBContract.DBEntry._ID + " = " + id + "", null);
         return res;
     }
 
@@ -108,10 +102,10 @@ public class DBHelper extends SQLiteOpenHelper {
         ArrayList<String> list = new ArrayList<>();
 
         SQLiteDatabase db = this.getReadableDatabase("password");
-        Cursor res =  db.rawQuery( "select * from " + DBContract.DBEntry.DEVICES_TABLE_NAME, null );
+        Cursor res = db.rawQuery("select * from " + DBContract.DBEntry.DEVICES_TABLE_NAME, null);
         res.moveToFirst();
 
-        while(res.isAfterLast() == false){
+        while (res.isAfterLast() == false) {
             list.add(res.getString(res.getColumnIndex(DBContract.DBEntry.DEVICES_COLUMN_NAME)));
             res.moveToNext();
         }
@@ -121,10 +115,10 @@ public class DBHelper extends SQLiteOpenHelper {
     public ArrayList<ChatEntryModel> getAllGlobalMessagesRaw() {
         ArrayList<ChatEntryModel> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase("password");
-        Cursor res =  db.rawQuery( "select * from " + DBContract.DBEntry.GLOBAL_MESSAGES_TABLE_NAME, null );
+        Cursor res = db.rawQuery("select * from " + DBContract.DBEntry.GLOBAL_MESSAGES_TABLE_NAME, null);
 
         res.moveToFirst();
-        while(res.isAfterLast() == false){
+        while (res.isAfterLast() == false) {
             ChatEntryModel chatEntryModel = new ChatEntryModel(
                     res.getString(res.getColumnIndex(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_FROM_DEVICE_ID)),
                     res.getString(res.getColumnIndex(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CREATION_TIME)),
@@ -137,10 +131,9 @@ public class DBHelper extends SQLiteOpenHelper {
         return list;
     }
 
-
     // Insert Methods
 
-    public boolean insertDevice (String name, String address, String lastSeen) {
+    public boolean insertDevice(String name, String address, String lastSeen) {
         SQLiteDatabase db = this.getWritableDatabase("password");
 
         ContentValues contentValues = new ContentValues();
@@ -152,8 +145,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return true;
     }
 
-
-    public boolean insertGlobalMessage (String name, String time, String type, String content) {
+    public boolean insertGlobalMessage(String name, String time, String type, String content) {
         SQLiteDatabase db = this.getWritableDatabase("password");
         ContentValues contentValues = new ContentValues();
         contentValues.put(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_FROM_DEVICE_ID, name);
@@ -165,11 +157,9 @@ public class DBHelper extends SQLiteOpenHelper {
         return true;
     }
 
-
-
     // Update Methods
 
-    public boolean updateDevice (Integer id, String name, String address, String lastSeen) {
+    public boolean updateDevice(Integer id, String name, String address, String lastSeen) {
         SQLiteDatabase db = this.getWritableDatabase("password");
 
         ContentValues contentValues = new ContentValues();
@@ -177,22 +167,18 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(DBContract.DBEntry.DEVICES_COLUMN_ADDRESS, address);
         contentValues.put(DBContract.DBEntry.DEVICES_COLUMN_LAST_SEEN, lastSeen);
 
-        db.update(DBContract.DBEntry.DEVICES_TABLE_NAME, contentValues, DBContract.DBEntry._ID + " = ? ", new String[] { Integer.toString(id) } );
+        db.update(DBContract.DBEntry.DEVICES_TABLE_NAME, contentValues, DBContract.DBEntry._ID + " = ? ", new String[]{Integer.toString(id)});
         return true;
     }
 
-
-
     // Delete Methods
 
-    public Integer deleteDevice (Integer id) {
+    public Integer deleteDevice(Integer id) {
         SQLiteDatabase db = this.getWritableDatabase("password");
 
         return db.delete(DBContract.DBEntry.DEVICES_TABLE_NAME,
                 DBContract.DBEntry._ID + " = ? ",
-                new String[] { Integer.toString(id) });
+                new String[]{Integer.toString(id)});
     }
-
-
 
 }
