@@ -1,6 +1,6 @@
 package com.happening.poc.poc_happening;
 
-import com.happening.poc.poc_happening.models.ChatEntryModel;
+import com.happening.poc_happening.models.ChatEntryModel;
 
 import org.junit.Test;
 
