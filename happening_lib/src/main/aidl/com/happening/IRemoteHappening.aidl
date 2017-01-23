@@ -22,7 +22,9 @@ interface IRemoteHappening {
     void createGattServer();
     void stopGattServer();
 
-//    void addHandler(Handler handler);
-//    void removeHandler(Handler handler);
-
+    // void addHandler(Handler handler);
+    // void removeHandler(Handler handler);
+    // void connectDevice(DeviceModel deviceModel);
+    // void disconnectDevice(DeviceModel deviceModel);
+    // DevicePool getDevicePool();
 }
