@@ -61,10 +61,6 @@ public class Bt4Controls extends Fragment {
         deviceListAdapter = new DeviceListAdapter(rootView.getContext(), service.getDevicePool());
         deviceListView.setAdapter(deviceListAdapter);
 
-        TextView textViewCount = (TextView) getActivity().findViewById(R.id.ble_connect_count);
-        if (textViewCount != null)
-            textViewCount.setText("Num: " + service.getNumOfConnectedDevices());
-
         deviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -141,9 +137,9 @@ public class Bt4Controls extends Fragment {
         rootView.findViewById(R.id.button_bandwidth).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (bandwidthTester.isRunning()){
+                if (bandwidthTester.isRunning()) {
                     bandwidthTester.stop();
-                }else{
+                } else {
                     bandwidthTester.start();
                 }
             }
