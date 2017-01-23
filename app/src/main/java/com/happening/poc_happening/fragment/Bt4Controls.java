@@ -137,7 +137,7 @@ public class Bt4Controls extends Fragment {
             @Override
             public void onClick(View v) {
                 if (bandwidthTester.isRunning()){
-                    bandwidthTester.interrupt();
+                    bandwidthTester.stop();
                 }else{
                     bandwidthTester.start();
                 }
