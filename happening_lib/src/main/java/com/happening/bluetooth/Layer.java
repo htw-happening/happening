@@ -66,16 +66,14 @@ public class Layer {
 
     private Layer() {
         context = MyService.getContext();
-
         this.mBluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.mBluetoothAdapter = mBluetoothManager.getAdapter();
         this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
         this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
+        createGattServer();
+        startAdvertising();
+        startScan();
         Log.i("SELF", mBluetoothAdapter.getName());
-    }
-
-    public int getNumOfConnectedDevices() {
-        return devicePool.getConnectedDevices().size();
     }
 
     private void notifyHandlers(int code) {
@@ -283,7 +281,7 @@ public class Layer {
                     BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
                     characteristic.setValue(message.getBytes());
                     bluetoothGatt.writeCharacteristic(characteristic);
-                }catch (Exception e){
+                } catch (Exception e) {
                     Log.e(getClass().getSimpleName(), e.toString());
                 }
             }

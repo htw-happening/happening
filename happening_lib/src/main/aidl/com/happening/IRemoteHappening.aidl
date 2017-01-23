@@ -22,6 +22,8 @@ interface IRemoteHappening {
     void createGattServer();
     void stopGattServer();
 
+    void broadcastMessage(String message);
+
     // void addHandler(Handler handler);
     // void removeHandler(Handler handler);
     // void connectDevice(DeviceModel deviceModel);

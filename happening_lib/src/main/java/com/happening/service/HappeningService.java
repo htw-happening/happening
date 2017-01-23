@@ -21,7 +21,7 @@ public class HappeningService extends Service {
         List<BluetoothDevice> devices = Collections.synchronizedList(new ArrayList<BluetoothDevice>());
 
         @Override
-        public void addDevice(String name) throws RemoteException {
+        public void addDevice(String name) {
 
             // check if device is already in device list
             for (BluetoothDevice d : devices) {
@@ -40,7 +40,7 @@ public class HappeningService extends Service {
         }
 
         @Override
-        public BluetoothDevice getDevice(String name) throws RemoteException {
+        public BluetoothDevice getDevice(String name) {
             for (BluetoothDevice device : devices) {
                 if (device.getName().equalsIgnoreCase(name)) {
                     Log.d("get device", device.toString());
@@ -51,69 +51,73 @@ public class HappeningService extends Service {
         }
 
         @Override
-        public List<BluetoothDevice> getDevices() throws RemoteException {
+        public List<BluetoothDevice> getDevices() {
             Log.d("get device", String.valueOf(devices));
             return devices;
         }
 
         @Override
-        public void enableAdapter() throws RemoteException {
+        public void enableAdapter() {
             Layer.getInstance().enableAdapter();
         }
 
         @Override
-        public void disableAdapter() throws RemoteException {
+        public void disableAdapter() {
             Layer.getInstance().disableAdapter();
         }
 
         @Override
-        public boolean isBtAdapterEnabled() throws RemoteException {
+        public boolean isBtAdapterEnabled() {
             return Layer.getInstance().isEnabled();
         }
 
         @Override
-        public void startScan() throws RemoteException {
+        public void startScan() {
             Layer.getInstance().startScan();
         }
 
         @Override
-        public void stopScan() throws RemoteException {
+        public void stopScan() {
             Layer.getInstance().stopScan();
         }
 
         @Override
-        public void startAdvertising() throws RemoteException {
+        public void startAdvertising() {
             Layer.getInstance().startAdvertising();
         }
 
         @Override
-        public void stopAdvertising() throws RemoteException {
+        public void stopAdvertising() {
             Layer.getInstance().stopAdvertising();
         }
 
         @Override
-        public boolean isAdvertisingSupported() throws RemoteException {
+        public boolean isAdvertisingSupported() {
             return Layer.getInstance().isAdvertisingSupported();
         }
 
         @Override
-        public void createGattServer() throws RemoteException {
+        public void createGattServer() {
             Layer.getInstance().createGattServer();
         }
 
         @Override
-        public void stopGattServer() throws RemoteException {
+        public void stopGattServer() {
             Layer.getInstance().stopGattServer();
         }
 
 //        @Override
-//        public void addHandler(Handler handler) throws RemoteException {
+//        public void addHandler(Handler handler) {
 //        }
 //
 //        @Override
-//        public void removeHandler(Handler handler) throws RemoteException {
+//        public void removeHandler(Handler handler) {
 //        }
 
+        @Override
+        public void broadcastMessage(String message) {
+            Layer.getInstance().broadcastMessage(message);
+        }
     };
 
     /**
