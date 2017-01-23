@@ -16,7 +16,7 @@ import com.happening.poc_happening.MyApp;
 
 public class ServiceHandler {
 
-    private static ServiceHandler hs = null;
+    private static ServiceHandler sh = null;
     private Context context = null;
 
     private IRemoteDeviceService service;
@@ -27,9 +27,9 @@ public class ServiceHandler {
     }
 
     public static ServiceHandler getInstance() {
-        if (hs == null)
-            hs = new ServiceHandler();
-        return hs;
+        if (sh == null)
+            sh = new ServiceHandler();
+        return sh;
     }
 
     /**
