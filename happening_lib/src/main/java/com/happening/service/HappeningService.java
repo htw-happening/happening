@@ -7,7 +7,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.happening.lib.BluetoothDevice;
-import com.happening.lib.IRemoteDeviceService;
+import com.happening.lib.IRemoteHappening;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,7 +15,7 @@ import java.util.List;
 
 public class HappeningService extends Service {
 
-    private final IRemoteDeviceService.Stub mBinder = new IRemoteDeviceService.Stub() {
+    private final IRemoteHappening.Stub mBinder = new IRemoteHappening.Stub() {
 
         List<BluetoothDevice> devices = Collections.synchronizedList(new ArrayList<BluetoothDevice>());
 
