@@ -19,20 +19,20 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.happening.lib.IRemoteHappening;
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.DeviceListAdapter;
 import com.happening.poc_happening.bluetooth.BandwidthTester;
-import com.happening.poc_happening.bluetooth.DeviceModel;
-import com.happening.poc_happening.bluetooth.Layer;
-
+import com.happening.bluetooth.DeviceModel;
+import com.happening.bluetooth.Layer;
+import com.happening.poc_happening.service.ServiceHandler;
 
 public class Bt4Controls extends Fragment {
 
     private static Bt4Controls instance = null;
-    private Layer bluetoothLayer = null;
     private View rootView = null;
+    private IRemoteHappening service = null;
     private DeviceListAdapter deviceListAdapter = null;
-
     private BandwidthTester bandwidthTester;
 
     public static Bt4Controls getInstance() {
@@ -41,24 +41,28 @@ public class Bt4Controls extends Fragment {
         return instance;
     }
 
+    public Bt4Controls() {
+        ServiceHandler sh = ServiceHandler.getInstance();
+        service = sh.getService();
+        service.addHandler(guiHandler);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         rootView = inflater.inflate(R.layout.fragment_bt4controls, container, false);
 
         if (!getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Snackbar.make(rootView, "BLE features are not supported!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
 
-        bluetoothLayer = Layer.getInstance();
-        bluetoothLayer.addHandler(guiHandler);
-
         ListView deviceListView = (ListView) rootView.findViewById(R.id.discovered_devices_list);
-        deviceListAdapter = new DeviceListAdapter(rootView.getContext(), bluetoothLayer.getDevicePool());
+        deviceListAdapter = new DeviceListAdapter(rootView.getContext(), service.getDevicePool());
         deviceListView.setAdapter(deviceListAdapter);
 
         TextView textViewCount = (TextView) getActivity().findViewById(R.id.ble_connect_count);
         if (textViewCount != null)
-            textViewCount.setText("Num: " + bluetoothLayer.getNumOfConnectedDevices());
+            textViewCount.setText("Num: " + service.getNumOfConnectedDevices());
 
         deviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -66,9 +70,9 @@ public class Bt4Controls extends Fragment {
                 DeviceModel device = (DeviceModel) parent.getItemAtPosition(position);
                 Log.i("CLICK", "Clicked on device " + device.getName());
                 if (device.isConnected()) {
-                    bluetoothLayer.disconnectDevice(device);
+                    service.disconnectDevice(device);
                 } else if (device.isDisconnected()) {
-                    bluetoothLayer.connectDevice(device);
+                    service.connectDevice(device);
                 } else {
                     Log.i("GATT", "Enhance your calm");
                 }
@@ -77,7 +81,7 @@ public class Bt4Controls extends Fragment {
 
         // set event Listener
         Switch adapterButton = (Switch) rootView.findViewById(R.id.adapter_button);
-        adapterButton.setChecked(bluetoothLayer.isEnabled());
+        adapterButton.setChecked(service.isBtAdapterEnabled());
         adapterButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Log.i("Bt4Controls", "adapterButton - onCheckedChanged " + isChecked);
@@ -125,7 +129,7 @@ public class Bt4Controls extends Fragment {
             }
         });
 
-        if (!bluetoothLayer.isAdvertisingSupported()) {
+        if (!service.isAdvertisingSupported()) {
             advertiseButton.setEnabled(false);
             gattServerButton.setEnabled(false);
         }
@@ -151,7 +155,7 @@ public class Bt4Controls extends Fragment {
     @Override
     public void onPause() {
         Log.i("Bt4Controls", "onPause");
-        bluetoothLayer.removeHandler(guiHandler);
+        service.removeHandler(guiHandler);
         super.onPause();
     }
 
@@ -159,47 +163,47 @@ public class Bt4Controls extends Fragment {
     public void onResume() {
         Log.i("Bt4Controls", "onResume");
         super.onResume();
-        bluetoothLayer.addHandler(guiHandler);
+        service.addHandler(guiHandler);
     }
 
     private void enableAdapter() {
         Snackbar.make(rootView, "Enable Adapter", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.enableAdapter();
+        service.enableAdapter();
     }
 
     private void disableAdapter() {
         Snackbar.make(rootView, "Disable Adapter", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.disableAdapter();
+        service.disableAdapter();
     }
 
     private void startAdvertising() {
         Snackbar.make(rootView, "Start Advertising", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.startAdvertising();
+        service.startAdvertising();
     }
 
     private void stopAdvertising() {
         Snackbar.make(rootView, "Stop Advertising", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.stopAdvertising();
+        service.stopAdvertising();
     }
 
     private void startScan() {
         Snackbar.make(rootView, "Start Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.startScan();
+        service.startScan();
     }
 
     private void stopScan() {
         Snackbar.make(rootView, "Stop Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.stopScan();
+        service.stopScan();
     }
 
     private void createGattServer() {
         Snackbar.make(rootView, "Start Gatt-Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.createGattServer();
+        service.createGattServer();
     }
 
     private void stopGattServer() {
         Snackbar.make(rootView, "Stop Gatt-Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.stopGattServer();
+        service.stopGattServer();
     }
 
     private Handler guiHandler = new Handler(Looper.getMainLooper()) {
@@ -211,7 +215,6 @@ public class Bt4Controls extends Fragment {
                     deviceListAdapter.notifyDataSetChanged();
                     break;
                 case Layer.MESSAGE_RECEIVED:
-
                     String message = msg.getData().getString("content");
                     Log.i("HANDLER", "Content was " + message);
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
