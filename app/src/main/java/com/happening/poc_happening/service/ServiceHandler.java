@@ -8,7 +8,7 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.happening.lib.IRemoteHappening;
+import com.happening.IRemoteHappening;
 import com.happening.service.HappeningService;
 
 import com.happening.poc_happening.MyApp;
@@ -59,7 +59,7 @@ public class ServiceHandler {
     public void startService() {
         if (!isRunning())
             Log.d("jojo", "INIT start");
-            initService();
+        initService();
     }
 
     public void stopService() {
@@ -89,5 +89,4 @@ public class ServiceHandler {
                     .show();
         }
     }
-
 }

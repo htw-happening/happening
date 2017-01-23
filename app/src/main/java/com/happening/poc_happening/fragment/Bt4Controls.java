@@ -19,13 +19,14 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.happening.lib.IRemoteHappening;
+import com.happening.IRemoteHappening;
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.DeviceListAdapter;
 import com.happening.poc_happening.bluetooth.BandwidthTester;
 import com.happening.bluetooth.DeviceModel;
 import com.happening.bluetooth.Layer;
 import com.happening.poc_happening.service.ServiceHandler;
+
 
 public class Bt4Controls extends Fragment {
 

@@ -13,7 +13,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.happening.lib.IRemoteHappening;
+import com.happening.IRemoteHappening;
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.ChatEntriesAdapter;
 import com.happening.bluetooth.Layer;
