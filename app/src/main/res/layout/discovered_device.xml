@@ -9,20 +9,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="address N/A"
-        android:textSize="20dp" />
+        android:textSize="24dp" />
 
     <TextView
         android:id="@+id/device_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="name N/A"
-        android:textSize="14dp" />
-
-    <TextView
-        android:id="@+id/device_dbm"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="signal N/A"
         android:textSize="14dp" />
 
 </LinearLayout>

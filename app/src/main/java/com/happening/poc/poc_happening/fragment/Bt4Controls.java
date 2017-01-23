@@ -190,19 +190,14 @@ public class Bt4Controls extends Fragment {
             switch (msg.what) {
                 case Layer.DEVICE_POOL_UPDATED:
                     deviceListAdapter.notifyDataSetChanged();
-                    TextView textViewCount = (TextView) getActivity().findViewById(R.id.ble_connect_count);
-                    if (textViewCount != null)
-                        textViewCount.setText("Num: " + bluetoothLayer.getNumOfConnectedDevices());
                     break;
                 case Layer.MESSAGE_RECEIVED:
 
                     String message = msg.getData().getString("content");
                     Log.i("HANDLER", "Content was " + message);
-
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            // User clicked OK button
                         }
                     });
                     builder.setMessage(message);

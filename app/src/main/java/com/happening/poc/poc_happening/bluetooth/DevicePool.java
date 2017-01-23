@@ -27,26 +27,6 @@ public class DevicePool extends ArrayList<DeviceModel> {
         return getDevicesMatchingConnectionState(BluetoothProfile.STATE_CONNECTED);
     }
 
-    public List<DeviceModel> getConnectedClients() {
-        List<DeviceModel> matchingDevices = new ArrayList<>();
-        for (DeviceModel model : getConnectedDevices()) {
-            if (model.getClientGatt() != null) {
-                matchingDevices.add(model);
-            }
-        }
-        return matchingDevices;
-    }
-
-    public List<DeviceModel> getConnectedServers() {
-        List<DeviceModel> matchingDevices = new ArrayList<>();
-        for (DeviceModel model : getConnectedDevices()) {
-            if (model.getServerGatt() != null) {
-                matchingDevices.add(model);
-            }
-        }
-        return matchingDevices;
-    }
-
     public List<DeviceModel> getDevicesMatchingConnectionState(int state) {
         List<DeviceModel> matchingDevices = new ArrayList<>();
         for (DeviceModel model : this) {
@@ -59,7 +39,7 @@ public class DevicePool extends ArrayList<DeviceModel> {
 
     public DeviceModel getModelByDevice(BluetoothDevice device) {
         for (DeviceModel model : this) {
-            if (model.getClientDevice() != null && model.getClientDevice().equals(device)) {
+            if (model.getBluetoothDevice().equals(device)) {
                 return model;
             }
         }

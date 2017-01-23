@@ -110,36 +110,37 @@ public class Layer {
         return devicePool;
     }
 
-    public void connectDevice(DeviceModel device) {
-        if (device.getClientGatt() == null) {
-            BluetoothDevice bluetoothDevice = device.getClientDevice();
+    public void connectDevice(DeviceModel deviceModel) {
+        if (deviceModel.getBluetoothGatt() == null) {
+            BluetoothDevice bluetoothDevice = deviceModel.getBluetoothDevice();
             BluetoothGatt bluetoothGatt;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 bluetoothGatt = bluetoothDevice.connectGatt(context, false, new BluetoothGattCallback(), BluetoothDevice.TRANSPORT_LE);
             } else {
                 bluetoothGatt = bluetoothDevice.connectGatt(context, false, new BluetoothGattCallback());
             }
-            device.setClientGatt(bluetoothGatt);
-            Log.i("GATT", "Opening new gatt " + device.getAddress());
-        } else if (device.isDisconnected()) {
-            boolean success = device.getClientGatt().connect();
-            Log.i("GATT", "Connecting via open gatt " + device.getAddress() + (success ? " success" : "fail"));
+            deviceModel.setBluetoothGatt(bluetoothGatt);
+            Log.i("GATT", "Opening new gatt " + deviceModel.getAddress());
+        } else if (deviceModel.isDisconnected()) {
+            boolean success = deviceModel.getBluetoothGatt().connect();
+            Log.i("GATT", "Connecting via open gatt " + deviceModel.getAddress() + (success ? " success" : "fail"));
         } else {
-            Log.i("GATT", "Cannot connect state " + device.getCurrentState() + " gatt " + device.getClientGatt());
+            Log.i("GATT", "Cannot connect state " + deviceModel.getCurrentState() + " gatt " + deviceModel.getBluetoothGatt());
         }
     }
 
-    public void disconnectDevice(DeviceModel device) {
-        if (device.isConnected()) {
-            device.setTargetState(BluetoothProfile.STATE_DISCONNECTED);
-            if (device.getName() == "client") {
-                mBluetoothGattServer.cancelConnection(device.getClientDevice());
-            } else if (device.getName() == "server") {
-                device.getClientGatt().disconnect();
+    public void disconnectDevice(DeviceModel deviceModel) {
+        if (deviceModel.isConnected()) {
+            deviceModel.setTargetState(BluetoothProfile.STATE_DISCONNECTED);
+            if (deviceModel.getType() == "client") {
+                mBluetoothGattServer.cancelConnection(deviceModel.getBluetoothDevice());
+            } else if (deviceModel.getType() == "server") {
+                deviceModel.getBluetoothGatt().disconnect();
             }
-            Log.i("GATT", "Disconnecting " + device.getAddress());
+            deviceModel.getBluetoothGatt().getDevice().getType();
+            Log.i("GATT", "Disconnecting " + deviceModel.getAddress());
         } else {
-            Log.i("GATT", "Cannot disconnect state " + device.getCurrentState() + " gatt " + device.getClientGatt());
+            Log.i("GATT", "Cannot disconnect state " + deviceModel.getCurrentState() + " gatt " + deviceModel.getBluetoothGatt());
         }
     }
 
@@ -259,7 +260,7 @@ public class Layer {
 
     public void stopGattServer() {
         if (mBluetoothGattServer != null) {
-            for (DeviceModel deviceModel : devicePool.getConnectedClients()) {
+            for (DeviceModel deviceModel : devicePool.getConnectedDevices()) {
                 disconnectDevice(deviceModel);
             }
             mBluetoothGattServer.clearServices();
@@ -272,14 +273,13 @@ public class Layer {
 
         synchronized (devicePool.getConnectedDevices()) {
             for (DeviceModel deviceModel : devicePool.getConnectedDevices()) {
-
                 Log.i("BROADCAST", "Device " + deviceModel.getAddress());
-                BluetoothGatt bluetoothGatt = deviceModel.getClientGatt();
+                BluetoothGatt bluetoothGatt = deviceModel.getBluetoothGatt();
+                if (deviceModel.getType() == "client") continue;
                 BluetoothGattService bluetoothGattService = bluetoothGatt.getService(UUID.fromString(SERVICE_UUID));
                 BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
                 characteristic.setValue(message.getBytes());
                 bluetoothGatt.writeCharacteristic(characteristic);
-
             }
         }
         Log.i("BROADCAST", "Done");
@@ -375,24 +375,23 @@ public class Layer {
 
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            BluetoothDevice bluetoothDevice = gatt.getDevice();
+            DeviceModel device = devicePool.getModelByDevice(bluetoothDevice);
+            devicePool.changeState(device, newState);
+
             switch (newState) {
                 case BluetoothProfile.STATE_CONNECTED:
-                    Log.i("CONN_CHANGE", "state connected");
                     boolean mtuSuccess = gatt.requestMtu(DEFAULT_MTU_BYTES);
-                    Log.i("CONN_CHANGE", "mtu request success " + mtuSuccess);
-                    notifyHandlers(DEVICE_POOL_UPDATED);
+                    Log.i("CONN_CHANGE", "connected and requesting mtu " + mtuSuccess);
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
                     Log.i("CONN_CHANGE", "state disconnected");
-                    notifyHandlers(DEVICE_POOL_UPDATED);
-                    BluetoothDevice bluetoothDevice = gatt.getDevice();
-                    DeviceModel device = devicePool.getModelByDevice(bluetoothDevice);
                     if (device.getTargetState() == BluetoothProfile.STATE_CONNECTED) {
-                        boolean success = device.getClientGatt().connect();
+                        boolean success = gatt.connect();
                         if (success) break;
                     }
-                    device.getClientGatt().close();
-                    device.setClientGatt(null);
+                    gatt.close();
+                    device.setBluetoothGatt(null);
                     if (device.getTargetState() == BluetoothProfile.STATE_CONNECTED) {
                         connectDevice(device);
                     }
@@ -401,6 +400,7 @@ public class Layer {
                     Log.i("CONN_CHANGE", "connection state changed " + newState);
                     break;
             }
+            notifyHandlers(DEVICE_POOL_UPDATED);
         }
 
         @Override

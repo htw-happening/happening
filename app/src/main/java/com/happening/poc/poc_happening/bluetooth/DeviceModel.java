@@ -7,72 +7,40 @@ import android.bluetooth.le.ScanResult;
 
 public class DeviceModel {
 
+    private String type;
     private int currentState = BluetoothProfile.STATE_DISCONNECTED;
     private int targetState = BluetoothProfile.STATE_CONNECTED;
-    private BluetoothGatt clientGatt;
-    private BluetoothGatt serverGatt;
-    private BluetoothDevice clientDevice;
-    private BluetoothDevice serverDevice;
+    private BluetoothGatt bluetoothGatt;
+    private BluetoothDevice bluetoothDevice;
 
     public DeviceModel(ScanResult scanResult) {
-        this.clientDevice = scanResult.getDevice();
+        this.bluetoothDevice = scanResult.getDevice();
+        this.type = "server";
     }
 
     public DeviceModel(BluetoothDevice bluetoothDevice) {
-        this.serverDevice = bluetoothDevice;
+        this.bluetoothDevice = bluetoothDevice;
+        this.type = "client";
     }
 
     public String getName() {
-        StringBuilder s = new StringBuilder();
-        if (clientDevice != null) s.append("client");
-        if (serverDevice != null) s.append("server");
-        if (clientDevice == null && serverDevice == null) s.append("neither");
-        if (clientDevice != null && serverDevice != null) s.append("both");
-        return s.toString();
+        return getType();
     }
 
     public String getAddress() {
-        StringBuilder s = new StringBuilder();
-        if (clientDevice != null) s.append("C:").append(clientDevice.getAddress());
-        if (clientDevice != null && serverDevice != null) s.append(" ");
-        if (serverDevice != null) s.append("S:").append(serverDevice.getAddress());
-        return s.toString();
+        return bluetoothDevice.getAddress();
     }
 
-    public String getPathloss() {
-        return "n/a";
+    public BluetoothDevice getBluetoothDevice() {
+        return bluetoothDevice;
     }
 
-    public BluetoothDevice getClientDevice() {
-        return clientDevice;
+    public void setBluetoothGatt(BluetoothGatt bluetoothGatt) {
+        this.bluetoothGatt = bluetoothGatt;
     }
 
-    public void setClientDevice(BluetoothDevice clientDevice) {
-        this.clientDevice = clientDevice;
-    }
-
-    public void setClientGatt(BluetoothGatt clientGatt) {
-        this.clientGatt = clientGatt;
-    }
-
-    public BluetoothGatt getClientGatt() {
-        return clientGatt;
-    }
-
-    public BluetoothGatt getServerGatt() {
-        return serverGatt;
-    }
-
-    public BluetoothDevice getServerDevice() {
-        return serverDevice;
-    }
-
-    public void setServerGatt(BluetoothGatt serverGatt) {
-        this.serverGatt = serverGatt;
-    }
-
-    public void setServerDevice(BluetoothDevice serverDevice) {
-        this.serverDevice = serverDevice;
+    public BluetoothGatt getBluetoothGatt() {
+        return bluetoothGatt;
     }
 
     public boolean isConnected() {
@@ -99,37 +67,14 @@ public class DeviceModel {
         return this.targetState;
     }
 
-    @Override
-    public boolean equals(Object object) {
-        if (object != null && object instanceof DeviceModel) {
-            DeviceModel deviceModel = (DeviceModel) object;
-            if (getClientDevice() != null &&
-                    deviceModel.getClientDevice() != null &&
-                    getClientDevice().equals(deviceModel.getClientDevice()))
-                return true;
-            if (getServerDevice() != null &&
-                    deviceModel.getServerDevice() != null &&
-                    getServerDevice().equals(deviceModel.getServerDevice()))
-                return true;
-        }
-        return false;
+    public String getType() {
+        return type;
     }
 
-    public String toString() {
-        StringBuilder s = new StringBuilder();
-        s.append(getName());
-        switch (getCurrentState()) {
-            case BluetoothProfile.STATE_CONNECTED:
-                s.append("connected");
-            case BluetoothProfile.STATE_DISCONNECTED:
-                s.append("disconnected");
-            case BluetoothProfile.STATE_CONNECTING:
-                s.append("connecting");
-            case BluetoothProfile.STATE_DISCONNECTING:
-                s.append("disconnecting");
-        }
-        s.append("currentState ").append(currentState);
-        s.append("targetState ").append(targetState);
-        return s.toString();
+    @Override
+    public boolean equals(Object object) {
+        if (object != null && object instanceof DeviceModel)
+            return getBluetoothDevice().equals(((DeviceModel) object).getBluetoothDevice());
+        return false;
     }
 }
