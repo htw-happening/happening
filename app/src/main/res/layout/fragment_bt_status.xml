@@ -26,7 +26,7 @@
         android:text="TextView" />
 
     <Switch
-        android:id="@+id/bluetooth_enabled"
+        android:id="@+id/switch_bluetooth_enabled"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -115,11 +115,45 @@
         android:text="TextView" />
 
     <Switch
-        android:id="@+id/wifi_enabled"
+        android:id="@+id/switch_wifi_enabled"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/wifi_label"
         android:layout_alignParentRight="true"
         android:splitTrack="true" />
+
+    <TextView
+        android:id="@+id/background_service_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/wifi_label"
+        android:layout_marginTop="10dp"
+        android:text="Background Service" />
+
+    <TextView
+        android:id="@+id/background_service_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/background_service_label"
+        android:layout_alignLeft="@+id/bluetooth_value"
+        android:text="TextView" />
+
+    <Switch
+        android:id="@+id/switch_background_service"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/background_service_label"
+        android:layout_alignParentRight="true"
+        android:splitTrack="true" />
+
+    <Button
+        android:id="@+id/button_get_data_from_service"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Get Data from Service"
+        android:layout_below="@+id/background_service_label"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>
