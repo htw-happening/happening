@@ -13,7 +13,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.happening.poc_happening.MainActivity;
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.ChatEntriesAdapter;
 import com.happening.poc_happening.dataStore.DBHelper;
@@ -51,6 +50,7 @@ public class ChatFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         dbHelper = new DBHelper(this.getContext());
 
         rootView = inflater.inflate(R.layout.fragment_chat, container, false);
