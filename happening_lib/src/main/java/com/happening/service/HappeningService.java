@@ -13,9 +13,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Created by kaischulz on 22.01.17.
- */
 public class HappeningService extends Service {
 
     private final IRemoteDeviceService.Stub mBinder = new IRemoteDeviceService.Stub() {
