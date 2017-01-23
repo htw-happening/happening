@@ -10,6 +10,7 @@ public class BandwidthTester extends Thread{
 
     public static final long DELAY = 1000; // in ms
     Layer layer;
+    private boolean isRunning = false;
 
     public BandwidthTester() {
         layer = Layer.getInstance();
@@ -17,6 +18,8 @@ public class BandwidthTester extends Thread{
 
     @Override
     public void run() {
+
+        isRunning = true;
 
         layer.broadcastMessage("Ein Schäfchen springt über den Zaun.");
 
@@ -33,8 +36,19 @@ public class BandwidthTester extends Thread{
                 Thread.currentThread().wait(DELAY);
             } catch (InterruptedException e) {
                 Log.e(this.getClass().getSimpleName(), e.toString());
+                isRunning = false;
                 return;
             }
         }
+    }
+
+    @Override
+    public void interrupt() {
+        isRunning = false;
+        super.interrupt();
+    }
+
+    public boolean isRunning() {
+        return isRunning;
     }
 }

@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.DeviceListAdapter;
+import com.happening.poc_happening.bluetooth.BandwidthTester;
 import com.happening.poc_happening.bluetooth.DeviceModel;
 import com.happening.poc_happening.bluetooth.Layer;
 
@@ -31,6 +32,8 @@ public class Bt4Controls extends Fragment {
     private Layer bluetoothLayer = null;
     private View rootView = null;
     private DeviceListAdapter deviceListAdapter = null;
+
+    private BandwidthTester bandwidthTester;
 
     public static Bt4Controls getInstance() {
         if (instance == null)
@@ -126,6 +129,21 @@ public class Bt4Controls extends Fragment {
             advertiseButton.setEnabled(false);
             gattServerButton.setEnabled(false);
         }
+
+        if (bandwidthTester == null) {
+            bandwidthTester = new BandwidthTester();
+        }
+        rootView.findViewById(R.id.button_bandwidth).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (bandwidthTester.isRunning()){
+                    bandwidthTester.interrupt();
+                }else{
+                    bandwidthTester.start();
+                }
+            }
+        });
+
 
         return rootView;
     }
