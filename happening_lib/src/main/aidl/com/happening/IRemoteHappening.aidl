@@ -1,4 +1,4 @@
-package com.happening.lib;
+package com.happening;
 
 import com.happening.lib.BluetoothDevice;
 

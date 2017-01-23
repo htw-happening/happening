@@ -6,8 +6,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.happening.IRemoteHappening;
 import com.happening.lib.BluetoothDevice;
-import com.happening.lib.IRemoteHappening;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -1,4 +1,4 @@
-package com.happening.poc_happening.bluetooth;
+package com.happening.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -23,8 +23,7 @@ import android.os.Message;
 import android.os.ParcelUuid;
 import android.util.Log;
 
-import com.happening.poc_happening.MainActivity;
-import com.happening.poc_happening.MyApp;
+import com.happening.MyService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +65,8 @@ public class Layer {
     }
 
     private Layer() {
-        context = MyApp.getAppContext();
+        context = MyService.getContext();
+
         this.mBluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.mBluetoothAdapter = mBluetoothManager.getAdapter();
         this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
