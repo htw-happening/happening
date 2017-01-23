@@ -16,7 +16,6 @@ public final class DBContract {
     public static class DBEntry implements BaseColumns {
 
 
-
         public static final String PROFILE_TABLE_NAME = "profile";
         public static final String PROFILE_COLUMN_USERNAME = "username";
         public static final String PROFILE_COLUMN_FIRSTNAME = "firstname";

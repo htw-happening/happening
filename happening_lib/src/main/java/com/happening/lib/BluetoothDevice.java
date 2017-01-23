@@ -3,9 +3,6 @@ package com.happening.lib;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by kaischulz on 22.01.17.
- */
 
 public class BluetoothDevice implements Parcelable {
 

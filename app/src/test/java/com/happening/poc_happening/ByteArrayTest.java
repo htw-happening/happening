@@ -1,4 +1,4 @@
-package com.happening.poc.poc_happening;
+package com.happening.poc_happening;
 
 import com.happening.poc_happening.models.ChatEntryModel;
 
@@ -8,10 +8,6 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-
-/**
- * Created by daired on 22/01/17.
- */
 
 public class ByteArrayTest {
 
