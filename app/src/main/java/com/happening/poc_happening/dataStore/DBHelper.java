@@ -18,7 +18,6 @@ import java.util.ArrayList;
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    private static DBHelper instance = null;
 
     // If you change the database schema, you must increment the database version.
     public static final int DATABASE_VERSION = 1;
@@ -61,15 +60,8 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String SQL_DELETE_DEVICE_ENTRIES =
             "DROP TABLE IF EXISTS " + DBContract.DBEntry.DEVICES_TABLE_NAME;
 
-    public static DBHelper getInstance() {
-        if (instance == null) {
-            Context context = MyApp.getAppContext();
-            instance = new DBHelper(context);
-        }
-        return instance;
-    }
 
-    private DBHelper(Context context) {
+    public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -99,6 +91,8 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase("password");
 
         Cursor res = db.rawQuery("select * from " + DBContract.DBEntry.DEVICES_TABLE_NAME + " where " + DBContract.DBEntry._ID + " = " + id + "", null);
+        res.close();
+        db.close();
         return res;
     }
 
@@ -113,6 +107,8 @@ public class DBHelper extends SQLiteOpenHelper {
             list.add(res.getString(res.getColumnIndex(DBContract.DBEntry.DEVICES_COLUMN_NAME)));
             res.moveToNext();
         }
+        res.close();
+        db.close();
         return list;
     }
 
@@ -132,6 +128,8 @@ public class DBHelper extends SQLiteOpenHelper {
             list.add(chatEntryModel);
             res.moveToNext();
         }
+        res.close();
+        db.close();
         return list;
     }
 
@@ -146,6 +144,8 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(DBContract.DBEntry.DEVICES_COLUMN_LAST_SEEN, lastSeen);
 
         db.insert(DBContract.DBEntry.DEVICES_TABLE_NAME, null, contentValues);
+        db.close();
+
         return true;
     }
 
@@ -158,6 +158,8 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CONTENT, content);
 
         db.insert(DBContract.DBEntry.GLOBAL_MESSAGES_TABLE_NAME, null, contentValues);
+        db.close();
+
         return true;
     }
 
@@ -172,6 +174,8 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(DBContract.DBEntry.DEVICES_COLUMN_LAST_SEEN, lastSeen);
 
         db.update(DBContract.DBEntry.DEVICES_TABLE_NAME, contentValues, DBContract.DBEntry._ID + " = ? ", new String[]{Integer.toString(id)});
+        db.close();
+
         return true;
     }
 
@@ -179,10 +183,12 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public Integer deleteDevice(Integer id) {
         SQLiteDatabase db = this.getWritableDatabase("password");
-
-        return db.delete(DBContract.DBEntry.DEVICES_TABLE_NAME,
+        int res = db.delete(DBContract.DBEntry.DEVICES_TABLE_NAME,
                 DBContract.DBEntry._ID + " = ? ",
                 new String[]{Integer.toString(id)});
+        db.close();
+
+        return res;
     }
 
 
@@ -219,7 +225,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
                 alc.set(0,c);
                 c.moveToFirst();
-
+                sqlDB.close();
                 return alc ;
             }
             return alc;
@@ -228,6 +234,7 @@ public class DBHelper extends SQLiteOpenHelper {
             //if any exceptions are triggered save the error message to cursor an return the arraylist
             Cursor2.addRow(new Object[] { ""+sqlEx.getMessage() });
             alc.set(1,Cursor2);
+            sqlDB.close();
             return alc;
         } catch(Exception ex){
 
@@ -236,6 +243,8 @@ public class DBHelper extends SQLiteOpenHelper {
             //if any exceptions are triggered save the error message to cursor an return the arraylist
             Cursor2.addRow(new Object[] { ""+ex.getMessage() });
             alc.set(1,Cursor2);
+            sqlDB.close();
+
             return alc;
         }
 

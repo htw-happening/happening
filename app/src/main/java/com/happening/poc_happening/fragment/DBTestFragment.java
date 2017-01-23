@@ -1,6 +1,6 @@
 package com.happening.poc_happening.fragment;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 
-import com.happening.poc.poc_happening.dataStore.AndroidDatabaseManager;
+import com.happening.poc_happening.dataStore.AndroidDatabaseManager;
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.dataStore.DBHelper;
 
@@ -35,11 +35,8 @@ public class DBTestFragment  extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        dbHelper = DBHelper.getInstance();
 
         rootView = inflater.inflate(R.layout.fragment_db_test, container, false);
-
-
 
         rootView.findViewById(R.id.button_show_db).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,6 +49,7 @@ public class DBTestFragment  extends Fragment {
 
         return rootView;
     }
+
 
 
     @Override

@@ -1,4 +1,4 @@
-package com.happening.poc.poc_happening.dataStore;//add your package name here example: package com.example.dbm;
+package com.happening.poc_happening.dataStore;//add your package name here example: package com.example.dbm;
 
 //all required import files
 import java.util.ArrayList;
@@ -304,7 +304,7 @@ public class AndroidDatabaseManager extends Activity implements OnItemClickListe
                 }
         };
 
-        tablenamesadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item); 
+        tablenamesadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 			
 		 if(tablenamesadapter!=null)
 		 {
