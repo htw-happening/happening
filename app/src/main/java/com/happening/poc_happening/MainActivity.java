@@ -18,9 +18,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.happening.poc_happening.bluetooth.DeviceModel;
-import com.happening.poc_happening.bluetooth.DevicePool;
-import com.happening.poc_happening.bluetooth.Layer;
 import com.happening.poc_happening.fragment.Bt2Controls;
 import com.happening.poc_happening.fragment.Bt4Controls;
 import com.happening.poc_happening.fragment.BtStatus;
