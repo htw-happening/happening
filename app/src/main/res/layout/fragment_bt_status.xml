@@ -148,4 +148,12 @@
         android:layout_alignParentRight="true"
         android:splitTrack="true" />
 
+    <Button
+        android:id="@+id/button_get_data_from_service"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Get Data from Service"
+        android:layout_below="@+id/background_service_label"
+        android:layout_alignParentStart="true" />
+
 </RelativeLayout>
