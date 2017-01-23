@@ -1,11 +1,10 @@
-package com.happening.poc_happening.dataStore;
+package com.happening.poc_happening.datastore;
 
 public class DBEntryModel {
 
     private String name;
     private String address;
     private String lastSeen;
-
 
     public DBEntryModel(String name, String address, String lastSeen) {
         this.name = name;
@@ -14,10 +13,16 @@ public class DBEntryModel {
 
     }
 
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
+
     public String getAddress() {
         return address;
     }
-    public String getLastSeen() { return lastSeen; }
+
+    public String getLastSeen() {
+        return lastSeen;
+    }
 
 }

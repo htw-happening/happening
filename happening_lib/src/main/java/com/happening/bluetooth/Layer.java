@@ -274,13 +274,18 @@ public class Layer {
 
         synchronized (devicePool.getConnectedDevices()) {
             for (DeviceModel deviceModel : devicePool.getConnectedDevices()) {
-                Log.i("BROADCAST", "Device " + deviceModel.getAddress());
-                BluetoothGatt bluetoothGatt = deviceModel.getBluetoothGatt();
-                if (deviceModel.getType() == "client") continue;
-                BluetoothGattService bluetoothGattService = bluetoothGatt.getService(UUID.fromString(SERVICE_UUID));
-                BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
-                characteristic.setValue(message.getBytes());
-                bluetoothGatt.writeCharacteristic(characteristic);
+                try {
+
+                    Log.i("BROADCAST", "Device " + deviceModel.getAddress());
+                    BluetoothGatt bluetoothGatt = deviceModel.getBluetoothGatt();
+                    if (deviceModel.getType() == "client") continue;
+                    BluetoothGattService bluetoothGattService = bluetoothGatt.getService(UUID.fromString(SERVICE_UUID));
+                    BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
+                    characteristic.setValue(message.getBytes());
+                    bluetoothGatt.writeCharacteristic(characteristic);
+                }catch (Exception e){
+                    Log.e(getClass().getSimpleName(), e.toString());
+                }
             }
         }
         Log.i("BROADCAST", "Done");
