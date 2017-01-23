@@ -107,11 +107,13 @@ public class HappeningService extends Service {
         }
 
 //        @Override
-//        public void addHandler(Handler handler) throws RemoteException {
+//        public void addHandler(IHandler handler) throws RemoteException {
+//
 //        }
 //
 //        @Override
-//        public void removeHandler(Handler handler) throws RemoteException {
+//        public void removeHandler(IHandler handler) throws RemoteException {
+//
 //        }
 
     };

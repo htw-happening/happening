@@ -1,6 +1,7 @@
 package com.happening;
 
 import com.happening.lib.BluetoothDevice;
+import com.happening.lib.IHandler;
 
 interface IRemoteHappening {
     void addDevice(String name);
@@ -22,7 +23,7 @@ interface IRemoteHappening {
     void createGattServer();
     void stopGattServer();
 
-//    void addHandler(Handler handler);
-//    void removeHandler(Handler handler);
+//    void addHandler(IHandler handler);
+//    void removeHandler(IHandler handler);
 
 }
