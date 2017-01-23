@@ -55,6 +55,54 @@ public class HappeningService extends Service {
             return devices;
         }
 
+        @Override
+        public void enableAdapter() throws RemoteException {
+        }
+
+        @Override
+        public void disableAdapter() throws RemoteException {
+        }
+
+        @Override
+        public void isBtAdapterEnabled() throws RemoteException {
+        }
+
+        @Override
+        public void startScan() throws RemoteException {
+        }
+
+        @Override
+        public void stopScan() throws RemoteException {
+        }
+
+        @Override
+        public void startAdvertising() throws RemoteException {
+        }
+
+        @Override
+        public void stopAdvertising() throws RemoteException {
+        }
+
+        @Override
+        public void isAdvertisingSupported() throws RemoteException {
+        }
+
+        @Override
+        public void createGattServer() throws RemoteException {
+        }
+
+        @Override
+        public void stopGattServer() throws RemoteException {
+        }
+
+//        @Override
+//        public void addHandler(Handler handler) throws RemoteException {
+//        }
+//
+//        @Override
+//        public void removeHandler(Handler handler) throws RemoteException {
+//        }
+
     };
 
     /**
