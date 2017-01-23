@@ -5,13 +5,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.happening.IRemoteHappening;
+import com.happening.lib.BluetoothDevice;
 import com.happening.service.HappeningService;
 
 import com.happening.poc_happening.MyApp;
+
+import java.util.List;
 
 
 public class ServiceHandler {
@@ -72,21 +76,138 @@ public class ServiceHandler {
     }
 
     public IRemoteHappening getService() {
-        return service;
+        return serviceWrapper;
     }
 
     class RemoteServiceConnection implements ServiceConnection {
 
         public void onServiceConnected(ComponentName name, IBinder boundService) {
             service = IRemoteHappening.Stub.asInterface((IBinder) boundService);
-            Toast.makeText(MyApp.getAppContext(), "Service connected", Toast.LENGTH_LONG)
-                    .show();
+            Toast.makeText(MyApp.getAppContext(), "Service connected", Toast.LENGTH_LONG).show();
         }
 
         public void onServiceDisconnected(ComponentName name) {
             service = null;
-            Toast.makeText(MyApp.getAppContext(), "Service disconnected", Toast.LENGTH_LONG)
-                    .show();
+            Toast.makeText(MyApp.getAppContext(), "Service disconnected", Toast.LENGTH_LONG).show();
         }
     }
+
+    private final IRemoteHappening.Stub serviceWrapper = new IRemoteHappening.Stub() {
+
+        @Override
+        public void addDevice(String name) {
+            try {
+                service.addDevice(name);
+            } catch (RemoteException e) {
+            }
+        }
+
+        @Override
+        public BluetoothDevice getDevice(String name) {
+            try {
+                return service.getDevice(name);
+            } catch (RemoteException e) {
+                return null;
+            }
+        }
+
+        @Override
+        public List<BluetoothDevice> getDevices() {
+            try {
+                return service.getDevices();
+            } catch (RemoteException e) {
+                return null;
+            }
+        }
+
+        @Override
+        public void enableAdapter() {
+            try {
+                service.enableAdapter();
+            } catch (RemoteException e) {
+            }
+        }
+
+        @Override
+        public void disableAdapter() {
+            try {
+                service.disableAdapter();
+            } catch (RemoteException e) {
+            }
+        }
+
+        @Override
+        public boolean isBtAdapterEnabled() {
+            try {
+                return service.isBtAdapterEnabled();
+            } catch (RemoteException e) {
+                return false;
+            }
+        }
+
+        @Override
+        public void startScan() {
+            try {
+                service.startScan();
+            } catch (RemoteException e) {
+            }
+        }
+
+        @Override
+        public void stopScan() {
+            try {
+                service.stopScan();
+            } catch (RemoteException e) {
+            }
+        }
+
+        @Override
+        public void startAdvertising() {
+            try {
+                service.startAdvertising();
+            } catch (RemoteException e) {
+            }
+        }
+
+        @Override
+        public void stopAdvertising() {
+            try {
+                service.stopAdvertising();
+            } catch (RemoteException e) {
+            }
+        }
+
+        @Override
+        public boolean isAdvertisingSupported() {
+            try {
+                return service.isAdvertisingSupported();
+            } catch (RemoteException e) {
+                return false;
+            }
+        }
+
+        @Override
+        public void createGattServer() {
+            try {
+                service.createGattServer();
+            } catch (RemoteException e) {
+            }
+        }
+
+        @Override
+        public void stopGattServer() {
+            try {
+                service.stopGattServer();
+            } catch (RemoteException e) {
+            }
+        }
+
+        @Override
+        public void broadcastMessage(String message) {
+            try {
+                service.broadcastMessage(message);
+            } catch (RemoteException e) {
+            }
+        }
+    };
 }
