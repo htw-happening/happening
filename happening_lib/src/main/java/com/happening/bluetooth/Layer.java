@@ -56,7 +56,7 @@ public class Layer {
     private ScanCallback mScanCallback = new ScanCallback();
     private AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback();
 
-    private boolean autoConnect = false;
+    private boolean autoConnect = true;
 
     public static Layer getInstance() {
         if (instance == null)
@@ -289,10 +289,6 @@ public class Layer {
             }
         }
         Log.i("BROADCAST", "Done");
-    }
-
-    public void setAutoConnect(boolean autoConnect) {
-        this.autoConnect = autoConnect;
     }
 
     //endregion

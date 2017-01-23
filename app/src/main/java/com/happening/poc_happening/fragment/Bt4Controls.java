@@ -17,14 +17,13 @@ import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
-import android.widget.TextView;
 
 import com.happening.IRemoteHappening;
+import com.happening.bluetooth.DeviceModel;
+import com.happening.bluetooth.Layer;
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.DeviceListAdapter;
 import com.happening.poc_happening.bluetooth.BandwidthTester;
-import com.happening.bluetooth.DeviceModel;
-import com.happening.bluetooth.Layer;
 import com.happening.poc_happening.service.ServiceHandler;
 
 
@@ -60,10 +59,6 @@ public class Bt4Controls extends Fragment {
         ListView deviceListView = (ListView) rootView.findViewById(R.id.discovered_devices_list);
         deviceListAdapter = new DeviceListAdapter(rootView.getContext(), service.getDevicePool());
         deviceListView.setAdapter(deviceListAdapter);
-
-        TextView textViewCount = (TextView) getActivity().findViewById(R.id.ble_connect_count);
-        if (textViewCount != null)
-            textViewCount.setText("Num: " + service.getNumOfConnectedDevices());
 
         deviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -141,9 +136,9 @@ public class Bt4Controls extends Fragment {
         rootView.findViewById(R.id.button_bandwidth).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (bandwidthTester.isRunning()){
+                if (bandwidthTester.isRunning()) {
                     bandwidthTester.stop();
-                }else{
+                } else {
                     bandwidthTester.start();
                 }
             }

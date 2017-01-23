@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,11 +46,6 @@ public class ChatFragment extends Fragment {
         ServiceHandler sh = ServiceHandler.getInstance();
         service = sh.getService();
         service.addHandler(guiHandler);
-
-        service.setAutoConnect(true);
-        service.createGattServer();
-        service.startAdvertising();
-        service.startScan();
     }
 
     @Override
