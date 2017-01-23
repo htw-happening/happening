@@ -24,8 +24,8 @@
             android:title="BT Status" />
         <item
             android:id="@+id/db_test"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="DB Test" />
+            android:icon="@drawable/ic_menu_manage"
+            android:title="DataB Test" />
     </group>
 
     <item android:title="Communicate">
