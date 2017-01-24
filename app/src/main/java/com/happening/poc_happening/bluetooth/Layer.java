@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
@@ -31,7 +32,9 @@ import com.polidea.rxandroidble.RxBleDevice;
 import com.polidea.rxandroidble.RxBleScanResult;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import rx.Subscription;
@@ -58,12 +61,16 @@ public class Layer {
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser = null;
 
     RxBleClient rxBleClient;
-
     Subscription scanSubscription;
 
-    Subscription subscription;
+    List<RxBleDevice> connectingDevices;
+    List<RxBleDevice> connectedDevices;
 
-    RxBleConnection rxBleConnection;
+    Subscription subscription;
+    HashMap<RxBleDevice, Subscription> subscriptions;
+
+//    RxBleConnection rxBleConnection;
+    HashMap<RxBleDevice, RxBleConnection> connections;
 
     private List<Handler> handlers = new ArrayList<>();
     private Context context = null;
@@ -79,11 +86,15 @@ public class Layer {
     }
 
     private Layer() {
-        context = MyApp.getAppContext();
-        rxBleClient = RxBleClient.create(context);
+        this.context = MyApp.getAppContext();
+        this.rxBleClient = RxBleClient.create(context);
         this.mBluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.mBluetoothAdapter = mBluetoothManager.getAdapter();
         this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
+        this.connectingDevices = new ArrayList<>();
+        this.connectedDevices = new ArrayList<>();
+        this.subscriptions = new HashMap<>();
+        this.connections = new HashMap<>();
         Log.i("SELF", mBluetoothAdapter.getName());
     }
 
@@ -209,11 +220,15 @@ public class Layer {
     }
 
     public void broadcastMessage(String message) {
-        Log.i("BROADCAST", "broadcast message" + message);
+        Log.i("Client", "broadcast message" + message);
 
-        //TODO
+        Set<RxBleDevice> devices = connections.keySet();
+        for (RxBleDevice device : devices) {
+            Log.i("Client", "Send message to " + device.getMacAddress());
+            connections.get(device).writeCharacteristic(UUID.fromString(CHARACTERISTIC_UUID), message.getBytes());
+        }
 
-        Log.i("BROADCAST", "Done");
+        Log.i("Client", "Broadcast done");
     }
 
     public void setAutoConnect(boolean autoConnect) {
@@ -227,9 +242,8 @@ public class Layer {
                 new Action1<RxBleScanResult>() {
                        @Override
                        public void call(RxBleScanResult rxBleScanResult) {
-                           Log.d("Client", "Scanner Callback - Found "+rxBleScanResult.getBleDevice().getMacAddress());
-                           connect(rxBleScanResult.getBleDevice().getMacAddress());
-
+//                           Log.d("Client", "Scanner Callback - Found "+rxBleScanResult.getBleDevice().getMacAddress());
+                           connect(rxBleScanResult.getBleDevice());
                        }
                    },
                 new Action1<Throwable>() {
@@ -247,17 +261,24 @@ public class Layer {
         Log.d("Client", "Scanner stopped");
     }
 
-    public void connect(String macAddress){
-        Log.d("Client", "Start Connecting to a new Device "+macAddress);
-        RxBleDevice device = rxBleClient.getBleDevice(macAddress);
+    public void connect(final RxBleDevice device){
 
-        subscription = device.establishConnection(context, false) // <-- autoConnect flag
+        if (connectingDevices.contains(device) || connectedDevices.contains(device)){
+            return;
+        }
+        Log.d("Client", "Start Connecting to a new Device "+device.getMacAddress());
+        connectingDevices.add(device);
+
+        Subscription subscription = device.establishConnection(context, false) // <-- autoConnect flag
             .subscribe(
                 new Action1<RxBleConnection>() {
                     @Override
                     public void call(RxBleConnection connection) {
                         // All GATT operations are done through the rxBleConnection.
-                        rxBleConnection = connection;
+                        connectedDevices.add(device);
+                        connectingDevices.remove(device);
+                        connections.put(device, connection);
+                        setUpCoonectionUpdates(device);
                         Log.d("Client", "Connecting Successful");
                     }
                 },
@@ -265,9 +286,36 @@ public class Layer {
                     @Override
                     public void call(Throwable throwable) {
                         Log.e("Client", "Connecting failed "+throwable.toString());
+                        connectingDevices.remove(device);
                     }
                 }
             );
+        subscriptions.put(device, subscription);
+    }
+
+    private void setUpCoonectionUpdates(RxBleDevice device) {
+        device.observeConnectionStateChanges()
+            .subscribe(
+                new Action1<RxBleConnection.RxBleConnectionState>() {
+                    @Override
+                    public void call(RxBleConnection.RxBleConnectionState rxBleConnectionState) {
+                        Log.d("Client", "Connection State Changed - State: "+rxBleConnectionState);
+                    }
+                },
+                new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        Log.e("Client", "Connection Observer Error "+throwable.toString());
+                    }
+                }
+            );
+    }
+
+    void disconnectAll(){
+        Set<RxBleDevice> devices = subscriptions.keySet();
+        for (RxBleDevice device : devices) {
+            subscriptions.get(device).unsubscribe();
+        }
     }
 
     void disconnect(Subscription subscription){
@@ -282,13 +330,13 @@ public class Layer {
         @Override
         public void onStartSuccess(AdvertiseSettings settingsInEffect) {
             super.onStartSuccess(settingsInEffect);
-            Log.i("ADV_CALLBACK", "advertising started");
+            Log.i("Server", "advertising started");
         }
 
         @Override
         public void onStartFailure(int errorCode) {
             super.onStartFailure(errorCode);
-            Log.i("ADV_CALLBACK", "advertising error " + errorCode);
+            Log.i("Server", "advertising error " + errorCode);
         }
     }
 
@@ -296,7 +344,7 @@ public class Layer {
 
         @Override
         public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
-            Log.i("Server", "CHAR_READ - value: " + new String(characteristic.getValue()));
+            Log.i("Server", "onCharacteristicReadRequest - value: " + new String(characteristic.getValue()));
             if (mBluetoothGattServer != null)
                 mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getStringValue(0).getBytes());
         }
@@ -304,35 +352,57 @@ public class Layer {
         @Override
         public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                Log.i("Server", "CONN_CHANGE - Device connected " + device.getAddress());
+                Log.i("Server", "onConnectionStateChange - Device connected " + device.getAddress());
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                Log.i("Server", "CONN_CHANGE - Device disconnected " + device.getAddress());
+                Log.i("Server", "onConnectionStateChange - Device disconnected " + device.getAddress());
             } else {
-                Log.i("Server", "CONN_CHANGE - State changed to " + newState + " "+ device.getAddress());
+                Log.i("Server", "onConnectionStateChange - State changed to " + newState + " "+ device.getAddress());
             }
             notifyHandlers(DEVICE_POOL_UPDATED);
+            super.onConnectionStateChange(device, status, newState);
         }
 
         @Override
         public void onServiceAdded(int status, BluetoothGattService service) {
-            Log.i("Server", "SERVICE_ADDED" + status + " " + service.getUuid().toString());
+            Log.i("Server", "onServiceAdded" + status + " " + service.getUuid().toString());
+            super.onServiceAdded(status, service);
         }
 
         @Override
         public void onCharacteristicWriteRequest(BluetoothDevice device, int requestId, BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean responseNeeded, int offset, byte[] value) {
-            Log.i("Server", "CHAR_WRITE_REQUEST - device: " + device.getAddress() + " preparedWrite: " + preparedWrite + " responseNeeded: " + responseNeeded);
+            Log.i("Server", "onCharacteristicWriteRequest - device: " + device.getAddress() + " preparedWrite: " + preparedWrite + " responseNeeded: " + responseNeeded);
             String message = new String(value);
             notifyHandlers(MESSAGE_RECEIVED, message, device.getAddress());
         }
 
         @Override
         public void onNotificationSent(BluetoothDevice device, int status) {
-            Log.i("Server", "NOTIFICATION_SENT: " + device.getAddress() + " status: " + status);
+            Log.i("Server", "onNotificationSent: " + device.getAddress() + " status: " + status);
+            super.onNotificationSent(device, status);
         }
 
         @Override
         public void onMtuChanged(BluetoothDevice device, int mtu) {
-            Log.i("Server", "MTU_CHANGE - device: " + device.getAddress() + " mtu: " + mtu);
+            Log.i("Server", "onMtuChanged - device: " + device.getAddress() + " mtu: " + mtu);
+            super.onMtuChanged(device, mtu);
+        }
+
+        @Override
+        public void onDescriptorReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattDescriptor descriptor) {
+            Log.i("Server", "onDescriptorReadRequest - device: " + device.getAddress() + " requestId: " + requestId + " descriptor: " + descriptor);
+            super.onDescriptorReadRequest(device, requestId, offset, descriptor);
+        }
+
+        @Override
+        public void onDescriptorWriteRequest(BluetoothDevice device, int requestId, BluetoothGattDescriptor descriptor, boolean preparedWrite, boolean responseNeeded, int offset, byte[] value) {
+            Log.i("Server", "onDescriptorWriteRequest - device: " + device.getAddress() + " requestId: " + requestId + " descriptor: " + descriptor);
+            super.onDescriptorWriteRequest(device, requestId, descriptor, preparedWrite, responseNeeded, offset, value);
+        }
+
+        @Override
+        public void onExecuteWrite(BluetoothDevice device, int requestId, boolean execute) {
+            Log.i("Server", "onDescriptorReadRequest - device: " + device.getAddress() + " requestId: " + requestId + " execute: " + execute);
+            super.onExecuteWrite(device, requestId, execute);
         }
     }
     //endregion

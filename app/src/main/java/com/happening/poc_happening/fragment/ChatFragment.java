@@ -20,6 +20,8 @@ import com.happening.poc_happening.bluetooth.Layer;
 import com.happening.poc_happening.models.ChatEntryModel;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class ChatFragment extends Fragment {
@@ -45,7 +47,13 @@ public class ChatFragment extends Fragment {
         bluetoothLayer.setAutoConnect(true);
         bluetoothLayer.createGattServer();
         bluetoothLayer.startAdvertising();
-        bluetoothLayer.startScan();
+        Timer t = new Timer();
+        t.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                bluetoothLayer.startScan();
+            }
+        }, 3000);
     }
 
     @Override
