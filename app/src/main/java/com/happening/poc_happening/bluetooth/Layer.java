@@ -25,10 +25,17 @@ import android.util.Log;
 
 import com.happening.poc_happening.MainActivity;
 import com.happening.poc_happening.MyApp;
+import com.polidea.rxandroidble.RxBleClient;
+import com.polidea.rxandroidble.RxBleConnection;
+import com.polidea.rxandroidble.RxBleDevice;
+import com.polidea.rxandroidble.RxBleScanResult;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import rx.Subscription;
+import rx.functions.Action1;
 
 public class Layer {
 
@@ -50,6 +57,9 @@ public class Layer {
 
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser = null;
 
+    RxBleClient rxBleClient;
+    Subscription scanSubscription;
+
     private List<Handler> handlers = new ArrayList<>();
     private Context context = null;
 
@@ -65,6 +75,7 @@ public class Layer {
 
     private Layer() {
         context = MyApp.getAppContext();
+        rxBleClient = RxBleClient.create(context);
         this.mBluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.mBluetoothAdapter = mBluetoothManager.getAdapter();
         this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
@@ -205,11 +216,49 @@ public class Layer {
     }
 
     public void startScan() {
-        //TODO
+        Log.d("Client", "Scanner started");
+        scanSubscription = rxBleClient.scanBleDevices(UUID.fromString(ADVERTISE_UUID))
+            .subscribe(
+                new Action1<RxBleScanResult>() {
+                       @Override
+                       public void call(RxBleScanResult rxBleScanResult) {
+                           Log.d("Client", "Scanner Callback - Found "+rxBleScanResult.getBleDevice().getMacAddress());
+
+                       }
+                   },
+                new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        Log.e("Client", "Scanner Callback - Error "+throwable.toString());
+                    }
+                }
+            );
+
     }
 
     public void stopScan() {
-        //TODO
+        scanSubscription.unsubscribe();
+        Log.d("Client", "Scanner stopped");
+    }
+
+    public void connect(String macAddress){
+        RxBleDevice device = rxBleClient.getBleDevice(macAddress);
+
+        Subscription subscription = device.establishConnection(context, false) // <-- autoConnect flag
+            .subscribe(
+                new Action1<RxBleConnection>() {
+                    @Override
+                    public void call(RxBleConnection rxBleConnection) {
+
+                    }
+                },
+                new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+
+                    }
+                }
+            );
     }
 
     //endregion
