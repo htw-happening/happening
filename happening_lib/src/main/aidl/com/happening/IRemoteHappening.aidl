@@ -1,6 +1,7 @@
 package com.happening;
 
 import com.happening.lib.BluetoothDevice;
+import com.happening.lib.IHandler;
 
 interface IRemoteHappening {
     void addDevice(String name);
@@ -26,7 +27,9 @@ interface IRemoteHappening {
 
     // void addHandler(Handler handler);
     // void removeHandler(Handler handler);
+
     // void connectDevice(DeviceModel deviceModel);
     // void disconnectDevice(DeviceModel deviceModel);
     // DevicePool getDevicePool();
+
 }

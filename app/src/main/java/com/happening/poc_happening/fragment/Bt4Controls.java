@@ -23,7 +23,7 @@ import com.happening.bluetooth.DeviceModel;
 import com.happening.bluetooth.Layer;
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.DeviceListAdapter;
-import com.happening.poc_happening.bluetooth.BandwidthTester;
+import com.happening.bluetooth.BandwidthTester;
 import com.happening.poc_happening.service.ServiceHandler;
 
 

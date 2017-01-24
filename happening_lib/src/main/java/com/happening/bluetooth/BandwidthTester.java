@@ -1,6 +1,4 @@
-package com.happening.poc_happening.bluetooth;
-
-import android.util.Log;
+package com.happening.bluetooth;
 
 import java.util.Timer;
 import java.util.TimerTask;
