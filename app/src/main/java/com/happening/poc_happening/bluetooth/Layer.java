@@ -58,7 +58,12 @@ public class Layer {
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser = null;
 
     RxBleClient rxBleClient;
+
     Subscription scanSubscription;
+
+    Subscription subscription;
+
+    RxBleConnection rxBleConnection;
 
     private List<Handler> handlers = new ArrayList<>();
     private Context context = null;
@@ -223,6 +228,7 @@ public class Layer {
                        @Override
                        public void call(RxBleScanResult rxBleScanResult) {
                            Log.d("Client", "Scanner Callback - Found "+rxBleScanResult.getBleDevice().getMacAddress());
+                           connect(rxBleScanResult.getBleDevice().getMacAddress());
 
                        }
                    },
@@ -242,23 +248,30 @@ public class Layer {
     }
 
     public void connect(String macAddress){
+        Log.d("Client", "Start Connecting to a new Device "+macAddress);
         RxBleDevice device = rxBleClient.getBleDevice(macAddress);
 
-        Subscription subscription = device.establishConnection(context, false) // <-- autoConnect flag
+        subscription = device.establishConnection(context, false) // <-- autoConnect flag
             .subscribe(
                 new Action1<RxBleConnection>() {
                     @Override
-                    public void call(RxBleConnection rxBleConnection) {
-
+                    public void call(RxBleConnection connection) {
+                        // All GATT operations are done through the rxBleConnection.
+                        rxBleConnection = connection;
+                        Log.d("Client", "Connecting Successful");
                     }
                 },
                 new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
-
+                        Log.e("Client", "Connecting failed "+throwable.toString());
                     }
                 }
             );
+    }
+
+    void disconnect(Subscription subscription){
+        subscription.unsubscribe();
     }
 
     //endregion
