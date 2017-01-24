@@ -208,6 +208,10 @@ public class Layer {
         //TODO
     }
 
+    public void stopScan() {
+        //TODO
+    }
+
     //endregion
 
     //region Callbacks

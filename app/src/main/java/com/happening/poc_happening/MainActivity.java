@@ -19,7 +19,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.happening.poc_happening.bluetooth.DeviceModel;
-import com.happening.poc_happening.bluetooth.DevicePool;
 import com.happening.poc_happening.bluetooth.Layer;
 import com.happening.poc_happening.fragment.Bt2Controls;
 import com.happening.poc_happening.fragment.Bt4Controls;
@@ -218,10 +217,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         Layer layer = Layer.getInstance();
-        DevicePool devicePool = layer.getDevicePool();
-        for (DeviceModel deviceModel : devicePool) {
-            layer.disconnectDevice(deviceModel);
-        }
+//        DevicePool devicePool = layer.getDevicePool();
+//        for (DeviceModel deviceModel : devicePool) {
+//            layer.disconnectDevice(deviceModel);
+//        }
         layer.stopScan();
         layer.stopAdvertising();
         layer.stopGattServer();
