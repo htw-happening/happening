@@ -214,14 +214,14 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
-        Layer layer = Layer.getInstance();
-        DevicePool devicePool = layer.getDevicePool();
-        for (DeviceModel deviceModel : devicePool) {
-            layer.disconnectDevice(deviceModel);
-        }
-        layer.stopScan();
-        layer.stopAdvertising();
-        layer.stopGattServer();
+//        Layer layer = Layer.getInstance();
+//        DevicePool devicePool = layer.getDevicePool();
+//        for (DeviceModel deviceModel : devicePool) {
+//            layer.disconnectDevice(deviceModel);
+//        }
+//        layer.stopScan();
+//        layer.stopAdvertising();
+//        layer.stopGattServer();
         super.onDestroy();
     }
 }

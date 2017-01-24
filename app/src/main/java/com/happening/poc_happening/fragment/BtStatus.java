@@ -11,7 +11,6 @@ import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -148,15 +147,11 @@ public class BtStatus extends Fragment {
         (rootView.findViewById(R.id.button_get_data_from_service)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    sh.getService().addDevice("jojo " + System.currentTimeMillis());
-                    sh.getService().addDevice("jojo");
+                sh.addDevice("jojo " + System.currentTimeMillis());
+                sh.addDevice("jojo");
 
-                    Log.d("device jojo in main", "" + sh.getService().getDevice("jojo"));
-                    Log.d("devices in main", "" + sh.getService().getDevices());
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
+                Log.d("device jojo in main", "" + sh.getDevice("jojo"));
+                Log.d("devices in main", "" + sh.getDevices());
             }
         });
 

@@ -13,7 +13,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.happening.IRemoteHappening;
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.ChatEntriesAdapter;
 import com.happening.bluetooth.Layer;
@@ -26,7 +25,7 @@ import java.util.ArrayList;
 public class ChatFragment extends Fragment {
 
     private static ChatFragment instance = null;
-    private IRemoteHappening service = null;
+    private ServiceHandler service = null;
     public ArrayList<ChatEntryModel> chatEntryModelArrayList;
 
     private View rootView = null;
@@ -42,9 +41,8 @@ public class ChatFragment extends Fragment {
     }
 
     public ChatFragment() {
-        ServiceHandler sh = ServiceHandler.getInstance();
-        service = sh.getService();
-        service.addHandler(guiHandler);
+        service = ServiceHandler.getInstance();
+//        service.addHandler(guiHandler);
     }
 
     @Override
@@ -93,13 +91,13 @@ public class ChatFragment extends Fragment {
 
     @Override
     public void onResume() {
-        service.addHandler(guiHandler);
+//        service.addHandler(guiHandler);
         super.onResume();
     }
 
     @Override
     public void onPause() {
-        service.removeHandler(guiHandler);
+//        service.removeHandler(guiHandler);
         super.onPause();
     }
 
