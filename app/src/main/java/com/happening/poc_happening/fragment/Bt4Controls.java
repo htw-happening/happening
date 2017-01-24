@@ -53,8 +53,8 @@ public class Bt4Controls extends Fragment {
         bluetoothLayer.addHandler(guiHandler);
 
         ListView deviceListView = (ListView) rootView.findViewById(R.id.discovered_devices_list);
-        deviceListAdapter = new DeviceListAdapter(rootView.getContext(), bluetoothLayer.getDevicePool());
-        deviceListView.setAdapter(deviceListAdapter);
+//        deviceListAdapter = new DeviceListAdapter(rootView.getContext(), bluetoothLayer.getDevicePool());
+//        deviceListView.setAdapter(deviceListAdapter);
 
         TextView textViewCount = (TextView) getActivity().findViewById(R.id.ble_connect_count);
         if (textViewCount != null)
@@ -66,9 +66,9 @@ public class Bt4Controls extends Fragment {
                 DeviceModel device = (DeviceModel) parent.getItemAtPosition(position);
                 Log.i("CLICK", "Clicked on device " + device.getName());
                 if (device.isConnected()) {
-                    bluetoothLayer.disconnectDevice(device);
+//                    bluetoothLayer.disconnectDevice(device);
                 } else if (device.isDisconnected()) {
-                    bluetoothLayer.connectDevice(device);
+//                    bluetoothLayer.connectDevice(device);
                 } else {
                     Log.i("GATT", "Enhance your calm");
                 }
@@ -184,12 +184,12 @@ public class Bt4Controls extends Fragment {
 
     private void startScan() {
         Snackbar.make(rootView, "Start Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.startScan();
+//        bluetoothLayer.startScan();
     }
 
     private void stopScan() {
         Snackbar.make(rootView, "Stop Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.stopScan();
+//        bluetoothLayer.stopScan();
     }
 
     private void createGattServer() {
