@@ -9,6 +9,8 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.happening.IAsyncCallback;
+import com.happening.IAsyncInterface;
 import com.happening.IRemoteHappening;
 import com.happening.lib.BluetoothDevice;
 import com.happening.poc_happening.MyApp;
@@ -22,8 +24,9 @@ public class ServiceHandler implements IRemoteHappening {
     private static ServiceHandler sh = null;
     private Context context = null;
 
-    private IRemoteHappening service;
     private RemoteServiceConnection serviceConnection;
+    private IRemoteHappening service;
+    private IAsyncInterface async;
 
     private ServiceHandler() {
         this.context = MyApp.getAppContext();
@@ -177,6 +180,14 @@ public class ServiceHandler implements IRemoteHappening {
         }
     }
 
+    public void doAsyncTask() {
+        try {
+            async.methodOne(mCallback);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public IBinder asBinder() {
         return null;
@@ -186,12 +197,22 @@ public class ServiceHandler implements IRemoteHappening {
 
         public void onServiceConnected(ComponentName name, IBinder boundService) {
             service = IRemoteHappening.Stub.asInterface((IBinder) boundService);
+            async = IAsyncInterface.Stub.asInterface((IBinder) boundService);
             Toast.makeText(MyApp.getAppContext(), "Service connected", Toast.LENGTH_LONG).show();
         }
 
         public void onServiceDisconnected(ComponentName name) {
             service = null;
+            async = null;
             Toast.makeText(MyApp.getAppContext(), "Service disconnected", Toast.LENGTH_LONG).show();
         }
     }
+
+
+    IAsyncCallback.Stub mCallback = new IAsyncCallback.Stub() {
+        public void handleResponse(String name) throws RemoteException {
+            Log.d("jojo", name);
+        }
+    };
+
 }

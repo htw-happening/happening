@@ -148,10 +148,12 @@ public class BtStatus extends Fragment {
             @Override
             public void onClick(View v) {
                 sh.addDevice("jojo " + System.currentTimeMillis());
-                sh.addDevice("jojo");
+//                sh.addDevice("jojo");
 
-                Log.d("device jojo in main", "" + sh.getDevice("jojo"));
-                Log.d("devices in main", "" + sh.getDevices());
+                sh.doAsyncTask();
+
+//                Log.d("device jojo in main", "" + sh.getDevice("jojo"));
+//                Log.d("devices in main", "" + sh.getDevices());
             }
         });
 

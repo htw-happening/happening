@@ -5,19 +5,10 @@ import android.content.Context;
 
 public class MyService extends Application {
 
-    private static  MyService myService = null;
     private static Context context = null;
 
     public MyService() {
-        getInstance();
-    }
-
-    public MyService getInstance() {
-        if (myService == null)
-            this.myService = new MyService();
-            this.context = this.getApplicationContext();
-
-        return myService;
+        this.context = this.getApplicationContext();
     }
 
     public static Context getContext() {

@@ -23,6 +23,7 @@ public class HappeningService extends Service {
         @Override
         public void addDevice(String name) throws RemoteException {
 
+            getApplicationContext();
             // check if device is already in device list
             for (BluetoothDevice d : devices) {
                 Log.d("name", d.getName());

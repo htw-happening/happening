@@ -9,9 +9,9 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.happening.poc_happening.R;
-import com.happening.poc_happening.datastore.DBTestEntryModel;
 import com.happening.poc_happening.datastore.DBHelper;
 import com.happening.poc_happening.datastore.DBTestAdapter;
+import com.happening.poc_happening.datastore.DBTestEntryModel;
 
 import java.util.ArrayList;
 import java.util.Random;
