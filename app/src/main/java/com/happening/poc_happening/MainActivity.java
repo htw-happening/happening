@@ -185,10 +185,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-
-        Logger mLog = Logger.getLogger(MainActivity.class);
-        mLog.info("onNavigationItemSelected, id = " + id);
-
+        
         if (id == R.id.main) {
             if (this.mainFragment == null) {
                 this.mainFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_MAIN);
