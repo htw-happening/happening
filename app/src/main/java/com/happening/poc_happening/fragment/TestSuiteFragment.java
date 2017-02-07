@@ -28,7 +28,8 @@ public class TestSuiteFragment extends Fragment {
     private BandwidthTester bwt = null;
     private FileObserver fileObserver = null;
     private String logName;
-    private WebView log;
+    private WebView logContent;
+    private String fileContent = "";
 
     public static TestSuiteFragment getInstance() {
         instance = new TestSuiteFragment();
@@ -54,9 +55,9 @@ public class TestSuiteFragment extends Fragment {
             }
         });
 
-        // log
+        // logContent
         logName = Environment.getExternalStorageDirectory() + "/" + "happen.log";
-        log = (WebView) rootView.findViewById(R.id.bandwidth_test_log);
+        logContent = (WebView) rootView.findViewById(R.id.bandwidth_test_log);
 
         fileObserver = new FileObserver(logName) {
             @Override
@@ -75,23 +76,27 @@ public class TestSuiteFragment extends Fragment {
     }
 
     private void readLogFile() {
-        String content = "";
-
         try {
             File log = new File(logName);
             FileInputStream fi = new FileInputStream(log);
             BufferedReader br = new BufferedReader(new InputStreamReader(fi));
             String readLine;
             while ((readLine = br.readLine()) != null) {
-                content += readLine;
+                fileContent += readLine;
             }
             br.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        log.loadData("<body>" + content + "</body", "text/html", null);
-        scrollDown((ScrollView) rootView.findViewById(R.id.log_scroll));
+
+        logContent.post(new Runnable() {
+            public void run() {
+                logContent.loadData("<body>" + fileContent + "</body", "text/html", null);
+            }
+        });
+
+//        scrollDown((ScrollView) rootView.findViewById(R.id.log_scroll));
     }
 
     private void scrollDown(final ScrollView scrollView) {
