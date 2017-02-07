@@ -4,22 +4,23 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/test_suite_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="test suite" />
-
     <Button
         android:id="@+id/button_bandwidth"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Bandwidthtest" />
 
-    <TextView
-        android:id="@+id/bandwidth_test_log"
+    <ScrollView
+        android:id="@+id/log_scroll"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Log" />
+        android:layout_height="match_parent">
+
+        <WebView
+            android:id="@+id/bandwidth_test_log"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Log" />
+
+    </ScrollView>
 
 </LinearLayout>
