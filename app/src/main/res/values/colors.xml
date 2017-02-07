@@ -3,4 +3,10 @@
     <color name="colorPrimary">#5E2B97</color>
     <color name="colorPrimaryDark">#522A85</color>
     <color name="colorAccent">#E8C83C</color>
+
+    <color name="mobile_white">#FFFFFF</color>
+    <color name="mobile_black">#000000</color>
+    <color name="mobile_blue">#0000FF</color>
+    <color name="mobile_red">#FF0000</color>
+    <color name="mobile_yellow">#FFFF00</color>
 </resources>
