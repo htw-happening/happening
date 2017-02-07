@@ -17,9 +17,17 @@
 
             <Button
                 android:id="@+id/button_show_db"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Show Database"/>
+
+            <Button
+                android:id="@+id/button_clear_db"
+                android:text="Clear DB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/button_show_db"
+                android:layout_alignParentStart="true" />
 
 
         </RelativeLayout>
