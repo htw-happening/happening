@@ -51,7 +51,7 @@ public class DBTestFragment  extends Fragment {
             @Override
             public void onClick(View v) {
                 DBHelper dbHelper = new DBHelper(getContext());
-                dbHelper.
+                dbHelper.clearTables();
             }
         });
 
