@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity
         // set device stats in drawer header
         View drawerHeader = navigationView.getHeaderView(0);
         ((TextView) drawerHeader.findViewById(R.id.drawer_header_main_text)).setText(BluetoothAdapter.getDefaultAdapter().getName());
-        ((TextView) drawerHeader.findViewById(R.id.drawer_header_main_text)).setText("...more info...");
+        ((TextView) drawerHeader.findViewById(R.id.drawer_header_sub_text)).setText("...more info...");
 
         // initialise start fragment
         this.currentFragment = ChatFragment.getInstance();
