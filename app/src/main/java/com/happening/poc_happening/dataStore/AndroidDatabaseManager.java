@@ -1,4 +1,4 @@
-package com.happening.poc_happening.dataStore;//add your package name here example: package com.example.dbm;
+package com.happening.poc_happening.datastore;
 
 //all required import files
 import java.util.ArrayList;

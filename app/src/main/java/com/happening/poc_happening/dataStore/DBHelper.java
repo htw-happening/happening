@@ -1,4 +1,4 @@
-package com.happening.poc_happening.dataStore;
+package com.happening.poc_happening.datastore;
 
 import android.content.ContentValues;
 import android.content.Context;
