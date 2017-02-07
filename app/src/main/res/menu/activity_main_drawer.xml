@@ -8,7 +8,7 @@
             android:title="Main" />
         <item
             android:id="@+id/chat"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/ic_menu_send"
             android:title="Chat" />
         <item
             android:id="@+id/bt4controls"
@@ -24,7 +24,7 @@
             android:title="BT Status" />
         <item
             android:id="@+id/db_test"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_menu_share"
             android:title="DataB Test" />
     </group>
 
