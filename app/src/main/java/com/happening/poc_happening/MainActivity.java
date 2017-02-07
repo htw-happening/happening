@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -111,7 +112,7 @@ public class MainActivity extends AppCompatActivity
 
         // set device stats in drawer header
         ((TextView) drawerHeader.findViewById(R.id.drawer_header_main_text)).setText(BluetoothAdapter.getDefaultAdapter().getName());
-        ((TextView) drawerHeader.findViewById(R.id.drawer_header_sub_text)).setText("...more info...");
+        ((TextView) drawerHeader.findViewById(R.id.drawer_header_sub_text)).setText("serial " + Build.SERIAL);
 
         // initialise start fragment
         this.currentFragment = ChatFragment.getInstance();
