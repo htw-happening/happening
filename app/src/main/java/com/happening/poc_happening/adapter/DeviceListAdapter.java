@@ -33,7 +33,7 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceModel> {
         TextView name = (TextView) convertView.findViewById(R.id.device_name);
 
         address.setText(device.getAddress());
-        name.setText(device.getName());
+        name.setText(device.getName() + (device.getRssi() == 0 ? "" : " " + device.getRssi() + "dBm"));
 
         int resource = R.attr.colorPrimary;
         switch (device.getCurrentState()) {

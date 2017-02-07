@@ -177,13 +177,11 @@ public class Bt4Controls extends Fragment {
     private Handler guiHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
-            Log.i("HANDLER", "Message received from layer with Code " + msg.what);
             switch (msg.what) {
                 case Layer.DEVICE_POOL_UPDATED:
                     deviceListAdapter.notifyDataSetChanged();
                     break;
                 case Layer.MESSAGE_RECEIVED:
-
                     String message = msg.getData().getString("content");
                     Log.i("HANDLER", "Content was " + message);
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
