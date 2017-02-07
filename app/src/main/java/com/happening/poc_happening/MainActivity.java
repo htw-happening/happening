@@ -17,6 +17,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.happening.poc_happening.bluetooth.DeviceModel;
 import com.happening.poc_happening.bluetooth.DevicePool;
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity
         // load sqlcipher libs
         SQLiteDatabase.loadLibs(this);
 
+        // set views
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -80,6 +83,12 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        // set device stats in drawer header
+        View drawerHeader = navigationView.getHeaderView(0);
+        ((TextView) drawerHeader.findViewById(R.id.drawer_header_main_text)).setText(BluetoothAdapter.getDefaultAdapter().getName());
+        ((TextView) drawerHeader.findViewById(R.id.drawer_header_main_text)).setText("...more info...");
+
+        // initialise start fragment
         this.currentFragment = ChatFragment.getInstance();
         this.currentFragmentTag = TAG_FRAGMENT_CHAT;
 
