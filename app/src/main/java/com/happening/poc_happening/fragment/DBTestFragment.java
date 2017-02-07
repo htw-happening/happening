@@ -47,6 +47,14 @@ public class DBTestFragment  extends Fragment {
             }
         });
 
+        rootView.findViewById(R.id.button_clear_db).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DBHelper dbHelper = new DBHelper(getContext());
+                dbHelper.
+            }
+        });
+
         return rootView;
     }
 

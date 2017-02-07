@@ -21,6 +21,12 @@
                 android:layout_height="wrap_content"
                 android:text="Show Database"/>
 
+            <Button
+                android:id="@+id/button_clear_db"
+                android:text="Clear DB"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
 
         </RelativeLayout>
 
