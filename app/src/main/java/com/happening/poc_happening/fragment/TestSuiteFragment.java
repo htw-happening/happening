@@ -2,11 +2,14 @@ package com.happening.poc_happening.fragment;
 
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.FileObserver;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.webkit.WebView;
+import android.widget.ScrollView;
 
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.bluetooth.BandwidthTester;
@@ -14,7 +17,6 @@ import com.happening.poc_happening.bluetooth.BandwidthTester;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -24,6 +26,9 @@ public class TestSuiteFragment extends Fragment {
     private View rootView = null;
 
     private BandwidthTester bwt = null;
+    private FileObserver fileObserver = null;
+    private String logName;
+    private WebView log;
 
     public static TestSuiteFragment getInstance() {
         instance = new TestSuiteFragment();
@@ -50,7 +55,26 @@ public class TestSuiteFragment extends Fragment {
         });
 
         // log
-        String logName = Environment.getExternalStorageDirectory() + "/" + "happen.log";
+        logName = Environment.getExternalStorageDirectory() + "/" + "happen.log";
+        log = (WebView) rootView.findViewById(R.id.bandwidth_test_log);
+
+        fileObserver = new FileObserver(logName) {
+            @Override
+            public void onEvent(int event, String path) {
+                if (event == MODIFY) {
+                    Log.d("MODIFY", "" + event + " " + path);
+                    readLogFile();
+                }
+            }
+        };
+
+        readLogFile();
+        fileObserver.startWatching();
+
+        return rootView;
+    }
+
+    private void readLogFile() {
         String content = "";
 
         try {
@@ -62,16 +86,32 @@ public class TestSuiteFragment extends Fragment {
                 content += readLine;
             }
             br.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        TextView log = (TextView) rootView.findViewById(R.id.bandwidth_test_log);
-        log.setText(content);
+        log.loadData("<body>" + content + "</body", "text/html", null);
+        scrollDown((ScrollView) rootView.findViewById(R.id.log_scroll));
+    }
 
+    private void scrollDown(final ScrollView scrollView) {
+        scrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                scrollView.fullScroll(View.FOCUS_DOWN);
+            }
+        });
+    }
 
-        return rootView;
+    @Override
+    public void onResume() {
+        fileObserver.startWatching();
+        super.onResume();
+    }
+
+    @Override
+    public void onStop() {
+        fileObserver.stopWatching();
+        super.onStop();
     }
 }
