@@ -5,11 +5,15 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -18,6 +22,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.happening.poc_happening.bluetooth.DeviceModel;
@@ -29,6 +34,7 @@ import com.happening.poc_happening.fragment.BtStatus;
 import com.happening.poc_happening.fragment.ChatFragment;
 import com.happening.poc_happening.fragment.DBTestFragment;
 import com.happening.poc_happening.fragment.MainFragment;
+import com.happening.poc_happening.fragment.TestSuiteFragment;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -44,6 +50,7 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG_FRAGMENT_BT2CONTROLS = "bt2";
     private static final String TAG_FRAGMENT_BTSTATUS = "btstatus";
     private static final String TAG_FRAGMENT_DB_TEST = "db_test";
+    private static final String TAG_FRAGMENT_TEST_SUITE = "test_suite";
 
     private FragmentManager fm = getSupportFragmentManager();
     private BluetoothManager mBluetoothManager = null;
@@ -57,6 +64,7 @@ public class MainActivity extends AppCompatActivity
     private Fragment bt2ControlsFragment;
     private Fragment btStatusFragment;
     private Fragment dbTestFragment;
+    private Fragment testSuiteFragment;
 
     public MainActivity() {
 
@@ -83,10 +91,31 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // set device stats in drawer header
+        // set image in drawer header
         View drawerHeader = navigationView.getHeaderView(0);
+        Drawable headerImage = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_mobile);
+
+        String deviceName = BluetoothAdapter.getDefaultAdapter().getName().toLowerCase();
+        int blue = 0x000000;
+
+        if (deviceName.contains("white")) {
+            blue = ContextCompat.getColor(this, R.color.mobile_white);
+        } else if (deviceName.contains("black")) {
+            blue = ContextCompat.getColor(this, R.color.mobile_black);
+        } else if (deviceName.contains("red")) {
+            blue = ContextCompat.getColor(this, R.color.mobile_red);
+        } else if (deviceName.contains("blue")) {
+            blue = ContextCompat.getColor(this, R.color.mobile_blue);
+        } else if (deviceName.contains("yellow")) {
+            blue = ContextCompat.getColor(this, R.color.mobile_yellow);
+        }
+
+        headerImage.setColorFilter(blue, PorterDuff.Mode.SRC_IN);
+        ((ImageView) drawerHeader.findViewById(R.id.drawer_header_image)).setImageDrawable(headerImage);
+
+        // set device stats in drawer header
         ((TextView) drawerHeader.findViewById(R.id.drawer_header_main_text)).setText(BluetoothAdapter.getDefaultAdapter().getName());
-        ((TextView) drawerHeader.findViewById(R.id.drawer_header_main_text)).setText("...more info...");
+        ((TextView) drawerHeader.findViewById(R.id.drawer_header_sub_text)).setText("serial " + Build.SERIAL);
 
         // initialise start fragment
         this.currentFragment = ChatFragment.getInstance();
@@ -205,6 +234,18 @@ public class MainActivity extends AppCompatActivity
             loadFragment(currentFragment, dbTestFragment, TAG_FRAGMENT_DB_TEST);
             this.currentFragment = dbTestFragment;
             this.currentFragmentTag = TAG_FRAGMENT_DB_TEST;
+
+        } else if (id == R.id.test_suite) {
+            if (this.testSuiteFragment == null) {
+                this.testSuiteFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_TEST_SUITE);
+                if (this.testSuiteFragment == null) {
+                    this.testSuiteFragment = TestSuiteFragment.getInstance();
+                }
+            }
+
+            loadFragment(currentFragment, testSuiteFragment, TAG_FRAGMENT_TEST_SUITE);
+            this.currentFragment = testSuiteFragment;
+            this.currentFragmentTag = TAG_FRAGMENT_TEST_SUITE;
 
         }
 

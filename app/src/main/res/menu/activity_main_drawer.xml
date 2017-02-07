@@ -26,6 +26,11 @@
             android:id="@+id/db_test"
             android:icon="@drawable/ic_menu_share"
             android:title="DataB Test" />
+
+        <item
+            android:id="@+id/test_suite"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Test Suite" />
     </group>
 
 </menu>
