@@ -34,6 +34,7 @@ import com.happening.poc_happening.fragment.BtStatus;
 import com.happening.poc_happening.fragment.ChatFragment;
 import com.happening.poc_happening.fragment.DBTestFragment;
 import com.happening.poc_happening.fragment.MainFragment;
+import com.happening.poc_happening.fragment.TestSuiteFragment;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG_FRAGMENT_BT2CONTROLS = "bt2";
     private static final String TAG_FRAGMENT_BTSTATUS = "btstatus";
     private static final String TAG_FRAGMENT_DB_TEST = "db_test";
+    private static final String TAG_FRAGMENT_TEST_SUITE = "test_suite";
 
     private FragmentManager fm = getSupportFragmentManager();
     private BluetoothManager mBluetoothManager = null;
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity
     private Fragment bt2ControlsFragment;
     private Fragment btStatusFragment;
     private Fragment dbTestFragment;
+    private Fragment testSuiteFragment;
 
     public MainActivity() {
 
@@ -231,6 +234,18 @@ public class MainActivity extends AppCompatActivity
             loadFragment(currentFragment, dbTestFragment, TAG_FRAGMENT_DB_TEST);
             this.currentFragment = dbTestFragment;
             this.currentFragmentTag = TAG_FRAGMENT_DB_TEST;
+
+        } else if (id == R.id.test_suite) {
+            if (this.testSuiteFragment == null) {
+                this.testSuiteFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_TEST_SUITE);
+                if (this.testSuiteFragment == null) {
+                    this.testSuiteFragment = TestSuiteFragment.getInstance();
+                }
+            }
+
+            loadFragment(currentFragment, testSuiteFragment, TAG_FRAGMENT_TEST_SUITE);
+            this.currentFragment = testSuiteFragment;
+            this.currentFragmentTag = TAG_FRAGMENT_TEST_SUITE;
 
         }
 
