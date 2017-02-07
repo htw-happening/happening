@@ -16,6 +16,7 @@ public class DeviceModel {
 
     public DeviceModel(ScanResult scanResult) {
         this.bluetoothDevice = scanResult.getDevice();
+        this.rssi = scanResult.getRssi();
         this.type = "server";
     }
 
