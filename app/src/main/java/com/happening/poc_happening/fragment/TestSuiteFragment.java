@@ -70,7 +70,7 @@ public class TestSuiteFragment extends Fragment {
         };
 
         readLogFile();
-        fileObserver.startWatching();
+//        fileObserver.startWatching();
 
         return rootView;
     }
@@ -96,7 +96,7 @@ public class TestSuiteFragment extends Fragment {
             }
         });
 
-//        scrollDown((ScrollView) rootView.findViewById(R.id.log_scroll));
+        scrollDown((ScrollView) rootView.findViewById(R.id.log_scroll));
     }
 
     private void scrollDown(final ScrollView scrollView) {
@@ -110,13 +110,13 @@ public class TestSuiteFragment extends Fragment {
 
     @Override
     public void onResume() {
-        fileObserver.startWatching();
+//        fileObserver.startWatching();
         super.onResume();
     }
 
     @Override
     public void onStop() {
-        fileObserver.stopWatching();
+//        fileObserver.stopWatching();
         super.onStop();
     }
 }
