@@ -1,18 +1,16 @@
-package com.happening.poc_happening.dataStore;
+package com.happening.poc_happening.datastore;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.util.Log;
+
+import com.happening.poc_happening.models.ChatEntryModel;
 
 import net.sqlcipher.Cursor;
 import net.sqlcipher.MatrixCursor;
 import net.sqlcipher.SQLException;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
-
-import com.happening.poc_happening.MyApp;
-import com.happening.poc_happening.models.ChatEntryModel;
-
 
 import java.util.ArrayList;
 
@@ -53,6 +51,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CREATION_TIME + " TEXT NOT NULL," +
                     DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_TYPE + " TEXT NOT NULL," +
                     DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CONTENT + " TEXT NOT NULL)";
+
 
 
     // Query Strings - DROP TABLES
@@ -251,4 +250,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
+    public void clearTables() {
+        SQLiteDatabase db = this.getWritableDatabase("password");
+        db.execSQL("DROP TABLE IF EXISTS " + DBContract.DBEntry.GLOBAL_MESSAGES_TABLE_NAME);
+        db.execSQL(SQL_CREATE_GLOBAL_MESSAGES_ENTRIES);
+        db.close();
+
+    }
 }

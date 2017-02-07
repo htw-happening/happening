@@ -21,15 +21,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.ParcelUuid;
-import android.os.SystemClock;
 import android.util.Log;
 
-import com.happening.poc_happening.MainActivity;
 import com.happening.poc_happening.MyApp;
 import com.happening.poc_happening.models.ChatEntryModel;
 
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Layer {
@@ -62,6 +63,8 @@ public class Layer {
     private ScanCallback mScanCallback = new ScanCallback();
     private AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback();
 
+    private Logger logger;
+
     private boolean autoConnect = false;
 
     public static Layer getInstance() {
@@ -76,11 +79,8 @@ public class Layer {
         this.mBluetoothAdapter = mBluetoothManager.getAdapter();
         this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
         this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
+        this.logger = Logger.getLogger(Layer.class);
         Log.i("SELF", mBluetoothAdapter.getName());
-    }
-
-    public int getNumOfConnectedDevices() {
-        return devicePool.getConnectedDevices().size();
     }
 
     private void notifyHandlers(int code) {
@@ -137,9 +137,9 @@ public class Layer {
     public void disconnectDevice(DeviceModel deviceModel) {
         if (deviceModel.isConnected()) {
             deviceModel.setTargetState(BluetoothProfile.STATE_DISCONNECTED);
-            if (deviceModel.getType() == "client") {
+            if (Objects.equals(deviceModel.getType(), "client")) {
                 mBluetoothGattServer.cancelConnection(deviceModel.getBluetoothDevice());
-            } else if (deviceModel.getType() == "server") {
+            } else if (Objects.equals(deviceModel.getType(), "server")) {
                 deviceModel.getBluetoothGatt().disconnect();
             }
             deviceModel.getBluetoothGatt().getDevice().getType();
@@ -185,11 +185,14 @@ public class Layer {
         AdvertiseData advertiseData = advertiseDataBuilder.build();
 
         mBluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, mAdvertiseCallback);
+
+        logger.info("Started Advertising");
     }
 
     public void stopAdvertising() {
         if (mBluetoothLeAdvertiser != null) {
             mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
+            logger.info("Stopped Advertising");
         }
     }
 
@@ -217,12 +220,14 @@ public class Layer {
 
         mBluetoothLeScanner.stopScan(mScanCallback);
         mBluetoothLeScanner.startScan(scanFilters, scanSettings, mScanCallback);
+        logger.info("Started Scan");
     }
 
     public void stopScan() {
         if (mBluetoothLeScanner != null) {
             mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
             mBluetoothLeScanner.stopScan(mScanCallback);
+            logger.info("Stopped Scan");
         }
     }
 
@@ -261,6 +266,7 @@ public class Layer {
         mBluetoothGattServer = mBluetoothManager.openGattServer(context, new BluetoothGattServerCallback());
 
         mBluetoothGattServer.addService(gattService);
+        logger.info("Started Gattserver");
     }
 
     public void stopGattServer() {
@@ -270,10 +276,12 @@ public class Layer {
             }
             mBluetoothGattServer.clearServices();
             mBluetoothGattServer.close();
+            logger.info("Stopped Gattserver");
         }
     }
 
     public void broadcastMessage(String message) {
+        logger.info("Broadcast Message: " + message);
         Log.i("BROADCAST", "broadcast message " + message);
 
         synchronized (devicePool.getConnectedDevices()) {
@@ -287,7 +295,7 @@ public class Layer {
 
                     Log.i("BROADCAST", "Device " + deviceModel.getAddress());
                     BluetoothGatt bluetoothGatt = deviceModel.getBluetoothGatt();
-                    if (deviceModel.getType() == "client") continue;
+                    if (Objects.equals(deviceModel.getType(), "client")) continue;
                     BluetoothGattService bluetoothGattService = bluetoothGatt.getService(UUID.fromString(SERVICE_UUID));
                     BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
                     characteristic.setValue(chatEntry.toBytes());
@@ -399,6 +407,7 @@ public class Layer {
         public void onCharacteristicWriteRequest(BluetoothDevice device, int requestId, BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean responseNeeded, int offset, byte[] value) {
             Log.i("CHAR_WRITE_REQUEST:", "device: " + device.getAddress() + " preparedWrite: " + preparedWrite + " responseNeeded: " + responseNeeded);
             notifyHandlers(MESSAGE_RECEIVED, value);
+            logger.info("Received Message!");
         }
 
         @Override

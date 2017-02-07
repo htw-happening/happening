@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!-- declare app as bluetooth le required -->
     <uses-feature
@@ -33,7 +34,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.happening.poc_happening.dataStore.AndroidDatabaseManager"
+        <activity android:name="com.happening.poc_happening.datastore.AndroidDatabaseManager"
             android:theme="@style/AppTheme"/>
     </application>
 

@@ -1,7 +1,5 @@
 package com.happening.poc_happening.fragment;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,16 +15,13 @@ import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
-import android.widget.TextView;
 
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.DeviceListAdapter;
-import com.happening.poc_happening.bluetooth.BandwidthTester;
 import com.happening.poc_happening.bluetooth.DeviceModel;
 import com.happening.poc_happening.bluetooth.Layer;
-import com.happening.poc_happening.dataStore.DBHelper;
+import com.happening.poc_happening.datastore.DBHelper;
 import com.happening.poc_happening.models.ChatEntryModel;
-
 
 public class Bt4Controls extends Fragment {
 
@@ -34,8 +29,6 @@ public class Bt4Controls extends Fragment {
     private Layer bluetoothLayer = null;
     private View rootView = null;
     private DeviceListAdapter deviceListAdapter = null;
-
-    private BandwidthTester bandwidthTester;
 
     public static Bt4Controls getInstance() {
         if (instance == null)
@@ -58,10 +51,6 @@ public class Bt4Controls extends Fragment {
         deviceListAdapter = new DeviceListAdapter(rootView.getContext(), bluetoothLayer.getDevicePool());
         deviceListView.setAdapter(deviceListAdapter);
 
-        TextView textViewCount = (TextView) getActivity().findViewById(R.id.ble_connect_count);
-        if (textViewCount != null)
-            textViewCount.setText("Num: " + bluetoothLayer.getNumOfConnectedDevices());
-
         deviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -77,12 +66,11 @@ public class Bt4Controls extends Fragment {
             }
         });
 
-        // set event Listener
+        //region event listener
         Switch adapterButton = (Switch) rootView.findViewById(R.id.adapter_button);
         adapterButton.setChecked(bluetoothLayer.isEnabled());
         adapterButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.i("Bt4Controls", "adapterButton - onCheckedChanged " + isChecked);
                 if (isChecked) {
                     enableAdapter();
                 } else {
@@ -94,7 +82,6 @@ public class Bt4Controls extends Fragment {
         Switch scanButton = (Switch) rootView.findViewById(R.id.scan_button);
         scanButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.i("Bt4Controls", "scanButton - onCheckedChanged " + isChecked);
                 if (isChecked) {
                     startScan();
                 } else {
@@ -106,7 +93,6 @@ public class Bt4Controls extends Fragment {
         Switch advertiseButton = (Switch) rootView.findViewById(R.id.advertise_button);
         advertiseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.i("Bt4Controls", "advertiseButton - onCheckedChanged " + isChecked);
                 if (isChecked) {
                     startAdvertising();
                 } else {
@@ -118,7 +104,6 @@ public class Bt4Controls extends Fragment {
         Switch gattServerButton = (Switch) rootView.findViewById(R.id.gatt_server_button);
         gattServerButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.i("Bt4Controls", "gattServerButton - onCheckedChanged " + isChecked);
                 if (isChecked) {
                     createGattServer();
                 } else {
@@ -126,27 +111,12 @@ public class Bt4Controls extends Fragment {
                 }
             }
         });
+        //endregion
 
         if (!bluetoothLayer.isAdvertisingSupported()) {
             advertiseButton.setEnabled(false);
             gattServerButton.setEnabled(false);
         }
-
-        if (bandwidthTester == null) {
-            bandwidthTester = new BandwidthTester();
-        }
-        rootView.findViewById(R.id.button_bandwidth).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (bandwidthTester.isRunning()){
-                    bandwidthTester.stop();
-                }else{
-                    bandwidthTester.start();
-                }
-            }
-        });
-
-
         return rootView;
     }
 

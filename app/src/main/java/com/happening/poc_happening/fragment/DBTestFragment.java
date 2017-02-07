@@ -9,9 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 
-import com.happening.poc_happening.dataStore.AndroidDatabaseManager;
+import com.happening.poc_happening.datastore.AndroidDatabaseManager;
 import com.happening.poc_happening.R;
-import com.happening.poc_happening.dataStore.DBHelper;
+import com.happening.poc_happening.datastore.DBHelper;
 
 import java.util.Random;
 
@@ -44,6 +44,14 @@ public class DBTestFragment  extends Fragment {
                 Intent dbmanager = new Intent(getActivity(),AndroidDatabaseManager.class);
                 startActivity(dbmanager);
 
+            }
+        });
+
+        rootView.findViewById(R.id.button_clear_db).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DBHelper dbHelper = new DBHelper(getContext());
+                dbHelper.clearTables();
             }
         });
 
