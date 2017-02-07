@@ -20,7 +20,7 @@
         android:layout_alignParentStart="true"
         android:layout_marginBottom="5sp"
         android:checked="true"
-        android:text="Scanning"
+        android:text="Scanner"
         android:textSize="16sp" />
 
     <Switch
@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="5sp"
         android:checked="true"
-        android:text="Advertising"
+        android:text="Advertiser"
         android:textSize="16sp" />
 
     <Switch
@@ -38,16 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="5sp"
         android:checked="true"
-        android:text="Gatt Server"
-        android:textSize="16sp" />
-
-    <Switch
-        android:id="@+id/bandwidth_tester_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="5sp"
-        android:checked="true"
-        android:text="Bandwith Test"
+        android:text="Server"
         android:textSize="16sp" />
 
     <ListView
