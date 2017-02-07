@@ -26,6 +26,8 @@ import android.util.Log;
 
 import com.happening.poc_happening.MyApp;
 
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -60,6 +62,8 @@ public class Layer {
     private ScanCallback mScanCallback = new ScanCallback();
     private AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback();
 
+    private Logger logger;
+
     private boolean autoConnect = false;
 
     public static Layer getInstance() {
@@ -74,6 +78,7 @@ public class Layer {
         this.mBluetoothAdapter = mBluetoothManager.getAdapter();
         this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
         this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
+        this.logger = Logger.getLogger(Layer.class);
         Log.i("SELF", mBluetoothAdapter.getName());
     }
 
@@ -193,11 +198,14 @@ public class Layer {
         AdvertiseData advertiseData = advertiseDataBuilder.build();
 
         mBluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, mAdvertiseCallback);
+
+        logger.info("Started Advertising");
     }
 
     public void stopAdvertising() {
         if (mBluetoothLeAdvertiser != null) {
             mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
+            logger.info("Stopped Advertising");
         }
     }
 
@@ -225,12 +233,14 @@ public class Layer {
 
         mBluetoothLeScanner.stopScan(mScanCallback);
         mBluetoothLeScanner.startScan(scanFilters, scanSettings, mScanCallback);
+        logger.info("Started Scan");
     }
 
     public void stopScan() {
         if (mBluetoothLeScanner != null) {
             mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
             mBluetoothLeScanner.stopScan(mScanCallback);
+            logger.info("Stopped Scan");
         }
     }
 
@@ -269,6 +279,7 @@ public class Layer {
         mBluetoothGattServer = mBluetoothManager.openGattServer(context, new BluetoothGattServerCallback());
 
         mBluetoothGattServer.addService(gattService);
+        logger.info("Started Gattserver");
     }
 
     public void stopGattServer() {
@@ -278,11 +289,13 @@ public class Layer {
             }
             mBluetoothGattServer.clearServices();
             mBluetoothGattServer.close();
+            logger.info("Stopped Gattserver");
         }
     }
 
     public void broadcastMessage(String message) {
         Log.i("BROADCAST", "broadcast message" + message);
+        logger.info("Broadcast Message: " + message);
 
         synchronized (devicePool.getConnectedDevices()) {
             for (DeviceModel deviceModel : devicePool.getConnectedDevices()) {
@@ -376,6 +389,7 @@ public class Layer {
             Log.i("CHAR_WRITE_REQUEST:", "device: " + device.getAddress() + " preparedWrite: " + preparedWrite + " responseNeeded: " + responseNeeded);
             String message = new String(value);
             notifyHandlers(MESSAGE_RECEIVED, message, device.getAddress());
+            logger.info("Received Message: " + message);
         }
 
         @Override

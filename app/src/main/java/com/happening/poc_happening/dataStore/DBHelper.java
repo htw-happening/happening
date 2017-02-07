@@ -55,6 +55,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     DBContract.DBEntry.GLOBAL_MESSAGES_COLUMN_CONTENT + " TEXT NOT NULL)";
 
 
+
     // Query Strings - DROP TABLES
 
     private static final String SQL_DELETE_DEVICE_ENTRIES =
@@ -251,4 +252,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
+    public void clearTables() {
+        SQLiteDatabase db = this.getWritableDatabase("password");
+        db.execSQL("DROP TABLE IF EXISTS " + DBContract.DBEntry.GLOBAL_MESSAGES_TABLE_NAME);
+        db.execSQL(SQL_CREATE_GLOBAL_MESSAGES_ENTRIES);
+        db.close();
+
+    }
 }

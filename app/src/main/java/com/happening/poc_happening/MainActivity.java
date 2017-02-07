@@ -186,9 +186,6 @@ public class MainActivity extends AppCompatActivity
 
         int id = item.getItemId();
 
-        Logger mLog = Logger.getLogger(MainActivity.class);
-        mLog.info("onNavigationItemSelected, id = " + id);
-
         if (id == R.id.main) {
             if (this.mainFragment == null) {
                 this.mainFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_MAIN);
