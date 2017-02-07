@@ -21,10 +21,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.ParcelUuid;
+import android.os.SystemClock;
 import android.util.Log;
 
 import com.happening.poc_happening.MainActivity;
 import com.happening.poc_happening.MyApp;
+import com.happening.poc_happening.models.ChatEntryModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +44,9 @@ public class Layer {
     public static final int DEFAULT_MTU_BYTES = 128;
     public static final int DEVICE_POOL_UPDATED = 1;
     public static final int MESSAGE_RECEIVED = 2;
+
+    public static final String SHEEP_TYPE = "0";
+    public static final String CHAT_TYPE = "1";
 
     private BluetoothManager mBluetoothManager = null;
     private BluetoothAdapter mBluetoothAdapter = null;
@@ -84,12 +89,11 @@ public class Layer {
         }
     }
 
-    private void notifyHandlers(int code, String content, String author) {
+    private void notifyHandlers(int code, byte[] value) {
         for (Handler handler : handlers) {
             Message message = handler.obtainMessage(code);
             Bundle bundle = new Bundle();
-            bundle.putString("content", content);
-            bundle.putString("author", author);
+            bundle.putByteArray("chatEntry", value);
             message.setData(bundle);
             handler.sendMessage(message);
         }
@@ -233,12 +237,12 @@ public class Layer {
         BluetoothGattCharacteristic characteristic = new BluetoothGattCharacteristic(
                 characteristicUuid,
                 BluetoothGattCharacteristic.PROPERTY_BROADCAST |
-                        BluetoothGattCharacteristic.PROPERTY_WRITE |
-                        BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE |
-                        BluetoothGattCharacteristic.PROPERTY_READ |
-                        BluetoothGattCharacteristic.PROPERTY_NOTIFY,
-                BluetoothGattCharacteristic.PERMISSION_READ |
-                        BluetoothGattCharacteristic.PERMISSION_WRITE);
+                    BluetoothGattCharacteristic.PROPERTY_WRITE |
+                    BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE |
+                    BluetoothGattCharacteristic.PROPERTY_READ |
+                    BluetoothGattCharacteristic.PROPERTY_NOTIFY,
+                    BluetoothGattCharacteristic.PERMISSION_READ |
+                    BluetoothGattCharacteristic.PERMISSION_WRITE);
         characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
         characteristic.setValue("n/a".getBytes());
 
@@ -247,9 +251,9 @@ public class Layer {
         BluetoothGattCharacteristic userinfo = new BluetoothGattCharacteristic(
                 userinfoUuid,
                 BluetoothGattCharacteristic.PROPERTY_BROADCAST |
-                        BluetoothGattCharacteristic.PROPERTY_READ |
-                        BluetoothGattCharacteristic.PROPERTY_NOTIFY,
-                BluetoothGattCharacteristic.PERMISSION_READ);
+                    BluetoothGattCharacteristic.PROPERTY_READ |
+                    BluetoothGattCharacteristic.PROPERTY_NOTIFY,
+                    BluetoothGattCharacteristic.PERMISSION_READ);
         userinfo.setValue((mBluetoothAdapter.getName() != null ? mBluetoothAdapter.getName() : "n/a").getBytes());
 
         gattService.addCharacteristic(userinfo);
@@ -270,18 +274,50 @@ public class Layer {
     }
 
     public void broadcastMessage(String message) {
-        Log.i("BROADCAST", "broadcast message" + message);
+        Log.i("BROADCAST", "broadcast message " + message);
 
         synchronized (devicePool.getConnectedDevices()) {
             for (DeviceModel deviceModel : devicePool.getConnectedDevices()) {
                 try {
+
+                    String type = CHAT_TYPE;
+                    String author = mBluetoothAdapter.getName();
+                    String time = Long.toString(System.currentTimeMillis());
+                    ChatEntryModel chatEntry = new ChatEntryModel(author, time, type, message);
 
                     Log.i("BROADCAST", "Device " + deviceModel.getAddress());
                     BluetoothGatt bluetoothGatt = deviceModel.getBluetoothGatt();
                     if (deviceModel.getType() == "client") continue;
                     BluetoothGattService bluetoothGattService = bluetoothGatt.getService(UUID.fromString(SERVICE_UUID));
                     BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
-                    characteristic.setValue(message.getBytes());
+                    characteristic.setValue(chatEntry.toBytes());
+                    bluetoothGatt.writeCharacteristic(characteristic);
+                }catch (Exception e){
+                    Log.e(getClass().getSimpleName(), e.toString());
+                }
+            }
+        }
+        Log.i("BROADCAST", "Done");
+    }
+
+    public void broadcastMessage(String message, boolean sheep) {
+        Log.i("BROADCAST", "broadcast message " + message);
+
+        synchronized (devicePool.getConnectedDevices()) {
+            for (DeviceModel deviceModel : devicePool.getConnectedDevices()) {
+                try {
+
+                    String type = SHEEP_TYPE;
+                    String author = mBluetoothAdapter.getName();
+                    String time = Long.toString(System.currentTimeMillis());
+                    ChatEntryModel chatEntry = new ChatEntryModel(author, time, type, message);
+
+                    Log.i("BROADCAST", "Device " + deviceModel.getAddress());
+                    BluetoothGatt bluetoothGatt = deviceModel.getBluetoothGatt();
+                    if (deviceModel.getType() == "client") continue;
+                    BluetoothGattService bluetoothGattService = bluetoothGatt.getService(UUID.fromString(SERVICE_UUID));
+                    BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
+                    characteristic.setValue(chatEntry.toBytes());
                     bluetoothGatt.writeCharacteristic(characteristic);
                 }catch (Exception e){
                     Log.e(getClass().getSimpleName(), e.toString());
@@ -362,8 +398,7 @@ public class Layer {
         @Override
         public void onCharacteristicWriteRequest(BluetoothDevice device, int requestId, BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean responseNeeded, int offset, byte[] value) {
             Log.i("CHAR_WRITE_REQUEST:", "device: " + device.getAddress() + " preparedWrite: " + preparedWrite + " responseNeeded: " + responseNeeded);
-            String message = new String(value);
-            notifyHandlers(MESSAGE_RECEIVED, message, device.getAddress());
+            notifyHandlers(MESSAGE_RECEIVED, value);
         }
 
         @Override

@@ -15,8 +15,8 @@ import android.widget.Toast;
 
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.ChatEntriesAdapter;
-import com.happening.poc_happening.dataStore.DBHelper;
 import com.happening.poc_happening.bluetooth.Layer;
+import com.happening.poc_happening.dataStore.DBHelper;
 import com.happening.poc_happening.models.ChatEntryModel;
 
 import java.util.ArrayList;
@@ -92,6 +92,12 @@ public class ChatFragment extends Fragment {
         chatEntriesAdapter.notifyDataSetChanged();
     }
 
+    private void addChatEntry(ChatEntryModel chatEntry) {
+        dbHelper.insertGlobalMessage(chatEntry.getAuthor(), chatEntry.getCreationTime(), chatEntry.getType(), chatEntry.getContent());
+        chatEntryModelArrayList.add(chatEntry);
+        chatEntriesAdapter.notifyDataSetChanged();
+    }
+
     @Override
     public void onResume() {
         bluetoothLayer.addHandler(guiHandler);
@@ -111,10 +117,13 @@ public class ChatFragment extends Fragment {
                 case Layer.DEVICE_POOL_UPDATED:
                     break;
                 case Layer.MESSAGE_RECEIVED:
-                    String content = msg.getData().getString("content");
-                    String author = msg.getData().getString("author");
-                    Log.i("HANDLER", "" + author + " says " + content);
-                    addChatEntry(author, content);
+                    byte[] bytes = msg.getData().getByteArray("chatEntry");
+                    ChatEntryModel chatEntry = new ChatEntryModel(bytes);
+                    Log.i("HANDLER", "" + chatEntry.getAuthor() + " says " + chatEntry.getContent());
+                    Log.i("HANDLER", "" + chatEntry.getType());
+                    if (chatEntry.getType().equals(Layer.CHAT_TYPE)) {
+                        addChatEntry(chatEntry);
+                    }
                     break;
                 default:
                     Log.i("HANDLER", "Unresolved Message Code");
