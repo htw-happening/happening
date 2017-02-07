@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.ChatEntriesAdapter;
-import com.happening.poc_happening.dataStore.DBHelper;
+import com.happening.poc_happening.datastore.DBHelper;
 import com.happening.poc_happening.bluetooth.Layer;
 import com.happening.poc_happening.models.ChatEntryModel;
 

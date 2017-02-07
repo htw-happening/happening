@@ -9,9 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 
-import com.happening.poc_happening.dataStore.AndroidDatabaseManager;
+import com.happening.poc_happening.datastore.AndroidDatabaseManager;
 import com.happening.poc_happening.R;
-import com.happening.poc_happening.dataStore.DBHelper;
+import com.happening.poc_happening.datastore.DBHelper;
 
 import java.util.Random;
 

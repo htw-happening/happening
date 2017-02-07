@@ -33,7 +33,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.happening.poc_happening.dataStore.AndroidDatabaseManager"
+        <activity android:name="com.happening.poc_happening.datastore.AndroidDatabaseManager"
             android:theme="@style/AppTheme"/>
     </application>
 
