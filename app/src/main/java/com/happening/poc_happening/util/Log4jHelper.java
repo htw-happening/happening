@@ -1,4 +1,4 @@
-package com.happening.poc.poc_happening.util;
+package com.happening.poc_happening.util;
 
 import org.apache.log4j.Logger;
 
