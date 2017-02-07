@@ -8,8 +8,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.bluetooth.BandwidthTester;
@@ -28,7 +28,7 @@ public class TestSuiteFragment extends Fragment {
     private BandwidthTester bwt = null;
     private FileObserver fileObserver = null;
     private String logName;
-    private WebView logContent;
+    private TextView logContent;
     private String fileContent = "";
 
     public static TestSuiteFragment getInstance() {
@@ -57,20 +57,19 @@ public class TestSuiteFragment extends Fragment {
 
         // logContent
         logName = Environment.getExternalStorageDirectory() + "/" + "happen.log";
-        logContent = (WebView) rootView.findViewById(R.id.bandwidth_test_log);
+        logContent = (TextView) rootView.findViewById(R.id.bandwidth_test_log);
 
         fileObserver = new FileObserver(logName) {
             @Override
             public void onEvent(int event, String path) {
                 if (event == MODIFY) {
-                    Log.d("MODIFY", "" + event + " " + path);
                     readLogFile();
                 }
             }
         };
 
         readLogFile();
-//        fileObserver.startWatching();
+        fileObserver.startWatching();
 
         return rootView;
     }
@@ -92,11 +91,11 @@ public class TestSuiteFragment extends Fragment {
 
         logContent.post(new Runnable() {
             public void run() {
-                logContent.loadData("<body>" + fileContent + "</body", "text/html", null);
+                logContent.setText(fileContent);
             }
         });
 
-        scrollDown((ScrollView) rootView.findViewById(R.id.log_scroll));
+//        scrollDown((ScrollView) rootView.findViewById(R.id.log_scroll));
     }
 
     private void scrollDown(final ScrollView scrollView) {
@@ -110,13 +109,13 @@ public class TestSuiteFragment extends Fragment {
 
     @Override
     public void onResume() {
-//        fileObserver.startWatching();
+        fileObserver.startWatching();
         super.onResume();
     }
 
     @Override
     public void onStop() {
-//        fileObserver.stopWatching();
+        fileObserver.stopWatching();
         super.onStop();
     }
 }
