@@ -35,21 +35,19 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceModel> {
         address.setText(device.getAddress());
         name.setText(device.getName());
 
-        TypedValue color = new TypedValue();
-        getContext().getTheme().resolveAttribute(R.attr.colorAccent, color, true);
-        int colorAccent = color.data;
-        getContext().getTheme().resolveAttribute(R.attr.colorPrimary, color, true);
-        int colorPrimary = color.data;
-        getContext().getTheme().resolveAttribute(R.attr.colorPrimaryDark, color, true);
-        int colorIdle = color.data;
+        int resource = R.attr.colorPrimary;
         switch (device.getCurrentState()) {
             case BluetoothProfile.STATE_CONNECTED:
-                address.setTextColor(colorPrimary);
+                resource = R.attr.colorAccent;
+                break;
             case BluetoothProfile.STATE_DISCONNECTED:
-                address.setTextColor(colorAccent);
-            default:
-                address.setTextColor(colorIdle);
+                resource = R.attr.colorPrimaryDark;
+                break;
         }
+        TypedValue value = new TypedValue();
+        getContext().getTheme().resolveAttribute(resource, value, true);
+        address.setTextColor(value.data);
+        name.setTextColor(value.data);
 
         return convertView;
     }

@@ -5,10 +5,12 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -35,8 +37,11 @@ import com.happening.poc_happening.fragment.ChatFragment;
 import com.happening.poc_happening.fragment.DBTestFragment;
 import com.happening.poc_happening.fragment.MainFragment;
 import com.happening.poc_happening.fragment.TestSuiteFragment;
+import com.happening.poc_happening.util.Log4jHelper;
 
 import net.sqlcipher.database.SQLiteDatabase;
+
+import org.apache.log4j.Logger;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -51,6 +56,8 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG_FRAGMENT_BTSTATUS = "btstatus";
     private static final String TAG_FRAGMENT_DB_TEST = "db_test";
     private static final String TAG_FRAGMENT_TEST_SUITE = "test_suite";
+
+    private static final int TAG_PERMISSION_REQUESTS = 100;
 
     private FragmentManager fm = getSupportFragmentManager();
     private BluetoothManager mBluetoothManager = null;
@@ -135,6 +142,21 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
+        //Permissions
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION},
+                    TAG_PERMISSION_REQUESTS);
+        }else{
+            //we have already the permission
+            configureLog4j();
+        }
+
         // request location permission
         ActivityCompat.requestPermissions(this, new String[]{
                         Manifest.permission.ACCESS_FINE_LOCATION,
@@ -161,7 +183,11 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+
         int id = item.getItemId();
+
+        Logger mLog = Logger.getLogger(MainActivity.class);
+        mLog.info("onNavigationItemSelected, id = " + id);
 
         if (id == R.id.main) {
             if (this.mainFragment == null) {
@@ -263,6 +289,31 @@ public class MainActivity extends AppCompatActivity
                 .replace(current.getId(), fragment, tag)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case TAG_PERMISSION_REQUESTS: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay!
+                    configureLog4j();
+
+                } else {
+                    // permission denied, boo!
+                }
+                return;
+            }
+        }
+    }
+
+    private void configureLog4j() {
+        String fileName = Environment.getExternalStorageDirectory() + "/" + "happen.log";
+        String filePattern = "%d - [%c] - %p : %m%n";
+        int maxBackupSize = 10;
+        long maxFileSize = 1024 * 1024;
+        Log4jHelper.Configure(fileName, filePattern, maxBackupSize, maxFileSize);
     }
 
     @Override
