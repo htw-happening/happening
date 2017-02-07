@@ -23,11 +23,11 @@ import android.os.Message;
 import android.os.ParcelUuid;
 import android.util.Log;
 
-import com.happening.poc_happening.MainActivity;
 import com.happening.poc_happening.MyApp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Layer {
@@ -72,10 +72,6 @@ public class Layer {
         this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
         this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
         Log.i("SELF", mBluetoothAdapter.getName());
-    }
-
-    public int getNumOfConnectedDevices() {
-        return devicePool.getConnectedDevices().size();
     }
 
     private void notifyHandlers(int code) {
@@ -133,9 +129,9 @@ public class Layer {
     public void disconnectDevice(DeviceModel deviceModel) {
         if (deviceModel.isConnected()) {
             deviceModel.setTargetState(BluetoothProfile.STATE_DISCONNECTED);
-            if (deviceModel.getType() == "client") {
+            if (Objects.equals(deviceModel.getType(), "client")) {
                 mBluetoothGattServer.cancelConnection(deviceModel.getBluetoothDevice());
-            } else if (deviceModel.getType() == "server") {
+            } else if (Objects.equals(deviceModel.getType(), "server")) {
                 deviceModel.getBluetoothGatt().disconnect();
             }
             deviceModel.getBluetoothGatt().getDevice().getType();
@@ -278,7 +274,7 @@ public class Layer {
 
                     Log.i("BROADCAST", "Device " + deviceModel.getAddress());
                     BluetoothGatt bluetoothGatt = deviceModel.getBluetoothGatt();
-                    if (deviceModel.getType() == "client") continue;
+                    if (Objects.equals(deviceModel.getType(), "client")) continue;
                     BluetoothGattService bluetoothGattService = bluetoothGatt.getService(UUID.fromString(SERVICE_UUID));
                     BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
                     characteristic.setValue(message.getBytes());
