@@ -4,10 +4,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.FileObserver;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ScrollView;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.happening.poc_happening.R;
@@ -22,58 +23,54 @@ import java.io.InputStreamReader;
 public class TestSuiteFragment extends Fragment {
 
     private static TestSuiteFragment instance = null;
+    private static BandwidthTester bwt;
+    private static FileObserver fileObserver;
+//    private static String logName;
+    private static TextView logContent;
     private View rootView = null;
-
-    private BandwidthTester bwt = null;
-    private FileObserver fileObserver = null;
-    private String logName;
-    private TextView logContent;
-    private String fileContent = "";
 
     public static TestSuiteFragment getInstance() {
         instance = new TestSuiteFragment();
+
+        // logContent
+        startLogger();
+
         return instance;
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_test_suite, container, false);
+    private static void startLogger() {
 
-        // bandwidth tester
-        if (bwt == null) {
-            bwt = new BandwidthTester();
-        }
-        rootView.findViewById(R.id.button_bandwidth).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (bwt.isRunning()) {
-                    bwt.stop();
-                } else {
-                    bwt.start();
-                }
-            }
-        });
-
-        // logContent
-        logName = Environment.getExternalStorageDirectory() + "/" + "happen.log";
-        logContent = (TextView) rootView.findViewById(R.id.bandwidth_test_log);
-
+        final String logName = Environment.getExternalStorageDirectory() + "/" + "happen.log";
         fileObserver = new FileObserver(logName) {
             @Override
-            public void onEvent(int event, String path) {
+            public void onEvent(int event, final String path) {
                 if (event == MODIFY) {
-                    readLogFile();
+                    logContent.post(new Runnable() {
+                        public void run() {
+                            final String log = readLogFile(logName);
+                            Log.d("logger", path + " read " + log);
+                            logContent.setText(log);
+                        }
+                    });
+                }
+
+                if (event == DELETE_SELF || event == DELETE) {
+                    Log.d("logger", "voll");
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    startLogger();
                 }
             }
         };
 
-        readLogFile();
         fileObserver.startWatching();
-
-        return rootView;
     }
 
-    private void readLogFile() {
+    private static String readLogFile(String logName) {
+        String fileContent = "";
         try {
             File log = new File(logName);
             FileInputStream fi = new FileInputStream(log);
@@ -87,34 +84,53 @@ public class TestSuiteFragment extends Fragment {
             e.printStackTrace();
         }
 
+        return fileContent;
 
-        logContent.post(new Runnable() {
-            public void run() {
-                logContent.setText(fileContent);
-            }
-        });
-
-//        scrollDown((ScrollView) rootView.findViewById(R.id.log_scroll));
     }
 
-    private void scrollDown(final ScrollView scrollView) {
-        scrollView.post(new Runnable() {
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        rootView = inflater.inflate(R.layout.fragment_test_suite, container, false);
+        logContent = (TextView) rootView.findViewById(R.id.bandwidth_test_log);
+
+        // bandwidth tester
+        if (bwt == null) {
+            bwt = new BandwidthTester();
+        }
+
+        final Button startBandwidthTest = (Button) rootView.findViewById(R.id.button_bandwidth);
+
+        if (bwt.isRunning()) {
+            startBandwidthTest.setText("Bandwidth - running");
+        } else {
+            startBandwidthTest.setText("Bandwidth - stopped");
+        }
+
+        startBandwidthTest.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
-                scrollView.fullScroll(View.FOCUS_DOWN);
+            public void onClick(View v) {
+                if (bwt.isRunning()) {
+                    bwt.stop();
+                    startBandwidthTest.setText("Bandwidth - stopped");
+                } else {
+                    bwt.start();
+                    startBandwidthTest.setText("Bandwidth - running");
+                }
             }
         });
+
+        return rootView;
     }
 
     @Override
     public void onResume() {
-        fileObserver.startWatching();
         super.onResume();
+        fileObserver.startWatching();
     }
 
     @Override
     public void onStop() {
-        fileObserver.stopWatching();
         super.onStop();
+        fileObserver.stopWatching();
     }
 }

@@ -4,10 +4,6 @@ import org.apache.log4j.Logger;
 
 import de.mindpipe.android.logging.log4j.LogConfigurator;
 
-/**
- * Created by Fabian on 11.01.2017.
- */
-
 public class Log4jHelper {
     private final static LogConfigurator _logConfigurator = new LogConfigurator();
 
