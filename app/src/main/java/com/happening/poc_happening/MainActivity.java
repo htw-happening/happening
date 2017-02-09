@@ -35,7 +35,6 @@ import com.happening.poc_happening.fragment.Bt4Controls;
 import com.happening.poc_happening.fragment.BtStatus;
 import com.happening.poc_happening.fragment.ChatFragment;
 import com.happening.poc_happening.fragment.DBTestFragment;
-import com.happening.poc_happening.fragment.MainFragment;
 import com.happening.poc_happening.fragment.TestSuiteFragment;
 import com.happening.poc_happening.util.Log4jHelper;
 
@@ -47,7 +46,6 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int TAG_CODE_PERMISSION_LOCATION = 2;
     // Fragment Tags
-    private static final String TAG_FRAGMENT_MAIN = "main";
     private static final String TAG_FRAGMENT_CHAT = "chat";
     private static final String TAG_FRAGMENT_BT4CONTROLS = "bt4";
     private static final String TAG_FRAGMENT_BT2CONTROLS = "bt2";
@@ -63,7 +61,7 @@ public class MainActivity extends AppCompatActivity
     // Fragment
     private Fragment currentFragment = null;
     private String currentFragmentTag = null;
-    private Fragment mainFragment;
+
     private Fragment chatFragment;
     private Fragment bt4ControlsFragment;
     private Fragment bt2ControlsFragment;
@@ -72,6 +70,7 @@ public class MainActivity extends AppCompatActivity
     private Fragment testSuiteFragment;
 
     public MainActivity() {
+
     }
 
     @Override
@@ -100,21 +99,21 @@ public class MainActivity extends AppCompatActivity
         Drawable headerImage = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_mobile);
 
         String deviceName = BluetoothAdapter.getDefaultAdapter().getName().toLowerCase();
-        int deviceColor = 0x000000;
+        int color = 0x000000;
 
         if (deviceName.contains("white")) {
-            deviceColor = ContextCompat.getColor(this, R.color.mobile_white);
+            color = ContextCompat.getColor(this, R.color.mobile_white);
         } else if (deviceName.contains("black")) {
-            deviceColor = ContextCompat.getColor(this, R.color.mobile_black);
+            color = ContextCompat.getColor(this, R.color.mobile_black);
         } else if (deviceName.contains("red")) {
-            deviceColor = ContextCompat.getColor(this, R.color.mobile_red);
+            color = ContextCompat.getColor(this, R.color.mobile_red);
         } else if (deviceName.contains("blue")) {
-            deviceColor = ContextCompat.getColor(this, R.color.mobile_blue);
+            color = ContextCompat.getColor(this, R.color.mobile_blue);
         } else if (deviceName.contains("yellow")) {
-            deviceColor = ContextCompat.getColor(this, R.color.mobile_yellow);
+            color = ContextCompat.getColor(this, R.color.mobile_yellow);
         }
 
-        headerImage.setColorFilter(deviceColor, PorterDuff.Mode.SRC_IN);
+        headerImage.setColorFilter(color, PorterDuff.Mode.SRC_IN);
         ((ImageView) drawerHeader.findViewById(R.id.drawer_header_image)).setImageDrawable(headerImage);
 
         // set device stats in drawer header
@@ -149,7 +148,7 @@ public class MainActivity extends AppCompatActivity
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION},
                     TAG_PERMISSION_REQUESTS);
-        } else {
+        }else{
             //we have already the permission
             configureLog4j();
         }
@@ -173,7 +172,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
+        // don't show settings in toolbar
+//        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -183,19 +183,7 @@ public class MainActivity extends AppCompatActivity
 
         int id = item.getItemId();
 
-        if (id == R.id.main) {
-            if (this.mainFragment == null) {
-                this.mainFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_MAIN);
-                if (this.mainFragment == null) {
-                    this.mainFragment = MainFragment.getInstance();
-                }
-            }
-
-            loadFragment(currentFragment, mainFragment, TAG_FRAGMENT_MAIN);
-            this.currentFragment = mainFragment;
-            this.currentFragmentTag = TAG_FRAGMENT_MAIN;
-
-        } else if (id == R.id.chat) {
+        if (id == R.id.chat) {
             if (this.chatFragment == null) {
                 this.chatFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_CHAT);
                 if (this.chatFragment == null) {

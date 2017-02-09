@@ -3,11 +3,6 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/main"
-            android:icon="@drawable/ic_mobile"
-            android:title="Main"
-            android:visible="false" />
-        <item
             android:id="@+id/chat"
             android:icon="@drawable/ic_menu_send"
             android:title="LE Chat" />
