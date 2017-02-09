@@ -130,7 +130,8 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/wifi_label"
         android:layout_marginTop="10dp"
-        android:text="Background Service" />
+        android:text="Background Service"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/background_service_value"
@@ -138,7 +139,8 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/background_service_label"
         android:layout_alignLeft="@+id/bluetooth_value"
-        android:text="TextView" />
+        android:text="TextView"
+        android:visibility="gone" />
 
     <Switch
         android:id="@+id/switch_background_service"
@@ -146,7 +148,8 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/background_service_label"
         android:layout_alignParentRight="true"
-        android:splitTrack="true" />
+        android:splitTrack="true"
+        android:visibility="gone" />
 
     <Button
         android:id="@+id/button_get_data_from_service"
@@ -155,6 +158,6 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/background_service_label"
         android:text="Get Data from Service"
-        android:visibility="invisible" />
+        android:visibility="gone" />
 
 </RelativeLayout>

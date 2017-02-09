@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION},
                     TAG_PERMISSION_REQUESTS);
-        }else{
+        } else {
             //we have already the permission
             configureLog4j();
         }
