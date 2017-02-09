@@ -16,8 +16,7 @@ public abstract class ByteArrayModel {
 
     protected boolean validateBytes(byte[] bytes) {
         //TODO validate byte array more
-//        return bytes.length == 128;
-        return true;
+        return bytes.length == 125;
     }
 
     public boolean isBytesValide() {
