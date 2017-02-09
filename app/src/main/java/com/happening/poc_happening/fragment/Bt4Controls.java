@@ -1,7 +1,5 @@
 package com.happening.poc_happening.fragment;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -176,6 +174,8 @@ public class Bt4Controls extends Fragment {
     }
 
     private Handler guiHandler = new Handler(Looper.getMainLooper()) {
+        Toast currentToast;
+
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -185,9 +185,12 @@ public class Bt4Controls extends Fragment {
                 case Layer.MESSAGE_RECEIVED:
                     String message = msg.getData().getString("content");
                     Log.i("HANDLER", "Message was " + message);
-                    String preview = message.substring(0, Math.min(message.length(), 24));
-                    preview = preview.length() == 24 ? preview + " ..." : preview;
-                    Toast.makeText(getContext(), preview, Toast.LENGTH_SHORT).show();
+                    String preview = message.substring(0, Math.min(message.length(), 32));
+                    preview = preview.length() == 32 ? preview + " ..." : preview;
+                    if (currentToast != null)
+                        currentToast.cancel();
+                    currentToast = Toast.makeText(getContext(), preview, Toast.LENGTH_SHORT);
+                    currentToast.show();
                     break;
                 default:
                     Log.i("HANDLER", "Unresolved Message Code");
