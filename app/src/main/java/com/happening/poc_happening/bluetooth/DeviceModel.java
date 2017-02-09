@@ -7,10 +7,13 @@ import android.bluetooth.le.ScanResult;
 
 public class DeviceModel {
 
-    private String type;
-    private int rssi;
+    private final int INHERENT_HOTNESS = 5;
+
     private int currentState = BluetoothProfile.STATE_DISCONNECTED;
     private int targetState = BluetoothProfile.STATE_CONNECTED;
+    private int hotness = INHERENT_HOTNESS;
+    private String type = "";
+    private int rssi = 0;
     private BluetoothGatt bluetoothGatt;
     private BluetoothDevice bluetoothDevice;
 
@@ -67,6 +70,18 @@ public class DeviceModel {
 
     public int getTargetState() {
         return this.targetState;
+    }
+
+    public boolean isCold() {
+        return hotness <= 0;
+    }
+
+    public void coolDown() {
+        this.hotness -= 1;
+    }
+
+    public int getHotness() {
+        return this.hotness;
     }
 
     public String getType() {
