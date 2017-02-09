@@ -71,6 +71,8 @@ public class MainActivity extends AppCompatActivity
     private Fragment dbTestFragment;
     private Fragment testSuiteFragment;
 
+    private String TAG = getClass().getSimpleName();
+
     public MainActivity() {
 
     }
@@ -178,6 +180,8 @@ public class MainActivity extends AppCompatActivity
         this.mBluetoothAdapter = mBluetoothManager.getAdapter();
 
         // ensure bluetooth is available and enabled
+        Log.d(TAG, "mBluetoothAdapter.isEnabled() " + mBluetoothAdapter.isEnabled());
+        Log.d(TAG, String.valueOf("mBluetoothAdapter == null " + mBluetoothAdapter == null));
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
