@@ -22,6 +22,7 @@ import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.DeviceListAdapter;
 import com.happening.poc_happening.bluetooth.DeviceModel;
 import com.happening.poc_happening.bluetooth.Layer;
+import com.happening.poc_happening.models.ChatEntryModel;
 
 public class Bt4Controls extends Fragment {
 
@@ -182,16 +183,11 @@ public class Bt4Controls extends Fragment {
                     deviceListAdapter.notifyDataSetChanged();
                     break;
                 case Layer.MESSAGE_RECEIVED:
-                    String message = msg.getData().getString("content");
-                    Log.i("HANDLER", "Content was " + message);
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                        }
-                    });
-                    builder.setMessage(message);
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
+                    byte[] data = msg.getData().getByteArray("chatEntry");
+                    ChatEntryModel chatEntry = new ChatEntryModel(data);
+                    if (chatEntry.getType().equals(Layer.SHEEP_TYPE)) {
+                        Log.i("HANDLER", "Content was " + chatEntry.getContent());
+                    }
                     break;
                 default:
                     Log.i("HANDLER", "Unresolved Message Code");

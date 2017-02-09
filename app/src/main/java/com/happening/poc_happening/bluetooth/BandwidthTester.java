@@ -17,14 +17,14 @@ public class BandwidthTester {
 
     public void start() {
         isRunning = true;
-        layer.broadcastMessage("Ein Schäfchen springt über den Zaun.");
+        layer.broadcastMessage("Ein Schäfchen springt über den Zaun.", Layer.SHEEP_TYPE);
         counter = 2;
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
                 String message = "" + counter + " Schäfchen springen über den Zaun.";
                 counter++;
-                layer.broadcastMessage(message);
+                layer.broadcastMessage(message, Layer.SHEEP_TYPE);
             }
         }, DELAY, DELAY);
     }
