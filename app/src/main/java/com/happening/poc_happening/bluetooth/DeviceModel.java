@@ -2,8 +2,11 @@ package com.happening.poc_happening.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.ScanResult;
+
+import java.util.UUID;
 
 public class DeviceModel {
 
@@ -13,6 +16,7 @@ public class DeviceModel {
     private int targetState = BluetoothProfile.STATE_CONNECTED;
     private int hotness = INHERENT_HOTNESS;
     private String type = "";
+    private String name = "";
     private int rssi = 0;
     private BluetoothGatt bluetoothGatt;
     private BluetoothDevice bluetoothDevice;
@@ -29,7 +33,7 @@ public class DeviceModel {
     }
 
     public String getName() {
-        return getType();
+        return (this.name == null || this.name.equals("")) ? this.getAddress() : this.name;
     }
 
     public String getAddress() {
@@ -109,5 +113,9 @@ public class DeviceModel {
 
     public int getRssi() {
         return rssi;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

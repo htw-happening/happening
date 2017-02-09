@@ -125,6 +125,7 @@ public class Layer {
                 bluetoothGatt = bluetoothDevice.connectGatt(context, false, new BluetoothGattCallback());
             }
             deviceModel.setBluetoothGatt(bluetoothGatt);
+            deviceModel.setCurrentState(BluetoothProfile.STATE_CONNECTING);
             Log.i("GATT", "Opening new gatt " + deviceModel.getAddress());
         } else if (deviceModel.isDisconnected()) {
             try {
@@ -142,6 +143,7 @@ public class Layer {
 
     public void disconnectDevice(DeviceModel deviceModel) {
         if (deviceModel.isConnected()) {
+            deviceModel.setCurrentState(BluetoothProfile.STATE_DISCONNECTING);
             deviceModel.setTargetState(BluetoothProfile.STATE_DISCONNECTED);
             if (Objects.equals(deviceModel.getType(), "client")) {
                 mBluetoothGattServer.cancelConnection(deviceModel.getBluetoothDevice());
@@ -481,6 +483,16 @@ public class Layer {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             Log.i("CHAR_READ", "string value: " + characteristic.getStringValue(0) + " status: " + status);
+            switch (characteristic.getUuid().toString()) {
+                case USERINFO_UUID:
+                    DeviceModel deviceModel = devicePool.getModelByDevice(gatt.getDevice());
+                    deviceModel.setName(characteristic.getStringValue(0));
+                    notifyHandlers(DEVICE_POOL_UPDATED);
+                    Log.i("CHAR_READ", "Found userinfo!");
+                    break;
+                default:
+                    Log.i("CHAR_READ", "Unresolved UUID");
+            }
         }
 
         @Override
