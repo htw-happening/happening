@@ -28,8 +28,6 @@ public class BtStatus extends Fragment {
 
     private static BtStatus instance = null;
     private View rootView = null;
-    private ServiceHandler sh = null;
-
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -59,7 +57,7 @@ public class BtStatus extends Fragment {
             }
         }
     };
-
+    private ServiceHandler sh = null;
     private BluetoothManager bluetoothManager = null;
     private WifiP2pManager wifiP2pManager = null;
     private String availableTxt = "yes";
