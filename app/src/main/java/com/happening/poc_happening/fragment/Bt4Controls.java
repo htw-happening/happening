@@ -1,7 +1,5 @@
 package com.happening.poc_happening.fragment;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.DeviceListAdapter;
@@ -175,6 +174,8 @@ public class Bt4Controls extends Fragment {
     }
 
     private Handler guiHandler = new Handler(Looper.getMainLooper()) {
+        Toast currentToast;
+
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -183,15 +184,13 @@ public class Bt4Controls extends Fragment {
                     break;
                 case Layer.MESSAGE_RECEIVED:
                     String message = msg.getData().getString("content");
-                    Log.i("HANDLER", "Content was " + message);
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                        }
-                    });
-                    builder.setMessage(message);
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
+                    Log.i("HANDLER", "Message was " + message);
+                    String preview = message.substring(0, Math.min(message.length(), 32));
+                    preview = preview.length() == 32 ? preview + " ..." : preview;
+                    if (currentToast != null)
+                        currentToast.cancel();
+                    currentToast = Toast.makeText(getContext(), preview, Toast.LENGTH_SHORT);
+                    currentToast.show();
                     break;
                 default:
                     Log.i("HANDLER", "Unresolved Message Code");
