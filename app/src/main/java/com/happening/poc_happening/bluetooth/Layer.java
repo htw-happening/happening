@@ -295,7 +295,7 @@ public class Layer {
 
                     Log.i("BROADCAST", "Device " + deviceModel.getAddress());
                     BluetoothGatt bluetoothGatt = deviceModel.getBluetoothGatt();
-                    if (Objects.equals(deviceModel.getType(), "client")) continue;
+                    if (deviceModel.getType().equals("client")) continue;
                     BluetoothGattService bluetoothGattService = bluetoothGatt.getService(UUID.fromString(SERVICE_UUID));
                     BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
                     characteristic.setValue(chatEntry.toBytes());
@@ -322,7 +322,7 @@ public class Layer {
 
                     Log.i("BROADCAST", "Device " + deviceModel.getAddress());
                     BluetoothGatt bluetoothGatt = deviceModel.getBluetoothGatt();
-                    if (deviceModel.getType() == "client") continue;
+                    if (deviceModel.getType().equals("client")) continue;
                     BluetoothGattService bluetoothGattService = bluetoothGatt.getService(UUID.fromString(SERVICE_UUID));
                     BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
                     characteristic.setValue(chatEntry.toBytes());
