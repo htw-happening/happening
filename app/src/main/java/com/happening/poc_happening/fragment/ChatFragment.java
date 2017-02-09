@@ -74,7 +74,7 @@ public class ChatFragment extends Fragment {
                     addChatEntry("You", message);
                     ((EditText) rootView.findViewById(R.id.editText_message_input)).setText("");
 
-                    bluetoothLayer.broadcastMessage(message);
+                    bluetoothLayer.broadcastMessage(message, Layer.MESSAGE_TYPE);
                 }
             }
         });
@@ -84,11 +84,13 @@ public class ChatFragment extends Fragment {
 
     private void addChatEntry(String author, String content) {
 
-        // Use ByteArrayModelFactory.createChatEntryModel(bytes); in the Future
-        ChatEntryModel chatEntryModel = new ChatEntryModel(author, "test", "test", content);
+        String timestamp = Long.toString(System.currentTimeMillis());
 
-        dbHelper.insertGlobalMessage(author, "test", "test", content);
-        chatEntryModelArrayList.add(chatEntryModel);
+        // Use ByteArrayModelFactory.createChatEntryModel(bytes); in the Future
+        ChatEntryModel chatEntry = new ChatEntryModel(author, timestamp, Layer.MESSAGE_TYPE, content);
+
+        dbHelper.insertGlobalMessage(author, timestamp, Layer.MESSAGE_TYPE, content);
+        chatEntryModelArrayList.add(chatEntry);
         chatEntriesAdapter.notifyDataSetChanged();
     }
 
@@ -117,12 +119,13 @@ public class ChatFragment extends Fragment {
                 case Layer.DEVICE_POOL_UPDATED:
                     break;
                 case Layer.MESSAGE_RECEIVED:
-                    byte[] bytes = msg.getData().getByteArray("chatEntry");
-                    ChatEntryModel chatEntry = new ChatEntryModel(bytes);
-                    Log.i("HANDLER", "" + chatEntry.getAuthor() + " says " + chatEntry.getContent());
-                    Log.i("HANDLER", "" + chatEntry.getType());
-                    if (chatEntry.getType().equals(Layer.CHAT_TYPE)) {
-                        addChatEntry(chatEntry);
+                    byte[] data = msg.getData().getByteArray("chatEntry");
+                    if (data != null) {
+                        ChatEntryModel chatEntry = new ChatEntryModel(data);
+                        Log.i("HANDLER", "" + chatEntry.getAuthor() + " says " + chatEntry.getContent());
+                        if (chatEntry.getType().equals(Layer.MESSAGE_TYPE)) {
+                            addChatEntry(chatEntry);
+                        }
                     }
                     break;
                 default:

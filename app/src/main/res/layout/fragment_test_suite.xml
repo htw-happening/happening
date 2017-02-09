@@ -8,19 +8,18 @@
         android:id="@+id/button_bandwidth"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Bandwidthtest" />
+        android:text="Test Bandwidth" />
 
     <ScrollView
         android:id="@+id/log_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <WebView
+        <TextView
             android:id="@+id/bandwidth_test_log"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Log" />
 
     </ScrollView>
-
 </LinearLayout>

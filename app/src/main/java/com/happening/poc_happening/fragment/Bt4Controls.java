@@ -15,12 +15,12 @@ import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.DeviceListAdapter;
 import com.happening.poc_happening.bluetooth.DeviceModel;
 import com.happening.poc_happening.bluetooth.Layer;
-import com.happening.poc_happening.datastore.DBHelper;
 import com.happening.poc_happening.models.ChatEntryModel;
 
 public class Bt4Controls extends Fragment {
@@ -175,19 +175,28 @@ public class Bt4Controls extends Fragment {
     }
 
     private Handler guiHandler = new Handler(Looper.getMainLooper()) {
+        Toast currentToast;
+
         @Override
         public void handleMessage(Message msg) {
-            Log.i("HANDLER", "Message received from layer with Code " + msg.what);
             switch (msg.what) {
                 case Layer.DEVICE_POOL_UPDATED:
                     deviceListAdapter.notifyDataSetChanged();
                     break;
                 case Layer.MESSAGE_RECEIVED:
-                    DBHelper dbHelper = new DBHelper(getContext());
-                    byte[] values = msg.getData().getByteArray("chatEntry");
-                    ChatEntryModel chatEntry = new ChatEntryModel(values);
-                    if (chatEntry.getType().equals(Layer.CHAT_TYPE)) {
-                        dbHelper.insertGlobalMessage(chatEntry.getAuthor(), chatEntry.getCreationTime(), chatEntry.getType(), chatEntry.getContent());
+                    byte[] data = msg.getData().getByteArray("chatEntry");
+                    if (data != null) {
+                        ChatEntryModel chatEntry = new ChatEntryModel(data);
+                        String message = chatEntry.getContent();
+                        Log.i("HANDLER", "Message was " + message);
+                        String preview = message.substring(0, Math.min(message.length(), 32));
+                        preview = preview.length() == 32 ? preview + " ..." : preview;
+                        if (currentToast != null)
+                            currentToast.cancel();
+                        if (chatEntry.getType().equals(Layer.SHEEP_TYPE)) {
+                            currentToast = Toast.makeText(getContext(), preview, Toast.LENGTH_SHORT);
+                            currentToast.show();
+                        }
                     }
                     break;
                 default:

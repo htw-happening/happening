@@ -21,9 +21,11 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -35,13 +37,10 @@ import com.happening.poc_happening.fragment.Bt4Controls;
 import com.happening.poc_happening.fragment.BtStatus;
 import com.happening.poc_happening.fragment.ChatFragment;
 import com.happening.poc_happening.fragment.DBTestFragment;
-import com.happening.poc_happening.fragment.MainFragment;
 import com.happening.poc_happening.fragment.TestSuiteFragment;
 import com.happening.poc_happening.util.Log4jHelper;
 
 import net.sqlcipher.database.SQLiteDatabase;
-
-import org.apache.log4j.Logger;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -49,7 +48,6 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int TAG_CODE_PERMISSION_LOCATION = 2;
     // Fragment Tags
-    private static final String TAG_FRAGMENT_MAIN = "main";
     private static final String TAG_FRAGMENT_CHAT = "chat";
     private static final String TAG_FRAGMENT_BT4CONTROLS = "bt4";
     private static final String TAG_FRAGMENT_BT2CONTROLS = "bt2";
@@ -65,7 +63,7 @@ public class MainActivity extends AppCompatActivity
     // Fragment
     private Fragment currentFragment = null;
     private String currentFragmentTag = null;
-    private Fragment mainFragment;
+
     private Fragment chatFragment;
     private Fragment bt4ControlsFragment;
     private Fragment bt2ControlsFragment;
@@ -90,10 +88,53 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
+//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle                (this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle (this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                // Code here will be triggered once the drawer closes as we dont want anything to happen so we leave this blank
+                super.onDrawerClosed(drawerView);
+//                InputMethodManager inputMethodManager = (InputMethodManager)
+//                        getSystemService(Context.INPUT_METHOD_SERVICE);
+//                inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                Log.d("Drawer", "OnDrawerClosed");
+
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                // Code here will be triggered once the drawer open as we dont want anything to happen so we leave this blank
+                super.onDrawerOpened(drawerView);
+//                InputMethodManager inputMethodManager = (InputMethodManager)
+//                        getSystemService(Context.INPUT_METHOD_SERVICE);
+//                inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                Log.d("Drawer", "OnDrawerOpened");
+
+            }
+
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                super.onDrawerSlide(drawerView, slideOffset);
+                Log.d("Drawer", "OnDrawerSlide "+slideOffset);
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+                super.onDrawerStateChanged(newState);
+                Log.d("Drawer", "OnDrawerStateChanged "+newState);
+                if (newState == DrawerLayout.STATE_SETTLING){
+                    InputMethodManager inputMethodManager = (InputMethodManager)
+                            getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                }
+
+            }
+        };
+
+
+        drawer.setDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -103,26 +144,26 @@ public class MainActivity extends AppCompatActivity
         Drawable headerImage = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_mobile);
 
         String deviceName = BluetoothAdapter.getDefaultAdapter().getName().toLowerCase();
-        int blue = 0x000000;
+        int color = 0x000000;
 
         if (deviceName.contains("white")) {
-            blue = ContextCompat.getColor(this, R.color.mobile_white);
+            color = ContextCompat.getColor(this, R.color.mobile_white);
         } else if (deviceName.contains("black")) {
-            blue = ContextCompat.getColor(this, R.color.mobile_black);
+            color = ContextCompat.getColor(this, R.color.mobile_black);
         } else if (deviceName.contains("red")) {
-            blue = ContextCompat.getColor(this, R.color.mobile_red);
+            color = ContextCompat.getColor(this, R.color.mobile_red);
         } else if (deviceName.contains("blue")) {
-            blue = ContextCompat.getColor(this, R.color.mobile_blue);
+            color = ContextCompat.getColor(this, R.color.mobile_blue);
         } else if (deviceName.contains("yellow")) {
-            blue = ContextCompat.getColor(this, R.color.mobile_yellow);
+            color = ContextCompat.getColor(this, R.color.mobile_yellow);
         }
 
-        headerImage.setColorFilter(blue, PorterDuff.Mode.SRC_IN);
+        headerImage.setColorFilter(color, PorterDuff.Mode.SRC_IN);
         ((ImageView) drawerHeader.findViewById(R.id.drawer_header_image)).setImageDrawable(headerImage);
 
         // set device stats in drawer header
         ((TextView) drawerHeader.findViewById(R.id.drawer_header_main_text)).setText(BluetoothAdapter.getDefaultAdapter().getName());
-        ((TextView) drawerHeader.findViewById(R.id.drawer_header_sub_text)).setText("serial " + Build.SERIAL);
+        ((TextView) drawerHeader.findViewById(R.id.drawer_header_sub_text)).setText(Build.SERIAL);
 
         // initialise start fragment
         this.currentFragment = ChatFragment.getInstance();
@@ -145,23 +186,24 @@ public class MainActivity extends AppCompatActivity
         //Permissions
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
+                != PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION},
                     TAG_PERMISSION_REQUESTS);
-        }else{
+        } else {
             //we have already the permission
             configureLog4j();
         }
 
-        // request location permission
-        ActivityCompat.requestPermissions(this, new String[]{
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION},
-                TAG_CODE_PERMISSION_LOCATION);
     }
 
     @Override
@@ -176,7 +218,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
+        // don't show settings in toolbar
+//        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -186,19 +229,7 @@ public class MainActivity extends AppCompatActivity
 
         int id = item.getItemId();
 
-        if (id == R.id.main) {
-            if (this.mainFragment == null) {
-                this.mainFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_MAIN);
-                if (this.mainFragment == null) {
-                    this.mainFragment = MainFragment.getInstance();
-                }
-            }
-
-            loadFragment(currentFragment, mainFragment, TAG_FRAGMENT_MAIN);
-            this.currentFragment = mainFragment;
-            this.currentFragmentTag = TAG_FRAGMENT_MAIN;
-
-        } else if (id == R.id.chat) {
+        if (id == R.id.chat) {
             if (this.chatFragment == null) {
                 this.chatFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_CHAT);
                 if (this.chatFragment == null) {
@@ -309,7 +340,7 @@ public class MainActivity extends AppCompatActivity
         String fileName = Environment.getExternalStorageDirectory() + "/" + "happen.log";
         String filePattern = "%d - [%c] - %p : %m%n";
         int maxBackupSize = 10;
-        long maxFileSize = 1024 * 1024;
+        long maxFileSize = 1024;
         Log4jHelper.Configure(fileName, filePattern, maxBackupSize, maxFileSize);
     }
 

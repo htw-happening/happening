@@ -18,6 +18,7 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.DeadObjectException;
 import android.os.Handler;
 import android.os.Message;
 import android.os.ParcelUuid;
@@ -31,6 +32,8 @@ import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 public class Layer {
@@ -47,7 +50,7 @@ public class Layer {
     public static final int MESSAGE_RECEIVED = 2;
 
     public static final String SHEEP_TYPE = "0";
-    public static final String CHAT_TYPE = "1";
+    public static final String MESSAGE_TYPE = "1";
 
     private BluetoothManager mBluetoothManager = null;
     private BluetoothAdapter mBluetoothAdapter = null;
@@ -83,17 +86,17 @@ public class Layer {
         Log.i("SELF", mBluetoothAdapter.getName());
     }
 
-    private void notifyHandlers(int code) {
+    public void notifyHandlers(int code) {
         for (Handler handler : handlers) {
             handler.obtainMessage(code).sendToTarget();
         }
     }
 
-    private void notifyHandlers(int code, byte[] value) {
+    private void notifyHandlers(int code, byte[] data) {
         for (Handler handler : handlers) {
             Message message = handler.obtainMessage(code);
             Bundle bundle = new Bundle();
-            bundle.putByteArray("chatEntry", value);
+            bundle.putByteArray("chatEntry", data);
             message.setData(bundle);
             handler.sendMessage(message);
         }
@@ -115,7 +118,7 @@ public class Layer {
         return devicePool;
     }
 
-    public void connectDevice(DeviceModel deviceModel) {
+    public void connectDevice(final DeviceModel deviceModel) {
         if (deviceModel.getBluetoothGatt() == null) {
             BluetoothDevice bluetoothDevice = deviceModel.getBluetoothDevice();
             BluetoothGatt bluetoothGatt;
@@ -127,8 +130,14 @@ public class Layer {
             deviceModel.setBluetoothGatt(bluetoothGatt);
             Log.i("GATT", "Opening new gatt " + deviceModel.getAddress());
         } else if (deviceModel.isDisconnected()) {
-            boolean success = deviceModel.getBluetoothGatt().connect();
-            Log.i("GATT", "Connecting via open gatt " + deviceModel.getAddress() + (success ? " success" : "fail"));
+            try {
+                boolean success = deviceModel.getBluetoothGatt().connect();
+                Log.i("GATT", "Connecting via open gatt " + deviceModel.getAddress() + (success ? " success" : " fail"));
+            } catch (Exception e) {
+                Log.e("GATT", e.getMessage());
+                deviceModel.setBluetoothGatt(null);
+                connectDevice(deviceModel);
+            }
         } else {
             Log.i("GATT", "Cannot connect state " + deviceModel.getCurrentState() + " gatt " + deviceModel.getBluetoothGatt());
         }
@@ -142,7 +151,6 @@ public class Layer {
             } else if (Objects.equals(deviceModel.getType(), "server")) {
                 deviceModel.getBluetoothGatt().disconnect();
             }
-            deviceModel.getBluetoothGatt().getDevice().getType();
             Log.i("GATT", "Disconnecting " + deviceModel.getAddress());
         } else {
             Log.i("GATT", "Cannot disconnect state " + deviceModel.getCurrentState() + " gatt " + deviceModel.getBluetoothGatt());
@@ -242,12 +250,12 @@ public class Layer {
         BluetoothGattCharacteristic characteristic = new BluetoothGattCharacteristic(
                 characteristicUuid,
                 BluetoothGattCharacteristic.PROPERTY_BROADCAST |
-                    BluetoothGattCharacteristic.PROPERTY_WRITE |
-                    BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE |
-                    BluetoothGattCharacteristic.PROPERTY_READ |
-                    BluetoothGattCharacteristic.PROPERTY_NOTIFY,
-                    BluetoothGattCharacteristic.PERMISSION_READ |
-                    BluetoothGattCharacteristic.PERMISSION_WRITE);
+                        BluetoothGattCharacteristic.PROPERTY_WRITE |
+                        BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE |
+                        BluetoothGattCharacteristic.PROPERTY_READ |
+                        BluetoothGattCharacteristic.PROPERTY_NOTIFY,
+                BluetoothGattCharacteristic.PERMISSION_READ |
+                        BluetoothGattCharacteristic.PERMISSION_WRITE);
         characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
         characteristic.setValue("n/a".getBytes());
 
@@ -256,9 +264,9 @@ public class Layer {
         BluetoothGattCharacteristic userinfo = new BluetoothGattCharacteristic(
                 userinfoUuid,
                 BluetoothGattCharacteristic.PROPERTY_BROADCAST |
-                    BluetoothGattCharacteristic.PROPERTY_READ |
-                    BluetoothGattCharacteristic.PROPERTY_NOTIFY,
-                    BluetoothGattCharacteristic.PERMISSION_READ);
+                        BluetoothGattCharacteristic.PROPERTY_READ |
+                        BluetoothGattCharacteristic.PROPERTY_NOTIFY,
+                BluetoothGattCharacteristic.PERMISSION_READ);
         userinfo.setValue((mBluetoothAdapter.getName() != null ? mBluetoothAdapter.getName() : "n/a").getBytes());
 
         gattService.addCharacteristic(userinfo);
@@ -280,54 +288,26 @@ public class Layer {
         }
     }
 
-    public void broadcastMessage(String message) {
+    public void broadcastMessage(String message, String type) {
+        Log.i("BROADCAST", "broadcast message " + message);
         logger.info("Broadcast Message: " + message);
-        Log.i("BROADCAST", "broadcast message " + message);
 
         synchronized (devicePool.getConnectedDevices()) {
             for (DeviceModel deviceModel : devicePool.getConnectedDevices()) {
                 try {
-
-                    String type = CHAT_TYPE;
-                    String author = mBluetoothAdapter.getName();
-                    String time = Long.toString(System.currentTimeMillis());
-                    ChatEntryModel chatEntry = new ChatEntryModel(author, time, type, message);
-
                     Log.i("BROADCAST", "Device " + deviceModel.getAddress());
+
+                    String author = mBluetoothAdapter.getName();
+                    String timestamp = Long.toString(System.currentTimeMillis());
+                    ChatEntryModel chatEntry = new ChatEntryModel(author, timestamp, type, message);
+
                     BluetoothGatt bluetoothGatt = deviceModel.getBluetoothGatt();
-                    if (deviceModel.getType().equals("client")) continue;
+                    if (Objects.equals(deviceModel.getType(), "client")) continue;
                     BluetoothGattService bluetoothGattService = bluetoothGatt.getService(UUID.fromString(SERVICE_UUID));
                     BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
                     characteristic.setValue(chatEntry.toBytes());
                     bluetoothGatt.writeCharacteristic(characteristic);
-                }catch (Exception e){
-                    Log.e(getClass().getSimpleName(), e.toString());
-                }
-            }
-        }
-        Log.i("BROADCAST", "Done");
-    }
-
-    public void broadcastMessage(String message, boolean sheep) {
-        Log.i("BROADCAST", "broadcast message " + message);
-
-        synchronized (devicePool.getConnectedDevices()) {
-            for (DeviceModel deviceModel : devicePool.getConnectedDevices()) {
-                try {
-
-                    String type = SHEEP_TYPE;
-                    String author = mBluetoothAdapter.getName();
-                    String time = Long.toString(System.currentTimeMillis());
-                    ChatEntryModel chatEntry = new ChatEntryModel(author, time, type, message);
-
-                    Log.i("BROADCAST", "Device " + deviceModel.getAddress());
-                    BluetoothGatt bluetoothGatt = deviceModel.getBluetoothGatt();
-                    if (deviceModel.getType().equals("client")) continue;
-                    BluetoothGattService bluetoothGattService = bluetoothGatt.getService(UUID.fromString(SERVICE_UUID));
-                    BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
-                    characteristic.setValue(chatEntry.toBytes());
-                    bluetoothGatt.writeCharacteristic(characteristic);
-                }catch (Exception e){
+                } catch (Exception e) {
                     Log.e(getClass().getSimpleName(), e.toString());
                 }
             }
@@ -350,7 +330,7 @@ public class Layer {
             DeviceModel deviceModel = new DeviceModel(result);
             if (!devicePool.contains(deviceModel)) {
                 Log.i("SCAN_CALLBACK", "new device found " + result);
-                devicePool.add(deviceModel);
+                devicePool.add(0, deviceModel);
                 notifyHandlers(DEVICE_POOL_UPDATED);
                 if (autoConnect) connectDevice(deviceModel);
             }
@@ -436,7 +416,7 @@ public class Layer {
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
                     Log.i("CONN_CHANGE", "state disconnected");
-                    if (device.getTargetState() == BluetoothProfile.STATE_CONNECTED) {
+                    /* if (device.getTargetState() == BluetoothProfile.STATE_CONNECTED) {
                         boolean success = gatt.connect();
                         if (success) break;
                     }
@@ -444,7 +424,7 @@ public class Layer {
                     device.setBluetoothGatt(null);
                     if (device.getTargetState() == BluetoothProfile.STATE_CONNECTED) {
                         connectDevice(device);
-                    }
+                    } */
                     break;
                 default:
                     Log.i("CONN_CHANGE", "connection state changed " + newState);
@@ -458,6 +438,14 @@ public class Layer {
             Log.i("MTU_CHANGE", "mtu changed to " + mtu);
             boolean discovering = gatt.discoverServices();
             Log.i("MTU_CHANGE", "discover start success " + discovering);
+        }
+
+        @Override
+        public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
+            BluetoothDevice bluetoothDevice = gatt.getDevice();
+            DeviceModel deviceModel = devicePool.getModelByDevice(bluetoothDevice);
+            if (deviceModel != null)
+                deviceModel.setRssi(rssi);
         }
 
         @Override

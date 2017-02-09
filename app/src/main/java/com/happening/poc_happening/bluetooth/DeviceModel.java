@@ -8,6 +8,7 @@ import android.bluetooth.le.ScanResult;
 public class DeviceModel {
 
     private String type;
+    private int rssi;
     private int currentState = BluetoothProfile.STATE_DISCONNECTED;
     private int targetState = BluetoothProfile.STATE_CONNECTED;
     private BluetoothGatt bluetoothGatt;
@@ -15,6 +16,7 @@ public class DeviceModel {
 
     public DeviceModel(ScanResult scanResult) {
         this.bluetoothDevice = scanResult.getDevice();
+        this.rssi = scanResult.getRssi();
         this.type = "server";
     }
 
@@ -76,5 +78,21 @@ public class DeviceModel {
         if (object != null && object instanceof DeviceModel)
             return getBluetoothDevice().equals(((DeviceModel) object).getBluetoothDevice());
         return false;
+    }
+
+    public boolean readRssi() {
+        if (bluetoothGatt != null) {
+            return bluetoothGatt.readRemoteRssi();
+        } else {
+            return false;
+        }
+    }
+
+    public void setRssi(int rssi) {
+        this.rssi = rssi;
+    }
+
+    public int getRssi() {
+        return rssi;
     }
 }
