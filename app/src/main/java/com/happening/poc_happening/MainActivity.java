@@ -172,6 +172,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        // don't show settings in toolbar
 //        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
