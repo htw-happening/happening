@@ -15,13 +15,13 @@ public class DevicePool extends ArrayList<DeviceModel> {
 
         final Runnable r = new Runnable() {
             public void run() {
-                boolean updateOccured = false;
+                boolean updateOccurred = false;
                 List<DeviceModel> connectedDevices = getConnectedDevices();
                 for (DeviceModel device : connectedDevices) {
-                    updateOccured |= device.readRssi();
+                    updateOccurred |= device.readRssi();
                 }
                 Layer.getInstance().notifyHandlers(Layer.DEVICE_POOL_UPDATED);
-                int delay = updateOccured ? connectedDevices.size() * 250 : 1000;
+                int delay = updateOccurred ? connectedDevices.size() * 250 : 1000;
                 handler.postDelayed(this, delay);
             }
         };

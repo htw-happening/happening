@@ -1,7 +1,5 @@
 package com.happening.poc_happening.fragment;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.DeviceListAdapter;
@@ -176,6 +175,8 @@ public class Bt4Controls extends Fragment {
     }
 
     private Handler guiHandler = new Handler(Looper.getMainLooper()) {
+        Toast currentToast;
+
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -184,9 +185,18 @@ public class Bt4Controls extends Fragment {
                     break;
                 case Layer.MESSAGE_RECEIVED:
                     byte[] data = msg.getData().getByteArray("chatEntry");
-                    ChatEntryModel chatEntry = new ChatEntryModel(data);
-                    if (chatEntry.getType().equals(Layer.SHEEP_TYPE)) {
-                        Log.i("HANDLER", "Content was " + chatEntry.getContent());
+                    if (data != null) {
+                        ChatEntryModel chatEntry = new ChatEntryModel(data);
+                        String message = chatEntry.getContent();
+                        Log.i("HANDLER", "Message was " + message);
+                        String preview = message.substring(0, Math.min(message.length(), 32));
+                        preview = preview.length() == 32 ? preview + " ..." : preview;
+                        if (currentToast != null)
+                            currentToast.cancel();
+                        if (chatEntry.getType().equals(Layer.SHEEP_TYPE)) {
+                            currentToast = Toast.makeText(getContext(), preview, Toast.LENGTH_SHORT);
+                            currentToast.show();
+                        }
                     }
                     break;
                 default:

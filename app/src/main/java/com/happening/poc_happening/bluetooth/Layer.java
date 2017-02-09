@@ -134,17 +134,9 @@ public class Layer {
                 boolean success = deviceModel.getBluetoothGatt().connect();
                 Log.i("GATT", "Connecting via open gatt " + deviceModel.getAddress() + (success ? " success" : " fail"));
             } catch (Exception e) {
-                if (e instanceof DeadObjectException) {
-                    Log.i("GATT", "Fatal error! Attempting a delayed relaunch");
-                    mBluetoothAdapter.disable();
-                    mBluetoothAdapter.enable();
-                    new Timer().schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            connectDevice(deviceModel);
-                        }
-                    }, 500);
-                }
+                Log.e("GATT", e.getMessage());
+                deviceModel.setBluetoothGatt(null);
+                connectDevice(deviceModel);
             }
         } else {
             Log.i("GATT", "Cannot connect state " + deviceModel.getCurrentState() + " gatt " + deviceModel.getBluetoothGatt());
@@ -424,7 +416,7 @@ public class Layer {
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
                     Log.i("CONN_CHANGE", "state disconnected");
-                    if (device.getTargetState() == BluetoothProfile.STATE_CONNECTED) {
+                    /* if (device.getTargetState() == BluetoothProfile.STATE_CONNECTED) {
                         boolean success = gatt.connect();
                         if (success) break;
                     }
@@ -432,7 +424,7 @@ public class Layer {
                     device.setBluetoothGatt(null);
                     if (device.getTargetState() == BluetoothProfile.STATE_CONNECTED) {
                         connectDevice(device);
-                    }
+                    } */
                     break;
                 default:
                     Log.i("CONN_CHANGE", "connection state changed " + newState);
