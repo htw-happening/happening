@@ -338,8 +338,8 @@ public class MainActivity extends AppCompatActivity
     private void configureLog4j() {
         String fileName = Environment.getExternalStorageDirectory() + "/" + "happen.log";
         String filePattern = "%d - [%c] - %p : %m%n";
-        int maxBackupSize = 10;
-        long maxFileSize = 1024;
+        int maxBackupSize = 1;
+        long maxFileSize = 1024 * 10;
         Log4jHelper.Configure(fileName, filePattern, maxBackupSize, maxFileSize);
     }
 

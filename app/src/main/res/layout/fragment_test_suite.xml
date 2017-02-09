@@ -8,7 +8,7 @@
         android:id="@+id/button_bandwidth"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Test Bandwidth" />
+        android:text="Bandwidth - stopped" />
 
     <ScrollView
         android:id="@+id/log_scroll"
