@@ -41,8 +41,6 @@ import com.happening.poc_happening.util.Log4jHelper;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.apache.log4j.Logger;
-
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -309,7 +307,7 @@ public class MainActivity extends AppCompatActivity
         String fileName = Environment.getExternalStorageDirectory() + "/" + "happen.log";
         String filePattern = "%d - [%c] - %p : %m%n";
         int maxBackupSize = 10;
-        long maxFileSize = 1024 * 1024;
+        long maxFileSize = 1024;
         Log4jHelper.Configure(fileName, filePattern, maxBackupSize, maxFileSize);
     }
 
