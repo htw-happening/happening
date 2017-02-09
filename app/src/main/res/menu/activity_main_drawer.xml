@@ -4,33 +4,33 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/main"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Main" />
+            android:icon="@drawable/ic_mobile"
+            android:title="Main"
+            android:visible="false" />
         <item
             android:id="@+id/chat"
             android:icon="@drawable/ic_menu_send"
-            android:title="Chat" />
-        <item
-            android:id="@+id/bt4controls"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="BT4 Controls" />
+            android:title="LE Chat" />
         <item
             android:id="@+id/bt2controls"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="BT2 Controls" />
+            android:icon="@drawable/ic_menu_send"
+            android:title="RFC Chat" />
+        <item
+            android:id="@+id/test_suite"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="LE Logger" />
+        <item
+            android:id="@+id/bt4controls"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="LE Controls" />
         <item
             android:id="@+id/bt_status"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_menu_share"
             android:title="BT Status" />
         <item
             android:id="@+id/db_test"
             android:icon="@drawable/ic_menu_share"
-            android:title="DataB Test" />
-
-        <item
-            android:id="@+id/test_suite"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Test Suite" />
+            android:title="DB Viewer" />
     </group>
 
 </menu>

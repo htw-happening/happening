@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity
     private Fragment testSuiteFragment;
 
     public MainActivity() {
-
     }
 
     @Override
@@ -101,26 +100,26 @@ public class MainActivity extends AppCompatActivity
         Drawable headerImage = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_mobile);
 
         String deviceName = BluetoothAdapter.getDefaultAdapter().getName().toLowerCase();
-        int blue = 0x000000;
+        int deviceColor = 0x000000;
 
         if (deviceName.contains("white")) {
-            blue = ContextCompat.getColor(this, R.color.mobile_white);
+            deviceColor = ContextCompat.getColor(this, R.color.mobile_white);
         } else if (deviceName.contains("black")) {
-            blue = ContextCompat.getColor(this, R.color.mobile_black);
+            deviceColor = ContextCompat.getColor(this, R.color.mobile_black);
         } else if (deviceName.contains("red")) {
-            blue = ContextCompat.getColor(this, R.color.mobile_red);
+            deviceColor = ContextCompat.getColor(this, R.color.mobile_red);
         } else if (deviceName.contains("blue")) {
-            blue = ContextCompat.getColor(this, R.color.mobile_blue);
+            deviceColor = ContextCompat.getColor(this, R.color.mobile_blue);
         } else if (deviceName.contains("yellow")) {
-            blue = ContextCompat.getColor(this, R.color.mobile_yellow);
+            deviceColor = ContextCompat.getColor(this, R.color.mobile_yellow);
         }
 
-        headerImage.setColorFilter(blue, PorterDuff.Mode.SRC_IN);
+        headerImage.setColorFilter(deviceColor, PorterDuff.Mode.SRC_IN);
         ((ImageView) drawerHeader.findViewById(R.id.drawer_header_image)).setImageDrawable(headerImage);
 
         // set device stats in drawer header
         ((TextView) drawerHeader.findViewById(R.id.drawer_header_main_text)).setText(BluetoothAdapter.getDefaultAdapter().getName());
-        ((TextView) drawerHeader.findViewById(R.id.drawer_header_sub_text)).setText("serial " + Build.SERIAL);
+        ((TextView) drawerHeader.findViewById(R.id.drawer_header_sub_text)).setText(Build.SERIAL);
 
         // initialise start fragment
         this.currentFragment = ChatFragment.getInstance();
@@ -150,7 +149,7 @@ public class MainActivity extends AppCompatActivity
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION},
                     TAG_PERMISSION_REQUESTS);
-        }else{
+        } else {
             //we have already the permission
             configureLog4j();
         }
