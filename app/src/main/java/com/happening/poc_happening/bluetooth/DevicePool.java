@@ -6,26 +6,54 @@ import android.os.Handler;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 public class DevicePool extends ArrayList<DeviceModel> {
 
     public DevicePool() {
         final Handler handler = new Handler();
+        final DevicePool that = this;
 
         final Runnable r = new Runnable() {
             public void run() {
-                boolean updateOccurred = false;
-                List<DeviceModel> connectedDevices = getConnectedDevices();
-                for (DeviceModel device : connectedDevices) {
-                    updateOccurred |= device.readRssi();
+                synchronized (that) {
+                    Iterator<DeviceModel> it = that.iterator();
+                    while (it.hasNext()) {
+                        DeviceModel device = it.next();
+                        if (device.isCold()) {
+                            it.remove();
+                            Log.i("BADEMEISTER", "The water is too cold for " + device.getAddress());
+                        } else if (device.isConnected()) {
+                            if (device.getTargetState() == BluetoothProfile.STATE_CONNECTED) {
+                                device.readRssi();
+                                Log.i("BADEMEISTER", "Read rssi " + device.getAddress());
+                            } else if (device.getTargetState() == BluetoothProfile.STATE_DISCONNECTED) {
+                                device.coolDown();
+                                Log.i("BADEMEISTER", device.getAddress() + " needs to get out of the water in " + device.getHotness());
+                                device.setCurrentState(BluetoothProfile.STATE_DISCONNECTING);
+                                Layer.getInstance().disconnectDevice(device);
+                            }
+                        } else if (device.isDisconnected()) {
+                            if (device.getTargetState() == BluetoothProfile.STATE_CONNECTED) {
+                                device.coolDown();
+                                Log.i("BADEMEISTER", device.getAddress() + " wants to take a dive in " + device.getHotness());
+                                device.setCurrentState(BluetoothProfile.STATE_CONNECTING);
+                                Layer.getInstance().connectDevice(device);
+                            } else if (device.getTargetState() == BluetoothProfile.STATE_DISCONNECTED) {
+                                Log.i("BADEMEISTER", device.getAddress() + " likes to chill by the pool");
+                            }
+                        }
+                        Layer.getInstance().notifyHandlers(Layer.DEVICE_POOL_UPDATED);
+                    }
                 }
-                Layer.getInstance().notifyHandlers(Layer.DEVICE_POOL_UPDATED);
-                int delay = updateOccurred ? connectedDevices.size() * 250 : 1000;
+                int delay = Math.max(1000, that.size() * 250);
                 handler.postDelayed(this, delay);
             }
         };
-        handler.postDelayed(r, 100);
+
+        handler.postDelayed(r, 1000);
     }
 
     public void changeState(BluetoothDevice device, int newState) {
