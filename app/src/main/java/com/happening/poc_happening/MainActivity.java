@@ -99,21 +99,21 @@ public class MainActivity extends AppCompatActivity
         Drawable headerImage = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_mobile);
 
         String deviceName = BluetoothAdapter.getDefaultAdapter().getName().toLowerCase();
-        int blue = 0x000000;
+        int color = 0x000000;
 
         if (deviceName.contains("white")) {
-            blue = ContextCompat.getColor(this, R.color.mobile_white);
+            color = ContextCompat.getColor(this, R.color.mobile_white);
         } else if (deviceName.contains("black")) {
-            blue = ContextCompat.getColor(this, R.color.mobile_black);
+            color = ContextCompat.getColor(this, R.color.mobile_black);
         } else if (deviceName.contains("red")) {
-            blue = ContextCompat.getColor(this, R.color.mobile_red);
+            color = ContextCompat.getColor(this, R.color.mobile_red);
         } else if (deviceName.contains("blue")) {
-            blue = ContextCompat.getColor(this, R.color.mobile_blue);
+            color = ContextCompat.getColor(this, R.color.mobile_blue);
         } else if (deviceName.contains("yellow")) {
-            blue = ContextCompat.getColor(this, R.color.mobile_yellow);
+            color = ContextCompat.getColor(this, R.color.mobile_yellow);
         }
 
-        headerImage.setColorFilter(blue, PorterDuff.Mode.SRC_IN);
+        headerImage.setColorFilter(color, PorterDuff.Mode.SRC_IN);
         ((ImageView) drawerHeader.findViewById(R.id.drawer_header_image)).setImageDrawable(headerImage);
 
         // set device stats in drawer header
