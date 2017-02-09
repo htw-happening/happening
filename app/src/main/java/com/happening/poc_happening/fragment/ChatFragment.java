@@ -120,7 +120,7 @@ public class ChatFragment extends Fragment {
                     break;
                 case Layer.MESSAGE_RECEIVED:
                     byte[] data = msg.getData().getByteArray("chatEntry");
-                    if (data != null) {
+                    if (data != null && data.length == 125) {
                         ChatEntryModel chatEntry = new ChatEntryModel(data);
                         Log.i("HANDLER", "" + chatEntry.getAuthor() + " says " + chatEntry.getContent());
                         if (chatEntry.getType().equals(Layer.MESSAGE_TYPE)) {

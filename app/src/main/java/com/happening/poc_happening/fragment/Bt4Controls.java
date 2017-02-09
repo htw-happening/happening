@@ -185,7 +185,7 @@ public class Bt4Controls extends Fragment {
                     break;
                 case Layer.MESSAGE_RECEIVED:
                     byte[] data = msg.getData().getByteArray("chatEntry");
-                    if (data != null) {
+                    if (data != null && data.length == 125) {
                         ChatEntryModel chatEntry = new ChatEntryModel(data);
                         String message = chatEntry.getContent();
                         Log.i("HANDLER", "Message was " + message);
