@@ -13,6 +13,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.happening.poc_happening.MainActivity;
+import com.happening.poc_happening.MyApp;
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.ChatEntriesAdapter;
 import com.happening.poc_happening.datastore.DBHelper;
@@ -42,10 +44,15 @@ public class ChatFragment extends Fragment {
 
     public ChatFragment() {
         bluetoothLayer = Layer.getInstance();
-        bluetoothLayer.setAutoConnect(true);
-        bluetoothLayer.createGattServer();
-        bluetoothLayer.startAdvertising();
-        bluetoothLayer.startScan();
+        if (!bluetoothLayer.isAdvertisingSupported()) {
+            //ay caramba - this isnt good
+            Toast.makeText(MyApp.getAppContext(), "Advertising not supported!", Toast.LENGTH_LONG).show();
+        } else {
+            bluetoothLayer.setAutoConnect(true);
+            bluetoothLayer.createGattServer();
+            bluetoothLayer.startAdvertising();
+            bluetoothLayer.startScan();
+        }
     }
 
     @Override
