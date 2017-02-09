@@ -132,15 +132,15 @@ public class Layer {
                 Log.i("GATT", "Connecting via open gatt " + deviceModel.getAddress() + (success ? " success" : " fail"));
             } catch (Exception e) {
                 if (e instanceof DeadObjectException) {
-                    Log.i("GATT", "Fatal error! Attempting a delayed relaunch");
-                    mBluetoothAdapter.disable();
+                    Log.i("GATT", "Fatal error!");
+                    /* mBluetoothAdapter.disable();
                     mBluetoothAdapter.enable();
                     new Timer().schedule(new TimerTask() {
                         @Override
                         public void run() {
                             connectDevice(deviceModel);
                         }
-                    }, 500);
+                    }, 500); */
                 }
             }
         } else {
