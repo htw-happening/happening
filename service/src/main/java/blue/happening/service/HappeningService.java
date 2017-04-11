@@ -6,17 +6,17 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
-import blue.happening.IRemoteHappening;
-import blue.happening.bluetooth.Layer;
-import blue.happening.lib.BluetoothDevice;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import blue.happening.IRemoteHappening;
+import blue.happening.bluetooth.Layer;
+import blue.happening.lib.BluetoothDevice;
+
 public class HappeningService extends Service {
 
-    private final IRemoteHappening.Stub mBinder = new IRemoteHappening.Stub() {
+    private final IRemoteHappening.Stub binder = new IRemoteHappening.Stub() {
 
         List<BluetoothDevice> devices = Collections.synchronizedList(new ArrayList<BluetoothDevice>());
 
@@ -178,7 +178,7 @@ public class HappeningService extends Service {
      */
     @Override
     public IBinder onBind(Intent intent) {
-        return mBinder;
+        return binder;
     }
 
     @Override

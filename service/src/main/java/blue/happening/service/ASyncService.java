@@ -15,7 +15,7 @@ public class ASyncService extends Service {
     private final IAsyncInterface.Stub mBinder = new IAsyncInterface.Stub() {
         public void methodOne(IAsyncCallback callback) throws RemoteException {
 
-            for(int i = 0; i < 10; i++) {
+            for (int i = 0; i < 10; i++) {
                 try {
                     sleep(10);
                 } catch (InterruptedException e) {
