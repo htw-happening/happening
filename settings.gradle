@@ -1,1 +1,1 @@
-include ':app', ':happening_lib'
+include ':app', ':service'

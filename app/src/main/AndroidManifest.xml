@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.happening.poc_happening">
+    package="com.happening.chat">
 
     <!-- set bluetooth permission for app -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -16,7 +16,7 @@
         android:required="true" />
 
     <application
-        android:name="com.happening.poc_happening.MyApp"
+        android:name="com.happening.chat.MyApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -25,7 +25,7 @@
         tools:replace="android:name">
 
         <activity
-            android:name="com.happening.poc_happening.MainActivity"
+            android:name="com.happening.chat.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
