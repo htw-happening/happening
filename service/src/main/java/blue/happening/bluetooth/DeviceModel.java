@@ -7,14 +7,19 @@ import android.bluetooth.le.ScanResult;
 
 public class DeviceModel {
 
-    private String type;
+    private final int INHERENT_HOTNESS = 5;
+
     private int currentState = BluetoothProfile.STATE_DISCONNECTED;
     private int targetState = BluetoothProfile.STATE_CONNECTED;
+    private int hotness = INHERENT_HOTNESS;
+    private String type = "";
+    private int rssi = 0;
     private BluetoothGatt bluetoothGatt;
     private BluetoothDevice bluetoothDevice;
 
     public DeviceModel(ScanResult scanResult) {
         this.bluetoothDevice = scanResult.getDevice();
+        this.rssi = scanResult.getRssi();
         this.type = "server";
     }
 
@@ -67,6 +72,18 @@ public class DeviceModel {
         return this.targetState;
     }
 
+    public boolean isCold() {
+        return hotness <= 0;
+    }
+
+    public void coolDown() {
+        this.hotness -= 1;
+    }
+
+    public int getHotness() {
+        return this.hotness;
+    }
+
     public String getType() {
         return type;
     }
@@ -76,5 +93,21 @@ public class DeviceModel {
         if (object != null && object instanceof DeviceModel)
             return getBluetoothDevice().equals(((DeviceModel) object).getBluetoothDevice());
         return false;
+    }
+
+    public boolean readRssi() {
+        if (bluetoothGatt != null) {
+            return bluetoothGatt.readRemoteRssi();
+        } else {
+            return false;
+        }
+    }
+
+    public void setRssi(int rssi) {
+        this.rssi = rssi;
+    }
+
+    public int getRssi() {
+        return rssi;
     }
 }

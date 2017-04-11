@@ -59,8 +59,8 @@ public class BtStatus extends Fragment {
     private ServiceHandler sh = null;
     private BluetoothManager bluetoothManager = null;
     private WifiP2pManager wifiP2pManager = null;
-    private String availableTxt = "Läuft";
-    private String unAvailableTxt = "Läuft Nicht!";
+    private String availableTxt = "yes";
+    private String unAvailableTxt = "no";
 
     public BtStatus() {
         super();
@@ -169,7 +169,6 @@ public class BtStatus extends Fragment {
                 illegalArgumentException.printStackTrace();
             }
         }
-
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -182,5 +181,4 @@ public class BtStatus extends Fragment {
         }
         return false;
     }
-
 }

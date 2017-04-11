@@ -23,11 +23,12 @@ import android.os.Message;
 import android.os.ParcelUuid;
 import android.util.Log;
 
-import blue.happening.MyService;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+
+import blue.happening.MyService;
 
 public class Layer {
 
@@ -56,7 +57,7 @@ public class Layer {
     private ScanCallback mScanCallback = new ScanCallback();
     private AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback();
 
-    private boolean autoConnect = true;
+    private boolean autoConnect = false;
 
     public static Layer getInstance() {
         if (instance == null)
@@ -70,13 +71,10 @@ public class Layer {
         this.mBluetoothAdapter = mBluetoothManager.getAdapter();
         this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
         this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
-        createGattServer();
-        startAdvertising();
-        startScan();
         Log.i("SELF", mBluetoothAdapter.getName());
     }
 
-    private void notifyHandlers(int code) {
+    public void notifyHandlers(int code) {
         for (Handler handler : handlers) {
             handler.obtainMessage(code).sendToTarget();
         }
@@ -109,7 +107,7 @@ public class Layer {
         return devicePool;
     }
 
-    public void connectDevice(DeviceModel deviceModel) {
+    public void connectDevice(final DeviceModel deviceModel) {
         if (deviceModel.getBluetoothGatt() == null) {
             BluetoothDevice bluetoothDevice = deviceModel.getBluetoothDevice();
             BluetoothGatt bluetoothGatt;
@@ -121,8 +119,14 @@ public class Layer {
             deviceModel.setBluetoothGatt(bluetoothGatt);
             Log.i("GATT", "Opening new gatt " + deviceModel.getAddress());
         } else if (deviceModel.isDisconnected()) {
-            boolean success = deviceModel.getBluetoothGatt().connect();
-            Log.i("GATT", "Connecting via open gatt " + deviceModel.getAddress() + (success ? " success" : "fail"));
+            try {
+                boolean success = deviceModel.getBluetoothGatt().connect();
+                Log.i("GATT", "Connecting via open gatt " + deviceModel.getAddress() + (success ? " success" : " fail"));
+            } catch (Exception e) {
+                Log.e("GATT", e.getMessage());
+                deviceModel.setBluetoothGatt(null);
+                connectDevice(deviceModel);
+            }
         } else {
             Log.i("GATT", "Cannot connect state " + deviceModel.getCurrentState() + " gatt " + deviceModel.getBluetoothGatt());
         }
@@ -131,12 +135,11 @@ public class Layer {
     public void disconnectDevice(DeviceModel deviceModel) {
         if (deviceModel.isConnected()) {
             deviceModel.setTargetState(BluetoothProfile.STATE_DISCONNECTED);
-            if (deviceModel.getType() == "client") {
+            if (Objects.equals(deviceModel.getType(), "client")) {
                 mBluetoothGattServer.cancelConnection(deviceModel.getBluetoothDevice());
-            } else if (deviceModel.getType() == "server") {
+            } else if (Objects.equals(deviceModel.getType(), "server")) {
                 deviceModel.getBluetoothGatt().disconnect();
             }
-            deviceModel.getBluetoothGatt().getDevice().getType();
             Log.i("GATT", "Disconnecting " + deviceModel.getAddress());
         } else {
             Log.i("GATT", "Cannot disconnect state " + deviceModel.getCurrentState() + " gatt " + deviceModel.getBluetoothGatt());
@@ -179,11 +182,14 @@ public class Layer {
         AdvertiseData advertiseData = advertiseDataBuilder.build();
 
         mBluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, mAdvertiseCallback);
+
+        Log.i("LAYER", "Started Advertising");
     }
 
     public void stopAdvertising() {
         if (mBluetoothLeAdvertiser != null) {
             mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
+            Log.i("LAYER", "Stopped Advertising");
         }
     }
 
@@ -211,12 +217,14 @@ public class Layer {
 
         mBluetoothLeScanner.stopScan(mScanCallback);
         mBluetoothLeScanner.startScan(scanFilters, scanSettings, mScanCallback);
+        Log.i("LAYER", "Started Scan");
     }
 
     public void stopScan() {
         if (mBluetoothLeScanner != null) {
             mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
             mBluetoothLeScanner.stopScan(mScanCallback);
+            Log.i("LAYER", "Stopped Scan");
         }
     }
 
@@ -255,6 +263,7 @@ public class Layer {
         mBluetoothGattServer = mBluetoothManager.openGattServer(context, new BluetoothGattServerCallback());
 
         mBluetoothGattServer.addService(gattService);
+        Log.i("LAYER", "Started Gattserver");
     }
 
     public void stopGattServer() {
@@ -264,6 +273,7 @@ public class Layer {
             }
             mBluetoothGattServer.clearServices();
             mBluetoothGattServer.close();
+            Log.i("LAYER", "Stopped Gattserver");
         }
     }
 
@@ -276,7 +286,7 @@ public class Layer {
 
                     Log.i("BROADCAST", "Device " + deviceModel.getAddress());
                     BluetoothGatt bluetoothGatt = deviceModel.getBluetoothGatt();
-                    if (deviceModel.getType() == "client") continue;
+                    if (Objects.equals(deviceModel.getType(), "client")) continue;
                     BluetoothGattService bluetoothGattService = bluetoothGatt.getService(UUID.fromString(SERVICE_UUID));
                     BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
                     characteristic.setValue(message.getBytes());
@@ -287,6 +297,10 @@ public class Layer {
             }
         }
         Log.i("BROADCAST", "Done");
+    }
+
+    public void setAutoConnect(boolean autoConnect) {
+        this.autoConnect = autoConnect;
     }
 
     //endregion
@@ -300,7 +314,7 @@ public class Layer {
             DeviceModel deviceModel = new DeviceModel(result);
             if (!devicePool.contains(deviceModel)) {
                 Log.i("SCAN_CALLBACK", "new device found " + result);
-                devicePool.add(deviceModel);
+                devicePool.add(0, deviceModel);
                 notifyHandlers(DEVICE_POOL_UPDATED);
                 if (autoConnect) connectDevice(deviceModel);
             }
@@ -358,6 +372,7 @@ public class Layer {
             Log.i("CHAR_WRITE_REQUEST:", "device: " + device.getAddress() + " preparedWrite: " + preparedWrite + " responseNeeded: " + responseNeeded);
             String message = new String(value);
             notifyHandlers(MESSAGE_RECEIVED, message, device.getAddress());
+            Log.i("LAYER", "Received Message: " + message);
         }
 
         @Override
@@ -386,7 +401,7 @@ public class Layer {
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
                     Log.i("CONN_CHANGE", "state disconnected");
-                    if (device.getTargetState() == BluetoothProfile.STATE_CONNECTED) {
+                    /* if (device.getTargetState() == BluetoothProfile.STATE_CONNECTED) {
                         boolean success = gatt.connect();
                         if (success) break;
                     }
@@ -394,7 +409,7 @@ public class Layer {
                     device.setBluetoothGatt(null);
                     if (device.getTargetState() == BluetoothProfile.STATE_CONNECTED) {
                         connectDevice(device);
-                    }
+                    } */
                     break;
                 default:
                     Log.i("CONN_CHANGE", "connection state changed " + newState);
@@ -408,6 +423,14 @@ public class Layer {
             Log.i("MTU_CHANGE", "mtu changed to " + mtu);
             boolean discovering = gatt.discoverServices();
             Log.i("MTU_CHANGE", "discover start success " + discovering);
+        }
+
+        @Override
+        public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
+            BluetoothDevice bluetoothDevice = gatt.getDevice();
+            DeviceModel deviceModel = devicePool.getModelByDevice(bluetoothDevice);
+            if (deviceModel != null)
+                deviceModel.setRssi(rssi);
         }
 
         @Override

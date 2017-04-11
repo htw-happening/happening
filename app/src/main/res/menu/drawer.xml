@@ -4,37 +4,28 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/chat"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Chat" />
-        <item
-            android:id="@+id/bt4controls"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="BT4 Controls" />
+            android:icon="@drawable/ic_menu_send"
+            android:title="LE Chat" />
         <item
             android:id="@+id/bt2controls"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="BT2 Controls" />
+            android:icon="@drawable/ic_menu_send"
+            android:title="RFC Chat" />
+        <item
+            android:id="@+id/test_suite"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="LE Logger" />
+        <item
+            android:id="@+id/bt4controls"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="LE Controls" />
         <item
             android:id="@+id/bt_status"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_menu_share"
             android:title="BT Status" />
         <item
             android:id="@+id/db_test"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="DB Test" />
+            android:icon="@drawable/ic_menu_share"
+            android:title="DB Viewer" />
     </group>
-
-    <item android:title="Communicate">
-        <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
-        </menu>
-    </item>
 
 </menu>
