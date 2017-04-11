@@ -10,7 +10,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -29,16 +28,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.happening.poc_happening.bluetooth.DeviceModel;
-import com.happening.poc_happening.bluetooth.DevicePool;
 import com.happening.poc_happening.bluetooth.Layer;
-import com.happening.poc_happening.fragment.Bt2Controls;
 import com.happening.poc_happening.fragment.Bt4Controls;
-import com.happening.poc_happening.fragment.BtStatus;
-import com.happening.poc_happening.fragment.ChatFragment;
-import com.happening.poc_happening.fragment.DBTestFragment;
-import com.happening.poc_happening.fragment.TestSuiteFragment;
-import com.happening.poc_happening.util.Log4jHelper;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -64,12 +55,7 @@ public class MainActivity extends AppCompatActivity
     private Fragment currentFragment = null;
     private String currentFragmentTag = null;
 
-    private Fragment chatFragment;
     private Fragment bt4ControlsFragment;
-    private Fragment bt2ControlsFragment;
-    private Fragment btStatusFragment;
-    private Fragment dbTestFragment;
-    private Fragment testSuiteFragment;
 
     private String TAG = getClass().getSimpleName();
 
@@ -168,8 +154,8 @@ public class MainActivity extends AppCompatActivity
         ((TextView) drawerHeader.findViewById(R.id.drawer_header_sub_text)).setText(Build.SERIAL);
 
         // initialise start fragment
-        this.currentFragment = ChatFragment.getInstance();
-        this.currentFragmentTag = TAG_FRAGMENT_CHAT;
+        this.currentFragment = Bt4Controls.getInstance();
+        this.currentFragmentTag = TAG_FRAGMENT_BT4CONTROLS;
 
         fm.beginTransaction()
                 .replace(R.id.main_fragment_holder, currentFragment, currentFragmentTag)
@@ -197,9 +183,6 @@ public class MainActivity extends AppCompatActivity
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION},
                     TAG_PERMISSION_REQUESTS);
-        } else {
-            //we have already the permission
-            configureLog4j();
         }
 
         // request location permission
@@ -233,16 +216,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.chat) {
-            if (this.chatFragment == null) {
-                this.chatFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_CHAT);
-                if (this.chatFragment == null) {
-                    this.chatFragment = ChatFragment.getInstance();
-                }
-            }
 
-            loadFragment(currentFragment, chatFragment, TAG_FRAGMENT_CHAT);
-            this.currentFragment = chatFragment;
-            this.currentFragmentTag = TAG_FRAGMENT_CHAT;
 
         } else if (id == R.id.bt4controls) {
             if (this.bt4ControlsFragment == null) {
@@ -257,52 +231,15 @@ public class MainActivity extends AppCompatActivity
             this.currentFragmentTag = TAG_FRAGMENT_BT4CONTROLS;
 
         } else if (id == R.id.bt2controls) {
-            if (this.bt2ControlsFragment == null) {
-                this.bt2ControlsFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_BT2CONTROLS);
-                if (this.bt2ControlsFragment == null) {
-                    this.bt2ControlsFragment = Bt2Controls.getInstance();
-                }
-            }
 
-            loadFragment(currentFragment, bt2ControlsFragment, TAG_FRAGMENT_BT2CONTROLS);
-            this.currentFragment = bt2ControlsFragment;
-            this.currentFragmentTag = TAG_FRAGMENT_BT2CONTROLS;
 
         } else if (id == R.id.bt_status) {
-            if (this.btStatusFragment == null) {
-                this.btStatusFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_BTSTATUS);
-                if (this.btStatusFragment == null) {
-                    this.btStatusFragment = BtStatus.getInstance();
-                }
-            }
 
-            loadFragment(currentFragment, btStatusFragment, TAG_FRAGMENT_BTSTATUS);
-            this.currentFragment = btStatusFragment;
-            this.currentFragmentTag = TAG_FRAGMENT_BTSTATUS;
 
         } else if (id == R.id.db_test) {
-            if (this.dbTestFragment == null) {
-                this.dbTestFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_DB_TEST);
-                if (this.dbTestFragment == null) {
-                    this.dbTestFragment = DBTestFragment.getInstance();
-                }
-            }
 
-            loadFragment(currentFragment, dbTestFragment, TAG_FRAGMENT_DB_TEST);
-            this.currentFragment = dbTestFragment;
-            this.currentFragmentTag = TAG_FRAGMENT_DB_TEST;
 
         } else if (id == R.id.test_suite) {
-            if (this.testSuiteFragment == null) {
-                this.testSuiteFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_TEST_SUITE);
-                if (this.testSuiteFragment == null) {
-                    this.testSuiteFragment = TestSuiteFragment.getInstance();
-                }
-            }
-
-            loadFragment(currentFragment, testSuiteFragment, TAG_FRAGMENT_TEST_SUITE);
-            this.currentFragment = testSuiteFragment;
-            this.currentFragmentTag = TAG_FRAGMENT_TEST_SUITE;
 
         }
 
@@ -329,7 +266,7 @@ public class MainActivity extends AppCompatActivity
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
-                    configureLog4j();
+
 
                 } else {
                     // permission denied, boo!
@@ -339,22 +276,10 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void configureLog4j() {
-        String fileName = Environment.getExternalStorageDirectory() + "/" + "happen.log";
-        String filePattern = "%d - [%c] - %p : %m%n";
-        int maxBackupSize = 1;
-        long maxFileSize = 1024 * 10;
-        Log4jHelper.Configure(fileName, filePattern, maxBackupSize, maxFileSize);
-    }
-
     @Override
     protected void onDestroy() {
         Layer layer = Layer.getInstance();
-        DevicePool devicePool = layer.getDevicePool();
-        for (DeviceModel deviceModel : devicePool) {
-            layer.disconnectDevice(deviceModel);
-        }
-        layer.stopScan();
+        //layer.stopScan();
         layer.stopAdvertising();
         layer.stopGattServer();
         super.onDestroy();

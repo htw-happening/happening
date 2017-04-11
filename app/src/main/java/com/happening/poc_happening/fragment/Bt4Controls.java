@@ -1,5 +1,6 @@
 package com.happening.poc_happening.fragment;
 
+import android.bluetooth.le.ScanResult;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,8 +20,9 @@ import android.widget.Toast;
 
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.DeviceListAdapter;
-import com.happening.poc_happening.bluetooth.DeviceModel;
 import com.happening.poc_happening.bluetooth.Layer;
+
+import java.util.ArrayList;
 
 public class Bt4Controls extends Fragment {
 
@@ -44,24 +46,17 @@ public class Bt4Controls extends Fragment {
         }
 
         bluetoothLayer = Layer.getInstance();
-        bluetoothLayer.addHandler(guiHandler);
 
         ListView deviceListView = (ListView) rootView.findViewById(R.id.discovered_devices_list);
-        deviceListAdapter = new DeviceListAdapter(rootView.getContext(), bluetoothLayer.getDevicePool());
+        ArrayList<ScanResult> scanResults = new ArrayList<>();
+        deviceListAdapter = new DeviceListAdapter(rootView.getContext(), scanResults);
         deviceListView.setAdapter(deviceListAdapter);
 
         deviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                DeviceModel device = (DeviceModel) parent.getItemAtPosition(position);
-                Log.i("CLICK", "Clicked on device " + device.getName());
-                if (device.isConnected()) {
-                    bluetoothLayer.disconnectDevice(device);
-                } else if (device.isDisconnected()) {
-                    bluetoothLayer.connectDevice(device);
-                } else {
-                    Log.i("GATT", "Enhance your calm");
-                }
+                ScanResult scanResult = (ScanResult) parent.getItemAtPosition(position);
+                Log.i("CLICK", "Clicked on device " + scanResult.getDevice().getName());
             }
         });
 
@@ -120,17 +115,15 @@ public class Bt4Controls extends Fragment {
     }
 
     @Override
-    public void onPause() {
-        Log.i("Bt4Controls", "onPause");
-        bluetoothLayer.removeHandler(guiHandler);
-        super.onPause();
-    }
-
-    @Override
     public void onResume() {
         Log.i("Bt4Controls", "onResume");
         super.onResume();
-        bluetoothLayer.addHandler(guiHandler);
+    }
+
+    @Override
+    public void onPause() {
+        Log.i("Bt4Controls", "onPause");
+        super.onPause();
     }
 
     private void enableAdapter() {
@@ -155,12 +148,12 @@ public class Bt4Controls extends Fragment {
 
     private void startScan() {
         Snackbar.make(rootView, "Start Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.startScan();
+        //bluetoothLayer.startScan();
     }
 
     private void stopScan() {
         Snackbar.make(rootView, "Stop Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.stopScan();
+//        bluetoothLayer.stopScan();
     }
 
     private void createGattServer() {
@@ -178,24 +171,12 @@ public class Bt4Controls extends Fragment {
 
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case Layer.DEVICE_POOL_UPDATED:
-                    deviceListAdapter.notifyDataSetChanged();
-                    break;
-                case Layer.MESSAGE_RECEIVED:
-                    String message = msg.getData().getString("content");
-                    Log.i("HANDLER", "Message was " + message);
-                    String preview = message.substring(0, Math.min(message.length(), 32));
-                    preview = preview.length() == 32 ? preview + " ..." : preview;
-                    if (currentToast != null)
-                        currentToast.cancel();
-                    currentToast = Toast.makeText(getContext(), preview, Toast.LENGTH_SHORT);
-                    currentToast.show();
-                    break;
-                default:
-                    Log.i("HANDLER", "Unresolved Message Code");
-                    break;
-            }
+            String message = msg.getData().getString("content");
+            Log.i("HANDLER", "Message was " + message);
+            if (currentToast != null)
+                currentToast.cancel();
+            currentToast = Toast.makeText(getContext(), message, Toast.LENGTH_SHORT);
+            currentToast.show();
         }
     };
 }
