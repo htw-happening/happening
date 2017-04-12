@@ -148,12 +148,12 @@ public class Bt4Controls extends Fragment {
 
     private void startScan() {
         Snackbar.make(rootView, "Start Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        //bluetoothLayer.startScan();
+        bluetoothLayer.startScan();
     }
 
     private void stopScan() {
         Snackbar.make(rootView, "Stop Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-//        bluetoothLayer.stopScan();
+        bluetoothLayer.stopScan();
     }
 
     private void createGattServer() {

@@ -12,6 +12,7 @@ import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
@@ -49,19 +50,22 @@ public class Layer {
 
     public static final int DEFAULT_MTU_BYTES = 128;
 
-    private BluetoothManager mBluetoothManager = null;
-    private BluetoothAdapter mBluetoothAdapter = null;
-    private BluetoothGattServer mBluetoothGattServer = null;
-    private BluetoothGattServerCallback bluetoothGattServerCallback = null;
-
-    private BluetoothLeScanner mBluetoothLeScanner = null;
-    private BluetoothLeAdvertiser mBluetoothLeAdvertiser = null;
-
-    private List<Handler> handlers = new ArrayList<>();
     private Context context = null;
 
-    //sprivate ScanCallback mScanCallback = new ScanCallback();
+    private BluetoothManager mBluetoothManager = null;
+    private BluetoothAdapter mBluetoothAdapter = null;
+
+    private BluetoothGattServer mBluetoothGattServer = null;
+    private BluetoothLeAdvertiser mBluetoothLeAdvertiser = null;
+
+    private BluetoothLeScanner mBluetoothLeScanner = null;
+
+    private BluetoothGattServerCallback bluetoothGattServerCallback = null;
+    private ScanCallback mScanCallback = new ScanCallback();
     private AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback();
+
+    private List<Handler> handlers = new ArrayList<>();
+    private ArrayList<ScanResult> scanResults = new ArrayList<>();
 
     public static Layer getInstance() {
         if (instance == null)
@@ -140,6 +144,7 @@ public class Layer {
     }
 
     public void startAdvertising() {
+        if (d) Log.d(TAG, "Starting Advertiser");
         AdvertiseSettings.Builder advertiseSettingsBuilder = new AdvertiseSettings.Builder();
         advertiseSettingsBuilder
                 .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
@@ -166,46 +171,11 @@ public class Layer {
         }
     }
 
-    /*
-
-    public void startScan() {
-        ScanSettings.Builder scanSettingsBuilder = new ScanSettings.Builder();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            scanSettingsBuilder
-                    .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                    .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE);
-        } else {
-            scanSettingsBuilder.setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY);
-        }
-
-        ScanSettings scanSettings = scanSettingsBuilder.build();
-        ScanFilter.Builder scanFilterBuilder = new ScanFilter.Builder();
-
-        ParcelUuid advertiseUuid = ParcelUuid.fromString(ADVERTISE_UUID);
-
-        scanFilterBuilder.setServiceUuid(advertiseUuid);
-
-        ScanFilter scanFilter = scanFilterBuilder.build();
-        List<ScanFilter> scanFilters = new ArrayList<>();
-        scanFilters.add(scanFilter);
-
-        mBluetoothLeScanner.stopScan(mScanCallback);
-        mBluetoothLeScanner.startScan(scanFilters, scanSettings, mScanCallback);
-        logger.info("Started Scan");
-    }
-
-    public void stopScan() {
-        if (mBluetoothLeScanner != null) {
-            mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
-            mBluetoothLeScanner.stopScan(mScanCallback);
-            logger.info("Stopped Scan");
-        }
-    }
- */
     public void createGattServer() {
+        if (d) Log.d(TAG, "Starting GattServer");
         UUID serviceUuid = UUID.fromString(SERVICE_UUID);
         UUID characteristicUuid = UUID.fromString(CHARACTERISTIC_UUID);
+        UUID userinfoUuid = UUID.fromString(USERINFO_UUID);
 
         BluetoothGattService gattService = new BluetoothGattService(
                 serviceUuid, BluetoothGattService.SERVICE_TYPE_PRIMARY);
@@ -224,12 +194,22 @@ public class Layer {
 
         gattService.addCharacteristic(characteristic);
 
+        BluetoothGattCharacteristic userinfo = new BluetoothGattCharacteristic(
+                userinfoUuid,
+                BluetoothGattCharacteristic.PROPERTY_BROADCAST |
+                        BluetoothGattCharacteristic.PROPERTY_READ |
+                        BluetoothGattCharacteristic.PROPERTY_NOTIFY,
+                BluetoothGattCharacteristic.PERMISSION_READ);
+        userinfo.setValue((mBluetoothAdapter.getName() != null ? mBluetoothAdapter.getName() : "n/a").getBytes());
+
+        gattService.addCharacteristic(userinfo);
+
         bluetoothGattServerCallback = new BluetoothGattServerCallback();
 
         mBluetoothGattServer = mBluetoothManager.openGattServer(context, bluetoothGattServerCallback);
 
         mBluetoothGattServer.addService(gattService);
-        if (d) Log.d(TAG,"Started Gattserver");
+        if (d) Log.d(TAG, "Started Gattserver");
     }
 
     public void stopGattServer() {
@@ -243,6 +223,43 @@ public class Layer {
             if (d) Log.d(TAG, "Stopped Gattserver");
         }
     }
+
+
+
+    public void startScan() {
+        if (d) Log.d(TAG, "Starting Scanner");
+        ScanSettings.Builder scanSettingsBuilder = new ScanSettings.Builder();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            scanSettingsBuilder
+                    .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                    .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE);
+        } else {
+            scanSettingsBuilder.setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY);
+        }
+        ScanSettings scanSettings = scanSettingsBuilder.build();
+
+        ParcelUuid advertiseUuid = ParcelUuid.fromString(ADVERTISE_UUID);
+        ScanFilter.Builder scanFilterBuilder = new ScanFilter.Builder();
+        scanFilterBuilder.setServiceUuid(advertiseUuid);
+        ScanFilter scanFilter = scanFilterBuilder.build();
+        List<ScanFilter> scanFilters = new ArrayList<>();
+        scanFilters.add(scanFilter);
+
+        mBluetoothLeScanner.stopScan(mScanCallback);
+        mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
+        mBluetoothLeScanner.startScan(scanFilters, scanSettings, mScanCallback);
+        if (d) Log.d(TAG, "Started Scanner");
+    }
+
+    public void stopScan() {
+        if (mBluetoothLeScanner != null) {
+            mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
+            mBluetoothLeScanner.stopScan(mScanCallback);
+            if (d) Log.d(TAG, "Stopped Scanner");
+        }
+    }
+
 /*
     public void broadcastMessage(String message) {
         Log.i("BROADCAST", "broadcast message" + message);
@@ -273,22 +290,31 @@ public class Layer {
 
     //endregion
 
+    */
+
     //region Callbacks
 
     public class ScanCallback extends android.bluetooth.le.ScanCallback {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
-            DeviceModel deviceModel = new DeviceModel(result);
-            if (!devicePool.contains(deviceModel)) {
-                Log.i("SCAN_CALLBACK", "new device found " + result);
-                devicePool.add(0, deviceModel);
-                notifyHandlers(DEVICE_POOL_UPDATED);
-                if (autoConnect) connectDevice(deviceModel);
-            }
+            //if (d) Log.d(TAG, "ScanCallback - onScanResult ("+result.getDevice().getAddress()+" type: "+callbackType+")");
+            addNewScan(result);
+
         }
     }
-*/
+
+    // verifying new devices through MAC Address (not necessary NEW - see userInfoUUID) // lack of changing MACs
+    private void addNewScan(ScanResult scanResult){
+        for (ScanResult aScanResult: scanResults) {
+            if (aScanResult.getDevice().getAddress().equals(scanResult.getDevice().getAddress())){
+                return;
+            }
+        }
+        scanResults.add(scanResult);
+        if (d) Log.d(TAG, "ScanCallback - addNewScan to scanResults ("+scanResult.getDevice().getAddress()+")");
+    }
+
     public class AdvertiseCallback extends android.bluetooth.le.AdvertiseCallback {
         @Override
         public void onStartSuccess(AdvertiseSettings settingsInEffect) {
