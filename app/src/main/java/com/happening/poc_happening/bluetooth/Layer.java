@@ -75,7 +75,7 @@ public class Layer {
         this.mBluetoothAdapter = mBluetoothManager.getAdapter();
         this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
         this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
-        Log.i("SELF", mBluetoothAdapter.getName());
+        Log.i(TAG, "I am " + mBluetoothAdapter.getName());
     }
 
     /*
@@ -234,8 +234,7 @@ public class Layer {
 
     public void stopGattServer() {
         if (mBluetoothGattServer != null) {
-            for (BluetoothDevice bluetoothDevice: mBluetoothGattServer.getConnectedDevices()
-                 ) {
+            for (BluetoothDevice bluetoothDevice: mBluetoothGattServer.getConnectedDevices() ) {
                 mBluetoothGattServer.cancelConnection(bluetoothDevice);
             }
 
@@ -294,13 +293,13 @@ public class Layer {
         @Override
         public void onStartSuccess(AdvertiseSettings settingsInEffect) {
             super.onStartSuccess(settingsInEffect);
-            Log.i("ADV_CALLBACK", "advertising started");
+            if (d) Log.d(TAG, "AdvertiseCallback - onStartSuccess");
         }
 
         @Override
         public void onStartFailure(int errorCode) {
             super.onStartFailure(errorCode);
-            Log.i("ADV_CALLBACK", "advertising error " + errorCode);
+            if (d) Log.d(TAG, "AdvertiseCallback - onStartFailure (error: " + errorCode+")");
         }
     }
 
@@ -308,44 +307,45 @@ public class Layer {
 
         @Override
         public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
-            Log.i("CHAR_READ", "character read " + new String(characteristic.getValue()));
-            Log.i("CHAR_READ", "server " + mBluetoothGattServer);
+            if (d) Log.d(TAG, "BluetoothGattServerCallback - onCharacteristicReadRequest (read: " + new String(characteristic.getValue()) +")");
             if (mBluetoothGattServer != null)
                 mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getStringValue(0).getBytes());
         }
 
         @Override
         public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
+
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                Log.i("CONN_CHANGE", "Set device connected " + device.getAddress());
+                if (d) Log.d(TAG, "BluetoothGattServerCallback - onConnectionStateChange (STATE_CONNECTED)");
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                Log.i("CONN_CHANGE", "Set device disconnected " + device.getAddress());
+                if (d) Log.d(TAG, "BluetoothGattServerCallback - onConnectionStateChange (STATE_DISCONNECTED)");
             } else {
-                Log.i("CONN_CHANGE", "State changed to " + newState);
+                if (d) Log.d(TAG, "BluetoothGattServerCallback - onConnectionStateChange (status: " + status + "; newStatus: " + newState + ")");
             }
 
         }
 
         @Override
         public void onServiceAdded(int status, BluetoothGattService service) {
-            Log.i("SERVICE_ADD", "service added " + status + " " + service.getUuid().toString());
+            if (d) Log.d(TAG, "BluetoothGattServerCallback - onServiceAdded (status " + status + ")");
         }
 
         @Override
         public void onCharacteristicWriteRequest(BluetoothDevice device, int requestId, BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean responseNeeded, int offset, byte[] value) {
-            Log.i("CHAR_WRITE_REQUEST:", "device: " + device.getAddress() + " preparedWrite: " + preparedWrite + " responseNeeded: " + responseNeeded);
             String message = new String(value);
+            if (d) Log.d(TAG, "BluetoothGattServerCallback - onCharacteristicWriteRequest (preparedWrite " + preparedWrite + "; message " + message + ")");
 
         }
 
         @Override
         public void onNotificationSent(BluetoothDevice device, int status) {
-            Log.i("NOTIFICATION", "device: " + device.getAddress() + " status: " + status);
+            if (d) Log.d(TAG, "BluetoothGattServerCallback - onNotificationSent (status " + status + ")");
         }
 
         @Override
         public void onMtuChanged(BluetoothDevice device, int mtu) {
-            Log.i("MTU_CHANGE", "device: " + device.getAddress() + " mtu: " + mtu);
+            if (d) Log.d(TAG, "BluetoothGattServerCallback - onMtuChanged (mtu " + mtu + ")");
+
         }
     }
 /*
