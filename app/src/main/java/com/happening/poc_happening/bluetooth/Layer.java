@@ -3,6 +3,7 @@ package com.happening.poc_happening.bluetooth;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattService;
@@ -358,29 +359,33 @@ public class Layer {
     public void connectDevice(BluetoothDevice bluetoothDevice) {
         BluetoothGatt bluetoothGatt;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            bluetoothGatt = bluetoothDevice.connectGatt(context, true, new BluetoothGattCallback(), BluetoothDevice.TRANSPORT_LE);
+            bluetoothGatt = bluetoothDevice.connectGatt(context, true, mGattCallback, BluetoothDevice.TRANSPORT_LE);
         } else {
-            bluetoothGatt = bluetoothDevice.connectGatt(context, true, new BluetoothGattCallback());
+            bluetoothGatt = bluetoothDevice.connectGatt(context, true, mGattCallback);
         }
         if (d) Log.d(TAG, "Connecting to Device (" + bluetoothDevice.getAddress() + ")");
     }
 
-    public class BluetoothGattCallback extends android.bluetooth.BluetoothGattCallback {
+    private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
 
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             switch (newState) {
                 case BluetoothProfile.STATE_CONNECTED:
-                    if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_CONNECTED)");
+                    if (d)
+                        Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_CONNECTED)");
                     boolean mtuSuccess = gatt.requestMtu(DEFAULT_MTU_BYTES);
-                    if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange - connected and requesting mtu");
+                    if (d)
+                        Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange - connected and requesting mtu");
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
-                    if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_DISCONNECTED)");
+                    if (d)
+                        Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_DISCONNECTED)");
                     gatt.close();
                     break;
                 default:
-                    if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (other state " + status + ")");
+                    if (d)
+                        Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (other state " + status + ")");
                     break;
             }
         }
@@ -389,7 +394,8 @@ public class Layer {
         public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
             if (d) Log.d(TAG, "BluetoothGattCallback - onMtuChanged (mtu " + mtu + ")");
             boolean discovering = gatt.discoverServices();
-            if (d) Log.d(TAG, "BluetoothGattCallback - onMtuChanged - start discovering services (" + discovering + ")");
+            if (d)
+                Log.d(TAG, "BluetoothGattCallback - onMtuChanged - start discovering services (" + discovering + ")");
 
         }
 
@@ -402,7 +408,8 @@ public class Layer {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             switch (status) {
                 case BluetoothGatt.GATT_SUCCESS:
-                    if (d) Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (GATT_SUCCESS)");
+                    if (d)
+                        Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (GATT_SUCCESS)");
 
                     UUID serviceUuid = UUID.fromString(Layer.SERVICE_UUID);
                     UUID characteristicUuid = UUID.fromString(Layer.CHARACTERISTIC_UUID);
@@ -419,10 +426,12 @@ public class Layer {
                     gatt.readCharacteristic(userinfo);
                     break;
                 case BluetoothGatt.GATT_FAILURE:
-                    if (d) Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (GATT_FAILURE)");
+                    if (d)
+                        Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (GATT_FAILURE)");
                     break;
                 default:
-                    if (d) Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (status " + status + ")");
+                    if (d)
+                        Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (status " + status + ")");
                     break;
             }
         }
@@ -430,21 +439,25 @@ public class Layer {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             Log.i("CHAR_CHANGE", "string value: " + characteristic.getStringValue(0));
-            if (d) Log.d(TAG, "BluetoothGattCallback - onCharacteristicChanged (characteristic " + characteristic.getStringValue(0) + ")");
+            if (d)
+                Log.d(TAG, "BluetoothGattCallback - onCharacteristicChanged (characteristic " + characteristic.getStringValue(0) + ")");
 
         }
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            if (d) Log.d(TAG, "BluetoothGattCallback - onCharacteristicRead (characteristic " + characteristic.getStringValue(0) +", status " + status + ")");
+            if (d)
+                Log.d(TAG, "BluetoothGattCallback - onCharacteristicRead (characteristic " + characteristic.getStringValue(0) + ", status " + status + ")");
 
         }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            if (d) Log.d(TAG, "BluetoothGattCallback - onCharacteristicWrite (characteristic " + characteristic.getStringValue(0) +", status " + status + ")");
+            if (d)
+                Log.d(TAG, "BluetoothGattCallback - onCharacteristicWrite (characteristic " + characteristic.getStringValue(0) + ", status " + status + ")");
         }
-    }
+
+    };
 
     //endregion
 }
