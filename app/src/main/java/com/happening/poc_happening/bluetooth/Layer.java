@@ -82,32 +82,9 @@ public class Layer {
         Log.i(TAG, "I am " + mBluetoothAdapter.getName());
     }
 
-    /*
-    public void connectDevice(final DeviceModel deviceModel) {
-        if (deviceModel.getBluetoothGatt() == null) {
-            BluetoothDevice bluetoothDevice = deviceModel.getBluetoothDevice();
-            BluetoothGatt bluetoothGatt;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                bluetoothGatt = bluetoothDevice.connectGatt(context, false, new BluetoothGattCallback(), BluetoothDevice.TRANSPORT_LE);
-            } else {
-                bluetoothGatt = bluetoothDevice.connectGatt(context, false, new BluetoothGattCallback());
-            }
-            deviceModel.setBluetoothGatt(bluetoothGatt);
-            Log.i("GATT", "Opening new gatt " + deviceModel.getAddress());
-        } else if (deviceModel.isDisconnected()) {
-            try {
-                boolean success = deviceModel.getBluetoothGatt().connect();
-                Log.i("GATT", "Connecting via open gatt " + deviceModel.getAddress() + (success ? " success" : " fail"));
-            } catch (Exception e) {
-                Log.e("GATT", e.getMessage());
-                deviceModel.setBluetoothGatt(null);
-                connectDevice(deviceModel);
-            }
-        } else {
-            Log.i("GATT", "Cannot connect state " + deviceModel.getCurrentState() + " gatt " + deviceModel.getBluetoothGatt());
-        }
-    }
 
+
+/*
     public void disconnectDevice(DeviceModel deviceModel) {
         if (deviceModel.isConnected()) {
             deviceModel.setTargetState(BluetoothProfile.STATE_DISCONNECTED);
@@ -294,26 +271,6 @@ public class Layer {
 
     //region Callbacks
 
-    public class ScanCallback extends android.bluetooth.le.ScanCallback {
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            super.onScanResult(callbackType, result);
-            //if (d) Log.d(TAG, "ScanCallback - onScanResult ("+result.getDevice().getAddress()+" type: "+callbackType+")");
-            addNewScan(result);
-
-        }
-    }
-
-    // verifying new devices through MAC Address (not necessary NEW - see userInfoUUID) // lack of changing MACs
-    private void addNewScan(ScanResult scanResult){
-        for (ScanResult aScanResult: scanResults) {
-            if (aScanResult.getDevice().getAddress().equals(scanResult.getDevice().getAddress())){
-                return;
-            }
-        }
-        scanResults.add(scanResult);
-        if (d) Log.d(TAG, "ScanCallback - addNewScan to scanResults ("+scanResult.getDevice().getAddress()+")");
-    }
 
     public class AdvertiseCallback extends android.bluetooth.le.AdvertiseCallback {
         @Override
@@ -374,64 +331,82 @@ public class Layer {
 
         }
     }
-/*
+
+    public class ScanCallback extends android.bluetooth.le.ScanCallback {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            super.onScanResult(callbackType, result);
+            //if (d) Log.d(TAG, "ScanCallback - onScanResult ("+result.getDevice().getAddress()+" type: "+callbackType+")");
+            addNewScan(result);
+        }
+    }
+
+    // verifying new devices through MAC Address (not necessary NEW - see userInfoUUID) // lack of changing MACs
+    // changing MAC every 15 minutes (exactly 15 mins!!)
+    private void addNewScan(ScanResult scanResult){
+        for (ScanResult aScanResult: scanResults) {
+            if (aScanResult.getDevice().getAddress().equals(scanResult.getDevice().getAddress())){
+                return;
+            }
+        }
+        scanResults.add(scanResult);
+        if (d) Log.d(TAG, "ScanCallback - addNewScan to scanResults ("+scanResult.getDevice().getAddress()+")");
+        connectDevice(scanResult.getDevice());
+
+    }
+
+    public void connectDevice(BluetoothDevice bluetoothDevice) {
+        BluetoothGatt bluetoothGatt;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            bluetoothGatt = bluetoothDevice.connectGatt(context, true, new BluetoothGattCallback(), BluetoothDevice.TRANSPORT_LE);
+        } else {
+            bluetoothGatt = bluetoothDevice.connectGatt(context, true, new BluetoothGattCallback());
+        }
+        if (d) Log.d(TAG, "Connecting to Device (" + bluetoothDevice.getAddress() + ")");
+    }
+
     public class BluetoothGattCallback extends android.bluetooth.BluetoothGattCallback {
 
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            BluetoothDevice bluetoothDevice = gatt.getDevice();
-            DeviceModel device = devicePool.getModelByDevice(bluetoothDevice);
-            devicePool.changeState(device, newState);
-
             switch (newState) {
                 case BluetoothProfile.STATE_CONNECTED:
+                    if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_CONNECTED)");
                     boolean mtuSuccess = gatt.requestMtu(DEFAULT_MTU_BYTES);
-                    Log.i("CONN_CHANGE", "connected and requesting mtu " + mtuSuccess);
+                    if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange - connected and requesting mtu");
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
-                    Log.i("CONN_CHANGE", "state disconnected");
-                    /* if (device.getTargetState() == BluetoothProfile.STATE_CONNECTED) {
-                        boolean success = gatt.connect();
-                        if (success) break;
-                    }
+                    if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_DISCONNECTED)");
                     gatt.close();
-                    device.setBluetoothGatt(null);
-                    if (device.getTargetState() == BluetoothProfile.STATE_CONNECTED) {
-                        connectDevice(device);
-                    }
                     break;
                 default:
-                    Log.i("CONN_CHANGE", "connection state changed " + newState);
+                    if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (other state " + status + ")");
                     break;
             }
-            notifyHandlers(DEVICE_POOL_UPDATED);
         }
 
         @Override
         public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-            Log.i("MTU_CHANGE", "mtu changed to " + mtu);
+            if (d) Log.d(TAG, "BluetoothGattCallback - onMtuChanged (mtu " + mtu + ")");
             boolean discovering = gatt.discoverServices();
-            Log.i("MTU_CHANGE", "discover start success " + discovering);
+            if (d) Log.d(TAG, "BluetoothGattCallback - onMtuChanged - start discovering services (" + discovering + ")");
+
         }
 
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
-            BluetoothDevice bluetoothDevice = gatt.getDevice();
-            DeviceModel deviceModel = devicePool.getModelByDevice(bluetoothDevice);
-            if (deviceModel != null)
-                deviceModel.setRssi(rssi);
+            if (d) Log.d(TAG, "BluetoothGattCallback - onReadRemoteRssi (rssi " + rssi + ")");
         }
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             switch (status) {
                 case BluetoothGatt.GATT_SUCCESS:
-                    Log.i("SERVICE_DISCO", "services discovered");
+                    if (d) Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (GATT_SUCCESS)");
+
                     UUID serviceUuid = UUID.fromString(Layer.SERVICE_UUID);
                     UUID characteristicUuid = UUID.fromString(Layer.CHARACTERISTIC_UUID);
                     UUID userinfoUuid = UUID.fromString(Layer.USERINFO_UUID);
-
-                    Log.i("SERVICE_DISCO", "triggered");
 
                     BluetoothGattService service = gatt.getService(serviceUuid);
 
@@ -442,13 +417,12 @@ public class Layer {
                     BluetoothGattCharacteristic userinfo = service.getCharacteristic(userinfoUuid);
                     gatt.setCharacteristicNotification(userinfo, true);
                     gatt.readCharacteristic(userinfo);
-
                     break;
                 case BluetoothGatt.GATT_FAILURE:
-                    Log.e("SERVICE_DISCO", "service discovery failed");
+                    if (d) Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (GATT_FAILURE)");
                     break;
                 default:
-                    Log.e("SERVICE_DISCO", "no service discovered " + status);
+                    if (d) Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (status " + status + ")");
                     break;
             }
         }
@@ -456,18 +430,21 @@ public class Layer {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             Log.i("CHAR_CHANGE", "string value: " + characteristic.getStringValue(0));
+            if (d) Log.d(TAG, "BluetoothGattCallback - onCharacteristicChanged (characteristic " + characteristic.getStringValue(0) + ")");
+
         }
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            Log.i("CHAR_READ", "string value: " + characteristic.getStringValue(0) + " status: " + status);
+            if (d) Log.d(TAG, "BluetoothGattCallback - onCharacteristicRead (characteristic " + characteristic.getStringValue(0) +", status " + status + ")");
+
         }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            Log.i("CHAR_WRITE", "string value: " + characteristic.getStringValue(0) + " status: " + status);
+            if (d) Log.d(TAG, "BluetoothGattCallback - onCharacteristicWrite (characteristic " + characteristic.getStringValue(0) +", status " + status + ")");
         }
     }
-    */
+
     //endregion
 }
