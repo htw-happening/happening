@@ -11,8 +11,6 @@ import android.widget.Toast;
 
 import java.util.List;
 
-import blue.happening.IAsyncCallback;
-import blue.happening.IAsyncInterface;
 import blue.happening.IRemoteHappening;
 import blue.happening.chat.MyApp;
 import blue.happening.lib.BluetoothDevice;
@@ -21,60 +19,57 @@ import blue.happening.service.HappeningService;
 
 public class ServiceHandler implements IRemoteHappening {
 
-    private static ServiceHandler sh = null;
-    IAsyncCallback.Stub mCallback = new IAsyncCallback.Stub() {
-        public void handleResponse(String name) throws RemoteException {
-            Log.d("jojo", name);
-        }
-    };
-    private Context context = null;
+    private static ServiceHandler instance;
+    private Context context;
     private RemoteServiceConnection serviceConnection;
     private IRemoteHappening service;
-    private IAsyncInterface async;
 
     private ServiceHandler() {
-        this.context = MyApp.getAppContext();
+        context = MyApp.getAppContext();
     }
 
     public static ServiceHandler getInstance() {
-        if (sh == null)
-            sh = new ServiceHandler();
-        return sh;
+        if (instance == null)
+            instance = new ServiceHandler();
+        return instance;
     }
 
     /**
-     * This is our function which binds our activity(MainActivity) to our service(AddService).
+     * Bind activity to our service
      */
     private void initService() {
         serviceConnection = new RemoteServiceConnection();
-        Intent i = new Intent(context, HappeningService.class);
-        i.setPackage("blue.happening.happening_service");
-        this.context.startService(i);
-        boolean ret = this.context.bindService(i, serviceConnection, Context.BIND_AUTO_CREATE);
-        Log.d(this.getClass().getSimpleName(), "initService() bound value: " + ret);
+        Intent intent = new Intent(context, HappeningService.class);
+        intent.setPackage("blue.happening.service");
+        context.startService(intent);
+        boolean ret = context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        Log.d("ServiceHandler", "initService() bound value: " + ret);
     }
 
     /**
-     * This is our function to un-binds this activity from our service.
+     * Release service from activity
      */
     private void releaseService() {
         if (serviceConnection != null) {
             context.unbindService(serviceConnection);
             serviceConnection = null;
             service = null;
-            Log.d(this.getClass().getSimpleName(), "releaseService(): unbound.");
+            Log.i("ServiceHandler", "Service released");
         }
     }
 
     public void startService() {
-        if (!isRunning())
-            Log.d("jojo", "INIT start");
-        initService();
+        if (!isRunning()) {
+            initService();
+            Log.i("ServiceHandler", "Service started");
+        }
     }
 
     public void stopService() {
-        if (isRunning())
+        if (isRunning()) {
             releaseService();
+            Log.i("ServiceHandler", "Service started");
+        }
     }
 
     public Boolean isRunning() {
@@ -184,14 +179,6 @@ public class ServiceHandler implements IRemoteHappening {
         }
     }
 
-    public void doAsyncTask() {
-        try {
-            async.methodOne(mCallback);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public IBinder asBinder() {
         return null;
@@ -201,13 +188,11 @@ public class ServiceHandler implements IRemoteHappening {
 
         public void onServiceConnected(ComponentName name, IBinder boundService) {
             service = IRemoteHappening.Stub.asInterface((IBinder) boundService);
-            async = IAsyncInterface.Stub.asInterface((IBinder) boundService);
             Toast.makeText(MyApp.getAppContext(), "Service connected", Toast.LENGTH_LONG).show();
         }
 
         public void onServiceDisconnected(ComponentName name) {
             service = null;
-            async = null;
             Toast.makeText(MyApp.getAppContext(), "Service disconnected", Toast.LENGTH_LONG).show();
         }
     }

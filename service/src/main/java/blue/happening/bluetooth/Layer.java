@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import blue.happening.MyService;
+import blue.happening.MyApp;
 
 public class Layer {
 
@@ -66,7 +66,7 @@ public class Layer {
     }
 
     private Layer() {
-        context = MyService.getContext();
+        context = MyApp.getContext();
         this.mBluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.mBluetoothAdapter = mBluetoothManager.getAdapter();
         this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
