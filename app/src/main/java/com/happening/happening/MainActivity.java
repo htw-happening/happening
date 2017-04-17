@@ -18,7 +18,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.happening.happening.fragment.Bt2Controls;
 import com.happening.happening.fragment.Bt4Controls;
 import com.happening.happening.fragment.BtStatus;
 import com.happening.happening.fragment.ChatFragment;
@@ -36,7 +35,6 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG_FRAGMENT_MAIN = "main";
     private static final String TAG_FRAGMENT_CHAT = "chat";
     private static final String TAG_FRAGMENT_BT4CONTROLS = "bt4";
-    private static final String TAG_FRAGMENT_BT2CONTROLS = "bt2";
     private static final String TAG_FRAGMENT_BTSTATUS = "btstatus";
     private static final String TAG_FRAGMENT_DB_TEST = "db_test";
 
@@ -49,7 +47,6 @@ public class MainActivity extends AppCompatActivity
     private Fragment mainFragment;
     private Fragment chatFragment;
     private Fragment bt4ControlsFragment;
-    private Fragment bt2ControlsFragment;
     private Fragment btStatusFragment;
     private Fragment dbTestFragment;
 
@@ -157,18 +154,6 @@ public class MainActivity extends AppCompatActivity
             loadFragment(currentFragment, bt4ControlsFragment, TAG_FRAGMENT_BT4CONTROLS);
             this.currentFragment = bt4ControlsFragment;
             this.currentFragmentTag = TAG_FRAGMENT_BT4CONTROLS;
-
-        } else if (id == R.id.bt2controls) {
-            if (this.bt2ControlsFragment == null) {
-                this.bt2ControlsFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_BT2CONTROLS);
-                if (this.bt2ControlsFragment == null) {
-                    this.bt2ControlsFragment = Bt2Controls.getInstance();
-                }
-            }
-
-            loadFragment(currentFragment, bt2ControlsFragment, TAG_FRAGMENT_BT2CONTROLS);
-            this.currentFragment = bt2ControlsFragment;
-            this.currentFragmentTag = TAG_FRAGMENT_BT2CONTROLS;
 
         } else if (id == R.id.bt_status) {
             if (this.btStatusFragment == null) {
