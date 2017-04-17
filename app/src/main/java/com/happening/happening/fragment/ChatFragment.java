@@ -30,6 +30,7 @@ public class ChatFragment extends Fragment {
     // private DBHelper dbHelper;
     private ListView listView;
     private ChatEntriesAdapter chatEntriesAdapter;
+
     private Handler guiHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
@@ -88,7 +89,7 @@ public class ChatFragment extends Fragment {
                     addChatEntry("You", message);
                     ((EditText) rootView.findViewById(R.id.editText_message_input)).setText("");
 
-                    service.broadcastMessage(message);
+//                    service.broadcastMessage(message);
                 }
             }
         });

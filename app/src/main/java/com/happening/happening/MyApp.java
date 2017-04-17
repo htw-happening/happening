@@ -29,7 +29,7 @@ public class MyApp extends Application implements Application.ActivityLifecycleC
         registerActivityLifecycleCallbacks(this);
 
         this.hc = HappeningClient.getHappeningClient();
-        this.hc.registerAppContext(this);
+        this.hc.initClient(this);
     }
 
     @Override

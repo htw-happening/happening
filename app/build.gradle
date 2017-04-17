@@ -32,5 +32,4 @@ dependencies {
 
     compile project(':service')
     compile project(path: ':sdk')
-    compile project(path: ':sdk')
 }

@@ -9,7 +9,6 @@ public class HappeningClient {
     private static Context context = null;
 
     private HappeningClient() {
-        HappeningClient.sh = ServiceHandler.getInstance();
     }
 
     public static HappeningClient getHappeningClient() {
@@ -23,9 +22,14 @@ public class HappeningClient {
         return HappeningClient.context;
     }
 
-    public void registerAppContext(Context context) {
-        HappeningClient.context = context;
+    public void initClient(Context context) {
+        HappeningClient.context = context.getApplicationContext();
+        HappeningClient.sh = ServiceHandler.getInstance();
+        HappeningClient.sh.startService();
     }
+
+
+    // Bluetooth Features
 
 
 }

@@ -3,22 +3,20 @@ package com.happening.happening.fragment;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
-import com.happening.sdk.ServiceHandler;
-
 public class Bt4Controls extends Fragment {
 
     private static Bt4Controls instance = null;
     private View rootView = null;
 
-    //    private IRemoteHappening service = null;
-    private ServiceHandler service = null;
+//        private IRemoteHappening service = null;
+//    private ServiceHandler service = null;
 
     public Bt4Controls() {
-        service = ServiceHandler.getInstance();
+//        service = ServiceHandler.getInstance();
 //        service.addHandler(guiHandler);
     }
 
-    //    private DeviceListAdapter deviceListAdapter = null;
+//    private DeviceListAdapter deviceListAdapter = null;
 //    private BandwidthTester bandwidthTester;
 
     public static Bt4Controls getInstance() {
@@ -26,7 +24,7 @@ public class Bt4Controls extends Fragment {
             instance = new Bt4Controls();
         return instance;
     }
-//
+
 //    @Override
 //    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 //
