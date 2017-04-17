@@ -31,4 +31,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
 
     compile project(':service')
+    compile project(path: ':sdk')
+    compile project(path: ':sdk')
 }
