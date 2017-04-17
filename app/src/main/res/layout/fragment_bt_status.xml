@@ -25,16 +25,6 @@
         android:layout_centerHorizontal="true"
         android:text="TextView" />
 
-    <Switch
-        android:id="@+id/switch_bluetooth_enabled"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:checked="false"
-        android:splitTrack="true" />
-
     <TextView
         android:id="@+id/bluetooth_le_label"
         android:layout_width="wrap_content"

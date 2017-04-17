@@ -23,7 +23,9 @@ public class BtStatus extends Fragment {
 
     private static BtStatus instance = null;
     private View rootView = null;
-
+    private BluetoothManager bluetoothManager = null;
+    private String availableTxt = "Läuft";
+    private String unAvailableTxt = "Läuft Nicht!";
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -34,19 +36,19 @@ public class BtStatus extends Fragment {
                         BluetoothAdapter.ERROR);
                 switch (state) {
                     case BluetoothAdapter.STATE_OFF:
-                        ((Switch) rootView.findViewById(R.id.switch_bluetooth_enabled)).setChecked(false);
+                        ((TextView) rootView.findViewById(R.id.bluetooth_value)).setText(unAvailableTxt);
+                        ((TextView) rootView.findViewById(R.id.bluetooth_le_value)).setText(unAvailableTxt);
+                        ((TextView) rootView.findViewById(R.id.bluetooth_le_adv_value)).setText(unAvailableTxt);
                         break;
                     case BluetoothAdapter.STATE_ON:
-                        ((Switch) rootView.findViewById(R.id.switch_bluetooth_enabled)).setChecked(true);
+                        ((TextView) rootView.findViewById(R.id.bluetooth_value)).setText(availableTxt);
+                        ((TextView) rootView.findViewById(R.id.bluetooth_le_value)).setText(availableTxt);
+                        ((TextView) rootView.findViewById(R.id.bluetooth_le_adv_value)).setText(availableTxt);
                         break;
                 }
             }
         }
     };
-
-    private BluetoothManager bluetoothManager = null;
-    private String availableTxt = "Läuft";
-    private String unAvailableTxt = "Läuft Nicht!";
 
     public BtStatus() {
         super();
@@ -63,17 +65,18 @@ public class BtStatus extends Fragment {
 
         bluetoothManager = (BluetoothManager) rootView.getContext().getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-        String bluetoothAddress = Settings.Secure.getString(rootView.getContext().getApplicationContext().getContentResolver(), "bluetooth_address");
-
-        boolean hasBLE = rootView.getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
 
         if (bluetoothAdapter == null) {
             ((TextView) rootView.findViewById(R.id.bluetooth_value)).setText(unAvailableTxt);
+            ((TextView) rootView.findViewById(R.id.bluetooth_le_value)).setText(unAvailableTxt);
+            ((TextView) rootView.findViewById(R.id.bluetooth_le_adv_value)).setText(unAvailableTxt);
         } else {
             ((TextView) rootView.findViewById(R.id.bluetooth_value)).setText(availableTxt);
             ((TextView) rootView.findViewById(R.id.bluetooth_value)).setText(availableTxt);
+
+            String bluetoothAddress = Settings.Secure.getString(rootView.getContext().getApplicationContext().getContentResolver(), "bluetooth_address");
             ((TextView) rootView.findViewById(R.id.bluetooth_address_value)).setText(bluetoothAddress);
-            ((Switch) rootView.findViewById(R.id.switch_bluetooth_enabled)).setChecked(bluetoothAdapter.isEnabled());
+
             if (bluetoothAdapter.isMultipleAdvertisementSupported()) {
                 ((TextView) rootView.findViewById(R.id.bluetooth_le_adv_value)).setText(availableTxt);
             } else {
@@ -81,6 +84,7 @@ public class BtStatus extends Fragment {
             }
         }
 
+        boolean hasBLE = rootView.getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
         if (!hasBLE) {
             ((TextView) rootView.findViewById(R.id.bluetooth_le_value)).setText(unAvailableTxt);
         } else {
@@ -120,13 +124,7 @@ public class BtStatus extends Fragment {
         (rootView.findViewById(R.id.button_get_data_from_service)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                sh.addDevice("jojo " + System.currentTimeMillis());
-//                sh.addDevice("jojo");
-
-//                sh.doAsyncTask();
-
-//                Log.d("device jojo in main", "" + sh.getDevice("jojo"));
-//                Log.d("devices in main", "" + sh.getDevices());
+                
             }
         });
 
