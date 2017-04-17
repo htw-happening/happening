@@ -4,59 +4,22 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <Switch
-        android:id="@+id/adapter_button"
+    <Button
+        android:id="@+id/button_start_scan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="5sp"
-        android:text="Adapter"
-        android:textSize="16sp" />
-
-    <Switch
-        android:id="@+id/scan_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/bluetooth_adapter"
-        android:layout_marginBottom="5sp"
-        android:checked="true"
-        android:text="Scanning"
-        android:textSize="16sp" />
-
-    <Switch
-        android:id="@+id/advertise_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/scan_button"
-        android:layout_marginBottom="5sp"
-        android:checked="true"
-        android:text="Advertising"
-        android:textSize="16sp" />
-
-    <Switch
-        android:id="@+id/gatt_server_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/advertise_button"
-        android:layout_marginBottom="5sp"
-        android:checked="true"
-        android:text="Gatt-Server"
-        android:textSize="16sp" />
+        android:text="start scan" />
 
     <Button
-        android:id="@+id/button_bandwidth"
+        android:id="@+id/button_stop_scan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/gatt_server_button"
-        android:text="Bandwidth Tester" />
+        android:text="stop scan" />
 
     <ListView
         android:id="@+id/discovered_devices_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@+id/button_bandwidth"
         android:focusable="true" />
 
 </LinearLayout>

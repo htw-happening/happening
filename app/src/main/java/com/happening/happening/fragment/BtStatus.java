@@ -124,7 +124,7 @@ public class BtStatus extends Fragment {
         (rootView.findViewById(R.id.button_get_data_from_service)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                
+
             }
         });
 
