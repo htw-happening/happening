@@ -12,22 +12,11 @@ import android.widget.Toast;
 import com.happening.IAsyncCallback;
 import com.happening.IAsyncInterface;
 import com.happening.IRemoteHappening;
-import com.happening.lib.BluetoothDevice;
 import com.happening.service.HappeningService;
-
-import java.util.List;
-
 
 public class ServiceHandler implements IRemoteHappening {
 
     private static ServiceHandler sh = null;
-
-    IAsyncCallback.Stub mCallback = new IAsyncCallback.Stub() {
-        public void handleResponse(String name) throws RemoteException {
-            Log.d("jojo", name);
-        }
-    };
-
     private RemoteServiceConnection serviceConnection;
     private IRemoteHappening service;
     private IAsyncInterface async;
@@ -35,14 +24,14 @@ public class ServiceHandler implements IRemoteHappening {
     private ServiceHandler() {
     }
 
-    private Context getContext() {
-        return HappeningClient.getHappeningClient().getAppContext();
-    }
-
     public static ServiceHandler getInstance() {
         if (sh == null)
             sh = new ServiceHandler();
         return sh;
+    }
+
+    private Context getContext() {
+        return HappeningClient.getHappeningClient().getAppContext();
     }
 
     /**
@@ -186,6 +175,12 @@ public class ServiceHandler implements IRemoteHappening {
 //        } catch (RemoteException e) {
 //        }
 //    }
+
+    IAsyncCallback.Stub mCallback = new IAsyncCallback.Stub() {
+        public void handleResponse(String name) throws RemoteException {
+            Log.d("jojo", name);
+        }
+    };
 
     public void doAsyncTask() {
         try {

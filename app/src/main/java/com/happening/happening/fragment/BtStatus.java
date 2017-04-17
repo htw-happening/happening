@@ -6,14 +6,22 @@ import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import com.happening.happening.R;
+import com.happening.sdk.HappeningClient;
 
 public class BtStatus extends Fragment {
 
@@ -48,7 +56,7 @@ public class BtStatus extends Fragment {
             }
         }
     };
-//    private ServiceHandler sh = null;
+    //    private ServiceHandler sh = null;
     private BluetoothManager bluetoothManager = null;
     private WifiP2pManager wifiP2pManager = null;
     private String availableTxt = "Läuft";
@@ -63,92 +71,90 @@ public class BtStatus extends Fragment {
         return instance;
     }
 
-//    @Override
-//    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-//        rootView = inflater.inflate(R.layout.fragment_bt_status, container, false);
-//
-//        bluetoothManager = (BluetoothManager) rootView.getContext().getSystemService(Context.BLUETOOTH_SERVICE);
-//        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-//        String bluetoothAddress = Settings.Secure.getString(rootView.getContext().getApplicationContext().getContentResolver(), "bluetooth_address");
-//        wifiP2pManager = (WifiP2pManager) rootView.getContext().getSystemService(Context.WIFI_P2P_SERVICE);
-//        WifiManager wifiManager = (WifiManager) rootView.getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-//        boolean hasBLE = rootView.getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
-//
-//        if (bluetoothAdapter == null) {
-//            ((TextView) rootView.findViewById(R.id.bluetooth_value)).setText(unAvailableTxt);
-//        } else {
-//            ((TextView) rootView.findViewById(R.id.bluetooth_value)).setText(availableTxt);
-//            ((TextView) rootView.findViewById(R.id.bluetooth_value)).setText(availableTxt);
-//            ((TextView) rootView.findViewById(R.id.bluetooth_address_value)).setText(bluetoothAddress);
-//            ((Switch) rootView.findViewById(R.id.switch_bluetooth_enabled)).setChecked(bluetoothAdapter.isEnabled());
-//            if (bluetoothAdapter.isMultipleAdvertisementSupported()) {
-//                ((TextView) rootView.findViewById(R.id.bluetooth_le_adv_value)).setText(availableTxt);
-//            } else {
-//                ((TextView) rootView.findViewById(R.id.bluetooth_le_adv_value)).setText(unAvailableTxt);
-//            }
-//        }
-//
-//        if (!hasBLE) {
-//            ((TextView) rootView.findViewById(R.id.bluetooth_le_value)).setText(unAvailableTxt);
-//        } else {
-//            ((TextView) rootView.findViewById(R.id.bluetooth_le_value)).setText(availableTxt);
-//        }
-//
-//        if (wifiP2pManager == null) {
-//            ((TextView) rootView.findViewById(R.id.wifi_value)).setText(unAvailableTxt);
-//        } else {
-//            ((TextView) rootView.findViewById(R.id.wifi_value)).setText(availableTxt);
-//            ((Switch) rootView.findViewById(R.id.switch_wifi_enabled)).setChecked(wifiManager.isWifiEnabled());
-//        }
-//
-//        IntentFilter filter = new IntentFilter();
-//        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-//        filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-//        rootView.getContext().registerReceiver(receiver, filter);
-//
-//        // Bluetooth Background Service Switch
-//        sh = ServiceHandler.getInstance();
-//
-//        Switch bt4ServiceSwitch = (Switch) rootView.findViewById(R.id.switch_background_service);
-//        bt4ServiceSwitch.setChecked(sh.isRunning());
-//
-//        if (sh.isRunning()) {
-//            ((TextView) rootView.findViewById(R.id.background_service_value)).setText(availableTxt);
-//        } else {
-//            ((TextView) rootView.findViewById(R.id.background_service_value)).setText(unAvailableTxt);
-//        }
-//
-//        bt4ServiceSwitch.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (!sh.isRunning()) {
-//                    sh.startService();
-//                    ((Switch) rootView.findViewById(R.id.switch_background_service)).setChecked(true);
-//                    ((TextView) rootView.findViewById(R.id.background_service_value)).setText(availableTxt);
-//                } else if (sh.isRunning()) {
-//                    sh.stopService();
-//                    ((Switch) rootView.findViewById(R.id.switch_background_service)).setChecked(false);
-//                    ((TextView) rootView.findViewById(R.id.background_service_value)).setText(unAvailableTxt);
-//                }
-//
-//            }
-//        });
-//
-//        (rootView.findViewById(R.id.button_get_data_from_service)).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        rootView = inflater.inflate(R.layout.fragment_bt_status, container, false);
+
+        bluetoothManager = (BluetoothManager) rootView.getContext().getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+        String bluetoothAddress = Settings.Secure.getString(rootView.getContext().getApplicationContext().getContentResolver(), "bluetooth_address");
+        wifiP2pManager = (WifiP2pManager) rootView.getContext().getSystemService(Context.WIFI_P2P_SERVICE);
+        WifiManager wifiManager = (WifiManager) rootView.getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        boolean hasBLE = rootView.getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
+
+        if (bluetoothAdapter == null) {
+            ((TextView) rootView.findViewById(R.id.bluetooth_value)).setText(unAvailableTxt);
+        } else {
+            ((TextView) rootView.findViewById(R.id.bluetooth_value)).setText(availableTxt);
+            ((TextView) rootView.findViewById(R.id.bluetooth_value)).setText(availableTxt);
+            ((TextView) rootView.findViewById(R.id.bluetooth_address_value)).setText(bluetoothAddress);
+            ((Switch) rootView.findViewById(R.id.switch_bluetooth_enabled)).setChecked(bluetoothAdapter.isEnabled());
+            if (bluetoothAdapter.isMultipleAdvertisementSupported()) {
+                ((TextView) rootView.findViewById(R.id.bluetooth_le_adv_value)).setText(availableTxt);
+            } else {
+                ((TextView) rootView.findViewById(R.id.bluetooth_le_adv_value)).setText(unAvailableTxt);
+            }
+        }
+
+        if (!hasBLE) {
+            ((TextView) rootView.findViewById(R.id.bluetooth_le_value)).setText(unAvailableTxt);
+        } else {
+            ((TextView) rootView.findViewById(R.id.bluetooth_le_value)).setText(availableTxt);
+        }
+
+        if (wifiP2pManager == null) {
+            ((TextView) rootView.findViewById(R.id.wifi_value)).setText(unAvailableTxt);
+        } else {
+            ((TextView) rootView.findViewById(R.id.wifi_value)).setText(availableTxt);
+            ((Switch) rootView.findViewById(R.id.switch_wifi_enabled)).setChecked(wifiManager.isWifiEnabled());
+        }
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        rootView.getContext().registerReceiver(receiver, filter);
+
+        // Bluetooth Background Service Switch
+        Switch bt4ServiceSwitch = (Switch) rootView.findViewById(R.id.switch_background_service);
+        bt4ServiceSwitch.setChecked(HappeningClient.getHappeningClient().isRunning());
+
+        if (HappeningClient.getHappeningClient().isRunning()) {
+            ((TextView) rootView.findViewById(R.id.background_service_value)).setText(availableTxt);
+        } else {
+            ((TextView) rootView.findViewById(R.id.background_service_value)).setText(unAvailableTxt);
+        }
+
+        bt4ServiceSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!HappeningClient.getHappeningClient().isRunning()) {
+                    HappeningClient.getHappeningClient().startService();
+                    ((Switch) rootView.findViewById(R.id.switch_background_service)).setChecked(true);
+                    ((TextView) rootView.findViewById(R.id.background_service_value)).setText(availableTxt);
+                } else if (HappeningClient.getHappeningClient().isRunning()) {
+                    HappeningClient.getHappeningClient().stopService();
+                    ((Switch) rootView.findViewById(R.id.switch_background_service)).setChecked(false);
+                    ((TextView) rootView.findViewById(R.id.background_service_value)).setText(unAvailableTxt);
+                }
+
+            }
+        });
+
+        (rootView.findViewById(R.id.button_get_data_from_service)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 //                sh.addDevice("jojo " + System.currentTimeMillis());
-////                sh.addDevice("jojo");
-//
+//                sh.addDevice("jojo");
+
 //                sh.doAsyncTask();
-//
-////                Log.d("device jojo in main", "" + sh.getDevice("jojo"));
-////                Log.d("devices in main", "" + sh.getDevices());
-//            }
-//        });
-//
-//        return rootView;
-//    }
+
+//                Log.d("device jojo in main", "" + sh.getDevice("jojo"));
+//                Log.d("devices in main", "" + sh.getDevices());
+            }
+        });
+
+        return rootView;
+    }
 
     @Override
     public void onStop() {

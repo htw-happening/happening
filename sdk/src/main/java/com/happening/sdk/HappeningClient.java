@@ -30,6 +30,17 @@ public class HappeningClient {
 
 
     // Bluetooth Features
+    public Boolean isRunning() {
+        return HappeningClient.sh.isRunning();
+    }
+
+    public void startService() {
+        HappeningClient.sh.startService();
+    }
+
+    public void stopService() {
+        HappeningClient.sh.stopService();
+    }
 
 
 }

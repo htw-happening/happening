@@ -6,17 +6,12 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.happening.IRemoteHappening;
-import com.happening.lib.BluetoothDevice;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class HappeningService extends Service {
 
     private final IRemoteHappening.Stub mBinder = new IRemoteHappening.Stub() {
 
-        List<BluetoothDevice> devices = Collections.synchronizedList(new ArrayList<BluetoothDevice>());
+//        List<BluetoothDevice> devices = Collections.synchronizedList(new ArrayList<BluetoothDevice>());
 
 //        @Override
 //        public void addDevice(String name) throws RemoteException {
