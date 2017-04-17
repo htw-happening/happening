@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity
 
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int TAG_CODE_PERMISSION_LOCATION = 2;
+
     // Fragment Tags
     private static final String TAG_FRAGMENT_MAIN = "main";
     private static final String TAG_FRAGMENT_CHAT = "chat";
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity
     private FragmentManager fm = getSupportFragmentManager();
     private BluetoothManager mBluetoothManager = null;
     private BluetoothAdapter mBluetoothAdapter = null;
+
     // Fragment
     private Fragment currentFragment = null;
     private String currentFragmentTag = null;

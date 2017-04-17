@@ -7,6 +7,7 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.happening.IAsyncCallback;
 import com.happening.IAsyncInterface;
@@ -20,6 +21,7 @@ import java.util.List;
 public class ServiceHandler implements IRemoteHappening {
 
     private static ServiceHandler sh = null;
+
     IAsyncCallback.Stub mCallback = new IAsyncCallback.Stub() {
         public void handleResponse(String name) throws RemoteException {
             Log.d("jojo", name);
@@ -32,7 +34,7 @@ public class ServiceHandler implements IRemoteHappening {
     private IAsyncInterface async;
 
     private ServiceHandler() {
-//        this.context = MyApp.getAppContext();
+
     }
 
     public static ServiceHandler getInstance() {
@@ -201,13 +203,13 @@ public class ServiceHandler implements IRemoteHappening {
         public void onServiceConnected(ComponentName name, IBinder boundService) {
             service = IRemoteHappening.Stub.asInterface((IBinder) boundService);
             async = IAsyncInterface.Stub.asInterface((IBinder) boundService);
-//            Toast.makeText(MyApp.getAppContext(), "Service connected", Toast.LENGTH_LONG).show();
+            Toast.makeText(HappeningClient.getHappeningClient().getAppContext(), "Service connected", Toast.LENGTH_LONG).show();
         }
 
         public void onServiceDisconnected(ComponentName name) {
             service = null;
             async = null;
-//            Toast.makeText(MyApp.getAppContext(), "Service disconnected", Toast.LENGTH_LONG).show();
+            Toast.makeText(HappeningClient.getHappeningClient().getAppContext(), "Service disconnected", Toast.LENGTH_LONG).show();
         }
     }
 

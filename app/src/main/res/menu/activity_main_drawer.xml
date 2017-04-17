@@ -15,10 +15,6 @@
             android:icon="@drawable/ic_menu_gallery"
             android:title="BT4 Controls" />
         <item
-            android:id="@+id/bt2controls"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="BT2 Controls" />
-        <item
             android:id="@+id/bt_status"
             android:icon="@drawable/ic_menu_manage"
             android:title="BT Status" />
