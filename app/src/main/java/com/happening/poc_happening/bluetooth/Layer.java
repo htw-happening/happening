@@ -62,6 +62,7 @@ public class Layer {
     private BluetoothGattService gattService = null;
 
     private BluetoothGatt bluetoothGatt = null;
+    private BluetoothGattCharacteristic bluetoothGattCharacteristic = null;
 
     private BluetoothLeScanner mBluetoothLeScanner = null;
 
@@ -362,7 +363,8 @@ public class Layer {
         }
         scanResults.add(scanResult);
         if (d) Log.d(TAG, "ScanCallback - addNewScan to scanResults ("+scanResult.getDevice().getAddress()+")");
-        connectDevice(scanResult.getDevice());
+        delayedConnectDevice(scanResult.getDevice());
+//        connectDevice(scanResult.getDevice());
 
     }
 
@@ -390,19 +392,25 @@ public class Layer {
 
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            bluetoothGatt = gatt;
             BluetoothDevice bluetoothDevice = gatt.getDevice();
             switch (newState) {
                 case BluetoothProfile.STATE_CONNECTED:
-                    if (d)
+                    if (d) {
                         Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_CONNECTED)");
+                    }
                     boolean mtuSuccess = gatt.requestMtu(DEFAULT_MTU_BYTES);
-                    if (d)
+                    if (d) {
                         Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange - connected and requesting mtu");
+                    }
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
-                    if (d)
+                    if (d) {
                         Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_DISCONNECTED)");
-                    gatt.close();
+                    }
+                    bluetoothGatt.close();
+                    stopReader();
+
                     if (status == 133) {
                         // do not retry connecting - seems to be an old mac address
                         Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (GATT_FAILURE) --> Do not reconnect!!");
@@ -445,13 +453,14 @@ public class Layer {
 
                     BluetoothGattService service = gatt.getService(serviceUuid);
 
-                    BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUuid);
-                    gatt.setCharacteristicNotification(characteristic, true);
-                    gatt.readCharacteristic(characteristic);
+                    bluetoothGattCharacteristic = service.getCharacteristic(characteristicUuid);
+                    gatt.setCharacteristicNotification(bluetoothGattCharacteristic, true);
+                    gatt.readCharacteristic(bluetoothGattCharacteristic);
 
                     BluetoothGattCharacteristic userinfo = service.getCharacteristic(userinfoUuid);
                     gatt.setCharacteristicNotification(userinfo, true);
                     gatt.readCharacteristic(userinfo);
+                    startReader();
                     break;
                 case BluetoothGatt.GATT_FAILURE:
                     if (d)
@@ -466,7 +475,6 @@ public class Layer {
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            Log.i("CHAR_CHANGE", "string value: " + characteristic.getStringValue(0));
             if (d)
                 Log.d(TAG, "BluetoothGattCallback - onCharacteristicChanged (characteristic " + characteristic.getStringValue(0) + ")");
 
@@ -519,7 +527,9 @@ public class Layer {
             @Override
             public void run() {
                 if (d) Log.d(TAG, "Reader Trigger");
-//                bluetoothGatt.readCharacteristic()
+                if (bluetoothGatt == null) return;
+                if (bluetoothGattCharacteristic == null) return;
+                bluetoothGatt.readCharacteristic(bluetoothGattCharacteristic);
 
             }
         };
