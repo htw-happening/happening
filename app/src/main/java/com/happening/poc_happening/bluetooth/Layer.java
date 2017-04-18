@@ -61,9 +61,6 @@ public class Layer {
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser = null;
     private BluetoothGattService gattService = null;
 
-    private BluetoothGatt bluetoothGatt = null;
-    private BluetoothGattCharacteristic bluetoothGattCharacteristic = null;
-
     private BluetoothLeScanner mBluetoothLeScanner = null;
 
     private BluetoothGattServerCallback bluetoothGattServerCallback = null;
@@ -71,7 +68,7 @@ public class Layer {
     private AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback();
 
     private List<Handler> handlers = new ArrayList<>();
-    private ArrayList<ScanResult> scanResults = new ArrayList<>();
+    private ArrayList<Device> devices = new ArrayList<>();
 
     private Timer readerTimer;
     private Timer writerTimer;
@@ -195,12 +192,12 @@ public class Layer {
         mBluetoothGattServer = mBluetoothManager.openGattServer(context, bluetoothGattServerCallback);
 
         mBluetoothGattServer.addService(gattService);
-        startWriter();
+        //startWriter();TODO
         if (d) Log.d(TAG, "Started Gattserver");
     }
 
     public void stopGattServer() {
-        stopWriter();
+        //stopWriter();TODO
         if (mBluetoothGattServer != null) {
             for (BluetoothDevice bluetoothDevice: mBluetoothGattServer.getConnectedDevices() ) {
                 mBluetoothGattServer.cancelConnection(bluetoothDevice);
@@ -356,194 +353,66 @@ public class Layer {
     // verifying new devices through MAC Address (not necessary NEW - see userInfoUUID) // lack of changing MACs
     // changing MAC every 15 minutes (exactly 15 mins!!)
     private void addNewScan(ScanResult scanResult){
-        for (ScanResult aScanResult: scanResults) {
-            if (aScanResult.getDevice().getAddress().equals(scanResult.getDevice().getAddress())){
+        Device scannedDevice = new Device(scanResult.getDevice());
+        for (Device device: devices) {
+            if (scannedDevice.hasSameMacAddress(device)){
                 return;
             }
         }
-        scanResults.add(scanResult);
+        devices.add(scannedDevice);
         if (d) Log.d(TAG, "ScanCallback - addNewScan to scanResults ("+scanResult.getDevice().getAddress()+")");
-        delayedConnectDevice(scanResult.getDevice(), 4500);
-//        connectDevice(scanResult.getDevice());
-
+        scannedDevice.delayedConnectDevice(4500, Device.STATE_CONNECTING);
     }
 
-    public void connectDevice(BluetoothDevice bluetoothDevice) {
-        if (d) Log.d(TAG, "Connecting to Device (" + bluetoothDevice.getAddress() + ")");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            bluetoothGatt = bluetoothDevice.connectGatt(context, false, mGattCallback, BluetoothDevice.TRANSPORT_LE);
-        } else {
-            bluetoothGatt = bluetoothDevice.connectGatt(context, false, mGattCallback);
-        }
-    }
-
-    public void delayedConnectDevice(final BluetoothDevice bluetoothDevice, int delay) {
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                connectDevice(bluetoothDevice);
-            }
-        };
-        Timer timer = new Timer();
-        timer.schedule(timerTask, delay);
-    }
-
-    private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
-
-        @Override
-        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            bluetoothGatt = gatt;
-            BluetoothDevice bluetoothDevice = gatt.getDevice();
-            switch (newState) {
-                case BluetoothProfile.STATE_CONNECTED:
-                    if (d) {
-                        Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_CONNECTED)");
-                    }
-                    boolean mtuSuccess = gatt.requestMtu(DEFAULT_MTU_BYTES);
-                    if (d) {
-                        Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange - connected and requesting mtu");
-                    }
-                    break;
-                case BluetoothProfile.STATE_DISCONNECTED:
-                    if (d) {
-                        Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_DISCONNECTED)");
-                    }
-                    bluetoothGatt.close();
-                    stopReader();
-
-                    if (status == 133) {
-                        // do not retry connecting - seems to be an old mac address
-                        Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (GATT_FAILURE) --> Do not reconnect!!");
-
-                    }else{
-                        delayedConnectDevice(bluetoothDevice, 1500);
-                    }
-                    break;
-                default:
-                    if (d)
-                        Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (other state " + status + ")");
-                    break;
-            }
-        }
-
-        @Override
-        public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-            if (d) Log.d(TAG, "BluetoothGattCallback - onMtuChanged (mtu " + mtu + ")");
-            boolean discovering = gatt.discoverServices();
-            if (d)
-                Log.d(TAG, "BluetoothGattCallback - onMtuChanged - start discovering services (" + discovering + ")");
-
-        }
-
-        @Override
-        public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
-            if (d) Log.d(TAG, "BluetoothGattCallback - onReadRemoteRssi (rssi " + rssi + ")");
-        }
-
-        @Override
-        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            switch (status) {
-                case BluetoothGatt.GATT_SUCCESS:
-                    if (d)
-                        Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (GATT_SUCCESS)");
-
-                    UUID serviceUuid = UUID.fromString(Layer.SERVICE_UUID);
-                    UUID characteristicUuid = UUID.fromString(Layer.CHARACTERISTIC_UUID);
-                    UUID userinfoUuid = UUID.fromString(Layer.USERINFO_UUID);
-
-                    BluetoothGattService service = gatt.getService(serviceUuid);
-
-                    bluetoothGattCharacteristic = service.getCharacteristic(characteristicUuid);
-                    gatt.setCharacteristicNotification(bluetoothGattCharacteristic, true);
-                    gatt.readCharacteristic(bluetoothGattCharacteristic);
-
-                    BluetoothGattCharacteristic userinfo = service.getCharacteristic(userinfoUuid);
-                    gatt.setCharacteristicNotification(userinfo, true);
-                    gatt.readCharacteristic(userinfo);
-                    startReader();
-                    break;
-                case BluetoothGatt.GATT_FAILURE:
-                    if (d)
-                        Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (GATT_FAILURE)");
-                    break;
-                default:
-                    if (d)
-                        Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (status " + status + ")");
-                    break;
-            }
-        }
-
-        @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            if (d)
-                Log.d(TAG, "BluetoothGattCallback - onCharacteristicChanged (characteristic " + characteristic.getStringValue(0) + ")");
-
-        }
-
-        @Override
-        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            if (d)
-                Log.d(TAG, "BluetoothGattCallback - onCharacteristicRead (characteristic " + characteristic.getStringValue(0) + ", status " + status + ")");
-
-        }
-
-        @Override
-        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            if (d)
-                Log.d(TAG, "BluetoothGattCallback - onCharacteristicWrite (characteristic " + characteristic.getStringValue(0) + ", status " + status + ")");
-        }
-
-    };
-
-    private void startWriter(){
-        if (writerTimer != null){
-            return;
-        }
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                if (d) Log.d(TAG, "Writer Trigger");
-                BluetoothGattCharacteristic bluetoothGattCharacteristic = gattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
-                if (bluetoothGattCharacteristic == null) return;
-                bluetoothGattCharacteristic.setValue(String.valueOf(System.currentTimeMillis()));
-                if (d) Log.d(TAG, "Writer - Changed Value");
-            }
-        };
-        writerTimer = new Timer();
-        writerTimer.scheduleAtFixedRate(timerTask, 1000, 1000);
-    }
-
-    private void stopWriter(){
-        if (writerTimer == null){
-            return;
-        }
-        writerTimer.cancel();
-        writerTimer = null;
-    }
-
-    private void startReader(){
-        if (readerTimer != null) return;
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                if (d) Log.d(TAG, "Reader Trigger");
-                if (bluetoothGatt == null) return;
-                if (bluetoothGattCharacteristic == null) return;
-                bluetoothGatt.readCharacteristic(bluetoothGattCharacteristic);
-
-            }
-        };
-        readerTimer = new Timer();
-        readerTimer.scheduleAtFixedRate(timerTask, 1000, 1000);
-    }
-
-    private void stopReader(){
-        if (readerTimer == null){
-            return;
-        }
-        readerTimer.cancel();
-        readerTimer = null;
-    }
+//    private void startWriter(){
+//        if (writerTimer != null){
+//            return;
+//        }
+//        TimerTask timerTask = new TimerTask() {
+//            @Override
+//            public void run() {
+//                if (d) Log.d(TAG, "Writer Trigger");
+//                BluetoothGattCharacteristic bluetoothGattCharacteristic = gattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
+//                if (bluetoothGattCharacteristic == null) return;
+//                bluetoothGattCharacteristic.setValue(String.valueOf(System.currentTimeMillis()));
+//                if (d) Log.d(TAG, "Writer - Changed Value");
+//            }
+//        };
+//        writerTimer = new Timer();
+//        writerTimer.scheduleAtFixedRate(timerTask, 1000, 1000);
+//    }
+//
+//    private void stopWriter(){
+//        if (writerTimer == null){
+//            return;
+//        }
+//        writerTimer.cancel();
+//        writerTimer = null;
+//    }
+//
+//    private void startReader(){
+//        if (readerTimer != null) return;
+//        TimerTask timerTask = new TimerTask() {
+//            @Override
+//            public void run() {
+//                if (d) Log.d(TAG, "Reader Trigger");
+//                if (bluetoothGatt == null) return;
+//                if (bluetoothGattCharacteristic == null) return;
+//                bluetoothGatt.readCharacteristic(bluetoothGattCharacteristic);
+//
+//            }
+//        };
+//        readerTimer = new Timer();
+//        readerTimer.scheduleAtFixedRate(timerTask, 1000, 1000);
+//    }
+//
+//    private void stopReader(){
+//        if (readerTimer == null){
+//            return;
+//        }
+//        readerTimer.cancel();
+//        readerTimer = null;
+//    }
 
     //endregion
 }
