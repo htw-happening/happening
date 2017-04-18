@@ -42,5 +42,9 @@ public class HappeningClient {
         HappeningClient.sh.stopService();
     }
 
+    public void startScan() {
+        HappeningClient.sh.startScan();
+    }
+
 
 }

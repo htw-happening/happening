@@ -3,115 +3,26 @@ package com.happening.service;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 
+import com.happening.IAsyncCallback;
 import com.happening.IRemoteHappening;
 
 public class HappeningService extends Service {
 
     private final IRemoteHappening.Stub mBinder = new IRemoteHappening.Stub() {
 
-//        List<BluetoothDevice> devices = Collections.synchronizedList(new ArrayList<BluetoothDevice>());
+        @Override
+        public void startScan(String name) throws RemoteException {
+            Log.d("jojo", name);
+        }
 
-//        @Override
-//        public void addDevice(String name) throws RemoteException {
-//
-//            getApplicationContext();
-//            // check if device is already in device list
-//            for (BluetoothDevice d : devices) {
-//                Log.d("name", d.getName());
-//                if (d.getName().equals(name)) {
-//                    Log.d("already in list", name);
-//                    return;
-//                }
-//            }
-//
-//            // add if not in device list
-//            BluetoothDevice device = new BluetoothDevice(name);
-//            devices.add(device);
-//            Log.d("add device", name);
-//
-//        }
-//
-//        @Override
-//        public BluetoothDevice getDevice(String name) throws RemoteException {
-//            for (BluetoothDevice device : devices) {
-//                if (device.getName().equalsIgnoreCase(name)) {
-//                    Log.d("get device", device.toString());
-//                    return device;
-//                }
-//            }
-//            return null;
-//        }
-//
-//        @Override
-//        public List<BluetoothDevice> getDevices() throws RemoteException {
-//            Log.d("get device", String.valueOf(devices));
-//            return devices;
-//        }
-//
-//        @Override
-//        public void enableAdapter() throws RemoteException {
-//            Layer.getInstance().enableAdapter();
-//        }
-//
-//        @Override
-//        public void disableAdapter() throws RemoteException {
-//            Layer.getInstance().disableAdapter();
-//        }
-//
-//        @Override
-//        public boolean isBtAdapterEnabled() throws RemoteException {
-//            return Layer.getInstance().isEnabled();
-//        }
-//
-//        @Override
-//        public void startScan() throws RemoteException {
-//            Layer.getInstance().startScan();
-//        }
-//
-//        @Override
-//        public void stopScan() throws RemoteException {
-//            Layer.getInstance().stopScan();
-//        }
-//
-//        @Override
-//        public void startAdvertising() throws RemoteException {
-//            Layer.getInstance().startAdvertising();
-//        }
-//
-//        @Override
-//        public void stopAdvertising() throws RemoteException {
-//            Layer.getInstance().stopAdvertising();
-//        }
-//
-//        @Override
-//        public boolean isAdvertisingSupported() throws RemoteException {
-//            return Layer.getInstance().isAdvertisingSupported();
-//        }
-//
-//        @Override
-//        public void createGattServer() throws RemoteException {
-//            Layer.getInstance().createGattServer();
-//        }
-//
-//        @Override
-//        public void stopGattServer() throws RemoteException {
-//            Layer.getInstance().stopGattServer();
-//        }
-
-//        @Override
-//        public void addHandler(Handler handler) throws RemoteException{
-//        }
-//
-//        @Override
-//        public void removeHandler(Handler handler) throws RemoteException{
-//        }
-
-//        @Override
-//        public void broadcastMessage(String message) throws RemoteException {
-//            Layer.getInstance().broadcastMessage(message);
-//        }
+        @Override
+        public void methodOne(IAsyncCallback callback) throws RemoteException {
+            Log.d("jojo", "method one");
+            callback.handleResponse("callback success");
+        }
     };
 
     /**

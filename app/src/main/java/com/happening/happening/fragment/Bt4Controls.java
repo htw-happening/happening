@@ -70,7 +70,7 @@ public class Bt4Controls extends Fragment {
             @Override
             public void onClick(View v) {
                 // stop scan for devices
-                HappeningClient.getHappeningClient().stopScan();
+//                HappeningClient.getHappeningClient().stopScan();
             }
         });
 

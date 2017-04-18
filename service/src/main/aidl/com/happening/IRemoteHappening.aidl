@@ -2,8 +2,14 @@ package com.happening;
 
 import com.happening.lib.BluetoothDevice;
 import com.happening.lib.IHandler;
+import com.happening.IAsyncCallback;
 
 interface IRemoteHappening {
+
+      void startScan(String name);
+      void methodOne(IAsyncCallback callback);
+
+
 //    void addDevice(String name);
 //    BluetoothDevice getDevice(String name);
 //    List<BluetoothDevice> getDevices();
