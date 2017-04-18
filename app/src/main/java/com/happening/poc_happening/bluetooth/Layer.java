@@ -363,7 +363,7 @@ public class Layer {
         }
         scanResults.add(scanResult);
         if (d) Log.d(TAG, "ScanCallback - addNewScan to scanResults ("+scanResult.getDevice().getAddress()+")");
-        delayedConnectDevice(scanResult.getDevice());
+        delayedConnectDevice(scanResult.getDevice(), 4500);
 //        connectDevice(scanResult.getDevice());
 
     }
@@ -377,7 +377,7 @@ public class Layer {
         }
     }
 
-    public void delayedConnectDevice(final BluetoothDevice bluetoothDevice) {
+    public void delayedConnectDevice(final BluetoothDevice bluetoothDevice, int delay) {
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
@@ -385,7 +385,7 @@ public class Layer {
             }
         };
         Timer timer = new Timer();
-        timer.schedule(timerTask, 2000);
+        timer.schedule(timerTask, delay);
     }
 
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
@@ -416,7 +416,7 @@ public class Layer {
                         Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (GATT_FAILURE) --> Do not reconnect!!");
 
                     }else{
-                        delayedConnectDevice(bluetoothDevice);
+                        delayedConnectDevice(bluetoothDevice, 1500);
                     }
                     break;
                 default:
