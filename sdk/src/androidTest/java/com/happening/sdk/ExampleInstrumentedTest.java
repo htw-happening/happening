@@ -1,4 +1,4 @@
-package com.happening.poc5.sdk;
+package com.happening.sdk;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

@@ -1,4 +1,4 @@
-package com.happening.poc.happening_aidl_lib;
+package com.happening;
 
 import org.junit.Test;
 
