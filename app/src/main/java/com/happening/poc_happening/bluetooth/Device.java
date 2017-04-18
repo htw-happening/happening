@@ -21,14 +21,26 @@ public class Device {
     private String TAG = getClass().getSimpleName();
     private boolean d = true;
 
-    public static final int STATE_NEW_SCANNED_DEVICE = 1;
-    public static final int STATE_CONNECTING = 2;
-    public static final int STATE_DISCOVERING = 3;
-    public static final int STATE_CONNECTED = 4;
-    public static final int STATE_DISCONNECTED = 5;
-    public static final int STATE_RECONNECTING = 6;
-    public static final int STATE_OFFLINE = 7; // TODO cleanUpMethod
-    public static final int STATE_UNKNOWN = 0;
+    public enum STATE {
+        NEW_SCANNED_DEVICE(1),
+        CONNECTING(2),
+        DISCOVERING(3),
+        CONNECTED(4),
+        DISCONNECTED(5),
+        RECONNECTING(6),
+        OFFLINE(7), // TODO cleanUpMethod
+        UNKNOWN(0);
+
+        private final int state;
+
+        public int getValue() {
+            return state;
+        }
+
+        STATE (final int value){
+            this.state = value;
+        }
+    }
 
     public static final int DEFAULT_MTU_BYTES = 128;
 
@@ -37,15 +49,20 @@ public class Device {
     private BluetoothGattCharacteristic bluetoothGattCharacteristic = null;
 
     private int id;
-    private int state;
+    private STATE state;
 
     public Device (BluetoothDevice bluetoothDevice) {
         this.bluetoothDevice = bluetoothDevice;
-        this.state = STATE_NEW_SCANNED_DEVICE;
+        this.state = STATE.NEW_SCANNED_DEVICE;
     }
 
     public boolean hasSameMacAddress(Device other){
         return this.bluetoothDevice.getAddress().equals(other.bluetoothDevice.getAddress());
+    }
+
+    private void changeState (STATE state) {
+        if (d) Log.d(TAG, "Change State from "+this.state+" to "+state);
+        this.state = state;
     }
 
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
@@ -57,7 +74,7 @@ public class Device {
             switch (newState) {
                 case BluetoothProfile.STATE_CONNECTED:
                     if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_CONNECTED)");
-                    state = STATE_DISCOVERING;
+                    changeState(STATE.DISCOVERING);
                     boolean mtuSuccess = gatt.requestMtu(DEFAULT_MTU_BYTES); //TODO CHECK if true und so
                     if (d) {
                         Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange - connected and requesting mtu");
@@ -66,21 +83,21 @@ public class Device {
                 case BluetoothProfile.STATE_DISCONNECTED:
                     if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_DISCONNECTED)");
                     bluetoothGatt.close();
-                    state = STATE_DISCONNECTED;
+                    changeState(STATE.DISCONNECTED);
                     //stopReader();TODO
 
                     if (status == 133) {
                         // do not retry connecting - seems to be an old mac address
                         Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (GATT_FAILURE) --> Do not reconnect!!");
-                        state = STATE_OFFLINE;
+                        changeState(STATE.OFFLINE);
 
                     }else{
-                        delayedConnectDevice(1500, STATE_RECONNECTING);
+                        delayedConnectDevice(1500, STATE.RECONNECTING);
                     }
                     break;
                 default:
                     if (d) Log.e(TAG, "BluetoothGattCallback - onConnectionStateChange (other state " + status + ")");
-                        state = STATE_UNKNOWN;
+                    changeState(STATE.UNKNOWN);
                     break;
             }
         }
@@ -89,7 +106,7 @@ public class Device {
         public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
             if (d) Log.d(TAG, "BluetoothGattCallback - onMtuChanged (mtu " + mtu + ")");
             boolean discovering = gatt.discoverServices();
-            state = STATE_DISCOVERING;
+            changeState(STATE.DISCOVERING);
             if (d) Log.d(TAG, "BluetoothGattCallback - onMtuChanged - start discovering services (" + discovering + ")");
 
         }
@@ -125,15 +142,15 @@ public class Device {
                     break;
                 case BluetoothGatt.GATT_FAILURE:
                     if (d) Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (GATT_FAILURE)");
-                    if (state == STATE_DISCOVERING){
-                        delayedConnectDevice(1500, STATE_RECONNECTING);
+                    if (state == STATE.DISCOVERING){
+                        delayedConnectDevice(1500, STATE.RECONNECTING);
                     }else {
-                        state = STATE_OFFLINE;
+                        changeState(STATE.OFFLINE);
                     }
                     break;
                 default:
                     if (d) Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (status " + status + ")");
-                    state = STATE_UNKNOWN;
+                    changeState(STATE.UNKNOWN);
                     break;
             }
         }
@@ -146,7 +163,7 @@ public class Device {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if (d) Log.d(TAG, "BluetoothGattCallback - onCharacteristicRead (characteristic " + characteristic.getStringValue(0) + ", status " + status + ")");
-            if (state == STATE_DISCOVERING){
+            if (state == STATE.DISCOVERING){
                 checkConnection(characteristic.getStringValue(0));
             }
 
@@ -161,12 +178,12 @@ public class Device {
 
     private void checkConnection(String uniqueID) {
 
-        state = STATE_CONNECTED;
+        changeState(STATE.CONNECTED);
     }
 
     public void connectDevice() {
         if (d) Log.d(TAG, "Connecting to Device (" + bluetoothDevice.getAddress() + ")");
-        this.state = STATE_CONNECTING;
+        changeState(STATE.CONNECTING);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             bluetoothGatt = bluetoothDevice.connectGatt(MyApp.getAppContext(), false, mGattCallback, BluetoothDevice.TRANSPORT_LE);
         } else {
@@ -174,8 +191,8 @@ public class Device {
         }
     }
 
-    public void delayedConnectDevice(int delay, int state) {
-        this.state = state;
+    public void delayedConnectDevice(int delay, STATE state) {
+        changeState(state);
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {

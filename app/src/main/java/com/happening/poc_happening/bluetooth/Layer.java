@@ -365,7 +365,7 @@ public class Layer {
         }
         devices.add(scannedDevice);
         if (d) Log.d(TAG, "ScanCallback - addNewScan to scanResults ("+scanResult.getDevice().getAddress()+")");
-        scannedDevice.delayedConnectDevice(4500, Device.STATE_CONNECTING);
+        scannedDevice.delayedConnectDevice(4500, Device.STATE.CONNECTING);
     }
 
 //    private void startWriter(){
