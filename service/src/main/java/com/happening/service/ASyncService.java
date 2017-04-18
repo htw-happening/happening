@@ -8,20 +8,18 @@ import android.os.RemoteException;
 import com.happening.IAsyncCallback;
 import com.happening.IAsyncInterface;
 
-import static java.lang.Thread.sleep;
-
 public class ASyncService extends Service {
 
     private final IAsyncInterface.Stub mBinder = new IAsyncInterface.Stub() {
         public void methodOne(IAsyncCallback callback) throws RemoteException {
 
-            for(int i = 0; i < 10; i++) {
-                try {
-                    sleep(10);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+//            for(int i = 0; i < 10; i++) {
+//                try {
+//                    sleep(10);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
 
             callback.handleResponse("methodOne");
         }

@@ -42,9 +42,8 @@ public class HappeningClient {
         HappeningClient.sh.stopService();
     }
 
-    public void startScan() {
-        HappeningClient.sh.startScan();
-    }
-
+    public void registerOnClientDiscoverCallback(CallbackInterface callback) {
+        HappeningClient.sh.registerDeviceDiscover(callback);
+}
 
 }

@@ -10,7 +10,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.happening.IAsyncCallback;
-import com.happening.IAsyncInterface;
 import com.happening.IRemoteHappening;
 import com.happening.service.HappeningService;
 
@@ -19,7 +18,7 @@ public class ServiceHandler {
     private static ServiceHandler sh = null;
     private RemoteServiceConnection serviceConnection;
     private IRemoteHappening service;
-    private IAsyncInterface async;
+    private CallbackInterface onClientDiscoverCallback = null;
 
     private ServiceHandler() {
     }
@@ -73,9 +72,11 @@ public class ServiceHandler {
         return service != null;
     }
 
-    public void startScan() {
+    public void registerDeviceDiscover(CallbackInterface callback) {
         try {
             service.methodOne(mCallback);
+            this.onClientDiscoverCallback = callback;
+//            Log.d("jojo", String.valueOf(this.onClientDiscoverCallback));
         } catch (RemoteException e) {
         }
     }
@@ -83,28 +84,24 @@ public class ServiceHandler {
     IAsyncCallback.Stub mCallback = new IAsyncCallback.Stub() {
         public void handleResponse(String name) throws RemoteException {
             Log.d("jojo", name);
+            discover();
+//            onClientDiscoverCallback.onClientDiscovered(name);
         }
     };
 
-    public void doAsyncTask() {
-        try {
-            async.methodOne(mCallback);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+    void discover() {
+        Log.d("jojo", String.valueOf(this.onClientDiscoverCallback));
     }
 
     class RemoteServiceConnection implements ServiceConnection {
 
         public void onServiceConnected(ComponentName name, IBinder boundService) {
             service = IRemoteHappening.Stub.asInterface((IBinder) boundService);
-//            async = IAsyncInterface.Stub.asInterface((IBinder) boundService);
             Toast.makeText(HappeningClient.getHappeningClient().getAppContext(), "Service connected", Toast.LENGTH_LONG).show();
         }
 
         public void onServiceDisconnected(ComponentName name) {
             service = null;
-//            async = null;
             Toast.makeText(HappeningClient.getHappeningClient().getAppContext(), "Service disconnected", Toast.LENGTH_LONG).show();
         }
     }

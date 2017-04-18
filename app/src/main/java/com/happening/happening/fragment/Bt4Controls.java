@@ -12,6 +12,7 @@ import android.widget.ListView;
 import com.happening.happening.R;
 import com.happening.happening.adapter.DeviceListAdapter;
 import com.happening.happening.models.DeviceModel;
+import com.happening.sdk.CallbackInterface;
 import com.happening.sdk.HappeningClient;
 
 public class Bt4Controls extends Fragment {
@@ -54,15 +55,13 @@ public class Bt4Controls extends Fragment {
         rootView.findViewById(R.id.button_start_scan).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("click", "start");
                 // start scan for devices
-//                HappeningClient.getHappeningClient().registerDeviceDiscorveredCallback(new DeviceDiscoveredCallback() {
-//                    @Override
-//                    public void deviceDiscovered() {
-//
-//                    }
-//                });
-                HappeningClient.getHappeningClient().startScan();
+                HappeningClient.getHappeningClient().registerOnClientDiscoverCallback(new CallbackInterface() {
+                    @Override
+                    public void onClientDiscovered(String clientName) {
+                        Log.d("callback in bt4", clientName);
+                    }
+                });
             }
         });
 
@@ -70,7 +69,6 @@ public class Bt4Controls extends Fragment {
             @Override
             public void onClick(View v) {
                 // stop scan for devices
-//                HappeningClient.getHappeningClient().stopScan();
             }
         });
 
