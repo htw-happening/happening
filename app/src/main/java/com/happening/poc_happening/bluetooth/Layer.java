@@ -31,6 +31,7 @@ import com.happening.poc_happening.MyApp;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Timer;
@@ -58,6 +59,9 @@ public class Layer {
 
     private BluetoothGattServer mBluetoothGattServer = null;
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser = null;
+    private BluetoothGattService gattService = null;
+
+    private BluetoothGatt bluetoothGatt = null;
 
     private BluetoothLeScanner mBluetoothLeScanner = null;
 
@@ -67,6 +71,9 @@ public class Layer {
 
     private List<Handler> handlers = new ArrayList<>();
     private ArrayList<ScanResult> scanResults = new ArrayList<>();
+
+    private Timer readerTimer;
+    private Timer writerTimer;
 
     public static Layer getInstance() {
         if (instance == null)
@@ -155,7 +162,7 @@ public class Layer {
         UUID characteristicUuid = UUID.fromString(CHARACTERISTIC_UUID);
         UUID userinfoUuid = UUID.fromString(USERINFO_UUID);
 
-        BluetoothGattService gattService = new BluetoothGattService(
+        gattService = new BluetoothGattService(
                 serviceUuid, BluetoothGattService.SERVICE_TYPE_PRIMARY);
 
         BluetoothGattCharacteristic characteristic = new BluetoothGattCharacteristic(
@@ -187,10 +194,12 @@ public class Layer {
         mBluetoothGattServer = mBluetoothManager.openGattServer(context, bluetoothGattServerCallback);
 
         mBluetoothGattServer.addService(gattService);
+        startWriter();
         if (d) Log.d(TAG, "Started Gattserver");
     }
 
     public void stopGattServer() {
+        stopWriter();
         if (mBluetoothGattServer != null) {
             for (BluetoothDevice bluetoothDevice: mBluetoothGattServer.getConnectedDevices() ) {
                 mBluetoothGattServer.cancelConnection(bluetoothDevice);
@@ -303,6 +312,7 @@ public class Layer {
                 if (d) Log.d(TAG, "BluetoothGattServerCallback - onConnectionStateChange (STATE_CONNECTED)");
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 if (d) Log.d(TAG, "BluetoothGattServerCallback - onConnectionStateChange (STATE_DISCONNECTED)");
+
             } else {
                 if (d) Log.d(TAG, "BluetoothGattServerCallback - onConnectionStateChange (status: " + status + "; newStatus: " + newState + ")");
             }
@@ -357,19 +367,30 @@ public class Layer {
     }
 
     public void connectDevice(BluetoothDevice bluetoothDevice) {
-        BluetoothGatt bluetoothGatt;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            bluetoothGatt = bluetoothDevice.connectGatt(context, true, mGattCallback, BluetoothDevice.TRANSPORT_LE);
-        } else {
-            bluetoothGatt = bluetoothDevice.connectGatt(context, true, mGattCallback);
-        }
         if (d) Log.d(TAG, "Connecting to Device (" + bluetoothDevice.getAddress() + ")");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            bluetoothGatt = bluetoothDevice.connectGatt(context, false, mGattCallback, BluetoothDevice.TRANSPORT_LE);
+        } else {
+            bluetoothGatt = bluetoothDevice.connectGatt(context, false, mGattCallback);
+        }
+    }
+
+    public void delayedConnectDevice(final BluetoothDevice bluetoothDevice) {
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                connectDevice(bluetoothDevice);
+            }
+        };
+        Timer timer = new Timer();
+        timer.schedule(timerTask, 2000);
     }
 
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
 
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            BluetoothDevice bluetoothDevice = gatt.getDevice();
             switch (newState) {
                 case BluetoothProfile.STATE_CONNECTED:
                     if (d)
@@ -382,6 +403,13 @@ public class Layer {
                     if (d)
                         Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_DISCONNECTED)");
                     gatt.close();
+                    if (status == 133) {
+                        // do not retry connecting - seems to be an old mac address
+                        Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (GATT_FAILURE) --> Do not reconnect!!");
+
+                    }else{
+                        delayedConnectDevice(bluetoothDevice);
+                    }
                     break;
                 default:
                     if (d)
@@ -458,6 +486,54 @@ public class Layer {
         }
 
     };
+
+    private void startWriter(){
+        if (writerTimer != null){
+            return;
+        }
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                if (d) Log.d(TAG, "Writer Trigger");
+                BluetoothGattCharacteristic bluetoothGattCharacteristic = gattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
+                if (bluetoothGattCharacteristic == null) return;
+                bluetoothGattCharacteristic.setValue(String.valueOf(System.currentTimeMillis()));
+                if (d) Log.d(TAG, "Writer - Changed Value");
+            }
+        };
+        writerTimer = new Timer();
+        writerTimer.scheduleAtFixedRate(timerTask, 1000, 1000);
+    }
+
+    private void stopWriter(){
+        if (writerTimer == null){
+            return;
+        }
+        writerTimer.cancel();
+        writerTimer = null;
+    }
+
+    private void startReader(){
+        if (readerTimer != null) return;
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                if (d) Log.d(TAG, "Reader Trigger");
+//                bluetoothGatt.readCharacteristic()
+
+            }
+        };
+        readerTimer = new Timer();
+        readerTimer.scheduleAtFixedRate(timerTask, 1000, 1000);
+    }
+
+    private void stopReader(){
+        if (readerTimer == null){
+            return;
+        }
+        readerTimer.cancel();
+        readerTimer = null;
+    }
 
     //endregion
 }
