@@ -6,7 +6,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
-import blue.happening.chat.service.ServiceHandler;
+import blue.happening.sdk.ServiceHandler;
 
 public class MyApp extends Application implements Application.ActivityLifecycleCallbacks {
 
@@ -28,7 +28,6 @@ public class MyApp extends Application implements Application.ActivityLifecycleC
         context = getApplicationContext();
         registerActivityLifecycleCallbacks(this);
         this.serviceHandler = ServiceHandler.getInstance();
-        serviceHandler.startService();
     }
 
     @Override
@@ -71,5 +70,4 @@ public class MyApp extends Application implements Application.ActivityLifecycleC
         Log.d(this.getClass().getSimpleName(), "onActivityDestroyed");
         inForeground = false;
     }
-
 }

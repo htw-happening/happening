@@ -14,13 +14,13 @@ import blue.happening.IRemoteHappening;
 import blue.happening.bluetooth.Layer;
 import blue.happening.lib.BluetoothDevice;
 
+
 public class HappeningService extends Service {
 
     private final IRemoteHappening.Stub binder = new IRemoteHappening.Stub() {
 
         List<BluetoothDevice> devices = Collections.synchronizedList(new ArrayList<BluetoothDevice>());
 
-        @Override
         public void addDevice(String name) throws RemoteException {
 
             getApplicationContext();
@@ -40,85 +40,6 @@ public class HappeningService extends Service {
 
         }
 
-        @Override
-        public BluetoothDevice getDevice(String name) throws RemoteException {
-            for (BluetoothDevice device : devices) {
-                if (device.getName().equalsIgnoreCase(name)) {
-                    Log.d("get device", device.toString());
-                    return device;
-                }
-            }
-            return null;
-        }
-
-        @Override
-        public List<BluetoothDevice> getDevices() throws RemoteException {
-            Log.d("get device", String.valueOf(devices));
-            return devices;
-        }
-
-        @Override
-        public void enableAdapter() throws RemoteException {
-            Layer.getInstance().enableAdapter();
-        }
-
-        @Override
-        public void disableAdapter() throws RemoteException {
-            Layer.getInstance().disableAdapter();
-        }
-
-        @Override
-        public boolean isBtAdapterEnabled() throws RemoteException {
-            return Layer.getInstance().isEnabled();
-        }
-
-        @Override
-        public void startScan() throws RemoteException {
-            Layer.getInstance().startScan();
-        }
-
-        @Override
-        public void stopScan() throws RemoteException {
-            Layer.getInstance().stopScan();
-        }
-
-        @Override
-        public void startAdvertising() throws RemoteException {
-            Layer.getInstance().startAdvertising();
-        }
-
-        @Override
-        public void stopAdvertising() throws RemoteException {
-            Layer.getInstance().stopAdvertising();
-        }
-
-        @Override
-        public boolean isAdvertisingSupported() throws RemoteException {
-            return Layer.getInstance().isAdvertisingSupported();
-        }
-
-        @Override
-        public void createGattServer() throws RemoteException {
-            Layer.getInstance().createGattServer();
-        }
-
-        @Override
-        public void stopGattServer() throws RemoteException {
-            Layer.getInstance().stopGattServer();
-        }
-
-//        @Override
-//        public void addHandler(Handler handler) throws RemoteException{
-//        }
-//
-//        @Override
-//        public void removeHandler(Handler handler) throws RemoteException{
-//        }
-
-        @Override
-        public void broadcastMessage(String message) throws RemoteException {
-            Layer.getInstance().broadcastMessage(message);
-        }
     };
 
     /**
