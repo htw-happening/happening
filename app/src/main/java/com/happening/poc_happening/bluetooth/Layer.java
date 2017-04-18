@@ -92,6 +92,10 @@ public class Layer {
     }
 
 
+    private UUID getID() {
+        // TODO: Return existing ID from database
+        return UUID.randomUUID();
+    }
 
 /*
     public void disconnectDevice(DeviceModel deviceModel) {
