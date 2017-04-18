@@ -12,7 +12,7 @@ import android.widget.ListView;
 import com.happening.happening.R;
 import com.happening.happening.adapter.DeviceListAdapter;
 import com.happening.happening.models.DeviceModel;
-import com.happening.sdk.CallbackInterface;
+import com.happening.sdk.ClientCallbackInterface;
 import com.happening.sdk.HappeningClient;
 
 public class Bt4Controls extends Fragment {
@@ -56,7 +56,7 @@ public class Bt4Controls extends Fragment {
             @Override
             public void onClick(View v) {
                 // start scan for devices
-                HappeningClient.getHappeningClient().registerOnClientDiscoverCallback(new CallbackInterface() {
+                HappeningClient.getHappeningClient().startClientScan(new ClientCallbackInterface() {
                     @Override
                     public void onClientDiscovered(String clientName) {
                         Log.d("callback in bt4", clientName);
@@ -69,6 +69,7 @@ public class Bt4Controls extends Fragment {
             @Override
             public void onClick(View v) {
                 // stop scan for devices
+                HappeningClient.getHappeningClient().stopClientScan();
             }
         });
 

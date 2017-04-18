@@ -66,6 +66,7 @@ public class Layer {
 
     private Layer() {
         context = MyService.getContext();
+        Log.d("layer", "" + context);
         this.mBluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.mBluetoothAdapter = mBluetoothManager.getAdapter();
         this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();

@@ -15,4 +15,8 @@ public class MyService extends Application {
         return context;
     }
 
+    public static void setContext(Context context) {
+        MyService.context = context;
+    }
+
 }

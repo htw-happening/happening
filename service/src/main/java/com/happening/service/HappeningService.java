@@ -2,26 +2,53 @@ package com.happening.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.happening.IAsyncCallback;
-import com.happening.IRemoteHappening;
+import com.happening.HappeningInterface;
+import com.happening.MyService;
+import com.happening.ServiceCallbackInterface;
+import com.happening.bluetooth.Layer;
 
 public class HappeningService extends Service {
 
-    private final IRemoteHappening.Stub mBinder = new IRemoteHappening.Stub() {
+    private ServiceCallbackInterface deviceDiscoveredCallback = null;
 
+    private final HappeningInterface.Stub mBinder = new HappeningInterface.Stub() {
         @Override
-        public void startScan(String name) throws RemoteException {
-            Log.d("jojo", name);
+        public void startClientScan(ServiceCallbackInterface callback) throws RemoteException {
+            Layer.getInstance().addHandler(guiHandler);
+            Layer.getInstance().startAdvertising();
+            Layer.getInstance().startScan();
+            deviceDiscoveredCallback = callback;
         }
 
         @Override
-        public void methodOne(IAsyncCallback callback) throws RemoteException {
-            Log.d("jojo", "method one");
-            callback.handleResponse("callback success");
+        public void stopClientScan() throws RemoteException {
+        }
+    };
+
+    private Handler guiHandler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case Layer.DEVICE_POOL_UPDATED:
+                    try {
+                        deviceDiscoveredCallback.onClientDiscovered(Layer.getInstance().getDevicePool().toString());
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case Layer.MESSAGE_RECEIVED:
+                    break;
+                default:
+                    Log.i("HANDLER", "Unresolved Message Code");
+                    break;
+            }
         }
     };
 
@@ -41,6 +68,7 @@ public class HappeningService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(this.getClass().getSimpleName(), "onCreate " + this.toString());
+        MyService.setContext(getApplicationContext());
     }
 
     /**

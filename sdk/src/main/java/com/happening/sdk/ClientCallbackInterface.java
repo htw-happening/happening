@@ -1,6 +1,6 @@
 package com.happening.sdk;
 
-public interface CallbackInterface {
+public interface ClientCallbackInterface {
 
     void onClientDiscovered(String clientName);
 
