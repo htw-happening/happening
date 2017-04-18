@@ -30,6 +30,8 @@ public class Device {
     public static final int STATE_OFFLINE = 7; // TODO cleanUpMethod
     public static final int STATE_UNKNOWN = 0;
 
+    public static final int DEFAULT_MTU_BYTES = 128;
+
     private BluetoothDevice bluetoothDevice = null;
     private BluetoothGatt bluetoothGatt = null;
     private BluetoothGattCharacteristic bluetoothGattCharacteristic = null;
@@ -56,7 +58,7 @@ public class Device {
                 case BluetoothProfile.STATE_CONNECTED:
                     if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_CONNECTED)");
                     state = STATE_DISCOVERING;
-                    boolean mtuSuccess = gatt.requestMtu(128); //TODO CHECK if true und so
+                    boolean mtuSuccess = gatt.requestMtu(DEFAULT_MTU_BYTES); //TODO CHECK if true und so
                     if (d) {
                         Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange - connected and requesting mtu");
                     }

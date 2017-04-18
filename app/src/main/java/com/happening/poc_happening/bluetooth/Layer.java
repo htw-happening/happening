@@ -50,8 +50,7 @@ public class Layer {
     public static final String CHARACTERISTIC_UUID = "11111111-0000-0000-00c8-a9ac4e91541c";
     public static final String USERINFO_UUID = "11111111-0000-0000-0000-000005371970";
 
-    public static final int DEFAULT_MTU_BYTES = 128;
-
+    private String userID = null;
     private Context context = null;
 
     private BluetoothManager mBluetoothManager = null;
@@ -85,6 +84,7 @@ public class Layer {
         this.mBluetoothAdapter = mBluetoothManager.getAdapter();
         this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
         this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
+        this.userID = getID().toString();
         Log.i(TAG, "I am " + mBluetoothAdapter.getName());
     }
 
@@ -187,7 +187,7 @@ public class Layer {
                         BluetoothGattCharacteristic.PROPERTY_READ |
                         BluetoothGattCharacteristic.PROPERTY_NOTIFY,
                 BluetoothGattCharacteristic.PERMISSION_READ);
-        userinfo.setValue((mBluetoothAdapter.getName() != null ? mBluetoothAdapter.getName() : "n/a").getBytes());
+        userinfo.setValue(userID);
 
         gattService.addCharacteristic(userinfo);
 
