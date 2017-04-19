@@ -1,17 +1,15 @@
 package com.happening.poc_happening.fragment;
 
-import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-
-import com.happening.poc_happening.datastore.AndroidDatabaseManager;
 import com.happening.poc_happening.R;
-import com.happening.poc_happening.datastore.DBHelper;
+import com.happening.poc_happening.dataStore.AndroidDatabaseManager;
+import com.happening.poc_happening.dataStore.DBHelper;
 
 import java.util.Random;
 

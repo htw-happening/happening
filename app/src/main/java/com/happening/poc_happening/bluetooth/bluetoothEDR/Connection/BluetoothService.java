@@ -47,7 +47,7 @@ public class BluetoothService {
     public final Handler guihandler;
     private Acceptor acceptor;
     private Connector connector;
-    public HashMap<BluetoothSocket,Connection> connectionHashMap;
+    public final HashMap<BluetoothSocket,Connection> connectionHashMap;
     private Set<String> addressDevices;
     public BtPackageHandler packageHandler;
     public Forwarder forwarder;

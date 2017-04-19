@@ -234,7 +234,7 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.chat) {
             if (this.chatFragment == null) {
-                this.chatFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_CHAT);
+                this.chatFragment = getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT_CHAT);
                 if (this.chatFragment == null) {
                     this.chatFragment = ChatFragment.getInstance();
                 }
@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.bt4controls) {
             if (this.bt4ControlsFragment == null) {
-                this.bt4ControlsFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_BT4CONTROLS);
+                this.bt4ControlsFragment = getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT_BT4CONTROLS);
                 if (this.bt4ControlsFragment == null) {
                     this.bt4ControlsFragment = Bt4Controls.getInstance();
                 }
@@ -258,7 +258,7 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.bt2controls) {
             if (this.bt2ControlsFragment == null) {
-                this.bt2ControlsFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_BT2CONTROLS);
+                this.bt2ControlsFragment = getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT_BT2CONTROLS);
                 if (this.bt2ControlsFragment == null) {
                     this.bt2ControlsFragment = Bt2Controls.getInstance();
                 }
@@ -270,7 +270,7 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.bt_status) {
             if (this.btStatusFragment == null) {
-                this.btStatusFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_BTSTATUS);
+                this.btStatusFragment = getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT_BTSTATUS);
                 if (this.btStatusFragment == null) {
                     this.btStatusFragment = BtStatus.getInstance();
                 }
@@ -282,7 +282,7 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.db_test) {
             if (this.dbTestFragment == null) {
-                this.dbTestFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_DB_TEST);
+                this.dbTestFragment = getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT_DB_TEST);
                 if (this.dbTestFragment == null) {
                     this.dbTestFragment = DBTestFragment.getInstance();
                 }
@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.test_suite) {
             if (this.testSuiteFragment == null) {
-                this.testSuiteFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_TEST_SUITE);
+                this.testSuiteFragment = getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT_TEST_SUITE);
                 if (this.testSuiteFragment == null) {
                     this.testSuiteFragment = TestSuiteFragment.getInstance();
                 }

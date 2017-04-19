@@ -36,7 +36,7 @@
         </activity>
 
         <activity
-            android:name="com.happening.poc_happening.datastore.AndroidDatabaseManager"
+            android:name="com.happening.poc_happening.dataStore.AndroidDatabaseManager"
             android:theme="@style/AppTheme" />
     </application>
 
