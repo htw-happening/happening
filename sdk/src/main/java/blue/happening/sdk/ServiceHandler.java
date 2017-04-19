@@ -8,8 +8,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
-import blue.happening.service.HappeningService;
-
 
 public class ServiceHandler implements IRemoteService {
 
@@ -25,7 +23,7 @@ public class ServiceHandler implements IRemoteService {
 
     public static ServiceHandler register(Context context) {
         RemoteServiceConnection remoteServiceConnection = new RemoteServiceConnection();
-        Intent intent = new Intent(context, HappeningService.class);
+        Intent intent = new Intent("blue.happening.service.HappeningService");
         intent.setPackage("blue.happening.service");
         context.startService(intent);
         context.bindService(intent, remoteServiceConnection, Context.BIND_AUTO_CREATE);
@@ -59,10 +57,12 @@ public class ServiceHandler implements IRemoteService {
 
         public void onServiceConnected(ComponentName name, IBinder boundService) {
             service = IRemoteService.Stub.asInterface((IBinder) boundService);
+            Log.i("RemoteServiceConnection", "Service connected");
         }
 
         public void onServiceDisconnected(ComponentName name) {
             service = null;
+            Log.i("RemoteServiceConnection", "Service disconnected");
         }
 
         public IRemoteService getService() {

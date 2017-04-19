@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import blue.happening.service.IRemoteService;
 import blue.happening.service.lib.BluetoothDevice;
 
 
@@ -98,6 +97,7 @@ public class HappeningService extends Service {
      */
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(this.getClass().getSimpleName(), "onBind");
         return binder;
     }
 

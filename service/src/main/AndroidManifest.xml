@@ -16,7 +16,6 @@
             android:label="HappeningBackgroundService"
             android:persistent="true"
             android:process=":happening" />
-
     </application>
 
 </manifest>
