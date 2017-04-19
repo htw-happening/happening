@@ -85,7 +85,7 @@ public class Device {
     }
 
     private void changeState (STATE state) {
-        if (d) Log.d(TAG, "Change State from "+this.state+" to "+state);
+        if (d) Log.d(TAG, "Change State from "+this.state+" to "+state + " of "+toString());
         this.state = state;
         Layer.getInstance().notifyHandlers(1);
     }
@@ -98,22 +98,20 @@ public class Device {
             BluetoothDevice bluetoothDevice = gatt.getDevice();
             switch (newState) {
                 case BluetoothProfile.STATE_CONNECTED:
-                    if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_CONNECTED)");
+                    if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_CONNECTED) of " + toString());
                     changeState(STATE.DISCOVERING);
                     boolean mtuSuccess = gatt.requestMtu(DEFAULT_MTU_BYTES); //TODO CHECK if true und so
-                    if (d) {
-                        Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange - connected and requesting mtu");
-                    }
+                    if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange - connected and requesting mtu");
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
-                    if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_DISCONNECTED)");
+                    if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_DISCONNECTED) of" + toString());
                     bluetoothGatt.close();
                     changeState(STATE.DISCONNECTED);
                     //stopReader();TODO
 
                     if (status == 133) {
                         // do not retry connecting - seems to be an old mac address
-                        Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (GATT_FAILURE) --> Do not reconnect!!");
+                        Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (GATT_FAILURE) --> Do not reconnect!! " + toString());
                         changeState(STATE.OFFLINE);
 
                     }else{
@@ -121,7 +119,7 @@ public class Device {
                     }
                     break;
                 default:
-                    if (d) Log.e(TAG, "BluetoothGattCallback - onConnectionStateChange (other state " + status + ")");
+                    if (d) Log.e(TAG, "BluetoothGattCallback - onConnectionStateChange (other state " + status + ") "+toString());
                     changeState(STATE.UNKNOWN);
                     break;
             }
@@ -129,10 +127,10 @@ public class Device {
 
         @Override
         public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-            if (d) Log.d(TAG, "BluetoothGattCallback - onMtuChanged (mtu " + mtu + ")");
+            if (d) Log.d(TAG, "BluetoothGattCallback - onMtuChanged (mtu " + mtu + ") "+toString());
             boolean discovering = gatt.discoverServices();
             changeState(STATE.DISCOVERING);
-            if (d) Log.d(TAG, "BluetoothGattCallback - onMtuChanged - start discovering services (" + discovering + ")");
+            if (d) Log.d(TAG, "BluetoothGattCallback - onMtuChanged - start discovering services (" + discovering + ") " +toString());
 
         }
 
@@ -194,7 +192,6 @@ public class Device {
                 userID = characteristic.getStringValue(0);
                 checkConnection();
             }
-
         }
 
         @Override
@@ -206,6 +203,7 @@ public class Device {
 
     private void checkConnection() {
         Layer layer = Layer.getInstance();
+        if (d) Log.d(TAG, "check Connection of " + toString());
         for (Device device: layer.getConnectedDevices()) {
 
             if (device.getUserID().equals(this.userID) || hasSameMacAddress(device)) {
@@ -223,11 +221,13 @@ public class Device {
 
     private void disconnect() {
         //TODO
+        if (d) Log.d(TAG, "Disconnect to Device " + toString());
+        bluetoothGatt.disconnect();
         bluetoothGatt.close();
     }
 
     public void connectDevice() {
-        if (d) Log.d(TAG, "Connecting to Device (" + bluetoothDevice.getAddress() + ")");
+        if (d) Log.d(TAG, "Connecting to Device " + toString());
         changeState(STATE.CONNECTING);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             bluetoothGatt = bluetoothDevice.connectGatt(MyApp.getAppContext(), false, mGattCallback, BluetoothDevice.TRANSPORT_LE);
@@ -246,5 +246,14 @@ public class Device {
         };
         Timer timer = new Timer();
         timer.schedule(timerTask, delay);
+    }
+
+    @Override
+    public String toString() {
+        String s = "#-#-# ";
+        s += getAddress() + " | ";
+        s += getName() + " | ";
+        s += getUserID() + " #-#-#";
+        return s;
     }
 }

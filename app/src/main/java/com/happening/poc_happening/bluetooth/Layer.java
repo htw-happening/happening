@@ -2,42 +2,28 @@ package com.happening.poc_happening.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
-import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.DeadObjectException;
 import android.os.Handler;
-import android.os.Message;
 import android.os.ParcelUuid;
 import android.util.Log;
 
 import com.happening.poc_happening.MyApp;
 
-import org.apache.log4j.Logger;
-
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Queue;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 
 public class Layer {
@@ -58,7 +44,7 @@ public class Layer {
     private BluetoothManager mBluetoothManager = null;
     private BluetoothAdapter mBluetoothAdapter = null;
 
-    private BluetoothGattServer mBluetoothGattServer = null;
+    private BluetoothGattServer bluetoothGattServer = null;
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser = null;
     private BluetoothGattService gattService = null;
 
@@ -108,6 +94,10 @@ public class Layer {
         return scannedDevices;
     }
 
+    public BluetoothGattServer getBluetoothGattServer() {
+        return bluetoothGattServer;
+    }
+
     public void notifyHandlers(int code) {
         for (Handler handler : handlers) {
             handler.obtainMessage(code).sendToTarget();
@@ -131,7 +121,7 @@ public class Layer {
         if (deviceModel.isConnected()) {
             deviceModel.setTargetState(BluetoothProfile.STATE_DISCONNECTED);
             if (Objects.equals(deviceModel.getType(), "client")) {
-                mBluetoothGattServer.cancelConnection(deviceModel.getBluetoothDevice());
+                bluetoothGattServer.cancelConnection(deviceModel.getBluetoothDevice());
             } else if (Objects.equals(deviceModel.getType(), "server")) {
                 deviceModel.getBluetoothGatt().disconnect();
             }
@@ -225,22 +215,22 @@ public class Layer {
 
         bluetoothGattServerCallback = new BluetoothGattServerCallback();
 
-        mBluetoothGattServer = mBluetoothManager.openGattServer(context, bluetoothGattServerCallback);
+        bluetoothGattServer = mBluetoothManager.openGattServer(context, bluetoothGattServerCallback);
 
-        mBluetoothGattServer.addService(gattService);
+        bluetoothGattServer.addService(gattService);
         //startWriter();TODO
         if (d) Log.d(TAG, "Started Gattserver");
     }
 
     public void stopGattServer() {
         //stopWriter();TODO
-        if (mBluetoothGattServer != null) {
-            for (BluetoothDevice bluetoothDevice: mBluetoothGattServer.getConnectedDevices() ) {
-                mBluetoothGattServer.cancelConnection(bluetoothDevice);
+        if (bluetoothGattServer != null) {
+            for (BluetoothDevice bluetoothDevice: bluetoothGattServer.getConnectedDevices() ) {
+                bluetoothGattServer.cancelConnection(bluetoothDevice);
             }
 
-            mBluetoothGattServer.clearServices();
-            mBluetoothGattServer.close();
+            bluetoothGattServer.clearServices();
+            bluetoothGattServer.close();
             if (d) Log.d(TAG, "Stopped Gattserver");
         }
     }
@@ -310,77 +300,12 @@ public class Layer {
         Log.i("BROADCAST", "Done");
     }
 
-    public void setAutoConnect(boolean autoConnect) {
-        this.autoConnect = autoConnect;
-    }
-
     //endregion
 
     */
 
     //region Callbacks
 
-
-    public class AdvertiseCallback extends android.bluetooth.le.AdvertiseCallback {
-        @Override
-        public void onStartSuccess(AdvertiseSettings settingsInEffect) {
-            super.onStartSuccess(settingsInEffect);
-            if (d) Log.d(TAG, "AdvertiseCallback - onStartSuccess");
-        }
-
-        @Override
-        public void onStartFailure(int errorCode) {
-            super.onStartFailure(errorCode);
-            if (d) Log.d(TAG, "AdvertiseCallback - onStartFailure (error: " + errorCode+")");
-        }
-    }
-
-    public class BluetoothGattServerCallback extends android.bluetooth.BluetoothGattServerCallback {
-
-        @Override
-        public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
-            if (d) Log.d(TAG, "BluetoothGattServerCallback - onCharacteristicReadRequest (read: " + new String(characteristic.getValue()) +")");
-            if (mBluetoothGattServer != null)
-                mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getStringValue(0).getBytes());
-        }
-
-        @Override
-        public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
-
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                if (d) Log.d(TAG, "BluetoothGattServerCallback - onConnectionStateChange (STATE_CONNECTED)");
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                if (d) Log.d(TAG, "BluetoothGattServerCallback - onConnectionStateChange (STATE_DISCONNECTED)");
-
-            } else {
-                if (d) Log.d(TAG, "BluetoothGattServerCallback - onConnectionStateChange (status: " + status + "; newStatus: " + newState + ")");
-            }
-
-        }
-
-        @Override
-        public void onServiceAdded(int status, BluetoothGattService service) {
-            if (d) Log.d(TAG, "BluetoothGattServerCallback - onServiceAdded (status " + status + ")");
-        }
-
-        @Override
-        public void onCharacteristicWriteRequest(BluetoothDevice device, int requestId, BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean responseNeeded, int offset, byte[] value) {
-            String message = new String(value);
-            if (d) Log.d(TAG, "BluetoothGattServerCallback - onCharacteristicWriteRequest (preparedWrite " + preparedWrite + "; message " + message + ")");
-
-        }
-
-        @Override
-        public void onNotificationSent(BluetoothDevice device, int status) {
-            if (d) Log.d(TAG, "BluetoothGattServerCallback - onNotificationSent (status " + status + ")");
-        }
-
-        @Override
-        public void onMtuChanged(BluetoothDevice device, int mtu) {
-            if (d) Log.d(TAG, "BluetoothGattServerCallback - onMtuChanged (mtu " + mtu + ")");
-
-        }
-    }
 
     public class ScanCallback extends android.bluetooth.le.ScanCallback {
         @Override
@@ -416,44 +341,6 @@ public class Layer {
         if (connector == null){
             connector = new Connector();
             connector.start();
-        }
-    }
-
-    public class Connector extends Thread{
-
-        private LinkedList<Device> sink = null;
-
-        public Connector (){
-            this.sink = new LinkedList<>();
-        }
-
-        public void addDevice (Device device){
-            if (d) Log.d(TAG, "Connector - addDevice to Sink ("+device.getBluetoothDevice().getAddress()+")");
-            this.sink.add(device);
-        }
-
-        @Override
-        public void run() {
-            while (!isInterrupted()){
-                if (d) Log.d(TAG, "Connector Thread Trigger - Lets Poll");
-                Device device = this.sink.poll();
-                if (device!=null){
-                    if (d) Log.d(TAG, "Connector Thread Trigger - Polling works - Device " + device.getBluetoothDevice().getAddress() +" - Sinksize: "+sink.size());
-                    device.connectDevice();
-                }
-                try {
-                    Thread.currentThread().sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    return;
-                }
-            }
-        }
-
-        @Override
-        public void interrupt() {
-            this.sink.clear();
-            super.interrupt();
         }
     }
 
