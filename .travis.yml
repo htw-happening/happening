@@ -11,6 +11,7 @@ android:
     - android-22
     - android-23
     - android-24
+    - android-25
     - sys-img-armeabi-v7a-android-22
     - extra-android-m2repository
 
