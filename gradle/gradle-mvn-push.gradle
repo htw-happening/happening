@@ -1,0 +1,42 @@
+// Inspired from https://gist.github.com/adrianbk/c4982e5ebacc6b6ed902
+
+apply plugin: 'maven-publish'
+
+def isReleaseBuild() {
+    return VERSION_NAME.contains("SNAPSHOT") == false
+}
+
+def getOutputDir() {
+    if (isReleaseBuild()) {
+        return "${project.buildDir}/releases"
+    } else {
+        return "${project.buildDir}/snapshots"
+    }
+}
+
+def getDestUrl() {
+    if (isReleaseBuild()) {
+        return "s3://happening-sdk/releases"
+    } else {
+        return "s3://happening-sdk/snapshots"
+    }
+}
+
+publishing {
+    publications {
+        myPublication (MavenPublication) {
+            groupId GROUP
+            artifactId POM_ARTIFACT_ID
+            version VERSION_NAME
+        }
+    }
+    repositories {
+        maven {
+            url getDestUrl()
+            credentials(AwsCredentials) {
+                accessKey = AWS_ACCESS_KEY
+                secretKey = AWS_SECRET_KEY
+            }
+        }
+    }
+}
