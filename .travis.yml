@@ -3,11 +3,6 @@ jdk: oraclejdk8
 # Use the Travis Container-Based Infrastructure
 sudo: false
 
-cache:
-  directories:
-    - ${TRAVIS_BUILD_DIR}/gradle/caches/
-    - ${TRAVIS_BUILD_DIR}/gradle/wrapper/dists/
-
 env:
   global:
     - ANDROID_API_LEVEL=25
