@@ -10,19 +10,20 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.happening.poc_happening.R;
+import com.happening.poc_happening.bluetooth.Device;
 
 import java.util.ArrayList;
 
-public class DeviceListAdapter extends ArrayAdapter<ScanResult> {
+public class DeviceListAdapter extends ArrayAdapter<Device> {
 
-    public DeviceListAdapter(Context context, ArrayList<ScanResult> deviceList) {
+    public DeviceListAdapter(Context context, ArrayList<Device> deviceList) {
         super(context, 0, deviceList);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        final BluetoothDevice device = getItem(position).getDevice();
+        final BluetoothDevice device = getItem(position).getBluetoothDevice();
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.discovered_device, parent, false);

@@ -104,6 +104,9 @@ public class Layer {
         return connectedDevices;
     }
 
+    public ArrayList<Device> getScannedDevices() {
+        return scannedDevices;
+    }
 
     /*
     public void disconnectDevice(DeviceModel deviceModel) {

@@ -156,6 +156,8 @@ public class Device {
                         changeState(STATE.OFFLINE);
                     }
                     break;
+                case 129:
+                    //TODO
                 default:
                     if (d) Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (status " + status + ")");
                     changeState(STATE.UNKNOWN);

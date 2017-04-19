@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.DeviceListAdapter;
+import com.happening.poc_happening.bluetooth.Device;
 import com.happening.poc_happening.bluetooth.Layer;
 
 import java.util.ArrayList;
@@ -48,9 +49,10 @@ public class Bt4Controls extends Fragment {
         bluetoothLayer = Layer.getInstance();
 
         ListView deviceListView = (ListView) rootView.findViewById(R.id.discovered_devices_list);
-        ArrayList<ScanResult> scanResults = new ArrayList<>();
+        ArrayList<Device> scanResults = bluetoothLayer.getScannedDevices();
         deviceListAdapter = new DeviceListAdapter(rootView.getContext(), scanResults);
         deviceListView.setAdapter(deviceListAdapter);
+        bluetoothLayer.add
 
         deviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
