@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="blue.happening">
+    package="blue.happening.service">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -10,7 +10,7 @@
         android:supportsRtl="true">
 
         <service
-            android:name="blue.happening.blue.service.HappeningService"
+            android:name="blue.happening.service.HappeningService"
             android:enabled="true"
             android:exported="false"
             android:label="HappeningBackgroundService"

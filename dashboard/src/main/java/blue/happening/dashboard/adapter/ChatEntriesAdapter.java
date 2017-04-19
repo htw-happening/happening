@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import blue.happening.chat.R;
+import blue.happening.dashboard.R;
 import blue.happening.dashboard.model.ChatEntryModel;
 
 public class ChatEntriesAdapter extends ArrayAdapter<ChatEntryModel> {
