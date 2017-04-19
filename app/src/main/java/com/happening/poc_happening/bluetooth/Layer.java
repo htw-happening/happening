@@ -32,8 +32,10 @@ import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -67,7 +69,10 @@ public class Layer {
     private AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback();
 
     private List<Handler> handlers = new ArrayList<>();
-    private ArrayList<Device> devices = new ArrayList<>();
+    private ArrayList<Device> scannedDevices = new ArrayList<>();
+    private ArrayList<Device> connectedDevices = new ArrayList<>();
+
+    private Connector connector = null;
 
     private Timer readerTimer;
     private Timer writerTimer;
@@ -85,6 +90,7 @@ public class Layer {
         this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
         this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
         this.userID = getID().toString();
+        this.connectedDevices = new ArrayList<>();
         Log.i(TAG, "I am " + mBluetoothAdapter.getName());
     }
 
@@ -94,7 +100,12 @@ public class Layer {
         return UUID.randomUUID();
     }
 
-/*
+    public ArrayList<Device> getConnectedDevices() {
+        return connectedDevices;
+    }
+
+
+    /*
     public void disconnectDevice(DeviceModel deviceModel) {
         if (deviceModel.isConnected()) {
             deviceModel.setTargetState(BluetoothProfile.STATE_DISCONNECTED);
@@ -238,6 +249,9 @@ public class Layer {
         mBluetoothLeScanner.stopScan(mScanCallback);
         mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
         mBluetoothLeScanner.startScan(scanFilters, scanSettings, mScanCallback);
+
+        startConnector();
+
         if (d) Log.d(TAG, "Started Scanner");
     }
 
@@ -247,6 +261,8 @@ public class Layer {
             mBluetoothLeScanner.stopScan(mScanCallback);
             if (d) Log.d(TAG, "Stopped Scanner");
         }
+
+        stopConnector();
     }
 
 /*
@@ -358,14 +374,66 @@ public class Layer {
     // changing MAC every 15 minutes (exactly 15 mins!!)
     private void addNewScan(ScanResult scanResult){
         Device scannedDevice = new Device(scanResult.getDevice());
-        for (Device device: devices) {
-            if (scannedDevice.hasSameMacAddress(device)){
+        for (Device device: scannedDevices){
+            if (device.hasSameMacAddress(scannedDevice)){
                 return;
             }
         }
-        devices.add(scannedDevice);
-        if (d) Log.d(TAG, "ScanCallback - addNewScan to scanResults ("+scanResult.getDevice().getAddress()+")");
-        scannedDevice.delayedConnectDevice(4500, Device.STATE.CONNECTING);
+        if (d) Log.d(TAG, "addNewScan to scanned Devices ("+scannedDevice.getBluetoothDevice().getAddress()+")");
+        this.scannedDevices.add(scannedDevice);
+        this.connector.addDevice(scannedDevice);
+    }
+
+    public void stopConnector(){
+        if (connector != null){
+            connector.interrupt();
+            connector = null;
+        }
+    }
+
+    public void startConnector(){
+        if (connector == null){
+            connector = new Connector();
+            connector.start();
+        }
+    }
+
+    public class Connector extends Thread{
+
+        private LinkedList<Device> sink = null;
+
+        public Connector (){
+            this.sink = new LinkedList<>();
+        }
+
+        public void addDevice (Device device){
+            if (d) Log.d(TAG, "Connector - addDevice to Sink ("+device.getBluetoothDevice().getAddress()+")");
+            this.sink.add(device);
+        }
+
+        @Override
+        public void run() {
+            while (!isInterrupted()){
+                if (d) Log.d(TAG, "Connector Thread Trigger - Lets Poll");
+                Device device = this.sink.poll();
+                if (device!=null){
+                    if (d) Log.d(TAG, "Connector Thread Trigger - Polling works - Device " + device.getBluetoothDevice().getAddress() +" - Sinksize: "+sink.size());
+                    device.connectDevice();
+                }
+                try {
+                    Thread.currentThread().sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        }
+
+        @Override
+        public void interrupt() {
+            this.sink.clear();
+            super.interrupt();
+        }
     }
 
 //    private void startWriter(){

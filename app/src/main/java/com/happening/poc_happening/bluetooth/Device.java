@@ -48,7 +48,7 @@ public class Device {
     private BluetoothGatt bluetoothGatt = null;
     private BluetoothGattCharacteristic bluetoothGattCharacteristic = null;
 
-    private int id;
+    private String userID;
     private STATE state;
 
     public Device (BluetoothDevice bluetoothDevice) {
@@ -58,6 +58,14 @@ public class Device {
 
     public boolean hasSameMacAddress(Device other){
         return this.bluetoothDevice.getAddress().equals(other.bluetoothDevice.getAddress());
+    }
+
+    public BluetoothDevice getBluetoothDevice() {
+        return bluetoothDevice;
+    }
+
+    public String getUserID() {
+        return userID;
     }
 
     private void changeState (STATE state) {
@@ -164,7 +172,8 @@ public class Device {
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if (d) Log.d(TAG, "BluetoothGattCallback - onCharacteristicRead (characteristic " + characteristic.getStringValue(0) + ", status " + status + ")");
             if (state == STATE.DISCOVERING){
-                checkConnection(characteristic.getStringValue(0));
+                userID = characteristic.getStringValue(0);
+                checkConnection();
             }
 
         }
@@ -176,9 +185,26 @@ public class Device {
 
     };
 
-    private void checkConnection(String uniqueID) {
+    private void checkConnection() {
+        Layer layer = Layer.getInstance();
+        for (Device device: layer.getConnectedDevices()) {
+
+            if (device.getUserID().equals(this.userID) || hasSameMacAddress(device)) {
+                //mergen - mac change
+                //- den alten nochmal versuchen zu disconnected
+                device.disconnect();
+                // raus
+                layer.getConnectedDevices().remove(device);
+            }
+        }
+        layer.getConnectedDevices().add(this);
 
         changeState(STATE.CONNECTED);
+    }
+
+    private void disconnect() {
+        //TODO
+        bluetoothGatt.close();
     }
 
     public void connectDevice() {
