@@ -18,4 +18,12 @@
         android:text="name N/A"
         android:textSize="14dp" />
 
+    <TextView
+        android:id="@+id/device_state"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="state N/A"
+        android:textSize="14dp" />
+
+
 </LinearLayout>

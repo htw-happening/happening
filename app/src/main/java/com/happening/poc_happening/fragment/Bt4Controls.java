@@ -52,13 +52,13 @@ public class Bt4Controls extends Fragment {
         ArrayList<Device> scanResults = bluetoothLayer.getScannedDevices();
         deviceListAdapter = new DeviceListAdapter(rootView.getContext(), scanResults);
         deviceListView.setAdapter(deviceListAdapter);
-        bluetoothLayer.add
+        bluetoothLayer.addHandler(guiHandler);
 
         deviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ScanResult scanResult = (ScanResult) parent.getItemAtPosition(position);
-                Log.i("CLICK", "Clicked on device " + scanResult.getDevice().getName());
+                Device device = (Device) parent.getItemAtPosition(position);
+                Log.i("CLICK", "Clicked on device " + device.getName());
             }
         });
 
@@ -173,12 +173,8 @@ public class Bt4Controls extends Fragment {
 
         @Override
         public void handleMessage(Message msg) {
-            String message = msg.getData().getString("content");
-            Log.i("HANDLER", "Message was " + message);
-            if (currentToast != null)
-                currentToast.cancel();
-            currentToast = Toast.makeText(getContext(), message, Toast.LENGTH_SHORT);
-            currentToast.show();
+            //make gui
+            deviceListAdapter.notifyDataSetChanged();
         }
     };
 }

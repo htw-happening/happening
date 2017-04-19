@@ -108,6 +108,24 @@ public class Layer {
         return scannedDevices;
     }
 
+    public void notifyHandlers(int code) {
+        for (Handler handler : handlers) {
+            handler.obtainMessage(code).sendToTarget();
+        }
+    }
+
+    public void addHandler(Handler handler) {
+        if (!handlers.contains(handler)) {
+            handlers.add(handler);
+        }
+    }
+
+    public void removeHandler(Handler handler) {
+        if (handlers.contains(handler)) {
+            handlers.remove(handler);
+        }
+    }
+
     /*
     public void disconnectDevice(DeviceModel deviceModel) {
         if (deviceModel.isConnected()) {

@@ -21,6 +21,22 @@ public class Device {
     private String TAG = getClass().getSimpleName();
     private boolean d = true;
 
+    public String getAddress() {
+        return this.bluetoothDevice.getAddress();
+    }
+
+    public String getName() {
+        if(userID == null){
+            return "N/A";
+        }else{
+            return userID;
+        }
+    }
+
+    public String getState() {
+        return state.toString();
+    }
+
     public enum STATE {
         NEW_SCANNED_DEVICE(1),
         CONNECTING(2),
@@ -71,6 +87,7 @@ public class Device {
     private void changeState (STATE state) {
         if (d) Log.d(TAG, "Change State from "+this.state+" to "+state);
         this.state = state;
+        Layer.getInstance().notifyHandlers(1);
     }
 
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {

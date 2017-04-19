@@ -23,7 +23,7 @@ public class DeviceListAdapter extends ArrayAdapter<Device> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        final BluetoothDevice device = getItem(position).getBluetoothDevice();
+        final Device device = getItem(position);
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.discovered_device, parent, false);
@@ -31,9 +31,11 @@ public class DeviceListAdapter extends ArrayAdapter<Device> {
 
         TextView address = (TextView) convertView.findViewById(R.id.device_address);
         TextView name = (TextView) convertView.findViewById(R.id.device_name);
+        TextView state = (TextView) convertView.findViewById(R.id.device_state);
 
         address.setText(device.getAddress());
         name.setText(device.getName());
+        state.setText(device.getState());
 
         return convertView;
     }
