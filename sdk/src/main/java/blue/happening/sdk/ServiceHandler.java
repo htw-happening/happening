@@ -11,50 +11,41 @@ import android.util.Log;
 import blue.happening.service.HappeningService;
 
 
-public class ServiceHandler implements IRemoteHappening {
+public class ServiceHandler implements IRemoteService {
 
-    private static ServiceHandler instance;
     private Context context;
-    private RemoteServiceConnection serviceConnection;
-    private IRemoteHappening service;
+    private String appIdentifier;
+    private RemoteServiceConnection remoteServiceConnection;
 
-    private ServiceHandler() {
-        context = null;
+    private ServiceHandler(Context context, RemoteServiceConnection remoteServiceConnection) {
+        this.context = context;
+        this.appIdentifier = context.getApplicationInfo().processName;
+        this.remoteServiceConnection = remoteServiceConnection;
     }
 
-    public static ServiceHandler getInstance() {
-        if (instance == null)
-            instance = new ServiceHandler();
-        return instance;
-    }
-
-    /**
-     * Bind activity to our service
-     */
-    private void initService() {
-        serviceConnection = new RemoteServiceConnection();
+    public static ServiceHandler register(Context context) {
+        RemoteServiceConnection remoteServiceConnection = new RemoteServiceConnection();
         Intent intent = new Intent(context, HappeningService.class);
         intent.setPackage("blue.happening.service");
         context.startService(intent);
-        boolean ret = context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-        Log.d("ServiceHandler", "initService() bound value: " + ret);
+        context.bindService(intent, remoteServiceConnection, Context.BIND_AUTO_CREATE);
+        Log.d("ServiceHandler", "Service bound to " + context.getPackageName());
+        return new ServiceHandler(context, remoteServiceConnection);
     }
 
-    /**
-     * Release service from activity
-     */
-    private void releaseService() {
-        if (serviceConnection != null) {
-            context.unbindService(serviceConnection);
-            serviceConnection = null;
-            service = null;
-            Log.i("ServiceHandler", "Service released");
+    public void deregister() {
+        if (remoteServiceConnection != null) {
+            context.unbindService(remoteServiceConnection);
+            remoteServiceConnection = null;
+            Log.i("ServiceHandler", "Service unbound from " + appIdentifier);
+        } else {
+            Log.i("ServiceHandler", "No service to unbind from " + appIdentifier);
         }
     }
 
     @Override
     public IBinder asBinder() {
-        return null;
+        return (IBinder) remoteServiceConnection.getService();
     }
 
     @Override
@@ -62,14 +53,20 @@ public class ServiceHandler implements IRemoteHappening {
 
     }
 
-    class RemoteServiceConnection implements ServiceConnection {
+    static class RemoteServiceConnection implements ServiceConnection {
+
+        private IRemoteService service;
 
         public void onServiceConnected(ComponentName name, IBinder boundService) {
-            service = IRemoteHappening.Stub.asInterface((IBinder) boundService);
+            service = IRemoteService.Stub.asInterface((IBinder) boundService);
         }
 
         public void onServiceDisconnected(ComponentName name) {
             service = null;
+        }
+
+        public IRemoteService getService() {
+            return service;
         }
     }
 

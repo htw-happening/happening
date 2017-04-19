@@ -15,7 +15,7 @@
             android:exported="false"
             android:label="HappeningBackgroundService"
             android:persistent="true"
-            android:process=":happening"/>
+            android:process=":happening" />
 
     </application>
 

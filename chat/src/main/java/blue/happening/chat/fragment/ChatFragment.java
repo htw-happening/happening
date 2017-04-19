@@ -1,10 +1,10 @@
 package blue.happening.chat.fragment;
 
+import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,7 +67,6 @@ public class ChatFragment extends Fragment {
     }
 
     private void addChatEntry(String author, String content) {
-        // Use ByteArrayModelFactory.createChatEntryModel(bytes); in the Future
         ChatEntryModel chatEntryModel = new ChatEntryModel(author, "test", "test", content);
 
         chatEntryModelArrayList.add(chatEntryModel);

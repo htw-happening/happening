@@ -1,5 +1,5 @@
 package blue.happening.sdk;
 
-interface IRemoteHappening {
+interface IRemoteService {
     void addDevice(String name);
 }

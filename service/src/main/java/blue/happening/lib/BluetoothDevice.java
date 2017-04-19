@@ -39,12 +39,4 @@ public class BluetoothDevice implements Parcelable {
     public String getName() {
         return name;
     }
-
-    @Override
-    public String toString() {
-        return "BluetoothDevice{" +
-                "name='" + name + '\'' +
-                '}';
-    }
-
 }

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class DevicePool extends ArrayList<DeviceModel> {
+public class DevicePool extends ArrayList<Device> {
 
     public DevicePool() {
         final Handler handler = new Handler();
@@ -18,9 +18,9 @@ public class DevicePool extends ArrayList<DeviceModel> {
         final Runnable r = new Runnable() {
             public void run() {
                 synchronized (that) {
-                    Iterator<DeviceModel> it = that.iterator();
+                    Iterator<Device> it = that.iterator();
                     while (it.hasNext()) {
-                        DeviceModel device = it.next();
+                        Device device = it.next();
                         if (device.isCold()) {
                             it.remove();
                             Log.i("BADEMEISTER", "The water is too cold for " + device.getAddress());
@@ -56,11 +56,11 @@ public class DevicePool extends ArrayList<DeviceModel> {
     }
 
     public void changeState(BluetoothDevice device, int newState) {
-        DeviceModel model = getModelByDevice(device);
+        Device model = getModelByDevice(device);
         changeState(model, newState);
     }
 
-    public void changeState(DeviceModel model, int newState) {
+    public void changeState(Device model, int newState) {
         if (model != null) {
             model.setCurrentState(newState);
             Log.i("DEVICE_POOL", "Changed State to " + newState);
@@ -69,13 +69,13 @@ public class DevicePool extends ArrayList<DeviceModel> {
         }
     }
 
-    public List<DeviceModel> getConnectedDevices() {
+    public List<Device> getConnectedDevices() {
         return getDevicesMatchingConnectionState(BluetoothProfile.STATE_CONNECTED);
     }
 
-    public List<DeviceModel> getDevicesMatchingConnectionState(int state) {
-        List<DeviceModel> matchingDevices = new ArrayList<>();
-        for (DeviceModel model : this) {
+    public List<Device> getDevicesMatchingConnectionState(int state) {
+        List<Device> matchingDevices = new ArrayList<>();
+        for (Device model : this) {
             if (state == model.getCurrentState()) {
                 matchingDevices.add(model);
             }
@@ -83,8 +83,8 @@ public class DevicePool extends ArrayList<DeviceModel> {
         return matchingDevices;
     }
 
-    public DeviceModel getModelByDevice(BluetoothDevice device) {
-        for (DeviceModel model : this) {
+    public Device getModelByDevice(BluetoothDevice device) {
+        for (Device model : this) {
             if (model.getBluetoothDevice().equals(device)) {
                 return model;
             }

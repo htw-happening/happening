@@ -5,7 +5,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.ScanResult;
 
-public class DeviceModel {
+public class Device {
 
     private final int INHERENT_HOTNESS = 5;
 
@@ -17,13 +17,13 @@ public class DeviceModel {
     private BluetoothGatt bluetoothGatt;
     private BluetoothDevice bluetoothDevice;
 
-    public DeviceModel(ScanResult scanResult) {
+    public Device(ScanResult scanResult) {
         this.bluetoothDevice = scanResult.getDevice();
         this.rssi = scanResult.getRssi();
         this.type = "server";
     }
 
-    public DeviceModel(BluetoothDevice bluetoothDevice) {
+    public Device(BluetoothDevice bluetoothDevice) {
         this.bluetoothDevice = bluetoothDevice;
         this.type = "client";
     }
@@ -90,8 +90,8 @@ public class DeviceModel {
 
     @Override
     public boolean equals(Object object) {
-        if (object != null && object instanceof DeviceModel)
-            return getBluetoothDevice().equals(((DeviceModel) object).getBluetoothDevice());
+        if (object != null && object instanceof Device)
+            return getBluetoothDevice().equals(((Device) object).getBluetoothDevice());
         return false;
     }
 

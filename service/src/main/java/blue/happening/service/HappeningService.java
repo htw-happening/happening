@@ -10,14 +10,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import blue.happening.IRemoteHappening;
-import blue.happening.bluetooth.Layer;
+import blue.happening.IRemoteService;
 import blue.happening.lib.BluetoothDevice;
 
 
 public class HappeningService extends Service {
 
-    private final IRemoteHappening.Stub binder = new IRemoteHappening.Stub() {
+    private final IRemoteService.Stub binder = new IRemoteService.Stub() {
 
         List<BluetoothDevice> devices = Collections.synchronizedList(new ArrayList<BluetoothDevice>());
 
