@@ -1,4 +1,4 @@
-package blue.happening.chat.adapter;
+package blue.happening.dashboard.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,7 +10,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import blue.happening.chat.R;
-import blue.happening.chat.model.ChatEntryModel;
+import blue.happening.dashboard.model.ChatEntryModel;
 
 public class ChatEntriesAdapter extends ArrayAdapter<ChatEntryModel> {
 

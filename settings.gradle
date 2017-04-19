@@ -1,1 +1,1 @@
-include ':chat', ':service', ':sdk'
+include ':dashboard', ':service', ':sdk'

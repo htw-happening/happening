@@ -1,4 +1,4 @@
-package blue.happening.chat.fragment;
+package blue.happening.dashboard.fragment;
 
 import android.app.Fragment;
 import android.os.Bundle;
@@ -15,9 +15,9 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import blue.happening.chat.R;
-import blue.happening.chat.adapter.ChatEntriesAdapter;
-import blue.happening.chat.model.ChatEntryModel;
+import blue.happening.dashboard.R;
+import blue.happening.dashboard.adapter.ChatEntriesAdapter;
+import blue.happening.dashboard.model.ChatEntryModel;
 
 
 public class ChatFragment extends Fragment {

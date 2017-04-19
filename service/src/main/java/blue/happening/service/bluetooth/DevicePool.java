@@ -1,4 +1,4 @@
-package blue.happening.bluetooth;
+package blue.happening.service.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothProfile;

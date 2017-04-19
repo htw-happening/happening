@@ -10,7 +10,7 @@
         android:supportsRtl="true">
 
         <service
-            android:name="blue.happening.service.HappeningService"
+            android:name="blue.happening.blue.service.HappeningService"
             android:enabled="true"
             android:exported="false"
             android:label="HappeningBackgroundService"

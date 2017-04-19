@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import blue.happening.IRemoteService;
-import blue.happening.lib.BluetoothDevice;
+import blue.happening.service.IRemoteService;
+import blue.happening.service.lib.BluetoothDevice;
 
 
 public class HappeningService extends Service {

@@ -1,4 +1,4 @@
-package blue.happening.lib;
+package blue.happening.service.lib;
 
 import android.os.Parcel;
 import android.os.Parcelable;

@@ -1,4 +1,4 @@
-package blue.happening.chat;
+package blue.happening.dashboard;
 
 import android.app.Application;
 import android.content.Context;

@@ -1,4 +1,4 @@
-package blue.happening.chat.model;
+package blue.happening.dashboard.model;
 
 import java.nio.charset.StandardCharsets;
 

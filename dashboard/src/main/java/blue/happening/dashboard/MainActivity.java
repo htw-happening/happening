@@ -1,11 +1,11 @@
-package blue.happening.chat;
+package blue.happening.dashboard;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import blue.happening.chat.fragment.ChatFragment;
+import blue.happening.dashboard.fragment.ChatFragment;
 
 public class MainActivity extends AppCompatActivity {
 

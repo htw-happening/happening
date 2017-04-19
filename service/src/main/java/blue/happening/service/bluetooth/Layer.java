@@ -1,4 +1,4 @@
-package blue.happening.bluetooth;
+package blue.happening.service.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import blue.happening.MyApp;
+import blue.happening.service.MyApp;
 
 public class Layer {
 
