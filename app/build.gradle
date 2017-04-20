@@ -24,7 +24,10 @@ android {
 
 dependencies {
     compile 'net.zetetic:android-database-sqlcipher:3.5.4@aar'
-    compile 'blue.happening.sdk:library:0.0.1@aar'
+    compile ('blue.happening.sdk:library:0.0.1@aar') {
+        transitive=true
+        changing=true
+    }
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
