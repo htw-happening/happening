@@ -2,6 +2,9 @@ language: android
 jdk: oraclejdk8
 sudo: false
 
+notifications:
+  slack: happening-app:pMaPv1cJzgrR2fEOa6ExN9EL
+  
 android:
   components:
     - platform-tools
