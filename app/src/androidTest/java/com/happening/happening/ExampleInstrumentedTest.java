@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.happening.poc.poc_happening", appContext.getPackageName());
+        assertEquals("com.happening.poc_happening", appContext.getPackageName());
     }
 }
