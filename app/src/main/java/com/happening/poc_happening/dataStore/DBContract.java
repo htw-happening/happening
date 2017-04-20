@@ -1,4 +1,4 @@
-package com.happening.poc_happening.datastore;
+package com.happening.poc_happening.dataStore;
 
 import android.provider.BaseColumns;
 

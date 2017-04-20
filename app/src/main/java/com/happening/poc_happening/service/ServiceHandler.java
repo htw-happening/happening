@@ -9,9 +9,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.happening.lib.IRemoteDeviceService;
-import com.happening.service.HappeningService;
-
 import com.happening.poc_happening.MyApp;
+import com.happening.service.HappeningService;
 
 
 public class ServiceHandler {
@@ -68,7 +67,7 @@ public class ServiceHandler {
     }
 
     public Boolean isRunning() {
-        return service != null ? true : false;
+        return service != null;
     }
 
     public IRemoteDeviceService getService() {
@@ -78,7 +77,7 @@ public class ServiceHandler {
     class RemoteServiceConnection implements ServiceConnection {
 
         public void onServiceConnected(ComponentName name, IBinder boundService) {
-            service = IRemoteDeviceService.Stub.asInterface((IBinder) boundService);
+            service = IRemoteDeviceService.Stub.asInterface(boundService);
             Toast.makeText(MyApp.getAppContext(), "Service connected", Toast.LENGTH_LONG)
                     .show();
         }

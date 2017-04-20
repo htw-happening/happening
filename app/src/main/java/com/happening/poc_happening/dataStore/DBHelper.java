@@ -1,18 +1,16 @@
-package com.happening.poc_happening.datastore;
+package com.happening.poc_happening.dataStore;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.util.Log;
+
+import com.happening.poc_happening.models.ChatEntryModel;
 
 import net.sqlcipher.Cursor;
 import net.sqlcipher.MatrixCursor;
 import net.sqlcipher.SQLException;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
-
-import com.happening.poc_happening.MyApp;
-import com.happening.poc_happening.models.ChatEntryModel;
-
 
 import java.util.ArrayList;
 

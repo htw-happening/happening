@@ -93,10 +93,7 @@ public class BtPackage implements Comparable<BtPackage> {
     @Override
     public boolean equals(Object o) {
 //        Log.d(TAG, this.author +" ==? "+((BtPackage) o).author);
-        if(this.id == ((BtPackage) o).id && this.author.equals(((BtPackage) o).author)) {
-            return true;
-        }
-        return false;
+        return this.id == ((BtPackage) o).id && this.author.equals(((BtPackage) o).author);
     }
 
     @Override

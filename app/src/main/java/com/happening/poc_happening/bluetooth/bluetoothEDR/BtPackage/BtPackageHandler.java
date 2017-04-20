@@ -24,7 +24,7 @@ public class BtPackageHandler extends Thread {
     private boolean d = true;
     private boolean seeRawData = false;
 
-    private BtPackageCache cache;
+    private final BtPackageCache cache;
     private Handler guiHandler;
     private PriorityBlockingQueue<BtPackageWrapper> btPackages;
     private BluetoothService bluetoothService;

@@ -1,0 +1,45 @@
+// Inspired from https://gist.github.com/adrianbk/c4982e5ebacc6b6ed902
+
+apply plugin: 'maven-publish'
+
+def isReleaseBuild() {
+    return VERSION_NAME.contains("SNAPSHOT") == false
+}
+
+def getOutputDir() {
+    if (isReleaseBuild()) {
+        return "${project.buildDir}/releases"
+    } else {
+        return "${project.buildDir}/snapshots"
+    }
+}
+
+def getDestUrl() {
+    if (isReleaseBuild()) {
+        return "s3://happening-sdk.s3.eu-central-1.amazonaws.com/releases"
+    } else {
+        return "s3://happening-sdk.s3.eu-central-1.amazonaws.com/snapshots"
+    }
+}
+
+publishing {
+    publications {
+        aar (MavenPublication) {
+            groupId GROUP
+            artifactId POM_ARTIFACT_ID
+            version VERSION_NAME
+
+//            artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+            artifact("$buildDir/outputs/aar/happening_lib-release.aar")
+        }
+    }
+    repositories {
+        maven {
+            url getDestUrl()
+            credentials(AwsCredentials) {
+                accessKey = AWS_ACCESS_KEY
+                secretKey = AWS_SECRET_KEY
+            }
+        }
+    }
+}
