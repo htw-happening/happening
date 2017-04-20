@@ -17,7 +17,7 @@ allprojects {
         jcenter()
 
         maven {
-            url "s3://happening-sdk/releases"
+            url "s3://happening-sdk.s3.eu-central-1.amazonaws.com/releases"
             credentials(AwsCredentials) {
                 accessKey AWS_ACCESS_KEY
                 secretKey AWS_SECRET_KEY
