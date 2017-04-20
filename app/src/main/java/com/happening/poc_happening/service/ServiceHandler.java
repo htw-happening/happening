@@ -9,9 +9,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.happening.lib.IRemoteDeviceService;
-import com.happening.service.HappeningService;
-
 import com.happening.poc_happening.MyApp;
+import com.happening.service.HappeningService;
 
 
 public class ServiceHandler {
