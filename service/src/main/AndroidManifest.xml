@@ -11,11 +11,14 @@
 
         <service
             android:name="blue.happening.service.HappeningService"
-            android:enabled="true"
-            android:exported="false"
-            android:label="HappeningBackgroundService"
-            android:persistent="true"
-            android:process=":happening" />
+            android:exported="true"
+            android:label="HappeningService"
+            android:process=":happening">
+            <intent-filter>
+                <action android:name="blue.happening.service.IRemoteService" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>

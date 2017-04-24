@@ -35,7 +35,6 @@ public class HappeningService extends Service {
             BluetoothDevice device = new BluetoothDevice(name);
             devices.add(device);
             Log.d("add device", name);
-
         }
 
     };
