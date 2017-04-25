@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$TRAVIS_REPO_SLUG" == "htw-happening/AndroidApp" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+if [ "$TRAVIS_REPO_SLUG" == "htw-happening/Website" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
 
   echo -e "Publishing javadoc...\n"
 
@@ -9,7 +9,7 @@ if [ "$TRAVIS_REPO_SLUG" == "htw-happening/AndroidApp" ] && [ "$TRAVIS_PULL_REQU
   cd $HOME
   git config --global user.email "blue@happening.blue"
   git config --global user.name "happening-blue"
-  git clone --quiet --branch=master https://${GH_TOKEN}@github.com/htw-happening/AndroidApp master > /dev/null
+  git clone --quiet --branch=master https://${GH_TOKEN}@github.com/htw-happening/Website master > /dev/null
 
   cd master
   git rm -rf ./javadoc
