@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="blue.happening.service">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -10,9 +11,12 @@
         android:name=".MyApp"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name">
+        android:label="@string/app_name"
+        tools:ignore="GoogleAppIndexingWarning">
 
-        <receiver android:name=".receiver.BootCompleted">
+        <receiver
+            android:name=".receiver.BootCompleted"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -26,7 +30,8 @@
         <service
             android:name=".HappeningService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"
+            tools:ignore="ExportedService" />
 
     </application>
 

@@ -5,12 +5,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import java.util.Objects;
+
 import blue.happening.service.HappeningService;
 
 /**
  * {@link BroadcastReceiver BroadcastReceiver} that is configured to start our
  * {@link HappeningService service} on {@link Intent#ACTION_BOOT_COMPLETED device boot up}.
  */
+@SuppressWarnings("unused")
 public class BootCompleted extends BroadcastReceiver {
 
     /**
@@ -21,6 +24,10 @@ public class BootCompleted extends BroadcastReceiver {
      */
     @Override
     public void onReceive(Context context, Intent intent) {
+        if (!Objects.equals(intent.getAction(), Intent.ACTION_BOOT_COMPLETED)) {
+            Log.e(this.getClass().getSimpleName(), "intent action mismatch");
+            return;
+        }
         Log.v(this.getClass().getSimpleName(), "onReceive");
         Intent happening = new Intent(context, HappeningService.class);
         context.startService(happening);

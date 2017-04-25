@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 
+@SuppressWarnings("unused")
 public class HappeningService extends Service {
 
     private static final int START_MODE = START_STICKY;
@@ -19,7 +20,7 @@ public class HappeningService extends Service {
 
     private final IRemoteService.Stub binder = new IRemoteService.Stub() {
 
-        List<String> devices = Collections.synchronizedList(new ArrayList<String>());
+        final List<String> devices = Collections.synchronizedList(new ArrayList<String>());
 
         public void addDevice(String name) throws RemoteException {
             devices.add(name);

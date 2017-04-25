@@ -32,8 +32,10 @@ public class DashboardAdapter extends ArrayAdapter<DashboardModel> {
         TextView title = (TextView) convertView.findViewById(R.id.dashboard_model_title);
         TextView message = (TextView) convertView.findViewById(R.id.dashboard_model_message);
 
-        title.setText(dashboardModel.getTitle());
-        message.setText(dashboardModel.getMessage());
+        if (dashboardModel != null) {
+            title.setText(dashboardModel.getTitle());
+            message.setText(dashboardModel.getMessage());
+        }
 
         return convertView;
     }

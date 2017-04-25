@@ -18,13 +18,14 @@ import blue.happening.dashboard.model.DashboardModel;
 
 public class DashboardFragment extends Fragment {
 
-    private List<DashboardModel> dashboardModels = new ArrayList<>();
+    private final List<DashboardModel> dashboardModels = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         Log.v(this.getClass().getSimpleName(), "onCreateView");
         View rootView = inflater.inflate(R.layout.fragment_dashboard, container, false);
+        dashboardModels.add(new DashboardModel("title", "message"));
         DashboardAdapter dashboardAdapter = new DashboardAdapter(getContext(), dashboardModels);
         ListView listView = (ListView) rootView.findViewById(R.id.dashboard_model_list);
         listView.setAdapter(dashboardAdapter);

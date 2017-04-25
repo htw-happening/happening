@@ -11,6 +11,7 @@ import blue.happening.dashboard.fragment.DashboardFragment;
 import blue.happening.sdk.IRemoteService;
 import blue.happening.sdk.ServiceHandler;
 
+@SuppressWarnings("unused")
 public class MainActivity extends Activity {
 
     private ServiceHandler serviceHandler;
