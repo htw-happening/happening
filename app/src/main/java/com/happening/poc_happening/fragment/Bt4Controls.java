@@ -58,7 +58,8 @@ public class Bt4Controls extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Device device = (Device) parent.getItemAtPosition(position);
-                Log.i("CLICK", "Clicked on device " + device.getName());
+                Log.i("CLICK", "Clicked on device " + device.toString());
+                device.readCharacteristic();
             }
         });
 

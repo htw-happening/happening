@@ -20,7 +20,40 @@ public class Device {
 
     private String TAG = getClass().getSimpleName();
     private boolean d = true;
+
+    public static final int DEFAULT_MTU_BYTES = 128;
+
+    private BluetoothDevice bluetoothDevice = null;
+    private BluetoothGatt bluetoothGatt = null;
+    private BluetoothGattCharacteristic bluetoothGattCharacteristic = null;
+    private String userID;
+    private STATE state;
     private Timer readerTimer;
+
+    private enum STATE {
+        NEW_SCANNED_DEVICE(1),
+        CONNECTING(2),
+        DISCOVERING(3),
+        CONNECTED(4),
+        DISCONNECTED(5),
+        RECONNECTING(6),
+        OFFLINE(7), // TODO cleanUpMethod
+        UNKNOWN(0);
+
+        private final int state;
+        public int getValue() {
+            return state;
+        }
+        STATE (final int value){
+            this.state = value;
+        }
+
+    }
+
+    public Device (BluetoothDevice bluetoothDevice) {
+        this.bluetoothDevice = bluetoothDevice;
+        this.state = STATE.NEW_SCANNED_DEVICE;
+    }
 
     public String getAddress() {
         return this.bluetoothDevice.getAddress();
@@ -36,41 +69,6 @@ public class Device {
 
     public String getState() {
         return state.toString();
-    }
-
-    private enum STATE {
-        NEW_SCANNED_DEVICE(1),
-        CONNECTING(2),
-        DISCOVERING(3),
-        CONNECTED(4),
-        DISCONNECTED(5),
-        RECONNECTING(6),
-        OFFLINE(7), // TODO cleanUpMethod
-        UNKNOWN(0);
-
-        private final int state;
-
-        public int getValue() {
-            return state;
-        }
-
-        STATE (final int value){
-            this.state = value;
-        }
-    }
-
-    public static final int DEFAULT_MTU_BYTES = 128;
-
-    private BluetoothDevice bluetoothDevice = null;
-    private BluetoothGatt bluetoothGatt = null;
-    private BluetoothGattCharacteristic bluetoothGattCharacteristic = null;
-
-    private String userID;
-    private STATE state;
-
-    public Device (BluetoothDevice bluetoothDevice) {
-        this.bluetoothDevice = bluetoothDevice;
-        this.state = STATE.NEW_SCANNED_DEVICE;
     }
 
 
@@ -96,7 +94,7 @@ public class Device {
 
     private void changeState (STATE state) {
         if (d) Log.d(TAG, "Change State from "+this.state+" to "+state + " of "+toString());
-        if (state == STATE.CONNECTED && this.state != STATE.CONNECTED){
+        if (state == STATE.CONNECTED){
             startReader();
         }
         if (state != STATE.CONNECTED){
@@ -220,22 +218,19 @@ public class Device {
 
     private void checkConnection() {
         Layer layer = Layer.getInstance();
-        if (d) Log.d(TAG, "check Connection of " + toString());
-        for (Device device: layer.getConnectedDevices()) {
-
-            if (device.getUserID().equals(this.userID) || hasSameMacAddress(device)) {
-                // mergen - mac change
-                // den alten nochmal versuchen zu disconnected
-                // device.disconnect();
-                // raus
-                // layer.getConnectedDevices().remove(device);
-                device.setBluetoothDevice(this.bluetoothDevice);
-                device.setBluetoothGatt(this.bluetoothGatt);
-                device.changeState(STATE.CONNECTED);
-                //this.changeState(STATE.OFFLINE);
-                return;
-            }
-        }
+//        if (d) Log.d(TAG, "check Connection of " + toString());
+//        for (Device device: layer.getConnectedDevices()) {
+//
+//            if (device.getUserID().equals(this.userID) || this.hasSameMacAddress(device)) {
+//                if (d) Log.d(TAG, "this device has same MAC or user id: " + toString());
+//
+//                device.setBluetoothDevice(this.bluetoothDevice);
+//                device.setBluetoothGatt(this.bluetoothGatt);
+//                device.changeState(STATE.CONNECTED);
+//                //this.changeState(STATE.OFFLINE);
+//                return;
+//            }
+//        }
         layer.getConnectedDevices().add(this);
         changeState(STATE.CONNECTED);
 
@@ -284,14 +279,18 @@ public class Device {
             @Override
             public void run() {
                 //if (d) Log.d(TAG, "Reader Trigger");
-                if (bluetoothGatt == null) return;
-                if (bluetoothGattCharacteristic == null) return;
-                bluetoothGatt.readCharacteristic(bluetoothGattCharacteristic);
+                readCharacteristic();
 
             }
         };
         readerTimer = new Timer();
         readerTimer.scheduleAtFixedRate(timerTask, 1000, 1000);
+    }
+
+    public void readCharacteristic(){
+        if (bluetoothGatt == null) return;
+        if (bluetoothGattCharacteristic == null) return;
+        bluetoothGatt.readCharacteristic(bluetoothGattCharacteristic);
     }
 
     private void stopReader(){
