@@ -1,10 +1,10 @@
 #!/bin/bash
 
-if [ "$TRAVIS_REPO_SLUG" == "htw-happening/Website" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+if [ "$TRAVIS_REPO_SLUG" == "htw-happening/AndroidApp" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
 
   echo -e "Publishing javadoc...\n"
 
-  cp -R build/docs/javadoc $HOME/javadoc-latest
+  cp -R /javadoc $HOME/javadoc-latest
 
   cd $HOME
   git config --global user.email "blue@happening.blue"
@@ -18,6 +18,6 @@ if [ "$TRAVIS_REPO_SLUG" == "htw-happening/Website" ] && [ "$TRAVIS_PULL_REQUEST
   git commit -m "Latest javadoc on successful travis build $TRAVIS_BUILD_NUMBER auto-pushed to master"
   git push -fq origin master > /dev/null
 
-  echo -e "Published Javadoc to gh-pages.\n"
+  echo -e "Published Javadoc to master.\n"
   
 fi
