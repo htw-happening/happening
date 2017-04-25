@@ -5,15 +5,13 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/textView_chat_entry_author"
+        android:id="@+id/dashboard_model_title"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Author" />
+        android:layout_height="wrap_content" />
 
     <TextView
-        android:id="@+id/textView_chat_entry_content"
+        android:id="@+id/dashboard_model_message"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Lorem ipsum dolor sit amet, consetetur sadipscing elitr." />
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

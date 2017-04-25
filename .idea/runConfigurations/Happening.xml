@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Happening" type="CompoundRunConfigurationType" factoryName="Compound Run Configuration">
+    <toRun type="AndroidRunConfigurationType" name="dashboard" />
+    <toRun type="AndroidRunConfigurationType" name="service" />
+    <method />
+  </configuration>
+</component>

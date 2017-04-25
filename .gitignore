@@ -20,7 +20,10 @@ local.properties
 .project
 
 # Android Studio
-.idea/
+!.idea
+.idea/*
+!.idea/runConfigurations
+!.idea/runConfigurations.xml
 .gradle
 /*/local.properties
 /*/out
