@@ -11,6 +11,7 @@ allprojects {
     repositories {
         jcenter()
 
+        // happening s3 maven repository
         maven {
             url "s3://happening-sdk.s3.eu-central-1.amazonaws.com/releases"
             credentials(AwsCredentials) {

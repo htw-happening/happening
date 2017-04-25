@@ -7,12 +7,19 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
 
+/**
+ *
+ */
 public class ServiceHandler {
 
     private Context context;
     private RemoteServiceConnection remoteServiceConnection;
     private IRemoteService service;
 
+    /**
+     *
+     * @param context
+     */
     public void register(Context context) {
         this.context = context;
         remoteServiceConnection = new RemoteServiceConnection();
@@ -23,6 +30,9 @@ public class ServiceHandler {
         Log.i(this.getClass().getSimpleName(), "start success " + success);
     }
 
+    /**
+     *
+     */
     public void deregister() {
         if (remoteServiceConnection != null) {
             context.unbindService(remoteServiceConnection);
@@ -33,17 +43,30 @@ public class ServiceHandler {
         }
     }
 
+    /**
+     * @return
+     */
     public IRemoteService getService() {
         return service;
     }
 
+    /**
+     *
+     */
     private class RemoteServiceConnection implements ServiceConnection {
 
+        /**
+         * @param name
+         * @param boundService
+         */
         public void onServiceConnected(ComponentName name, IBinder boundService) {
             service = IRemoteService.Stub.asInterface(boundService);
             Log.i(this.getClass().getSimpleName(), "Service connected");
         }
 
+        /**
+         * @param name
+         */
         public void onServiceDisconnected(ComponentName name) {
             service = null;
             Log.i(this.getClass().getSimpleName(), "Service disconnected");
