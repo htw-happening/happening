@@ -10,7 +10,7 @@ import java.util.LinkedList;
 
 public class Connector extends Thread{
 
-    private boolean d = true;
+    private boolean d = false;
     private String TAG = getClass().getSimpleName();
 
     private LinkedList<Device> sink = null;

@@ -24,6 +24,7 @@ import com.happening.poc_happening.MyApp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 public class Layer {
@@ -33,8 +34,8 @@ public class Layer {
 
     private static Layer instance = null;
 
-    public static final String ADVERTISE_UUID = "11111111-0000-0000-0000-000ad7e9415e";
-    public static final String SERVICE_UUID = "11111111-0000-0000-0000-000005e971ce";
+    public static final String ADVERTISE_UUID = "11111111-0000-0000-0000-000ad7e9415f";
+    public static final String SERVICE_UUID = "11111111-0000-0000-0000-000005e971cf";
     public static final String CHARACTERISTIC_UUID = "11111111-0000-0000-00c8-a9ac4e91541c";
     public static final String USERINFO_UUID = "11111111-0000-0000-0000-000005371970";
 
@@ -218,12 +219,13 @@ public class Layer {
         bluetoothGattServer = mBluetoothManager.openGattServer(context, bluetoothGattServerCallback);
 
         bluetoothGattServer.addService(gattService);
-        //startWriter();TODO
+        startWriter();
+
         if (d) Log.d(TAG, "Started Gattserver");
     }
 
     public void stopGattServer() {
-        //stopWriter();TODO
+        stopWriter();
         if (bluetoothGattServer != null) {
             for (BluetoothDevice bluetoothDevice: bluetoothGattServer.getConnectedDevices() ) {
                 bluetoothGattServer.cancelConnection(bluetoothDevice);
@@ -344,55 +346,31 @@ public class Layer {
         }
     }
 
-//    private void startWriter(){
-//        if (writerTimer != null){
-//            return;
-//        }
-//        TimerTask timerTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                if (d) Log.d(TAG, "Writer Trigger");
-//                BluetoothGattCharacteristic bluetoothGattCharacteristic = gattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
-//                if (bluetoothGattCharacteristic == null) return;
-//                bluetoothGattCharacteristic.setValue(String.valueOf(System.currentTimeMillis()));
-//                if (d) Log.d(TAG, "Writer - Changed Value");
-//            }
-//        };
-//        writerTimer = new Timer();
-//        writerTimer.scheduleAtFixedRate(timerTask, 1000, 1000);
-//    }
-//
-//    private void stopWriter(){
-//        if (writerTimer == null){
-//            return;
-//        }
-//        writerTimer.cancel();
-//        writerTimer = null;
-//    }
-//
-//    private void startReader(){
-//        if (readerTimer != null) return;
-//        TimerTask timerTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                if (d) Log.d(TAG, "Reader Trigger");
-//                if (bluetoothGatt == null) return;
-//                if (bluetoothGattCharacteristic == null) return;
-//                bluetoothGatt.readCharacteristic(bluetoothGattCharacteristic);
-//
-//            }
-//        };
-//        readerTimer = new Timer();
-//        readerTimer.scheduleAtFixedRate(timerTask, 1000, 1000);
-//    }
-//
-//    private void stopReader(){
-//        if (readerTimer == null){
-//            return;
-//        }
-//        readerTimer.cancel();
-//        readerTimer = null;
-//    }
+    private void startWriter(){
+        if (writerTimer != null){
+            return;
+        }
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                //if (d) Log.d(TAG, "Writer Trigger");
+                BluetoothGattCharacteristic bluetoothGattCharacteristic = gattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
+                if (bluetoothGattCharacteristic == null) return;
+                bluetoothGattCharacteristic.setValue(String.valueOf(System.currentTimeMillis()));
+                if (d) Log.d(TAG, "Writer - Changed Value");
+            }
+        };
+        writerTimer = new Timer();
+        writerTimer.scheduleAtFixedRate(timerTask, 1000, 1000);
+    }
+
+    private void stopWriter(){
+        if (writerTimer == null){
+            return;
+        }
+        writerTimer.cancel();
+        writerTimer = null;
+    }
 
     //endregion
 }
