@@ -15,7 +15,6 @@ import blue.happening.dashboard.R;
 import blue.happening.dashboard.adapter.DashboardAdapter;
 import blue.happening.dashboard.model.DashboardModel;
 
-
 public class DashboardFragment extends Fragment {
 
     private final List<DashboardModel> dashboardModels = new ArrayList<>();
