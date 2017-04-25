@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
-@SuppressWarnings("unused")
+/**
+ * Main happening {@link Service service} class containing lifecycle management and
+ * an interface binding with the actual service methods.
+ */
 public class HappeningService extends Service {
 
     private static final int START_MODE = START_STICKY;

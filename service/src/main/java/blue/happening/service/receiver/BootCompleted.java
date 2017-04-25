@@ -1,11 +1,10 @@
 package blue.happening.service.receiver;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-
-import java.util.Objects;
 
 import blue.happening.service.HappeningService;
 
@@ -13,7 +12,6 @@ import blue.happening.service.HappeningService;
  * {@link BroadcastReceiver BroadcastReceiver} that is configured to start our
  * {@link HappeningService service} on {@link Intent#ACTION_BOOT_COMPLETED device boot up}.
  */
-@SuppressWarnings("unused")
 public class BootCompleted extends BroadcastReceiver {
 
     /**
@@ -22,15 +20,14 @@ public class BootCompleted extends BroadcastReceiver {
      * @param context The Context in which the receiver is running.
      * @param intent  The Intent being received.
      */
+    @SuppressLint("UnsafeProtectedBroadcastReceiver")
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (!Objects.equals(intent.getAction(), Intent.ACTION_BOOT_COMPLETED)) {
-            Log.e(this.getClass().getSimpleName(), "intent action mismatch");
-            return;
+        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+            Log.v(this.getClass().getSimpleName(), "onReceive");
+            Intent happening = new Intent(context, HappeningService.class);
+            context.startService(happening);
+            // TODO: Ensure the service start was successful.
         }
-        Log.v(this.getClass().getSimpleName(), "onReceive");
-        Intent happening = new Intent(context, HappeningService.class);
-        context.startService(happening);
-        // TODO: Ensure the service start was successful.
     }
 }
