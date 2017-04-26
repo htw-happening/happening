@@ -9,7 +9,10 @@ import android.os.Message;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -52,6 +55,8 @@ public class Bt4Controls extends Fragment {
         ArrayList<Device> scanResults = bluetoothLayer.getScannedDevices();
         deviceListAdapter = new DeviceListAdapter(rootView.getContext(), scanResults);
         deviceListView.setAdapter(deviceListAdapter);
+        registerForContextMenu(deviceListView);
+
         bluetoothLayer.addHandler(guiHandler);
 
         deviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -59,7 +64,7 @@ public class Bt4Controls extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Device device = (Device) parent.getItemAtPosition(position);
                 Log.i("CLICK", "Clicked on device " + device.toString());
-                device.readCharacteristic();
+                //device.connectDevice();
             }
         });
 
@@ -122,6 +127,40 @@ public class Bt4Controls extends Fragment {
         Log.i("Bt4Controls", "onResume");
         super.onResume();
     }
+
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        if (v.getId()==R.id.discovered_devices_list) {
+            MenuInflater inflater = getActivity().getMenuInflater();
+            inflater.inflate(R.menu.device_context, menu);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        int pos = info.position;
+        Device device = (Device) deviceListAdapter.getItem(pos);
+        switch(item.getItemId()) {
+            case R.id.connect:
+                Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Connect!");
+                device.connectDevice();
+                return true;
+            case R.id.disconnect:
+                Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Disonnect!");
+                device.disconnect();
+                return true;
+            case R.id.read:
+                Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Read!");
+                device.readCharacteristic();
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+
 
     @Override
     public void onPause() {

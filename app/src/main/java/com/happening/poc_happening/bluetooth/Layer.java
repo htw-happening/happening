@@ -59,7 +59,7 @@ public class Layer {
     private ArrayList<Device> scannedDevices = new ArrayList<>();
     private ArrayList<Device> connectedDevices = new ArrayList<>();
 
-    private Connector connector = null;
+//    private Connector connector = null;
 
     private Timer readerTimer;
     private Timer writerTimer;
@@ -329,21 +329,22 @@ public class Layer {
         }
         if (d) Log.d(TAG, "addNewScan to scanned Devices ("+scannedDevice.getBluetoothDevice().getAddress()+")");
         this.scannedDevices.add(scannedDevice);
-        this.connector.addDevice(scannedDevice);
+        notifyHandlers(1);
+//        this.connector.addDevice(scannedDevice);
     }
 
     public void stopConnector(){
-        if (connector != null){
-            connector.interrupt();
-            connector = null;
-        }
+//        if (connector != null){
+//            connector.interrupt();
+//            connector = null;
+//        }
     }
 
     public void startConnector(){
-        if (connector == null){
-            connector = new Connector();
-            connector.start();
-        }
+//        if (connector == null){
+//            connector = new Connector();
+//            connector.start();
+//        }
     }
 
     private void startWriter(){

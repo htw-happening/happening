@@ -236,7 +236,7 @@ public class Device {
 
     }
 
-    private void disconnect() {
+    public void disconnect() {
         //TODO
         if (d) Log.d(TAG, "Disconnect to Device " + toString());
         bluetoothGatt.disconnect();
