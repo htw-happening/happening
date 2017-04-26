@@ -18,11 +18,13 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.happening.poc_happening.MyApp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -330,6 +332,27 @@ public class Layer {
         if (d) Log.d(TAG, "addNewScan to scanned Devices ("+scannedDevice.getBluetoothDevice().getAddress()+")");
         this.scannedDevices.add(scannedDevice);
         notifyHandlers(1);
+
+
+        if (d) Log.d("ScanResult", "scanResult.getScanRecord().getDeviceName() " + scanResult.getScanRecord().getDeviceName());
+        if (d) Log.d("ScanResult", "scanResult.getScanRecord().getAdvertiseFlags() " + scanResult.getScanRecord().getAdvertiseFlags());
+        Map<ParcelUuid, byte[]> serviceData = scanResult.getScanRecord().getServiceData();
+        if (d) Log.d("ScanResult", "scanResult.getScanRecord().getServiceData() SIZE: " +serviceData.size());
+        for (Map.Entry<ParcelUuid, byte[]> entry : serviceData.entrySet()) {
+            ParcelUuid key = entry.getKey();
+            byte[] value = entry.getValue();
+            if (d) Log.d("ScanResult", "scanResult.getScanRecord().getServiceData() " + key.getUuid().toString() + " " + value);
+        }
+        List<ParcelUuid> parcelUuids = scanResult.getScanRecord().getServiceUuids();
+        if (d) Log.d("ScanResult", "scanResult.getScanRecord().getServiceUuids() SIZE: " +parcelUuids.size());
+        for (ParcelUuid parcelUuid: parcelUuids){
+            if (d) Log.d("ScanResult", "scanResult.getScanRecord().getServiceUuids() " +parcelUuid.getUuid().toString());
+        }
+        SparseArray<byte[]> sparseArray = scanResult.getScanRecord().getManufacturerSpecificData();
+        if (d) Log.d("ScanResult", "scanResult.getScanRecord().getManufacturerSpecificData() SIZE: " +sparseArray.size());
+        for (int i = 0; i < sparseArray.size(); i++){
+            if (d) Log.d("ScanResult", "scanResult.getScanRecord().getManufacturerSpecificData() " + sparseArray.get(i));
+        }
 //        this.connector.addDevice(scannedDevice);
     }
 
