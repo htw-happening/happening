@@ -128,7 +128,7 @@ public class Device {
                         changeState(STATE.OFFLINE);
 
                     }else{
-                        delayedConnectDevice(1500, STATE.RECONNECTING);
+//                        delayedConnectDevice(1500, STATE.RECONNECTING);
                     }
                     break;
                 default:
@@ -247,9 +247,9 @@ public class Device {
         if (d) Log.d(TAG, "Connecting to Device " + toString());
         changeState(STATE.CONNECTING);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            bluetoothGatt = bluetoothDevice.connectGatt(MyApp.getAppContext(), false, mGattCallback, BluetoothDevice.TRANSPORT_LE);
+            bluetoothGatt = bluetoothDevice.connectGatt(MyApp.getAppContext(), true, mGattCallback, BluetoothDevice.TRANSPORT_LE);
         } else {
-            bluetoothGatt = bluetoothDevice.connectGatt(MyApp.getAppContext(), false, mGattCallback);
+            bluetoothGatt = bluetoothDevice.connectGatt(MyApp.getAppContext(), true, mGattCallback);
         }
     }
 
