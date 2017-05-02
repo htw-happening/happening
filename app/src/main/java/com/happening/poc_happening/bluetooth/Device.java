@@ -30,7 +30,7 @@ public class Device {
     private STATE state;
     private Timer readerTimer;
 
-    private enum STATE {
+    public enum STATE {
         NEW_SCANNED_DEVICE(1),
         CONNECTING(2),
         DISCOVERING(3),
@@ -38,6 +38,7 @@ public class Device {
         DISCONNECTED(5),
         RECONNECTING(6),
         OFFLINE(7), // TODO cleanUpMethod
+        SHADOW(8),
         UNKNOWN(0);
 
         private final int state;
@@ -97,7 +98,7 @@ public class Device {
         return userID;
     }
 
-    private void changeState (STATE state) {
+    public void changeState (STATE state) {
         if (d) Log.d(TAG, "Change State from "+this.state+" to "+state + " of "+toString());
         if (state == STATE.CONNECTED){
             startReader();
@@ -113,27 +114,27 @@ public class Device {
 
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-//            bluetoothGatt = gatt; TODO
             if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange status: "+status);
             switch (newState) {
                 case BluetoothProfile.STATE_CONNECTED:
                     if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_CONNECTED) of " + toString());
                     changeState(STATE.DISCOVERING);
-                    boolean mtuSuccess = gatt.requestMtu(DEFAULT_MTU_BYTES); //TODO CHECK if true und so
+                    boolean mtuSuccess = gatt.requestMtu(DEFAULT_MTU_BYTES);
                     if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange - connected and requesting mtu");
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
                     if (d) Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (STATE_DISCONNECTED) of" + toString());
-                    //gatt.close();
+                    if (state == STATE.SHADOW){
+                        return;
+                    }
                     changeState(STATE.DISCONNECTED);
-                    //stopReader();TODO
                     if (status == 133 || status == 129) {
                         // do not retry connecting - seems to be an old mac address
                         Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (GATT_FAILURE) --> Do not reconnect!! " + toString());
                         changeState(STATE.OFFLINE);
 
                     }else{
-//                        delayedConnectDevice(1500, STATE.RECONNECTING);
+                        delayedConnectDevice(1500, STATE.RECONNECTING);
                     }
                     break;
                 default:
@@ -179,7 +180,6 @@ public class Device {
 //                    gatt.readCharacteristic(userinfo);
 
                     addConnection();
-                    //startReader();TODO
                     break;
                 case BluetoothGatt.GATT_FAILURE:
                     if (d) Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (GATT_FAILURE)");
@@ -233,22 +233,23 @@ public class Device {
         //bluetoothGatt.close();
     }
 
-    public void connectDevice() {
+    public void connectDevice(STATE state) {
+        if (this.state == STATE.SHADOW) return;
         if (d) Log.d(TAG, "Connecting to Device " + toString());
-        changeState(STATE.CONNECTING);
+        changeState(state);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            bluetoothGatt = bluetoothDevice.connectGatt(MyApp.getAppContext(), true, mGattCallback, BluetoothDevice.TRANSPORT_LE);
+            bluetoothGatt = bluetoothDevice.connectGatt(MyApp.getAppContext(), false, mGattCallback, BluetoothDevice.TRANSPORT_LE);
         } else {
-            bluetoothGatt = bluetoothDevice.connectGatt(MyApp.getAppContext(), true, mGattCallback);
+            bluetoothGatt = bluetoothDevice.connectGatt(MyApp.getAppContext(), false, mGattCallback);
         }
     }
 
-    public void delayedConnectDevice(int delay, STATE state) {
-        changeState(state);
+    public void delayedConnectDevice(int delay, final STATE state) {
+//        changeState(state);
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                connectDevice();
+                connectDevice(state);
             }
         };
         Timer timer = new Timer();

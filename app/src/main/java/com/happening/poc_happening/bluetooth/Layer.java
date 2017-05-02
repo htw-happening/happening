@@ -369,6 +369,7 @@ public class Layer {
             List<Device> oldDevices = getShadowDuplicates(scannedDevice);
             for (Device oldDevice : oldDevices) {
                 oldDevice.disconnect();
+                oldDevice.changeState(Device.STATE.SHADOW);
             }
             if (d) Log.d(TAG, "addNewScan - add shadow device to sink ("+scannedDevice.toString()+")");
             this.connector.addDevice(scannedDevice);
