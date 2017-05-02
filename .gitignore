@@ -1,0 +1,17 @@
+# built application files
+# files for the dex VM
+# Java class files
+# generated files
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Eclipse project files
+# Android Studio
+!.idea
+.idea/*
+!.idea/runConfigurations
+!.idea/runConfigurations.xml
+.gradle
+/**/build
+*.iml
+/javadoc
