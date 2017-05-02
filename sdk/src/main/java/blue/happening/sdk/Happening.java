@@ -65,10 +65,12 @@ public class Happening {
         }
     }
 
+
     /**
      * Dummy method to demonstrate how to communicate with the happening service.
      *
      * @param message A dummy message
+     * @return error string
      */
     public String hello(String message) {
         Log.v(this.getClass().getSimpleName(), "hello");
