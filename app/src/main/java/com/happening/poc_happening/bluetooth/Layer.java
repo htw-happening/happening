@@ -351,13 +351,9 @@ public class Layer {
 
         if (isMacAdressInScannedDevices(scannedDevice)){
             // Ignore - this is just a duplicate with the same mac - 1 sec Scan
-            if (d) Log.d(TAG, "addNewScan - do not add, its just a duplicate");
+//            if (d) Log.d(TAG, "addNewScan - do not add, its just a duplicate");
             return;
         }
-
-        // First of all we added to the scanned devices list, cause we have to do stuff
-        this.scannedDevices.add(scannedDevice);
-        if (d) Log.d(TAG, "addNewScan - Yes added it ("+scannedDevice.toString()+")");
 
 
         if (!isUserIdInScannedDevices(scannedDevice)){
@@ -377,6 +373,11 @@ public class Layer {
             if (d) Log.d(TAG, "addNewScan - add shadow device to sink ("+scannedDevice.toString()+")");
             this.connector.addDevice(scannedDevice);
         }
+
+        // we added to the scanned devices list, cause we have to do stuff
+        this.scannedDevices.add(scannedDevice);
+        if (d) Log.d(TAG, "addNewScan - Yes added it ("+scannedDevice.toString()+")");
+
         notifyHandlers(1);
     }
 
