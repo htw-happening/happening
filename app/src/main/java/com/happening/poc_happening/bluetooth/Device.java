@@ -50,9 +50,10 @@ public class Device {
 
     }
 
-    public Device (BluetoothDevice bluetoothDevice) {
+    public Device (BluetoothDevice bluetoothDevice, String userId) {
         this.bluetoothDevice = bluetoothDevice;
         this.state = STATE.NEW_SCANNED_DEVICE;
+        this.userID = userId;
     }
 
     public String getAddress() {
