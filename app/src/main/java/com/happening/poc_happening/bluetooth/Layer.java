@@ -70,6 +70,10 @@ public class Layer {
     private Timer readerTimer;
     private Timer writerTimer;
 
+    // for analysing uptime
+    public int counter;
+    public long startTimestamp;
+
     public static Layer getInstance() {
         if (instance == null)
             instance = new Layer();
@@ -84,7 +88,9 @@ public class Layer {
         this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
         this.userID = getID();
         this.connectedDevices = new ArrayList<>();
-        Log.i(TAG, "I am " + mBluetoothAdapter.getName() + " - " + this.userID);
+        this.counter = 0;
+        this.startTimestamp = System.currentTimeMillis();
+        Log.i(TAG, "*********************** I am " + toString() + "***********************");
     }
 
 
@@ -469,6 +475,14 @@ public class Layer {
         }
         writerTimer.cancel();
         writerTimer = null;
+    }
+
+    public double calcUpTime(){
+        if (counter == 0) return 0;
+        long now = System.currentTimeMillis();
+        int diff = (int) (now/1000 - startTimestamp/1000);
+        if (diff == 0) return 0;
+        return (counter/new Double(diff)*100);
     }
 
     public static int bytesToInt (byte[] bytes){

@@ -42,6 +42,12 @@
         android:text="Server"
         android:textSize="16sp" />
 
+    <Button
+        android:id="@+id/button_uptime"
+        android:text="See Uptime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <ListView
         android:id="@+id/discovered_devices_list"
         android:layout_width="match_parent"
