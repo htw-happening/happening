@@ -17,7 +17,6 @@ public class ServiceHandler {
     private IRemoteService service;
 
     /**
-     *
      * @param context
      */
     public void register(Context context) {

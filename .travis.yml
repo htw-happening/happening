@@ -30,5 +30,8 @@ script:
 - ./gradlew publish
 - ./gradlew javadoc
 
-after_success:
-- .utility/push-javadoc-to-gh-pages.sh
+provider: script
+  script: utility/javadoc-github-release.sh
+  skip_cleanup: true
+  on:
+    branch: master
