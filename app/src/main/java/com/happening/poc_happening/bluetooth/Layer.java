@@ -337,16 +337,28 @@ public class Layer {
         if (d) Log.d("ScanResult", "scanResult.getScanRecord().getDeviceName() " + scanResult.getScanRecord().getDeviceName());
         if (d) Log.d("ScanResult", "scanResult.getScanRecord().getAdvertiseFlags() " + scanResult.getScanRecord().getAdvertiseFlags());
         Map<ParcelUuid, byte[]> serviceData = scanResult.getScanRecord().getServiceData();
-        if (d) Log.d("ScanResult", "scanResult.getScanRecord().getServiceData() SIZE: " +serviceData.size());
-        for (Map.Entry<ParcelUuid, byte[]> entry : serviceData.entrySet()) {
-            ParcelUuid key = entry.getKey();
-            byte[] value = entry.getValue();
-            if (d) Log.d("ScanResult", "scanResult.getScanRecord().getServiceData() " + key.getUuid().toString() + " " + value);
+        if (serviceData != null) {
+            if (d)
+                Log.d("ScanResult", "scanResult.getScanRecord().getServiceData() SIZE: " + serviceData.size());
+            for (Map.Entry<ParcelUuid, byte[]> entry : serviceData.entrySet()) {
+                ParcelUuid key = entry.getKey();
+                byte[] value = entry.getValue();
+                if (d)
+                    Log.d("ScanResult", "scanResult.getScanRecord().getServiceData() " + key.getUuid().toString() + " " + value);
+            }
+        }else{
+            Log.d("ScanResult", "scanResult.getScanRecord().getServiceData() WAS NULL");
         }
         List<ParcelUuid> parcelUuids = scanResult.getScanRecord().getServiceUuids();
-        if (d) Log.d("ScanResult", "scanResult.getScanRecord().getServiceUuids() SIZE: " +parcelUuids.size());
-        for (ParcelUuid parcelUuid: parcelUuids){
-            if (d) Log.d("ScanResult", "scanResult.getScanRecord().getServiceUuids() " +parcelUuid.getUuid().toString());
+        if (parcelUuids != null) {
+            if (d)
+                Log.d("ScanResult", "scanResult.getScanRecord().getServiceUuids() SIZE: " + parcelUuids.size());
+            for (ParcelUuid parcelUuid : parcelUuids) {
+                if (d)
+                    Log.d("ScanResult", "scanResult.getScanRecord().getServiceUuids() " + parcelUuid.getUuid().toString());
+            }
+        }else{
+            Log.d("ScanResult", "scanResult.getScanRecord().getServiceUuids() WAS NULL");
         }
         SparseArray<byte[]> sparseArray = scanResult.getScanRecord().getManufacturerSpecificData();
         if (d) Log.d("ScanResult", "scanResult.getScanRecord().getManufacturerSpecificData() SIZE: " +sparseArray.size());
