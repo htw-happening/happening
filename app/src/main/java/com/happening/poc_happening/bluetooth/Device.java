@@ -85,6 +85,10 @@ public class Device {
         return this.bluetoothDevice.getAddress().equals(other.bluetoothDevice.getAddress());
     }
 
+    public boolean hasSameUserId(Device other){
+        return this.getUserID().equals(other.getUserID());
+    }
+
     public BluetoothDevice getBluetoothDevice() {
         return bluetoothDevice;
     }
@@ -101,8 +105,8 @@ public class Device {
         if (state != STATE.CONNECTED){
             stopReader();
         }
-        Layer.getInstance().notifyHandlers(1);
         this.state = state;
+        Layer.getInstance().notifyHandlers(1);
     }
 
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
@@ -170,12 +174,11 @@ public class Device {
                     gatt.setCharacteristicNotification(bluetoothGattCharacteristic, true);
                     //gatt.readCharacteristic(bluetoothGattCharacteristic);
 
-                    BluetoothGattCharacteristic userinfo = service.getCharacteristic(userinfoUuid);
-                    gatt.setCharacteristicNotification(userinfo, true);
-                    gatt.readCharacteristic(userinfo);
+//                    BluetoothGattCharacteristic userinfo = service.getCharacteristic(userinfoUuid);
+//                    gatt.setCharacteristicNotification(userinfo, true);
+//                    gatt.readCharacteristic(userinfo);
 
-//                    bluetoothGatt = gatt;-todo sure
-
+                    addConnection();
                     //startReader();TODO
                     break;
                 case BluetoothGatt.GATT_FAILURE:
@@ -206,7 +209,6 @@ public class Device {
             if (d) Log.d(TAG, "BluetoothGattCallback - onCharacteristicRead (characteristic " + characteristic.getStringValue(0) + ", status " + status + ")");
             if (state == STATE.DISCOVERING){
                 userID = characteristic.getStringValue(0);
-                checkConnection();
             }
         }
 
@@ -217,22 +219,9 @@ public class Device {
 
     };
 
-    private void checkConnection() {
-        Layer layer = Layer.getInstance();
-//        if (d) Log.d(TAG, "check Connection of " + toString());
-//        for (Device device: layer.getConnectedDevices()) {
-//
-//            if (device.getUserID().equals(this.userID) || this.hasSameMacAddress(device)) {
-//                if (d) Log.d(TAG, "this device has same MAC or user id: " + toString());
-//
-//                device.setBluetoothDevice(this.bluetoothDevice);
-//                device.setBluetoothGatt(this.bluetoothGatt);
-//                device.changeState(STATE.CONNECTED);
-//                //this.changeState(STATE.OFFLINE);
-//                return;
-//            }
-//        }
-        layer.getConnectedDevices().add(this);
+    private void addConnection() {
+//        Layer layer = Layer.getInstance();
+//        layer.getConnectedDevices().add(this);
         changeState(STATE.CONNECTED);
 
     }

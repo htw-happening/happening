@@ -65,7 +65,7 @@ public class Layer {
     private ArrayList<Device> scannedDevices = new ArrayList<>();
     private ArrayList<Device> connectedDevices = new ArrayList<>();
 
-//    private Connector connector = null;
+    private Connector connector = null;
 
     private Timer readerTimer;
     private Timer writerTimer;
@@ -168,11 +168,12 @@ public class Layer {
                 .setConnectable(true)
                 .build();
 
-        int userHash = 12345678; //UUID.randomUUID().hashCode();
+        int userHash = UUID.randomUUID().hashCode();
         byte[] userId = intToByte(userHash);
 
-        Log.d(TAG, "Test 1.1: " + Arrays.toString(userId));
-        Log.d(TAG, "Test 1.1: " + toBinary(userId));
+        Log.d(TAG, "Start Adevertising with id: " + userHash);
+        Log.d(TAG, "Start Adevertising with id as bytearray: " + Arrays.toString(userId));
+        Log.d(TAG, "Start Adevertising with id as binary: " + toBinary(userId));
 
         ParcelUuid advertiseUuid = ParcelUuid.fromString(ADVERTISE_UUID);
         ParcelUuid userUuid = ParcelUuid.fromString(ADVERTISE_UUID);
@@ -183,26 +184,6 @@ public class Layer {
                 .addServiceUuid(advertiseUuid)
                 .addServiceData(userUuid, userId)
                 .build();
-
-//        AdvertiseData userData = userDataBuilder
-//                .addServiceUuid(userUuid)
-//                .addServiceData(userUuid, userId)
-//                .build();
-
-//        advertiseDataBuilder
-////                .addServiceData(advertiseUuid, "TEST".getBytes())
-//                .addServiceUuid(advertiseUuid)
-//                .setIncludeTxPowerLevel(true);
-//        AdvertiseData advertiseData = advertiseDataBuilder.build();
-//
-//
-//        AdvertiseData.Builder userDataBuilder = new AdvertiseData.Builder();
-//        ParcelUuid userUuid = ParcelUuid.fromString(USERINFO_UUID);
-//        userDataBuilder
-//                .addServiceUuid(userUuid)
-//                .addServiceData(userUuid, userId)
-//                .setIncludeTxPowerLevel(true);
-//        AdvertiseData userData = advertiseDataBuilder.build();
 
         mBluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, mAdvertiseCallback);
 
@@ -220,7 +201,6 @@ public class Layer {
         if (d) Log.d(TAG, "Starting GattServer");
         UUID serviceUuid = UUID.fromString(SERVICE_UUID);
         UUID characteristicUuid = UUID.fromString(CHARACTERISTIC_UUID);
-//        UUID userinfoUuid = UUID.fromString(USERINFO_UUID);
 
         gattService = new BluetoothGattService(
                 serviceUuid, BluetoothGattService.SERVICE_TYPE_PRIMARY);
@@ -239,20 +219,8 @@ public class Layer {
 
         gattService.addCharacteristic(characteristic);
 
-//        BluetoothGattCharacteristic userinfo = new BluetoothGattCharacteristic(
-//                userinfoUuid,
-//                BluetoothGattCharacteristic.PROPERTY_BROADCAST |
-//                        BluetoothGattCharacteristic.PROPERTY_READ |
-//                        BluetoothGattCharacteristic.PROPERTY_NOTIFY,
-//                BluetoothGattCharacteristic.PERMISSION_READ);
-//        userinfo.setValue(userID);
-//
-//        gattService.addCharacteristic(userinfo);
-
         bluetoothGattServerCallback = new BluetoothGattServerCallback();
-
         bluetoothGattServer = mBluetoothManager.openGattServer(context, bluetoothGattServerCallback);
-
         bluetoothGattServer.addService(gattService);
         startWriter();
 
@@ -296,7 +264,6 @@ public class Layer {
 
         mBluetoothLeScanner.stopScan(mScanCallback);
         mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
-//        mBluetoothLeScanner.startScan(mScanCallback);
         mBluetoothLeScanner.startScan(scanFilters, scanSettings, mScanCallback);
 
         startConnector();
@@ -358,17 +325,14 @@ public class Layer {
     // changing MAC every 15 minutes (exactly 15 mins!!)
     private void addNewScan(ScanResult scanResult){
 
-
+//        MyScanResult myScanResult = new MyScanResult(scanResult);
+//        printScan(scanResult);
 
         int userId = 0;
         ScanRecord scanRecord = scanResult.getScanRecord();
 
-
-
-
-
-        Log.d(TAG, "Bla " + Arrays.toString(scanRecord.getBytes()));
-        Log.d(TAG, "Bla " + toBinary(scanRecord.getBytes()));
+//        Log.d(TAG, "Scanrecord raw " + Arrays.toString(scanRecord.getBytes()));
+//        Log.d(TAG, "Scanrecord raw " + toBinary(scanRecord.getBytes()));
         if (scanRecord != null) {
             Map<ParcelUuid, byte[]> serviceData = scanRecord.getServiceData();
             if (serviceData == null) return;
@@ -376,23 +340,73 @@ public class Layer {
             if (scanRecord.getServiceData(test1) != null) {
                 byte[] userInfo = scanRecord.getServiceData(test1);
                 userId = bytesToInt(userInfo);
-                Log.d(TAG, "Test 1: " + Arrays.toString(userInfo));
-                Log.d(TAG, "Test 1: " + toBinary(userInfo));
-                Log.d(TAG, "Test 1: " + userId);
+//                Log.d(TAG, "Scanrecord userInfo: " + Arrays.toString(userInfo));
+//                Log.d(TAG, "Scanrecord userInfo: " + toBinary(userInfo));
+//                Log.d(TAG, "Scanrecord userInfo: " + userId);
+                if (userId == 0) return;
             }
         }
 
         Device scannedDevice = new Device(scanResult.getDevice(), Integer.toString(userId));
-        for (Device device: scannedDevices){
-            if (device.hasSameMacAddress(scannedDevice)){
-                return;
+
+        if (isMacAdressInScannedDevices(scannedDevice)){
+            // Ignore - this is just a duplicate with the same mac - 1 sec Scan
+            if (d) Log.d(TAG, "addNewScan - do not add, its just a duplicate");
+            return;
+        }
+
+        // First of all we added to the scanned devices list, cause we have to do stuff
+        this.scannedDevices.add(scannedDevice);
+        if (d) Log.d(TAG, "addNewScan - Yes added it ("+scannedDevice.toString()+")");
+
+
+        if (!isUserIdInScannedDevices(scannedDevice)){
+            // this is a fresh new device, nice
+            if (d) Log.d(TAG, "addNewScan - This is Fresh NEW Never Seen Device ("+scannedDevice.toString()+")");
+            this.connector.addDevice(scannedDevice); //--> will automatically connect()
+        }else{
+            // this is a shadow device. We are already connected (or some other state) to this device
+            // with an old mac address - lets try disconnect and fresh connect to the new one
+            if (d) Log.d(TAG, "addNewScan - This is Shadow Device with a new MAC ("+scannedDevice.toString()+")");
+
+            if (d) Log.d(TAG, "addNewScan - Disconnect old ones");
+            List<Device> oldDevices = getShadowDuplicates(scannedDevice);
+            for (Device oldDevice : oldDevices) {
+                oldDevice.disconnect();
+            }
+            if (d) Log.d(TAG, "addNewScan - add shadow device to sink ("+scannedDevice.toString()+")");
+            this.connector.addDevice(scannedDevice);
+        }
+        notifyHandlers(1);
+    }
+
+    private boolean isMacAdressInScannedDevices (Device device) {
+        for (Device aDevice: scannedDevices){
+            if (device.hasSameMacAddress(aDevice))
+                return true;
+        }
+        return false;
+    }
+
+    private boolean isUserIdInScannedDevices (Device device) {
+        for (Device aDevice: scannedDevices){
+            if (device.hasSameUserId(aDevice))
+                return true;
+        }
+        return false;
+    }
+
+    private List<Device> getShadowDuplicates(Device device){
+        List<Device> devices = new ArrayList<>();
+        for (Device aDevice: scannedDevices) {
+            if (aDevice.hasSameUserId(device) && !(aDevice.hasSameMacAddress(device))){
+                devices.add(aDevice);
             }
         }
-        if (d) Log.d(TAG, "addNewScan to scanned Devices ("+scannedDevice.getBluetoothDevice().getAddress()+")");
-        this.scannedDevices.add(scannedDevice);
-        notifyHandlers(1);
+        return devices;
+    }
 
-
+    private void printScan(ScanResult scanResult) {
         if (d) Log.d("ScanResult", "scanResult.getScanRecord().getDeviceName() " + scanResult.getScanRecord().getDeviceName());
         if (d) Log.d("ScanResult", "scanResult.getScanRecord().getAdvertiseFlags() " + scanResult.getScanRecord().getAdvertiseFlags());
         Map<ParcelUuid, byte[]> serviceData = scanResult.getScanRecord().getServiceData();
@@ -413,21 +427,20 @@ public class Layer {
         for (int i = 0; i < sparseArray.size(); i++){
             if (d) Log.d("ScanResult", "scanResult.getScanRecord().getManufacturerSpecificData() " + sparseArray.get(i));
         }
-//        this.connector.addDevice(scannedDevice);
     }
 
     public void stopConnector(){
-//        if (connector != null){
-//            connector.interrupt();
-//            connector = null;
-//        }
+        if (connector != null){
+            connector.interrupt();
+            connector = null;
+        }
     }
 
     public void startConnector(){
-//        if (connector == null){
-//            connector = new Connector();
-//            connector.start();
-//        }
+        if (connector == null){
+            connector = new Connector();
+            connector.start();
+        }
     }
 
     private void startWriter(){
@@ -484,69 +497,6 @@ public class Layer {
             else if ( c != '0' )
                 throw new IllegalArgumentException();
         return toReturn;
-    }
-
-    public void parseAdvertisementPacket(final byte[] scanRecord) {
-
-        byte[] advertisedData = Arrays.copyOf(scanRecord, scanRecord.length);
-        ArrayList<UUID> uuids = new ArrayList<>();
-
-        int offset = 0;
-        while (offset < (advertisedData.length - 2)) {
-            int len = advertisedData[offset++];
-            if (len == 0)
-                break;
-
-            int type = advertisedData[offset++];
-            switch (type) {
-                case 0x02: // Partial list of 16-bit UUIDs
-                case 0x03: // Complete list of 16-bit UUIDs
-                    while (len > 1) {
-                        int uuid16 = advertisedData[offset++] & 0xFF;
-                        uuid16 |= (advertisedData[offset++] << 8);
-                        len -= 2;
-                        uuids.add(UUID.fromString(String.format(
-                                "%08x-0000-1000-8000-00805f9b34fb", uuid16)));
-                    }
-                    break;
-                case 0x06:// Partial list of 128-bit UUIDs
-                case 0x07:// Complete list of 128-bit UUIDs
-                    // Loop through the advertised 128-bit UUID's.
-                    while (len >= 16) {
-                        try {
-                            // Wrap the advertised bits and order them.
-                            ByteBuffer buffer = ByteBuffer.wrap(advertisedData,
-                                    offset++, 16).order(ByteOrder.LITTLE_ENDIAN);
-                            long mostSignificantBit = buffer.getLong();
-                            long leastSignificantBit = buffer.getLong();
-                            uuids.add(new UUID(leastSignificantBit,
-                                    mostSignificantBit));
-                        } catch (IndexOutOfBoundsException e) {
-                            // Defensive programming.
-                            Log.e(TAG, e.toString());
-                            continue;
-                        } finally {
-                            // Move the offset to read the next uuid.
-                            offset += 15;
-                            len -= 16;
-                        }
-                    }
-                    break;
-                case 0xFF:  // Manufacturer Specific Data
-                    Log.d(TAG, "Manufacturer Specific Data size:" + len +" bytes" );
-//                    while (len > 1) {
-//                        if(i < 32) {
-//                            MfgData[i++] = advertisedData[offset++];
-//                        }
-//                        len -= 1;
-//                    }
-//                    Log.d(TAG, "Manufacturer Specific Data saved." + MfgData.toString());
-                    break;
-                default:
-                    offset += (len - 1);
-                    break;
-            }
-        }
     }
 
     //endregion

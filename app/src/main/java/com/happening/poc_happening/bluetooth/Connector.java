@@ -31,6 +31,9 @@ public class Connector extends Thread{
             Device device = this.sink.poll();
             if (device!=null){
                 if (d) Log.d(TAG, "Connector Thread Trigger - Polling works - Device " + device.getBluetoothDevice().getAddress() +" - Sinksize: "+sink.size());
+
+                //TODO Check here if we should connect
+
                 device.connectDevice();
             }
             try {
