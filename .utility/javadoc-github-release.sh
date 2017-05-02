@@ -86,11 +86,21 @@ fi
 rm -rf *
 cp -R $TMP_RELEASE_FOLDER/* .
 git add -Af *
-git commit -am 'Release new Version'
-git push origin_gh $RELEASE_BRANCH --no-verify > /dev/null 2>&1 || exit_with_error "Could not push to branch $RELEASE_BRANCH"
 
-echo "##########################################"
-echo "#                                        #"
-echo "# Page is released!                      #"
-echo "#                                        #"
-echo "##########################################"
+# Check if there are changes to commit
+if [ -n "$(git status --porcelain)" ]; then
+  git commit -am 'Release new Version'
+  git push origin_gh $RELEASE_BRANCH --no-verify > /dev/null 2>&1 || exit_with_error "Could not push to branch $RELEASE_BRANCH"
+
+  echo "##########################################"
+  echo "#                                        #"
+  echo "# Page is released!                      #"
+  echo "#                                        #"
+  echo "##########################################"
+else
+  echo "#################################################"
+  echo "#                                               #"
+  echo "# Skipping release because there are no changes #                      #"
+  echo "#                                               #"
+  echo "#################################################"
+fi
