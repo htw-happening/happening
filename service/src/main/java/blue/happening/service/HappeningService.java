@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import blue.happening.sdk.IRemoteService;
+
 /**
  * Main happening {@link Service service} class containing lifecycle management and
  * an interface binding with the actual service methods.
@@ -22,11 +24,14 @@ public class HappeningService extends Service {
 
     private final IRemoteService.Stub binder = new IRemoteService.Stub() {
 
-        final List<String> devices = Collections.synchronizedList(new ArrayList<String>());
+        final List<String> messages = Collections.synchronizedList(new ArrayList<String>());
 
-        public void addDevice(String name) throws RemoteException {
-            devices.add(name);
-            Log.d(this.getClass().getSimpleName(), "added device " + name);
+        public String hello(String message) throws RemoteException {
+            messages.add(message);
+            Log.d(this.getClass().getSimpleName(), "hello " + message);
+            String reply = "service@" + android.os.Process.myPid();
+            Log.d(this.getClass().getSimpleName(), "reply " + reply);
+            return reply;
         }
     };
 

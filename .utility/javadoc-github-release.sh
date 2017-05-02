@@ -100,7 +100,7 @@ if [ -n "$(git status --porcelain)" ]; then
 else
   echo "#################################################"
   echo "#                                               #"
-  echo "# Skipping release because there are no changes #                      #"
+  echo "# Skipping release because there are no changes #"
   echo "#                                               #"
   echo "#################################################"
 fi

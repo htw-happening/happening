@@ -8,12 +8,11 @@ import android.os.Bundle;
 import android.util.Log;
 
 import blue.happening.dashboard.fragment.DashboardFragment;
-import blue.happening.sdk.IRemoteService;
-import blue.happening.sdk.ServiceHandler;
+import blue.happening.sdk.Happening;
 
 public class MainActivity extends Activity {
 
-    private ServiceHandler serviceHandler;
+    private Happening happening;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,16 +26,18 @@ public class MainActivity extends Activity {
                 .commit();
 
         Context context = getApplicationContext();
-        serviceHandler = new ServiceHandler();
-        serviceHandler.register(context);
-        IRemoteService remoteService = serviceHandler.getService();
-        Log.i(this.getClass().getSimpleName(), "got handler " + remoteService);
+        happening = new Happening();
+        happening.register(context);
+    }
+
+    public Happening getHappening() {
+        return happening;
     }
 
     @Override
     protected void onDestroy() {
         Log.v(this.getClass().getSimpleName(), "onDestroy");
-        serviceHandler.deregister();
+        happening.deregister();
         super.onDestroy();
     }
 }
