@@ -90,7 +90,7 @@ public class Layer {
         this.connectedDevices = new ArrayList<>();
         this.counter = 0;
         this.startTimestamp = System.currentTimeMillis();
-        Log.i(TAG, "*********************** I am " + toString() + "***********************");
+        Log.i(TAG, "*********************** I am " + mBluetoothAdapter.getName() + " | " + getID() + " ***********************");
     }
 
 

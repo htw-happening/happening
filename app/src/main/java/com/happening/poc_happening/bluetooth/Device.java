@@ -128,7 +128,7 @@ public class Device {
                         return;
                     }
                     changeState(STATE.DISCONNECTED);
-                    if (status == 133 || status == 129) {
+                    if (status == 133 || status == 129 || status == BluetoothGatt.GATT_FAILURE) {
                         // do not retry connecting - seems to be an old mac address
                         Log.d(TAG, "BluetoothGattCallback - onConnectionStateChange (GATT_FAILURE) --> Do not reconnect!! " + toString());
                         changeState(STATE.OFFLINE);
