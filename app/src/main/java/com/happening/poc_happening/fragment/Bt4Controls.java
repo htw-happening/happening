@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.happening.poc_happening.R;
@@ -32,6 +33,8 @@ import com.happening.poc_happening.bluetooth.Layer;
 import java.util.ArrayList;
 
 public class Bt4Controls extends Fragment {
+
+    private TextView textView;
 
     private static Bt4Controls instance = null;
     private Layer bluetoothLayer = null;
@@ -51,6 +54,8 @@ public class Bt4Controls extends Fragment {
         if (!getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Snackbar.make(rootView, "BLE features are not supported!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
+
+        textView = (TextView) rootView.findViewById(R.id.textView_info_bt);
 
         bluetoothLayer = Layer.getInstance();
 
@@ -236,6 +241,7 @@ public class Bt4Controls extends Fragment {
         public void handleMessage(Message msg) {
             //make gui
             deviceListAdapter.notifyDataSetChanged();
+            textView.setText("Num Connections: "+bluetoothLayer.getNumOfConnectedDevices());
         }
     };
 }

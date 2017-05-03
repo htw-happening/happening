@@ -1,7 +1,5 @@
 package com.happening.poc_happening.adapter;
 
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +33,7 @@ public class DeviceListAdapter extends ArrayAdapter<Device> {
 
         address.setText(device.getAddress());
         name.setText(device.getName());
-        state.setText(device.getState());
+        state.setText(device.getStateAsString());
 
         return convertView;
     }

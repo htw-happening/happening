@@ -287,6 +287,16 @@ public class Layer {
         stopConnector();
     }
 
+    public int getNumOfConnectedDevices() {
+        int num = 0;
+        for (Device device : scannedDevices) {
+            if (device.getState() == Device.STATE.CONNECTED){
+                num++;
+            }
+        }
+        return num;
+    }
+
 /*
     public void broadcastMessage(String message) {
         Log.i("BROADCAST", "broadcast message" + message);

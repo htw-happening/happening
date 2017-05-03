@@ -69,10 +69,13 @@ public class Device {
         }
     }
 
-    public String getState() {
+    public String getStateAsString() {
         return state.toString();
     }
 
+    public STATE getState() {
+        return state;
+    }
 
     public void setBluetoothDevice(BluetoothDevice bluetoothDevice) {
         this.bluetoothDevice = bluetoothDevice;
