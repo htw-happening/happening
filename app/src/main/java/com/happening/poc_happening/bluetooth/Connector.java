@@ -31,10 +31,10 @@ public class Connector extends Thread{
             Device device = this.sink.poll();
             if (device!=null){
                 if (d) Log.d(TAG, "Connector Thread Trigger - Polling works - Device " + device.getBluetoothDevice().getAddress() +" - Sinksize: "+sink.size());
-                device.delayedConnectDevice(2000, Device.STATE.CONNECTING);
+                device.delayedConnectDevice(500, Device.STATE.CONNECTING);
             }
             try {
-                Thread.currentThread().sleep(500);
+                Thread.currentThread().sleep(4000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 return;
