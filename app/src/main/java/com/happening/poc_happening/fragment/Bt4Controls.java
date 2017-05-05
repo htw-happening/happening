@@ -145,6 +145,16 @@ public class Bt4Controls extends Fragment {
             advertiseButton.setEnabled(false);
             gattServerButton.setEnabled(false);
         }
+
+        TextView userInfo = (TextView) rootView.findViewById(R.id.textView_info_user_id);
+        userInfo.setText("    "+String.valueOf(bluetoothLayer.getUserID()));
+
+        (rootView.findViewById(R.id.button_startScan)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bluetoothLayer.scanOneSecond();
+            }
+        });
         return rootView;
     }
 

@@ -24,7 +24,6 @@ import android.util.SparseArray;
 import com.happening.poc_happening.MyApp;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,7 +44,7 @@ public class Layer {
     public static final String CHARACTERISTIC_UUID = "11111111-0000-0000-00c8-a9ac4e91541c";
     public static final String USERINFO_UUID = "11111111-0000-0000-0000-000005371970";
 
-    private String userID = null;
+    private int userID = 0;
     private Context context = null;
 
     private BluetoothManager mBluetoothManager = null;
@@ -70,6 +69,8 @@ public class Layer {
     private Timer readerTimer;
     private Timer writerTimer;
 
+    private Timer scanTimer;
+
     // for analysing uptime
     public int counter;
     public long startTimestamp;
@@ -86,17 +87,18 @@ public class Layer {
         this.mBluetoothAdapter = mBluetoothManager.getAdapter();
         this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
         this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
-        this.userID = getID();
+        this.userID = generateUserID();
         this.connectedDevices = new ArrayList<>();
         this.counter = 0;
         this.startTimestamp = System.currentTimeMillis();
-        Log.i(TAG, "*********************** I am " + mBluetoothAdapter.getName() + " | " + getID() + " ***********************");
+        startConnector();
+        Log.i(TAG, "*********************** I am " + mBluetoothAdapter.getName() + " | " + generateUserID() + " ***********************");
     }
 
 
-    private String getID() {
+    private int generateUserID() {
         // TODO: Return existing ID from database
-        return UUID.randomUUID().toString();
+        return UUID.randomUUID().hashCode();
     }
 
     public ArrayList<Device> getConnectedDevices() {
@@ -105,6 +107,10 @@ public class Layer {
 
     public ArrayList<Device> getScannedDevices() {
         return scannedDevices;
+    }
+
+    public int getUserID() {
+        return userID;
     }
 
     public BluetoothGattServer getBluetoothGattServer() {
@@ -174,7 +180,7 @@ public class Layer {
                 .setConnectable(true)
                 .build();
 
-        int userHash = UUID.randomUUID().hashCode();
+        int userHash = getUserID();
         byte[] userId = intToByte(userHash);
 
         Log.d(TAG, "Start Adevertising with id: " + userHash);
@@ -272,7 +278,7 @@ public class Layer {
         mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
         mBluetoothLeScanner.startScan(scanFilters, scanSettings, mScanCallback);
 
-        startConnector();
+
 
         if (d) Log.d(TAG, "Started Scanner");
     }
@@ -284,7 +290,7 @@ public class Layer {
             if (d) Log.d(TAG, "Stopped Scanner");
         }
 
-        stopConnector();
+
     }
 
     public int getNumOfConnectedDevices() {
@@ -295,6 +301,20 @@ public class Layer {
             }
         }
         return num;
+    }
+
+    public void scanOneSecond() {
+
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                stopScan();
+            }
+        };
+
+        this.scanTimer = new Timer();
+        scanTimer.schedule(timerTask, 1000);
+        startScan();
     }
 
 /*
