@@ -9,10 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 
-/**
- * Created by fabi on 02.05.17.
- */
-
 public class MyScanResult {
 
     String TAG = getClass().getSimpleName();

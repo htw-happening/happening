@@ -211,7 +211,8 @@ public class Layer {
 
     public void createGattServer() {
         if (d) Log.d(TAG, "Starting GattServer");
-        UUID serviceUuid = UUID.fromString(SERVICE_UUID);
+        UUID serviceUuid = UuidFactory.getServiceUuid(getUserID());
+        Log.d(TAG, serviceUuid.toString());
         UUID characteristicUuid = UUID.fromString(CHARACTERISTIC_UUID);
 
         gattService = new BluetoothGattService(
@@ -317,6 +318,11 @@ public class Layer {
         startScan();
     }
 
+    public void setAutoConnect(boolean b) {
+        if (b) startConnector();
+        if (!b) stopConnector();
+    }
+
 /*
     public void broadcastMessage(String message) {
         Log.i("BROADCAST", "broadcast message" + message);
@@ -383,7 +389,7 @@ public class Layer {
             }
         }
 
-        Device scannedDevice = new Device(scanResult.getDevice(), Integer.toString(userId));
+        Device scannedDevice = new Device(scanResult.getDevice(), userId);
 
         if (isMacAdressInScannedDevices(scannedDevice)){
             // Ignore - this is just a duplicate with the same mac - 1 sec Scan
@@ -482,29 +488,29 @@ public class Layer {
     }
 
     private void startWriter(){
-        if (writerTimer != null){
-            return;
-        }
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                //if (d) Log.d(TAG, "Writer Trigger");
-                BluetoothGattCharacteristic bluetoothGattCharacteristic = gattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
-                if (bluetoothGattCharacteristic == null) return;
-                bluetoothGattCharacteristic.setValue(String.valueOf(System.currentTimeMillis()));
-                if (d) Log.d(TAG, "Writer - Changed Value");
-            }
-        };
-        writerTimer = new Timer();
-        writerTimer.scheduleAtFixedRate(timerTask, 1000, 1000);
+//        if (writerTimer != null){
+//            return;
+//        }
+//        TimerTask timerTask = new TimerTask() {
+//            @Override
+//            public void run() {
+//                //if (d) Log.d(TAG, "Writer Trigger");
+//                BluetoothGattCharacteristic bluetoothGattCharacteristic = gattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
+//                if (bluetoothGattCharacteristic == null) return;
+//                bluetoothGattCharacteristic.setValue(String.valueOf(System.currentTimeMillis()));
+//                if (d) Log.d(TAG, "Writer - Changed Value");
+//            }
+//        };
+//        writerTimer = new Timer();
+//        writerTimer.scheduleAtFixedRate(timerTask, 1000, 1000);
     }
 
     private void stopWriter(){
-        if (writerTimer == null){
-            return;
-        }
-        writerTimer.cancel();
-        writerTimer = null;
+//        if (writerTimer == null){
+//            return;
+//        }
+//        writerTimer.cancel();
+//        writerTimer = null;
     }
 
     public double calcUpTime(){

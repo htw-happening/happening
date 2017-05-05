@@ -26,7 +26,7 @@ public class Device {
     private BluetoothDevice bluetoothDevice = null;
     private BluetoothGatt bluetoothGatt = null;
     private BluetoothGattCharacteristic bluetoothGattCharacteristic = null;
-    private String userID;
+    private int userID;
     private STATE state;
     private Timer readerTimer;
 
@@ -51,7 +51,7 @@ public class Device {
 
     }
 
-    public Device (BluetoothDevice bluetoothDevice, String userId) {
+    public Device (BluetoothDevice bluetoothDevice, int userId) {
         this.bluetoothDevice = bluetoothDevice;
         this.state = STATE.NEW_SCANNED_DEVICE;
         this.userID = userId;
@@ -62,10 +62,10 @@ public class Device {
     }
 
     public String getName() {
-        if(userID == null){
+        if(userID == 0){
             return "N/A";
         }else{
-            return this.userID;
+            return String.valueOf(this.userID);
         }
     }
 
@@ -90,14 +90,14 @@ public class Device {
     }
 
     public boolean hasSameUserId(Device other){
-        return this.getUserID().equals(other.getUserID());
+        return this.getUserID() == other.getUserID();
     }
 
     public BluetoothDevice getBluetoothDevice() {
         return bluetoothDevice;
     }
 
-    public String getUserID() {
+    public int getUserID() {
         return userID;
     }
 
@@ -168,9 +168,8 @@ public class Device {
                 case BluetoothGatt.GATT_SUCCESS:
                     if (d) Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (GATT_SUCCESS)");
 
-                    UUID serviceUuid = UUID.fromString(Layer.SERVICE_UUID);
+                    UUID serviceUuid = UuidFactory.getServiceUuid(userID);
                     UUID characteristicUuid = UUID.fromString(Layer.CHARACTERISTIC_UUID);
-                    UUID userinfoUuid = UUID.fromString(Layer.USERINFO_UUID);
 
                     BluetoothGattService service = gatt.getService(serviceUuid);
 
@@ -212,7 +211,7 @@ public class Device {
             if (d) Log.d(TAG, "BluetoothGattCallback - onCharacteristicRead (characteristic " + characteristic.getStringValue(0) + ", status " + status + ")");
             Layer.getInstance().counter++;
             if (state == STATE.DISCOVERING){
-                userID = characteristic.getStringValue(0); //TODO STILL OK??
+
             }
         }
 
@@ -269,17 +268,17 @@ public class Device {
     }
 
     private void startReader(){
-        if (readerTimer != null) return;
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                //if (d) Log.d(TAG, "Reader Trigger");
-                readCharacteristic();
-
-            }
-        };
-        readerTimer = new Timer();
-        readerTimer.scheduleAtFixedRate(timerTask, 1000, 1000);
+//        if (readerTimer != null) return;
+//        TimerTask timerTask = new TimerTask() {
+//            @Override
+//            public void run() {
+//                //if (d) Log.d(TAG, "Reader Trigger");
+//                readCharacteristic();
+//
+//            }
+//        };
+//        readerTimer = new Timer();
+//        readerTimer.scheduleAtFixedRate(timerTask, 1000, 1000);
     }
 
     public void readCharacteristic(){
@@ -289,10 +288,10 @@ public class Device {
     }
 
     private void stopReader(){
-        if (readerTimer == null){
-            return;
-        }
-        readerTimer.cancel();
-        readerTimer = null;
+//        if (readerTimer == null){
+//            return;
+//        }
+//        readerTimer.cancel();
+//        readerTimer = null;
     }
 }

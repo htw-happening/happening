@@ -139,6 +139,17 @@ public class Bt4Controls extends Fragment {
                 }
             }
         });
+
+        Switch autoConnector = (Switch) rootView.findViewById(R.id.switch_auto_connect);
+        autoConnector.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    bluetoothLayer.setAutoConnect(true);
+                } else {
+                    bluetoothLayer.setAutoConnect(false);
+                }
+            }
+        });
         //endregion
 
         if (!bluetoothLayer.isAdvertisingSupported()) {

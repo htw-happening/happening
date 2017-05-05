@@ -4,10 +4,6 @@ import android.util.Log;
 
 import java.util.LinkedList;
 
-/**
- * Created by fabi on 19.04.17.
- */
-
 public class Connector extends Thread{
 
     private boolean d = false;

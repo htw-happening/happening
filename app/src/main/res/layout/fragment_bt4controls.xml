@@ -32,6 +32,15 @@
         android:checked="false"/>
 
     <Switch
+        android:id="@+id/switch_auto_connect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5sp"
+        android:checked="false"
+        android:text="Auto Connectors"
+        android:textSize="16sp" />
+
+    <Switch
         android:id="@+id/scan_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
