@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import blue.happening.sdk.IRemoteService;
+import blue.happening.sdk.IHappeningService;
 
 /**
  * Main happening {@link Service service} class containing lifecycle management and
@@ -22,7 +22,7 @@ public class HappeningService extends Service {
     private static final int START_MODE = START_STICKY;
     private static final boolean ALLOW_REBIND = true;
 
-    private final IRemoteService.Stub binder = new IRemoteService.Stub() {
+    private final IHappeningService.Stub binder = new IHappeningService.Stub() {
 
         final List<String> messages = Collections.synchronizedList(new ArrayList<String>());
 
@@ -74,6 +74,41 @@ public class HappeningService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         Log.v(this.getClass().getSimpleName(), "onBind");
+        try {
+            Log.d("Intent action", intent.getAction());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            Log.d("Intent class", intent.getClass().toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            Log.d("Intent data", intent.getDataString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            Log.d("Intent pack", intent.getPackage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            Log.d("Intent scheme", intent.getScheme());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            Log.d("Intent type", intent.getType());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            Log.d("Intent string", intent.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return binder;
     }
 

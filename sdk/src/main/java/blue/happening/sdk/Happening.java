@@ -8,6 +8,11 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
+import blue.happening.HappeningClient;
+import blue.happening.HappeningParcel;
+import blue.happening.IHappeningService;
+
+
 /**
  * Entry point for your application into the happening mesh network. You need to register and
  * deregister your {@link android.content.Context application context} during start and destroy
@@ -17,7 +22,7 @@ public class Happening {
 
     private Context context;
     private RemoteServiceConnection remoteServiceConnection;
-    private IRemoteService service;
+    private IHappeningService service;
 
     /**
      * To be able to send and receive data through the happening network service, you need to
@@ -55,7 +60,7 @@ public class Happening {
     private class RemoteServiceConnection implements ServiceConnection {
 
         public void onServiceConnected(ComponentName name, IBinder boundService) {
-            service = IRemoteService.Stub.asInterface(boundService);
+            service = IHappeningService.Stub.asInterface(boundService);
             Log.i(this.getClass().getSimpleName(), "Service connected");
         }
 
@@ -85,4 +90,38 @@ public class Happening {
         }
     }
 
+    public HappeningClient getClient(String clientId) {
+        try {
+            return service.getClient(clientId);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public HappeningClient[] getClients() {
+        try {
+            return service.getClients();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public void send(HappeningClient[] recipients, HappeningParcel parcel) {
+        try {
+            service.send(recipients, parcel);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public HappeningParcel[] getParcels() {
+        try {
+            return service.getParcels();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
