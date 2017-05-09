@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.ApplicationInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -14,6 +15,8 @@ import android.util.Log;
  * routines, respectively.
  */
 public class Happening {
+
+    private static final String HAPPENING_APP_ID = "HAPPENING_APP_ID";
 
     private Context context;
     private RemoteServiceConnection remoteServiceConnection;
@@ -30,6 +33,9 @@ public class Happening {
         remoteServiceConnection = new RemoteServiceConnection();
         Intent intent = new Intent();
         intent.setClassName("blue.happening.service", "blue.happening.service.HappeningService");
+        ApplicationInfo info = context.getApplicationInfo();
+        String appId = info.labelRes == 0 ? info.nonLocalizedLabel.toString() : context.getString(info.labelRes);
+        intent.putExtra(HAPPENING_APP_ID, appId);
         context.startService(intent);
         boolean success = context.bindService(intent, remoteServiceConnection, Context.BIND_AUTO_CREATE);
         Log.i(this.getClass().getSimpleName(), "start success " + success);
