@@ -25,7 +25,7 @@ public class Happening {
     private IHappeningCallback.Stub happeningCallback = new IHappeningCallback.Stub() {
         @Override
         public IBinder asBinder() {
-            return null;
+            return this;
         }
 
         @Override

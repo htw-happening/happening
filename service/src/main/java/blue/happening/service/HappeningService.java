@@ -23,7 +23,7 @@ public class HappeningService extends Service {
     private static final int START_MODE = START_STICKY;
     private static final boolean ALLOW_REBIND = true;
 
-    private IHappeningCallback helloCallback = null;
+    private static List<IHappeningCallback> callbacks = new ArrayList<>();
 
     private final IHappeningService.Stub binder = new IHappeningService.Stub() {
 
@@ -31,8 +31,8 @@ public class HappeningService extends Service {
 
         @Override
         public void registerHappeningCallback(IHappeningCallback happeningCallback) throws RemoteException {
-            Log.d("callback", " " + happeningCallback);
-            helloCallback = happeningCallback;
+            Log.d(this.getClass().getSimpleName(), "callback added " + happeningCallback);
+            callbacks.add(happeningCallback);
         }
 
         public String hello(String message) throws RemoteException {
@@ -40,7 +40,10 @@ public class HappeningService extends Service {
             Log.d(this.getClass().getSimpleName(), "hello " + message);
             String reply = "service@" + android.os.Process.myPid();
             Log.d(this.getClass().getSimpleName(), "reply " + reply);
-            helloCallback.onClientAdded("async call from service hello");
+            for (IHappeningCallback callback : callbacks) {
+                if (callback != null)
+                    callback.onClientAdded("async call from service hello");
+            }
             return reply;
         }
 
@@ -89,42 +92,7 @@ public class HappeningService extends Service {
      */
     @Override
     public IBinder onBind(Intent intent) {
-//        Log.v(this.getClass().getSimpleName(), "onBind");
-//        try {
-//            Log.d("Intent action", intent.getAction());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        try {
-//            Log.d("Intent class", intent.getClass().toString());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        try {
-//            Log.d("Intent data", intent.getDataString());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        try {
-//            Log.d("Intent pack", intent.getPackage());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        try {
-//            Log.d("Intent scheme", intent.getScheme());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        try {
-//            Log.d("Intent type", intent.getType());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        try {
-//            Log.d("Intent string", intent.toString());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        Log.v(this.getClass().getSimpleName(), "onBind");
         return binder;
     }
 

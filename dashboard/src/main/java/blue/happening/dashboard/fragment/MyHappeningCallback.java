@@ -4,9 +4,6 @@ import android.util.Log;
 
 import blue.happening.sdk.HappeningCallback;
 
-/**
- * Created by kaischulz on 09.05.17.
- */
 
 public class MyHappeningCallback implements HappeningCallback {
 
