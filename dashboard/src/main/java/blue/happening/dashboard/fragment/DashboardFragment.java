@@ -36,7 +36,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
         ListView listView = (ListView) rootView.findViewById(R.id.dashboard_model_list);
         listView.setAdapter(dashboardAdapter);
 
-        ((MainActivity) getActivity()).getHappening().registerHappeningCallback(new MyHappeningCallback());
+
 
         return rootView;
     }

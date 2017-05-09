@@ -1,10 +1,8 @@
 package blue.happening.dashboard.fragment;
 
-import android.os.IBinder;
 import android.util.Log;
 
 import blue.happening.sdk.HappeningCallback;
-import blue.happening.HappeningClient;
 
 /**
  * Created by kaischulz on 09.05.17.
@@ -13,18 +11,18 @@ import blue.happening.HappeningClient;
 public class MyHappeningCallback implements HappeningCallback {
 
     @Override
-    public void onClientAdded(HappeningClient client) {
-        Log.i("MyHappeningCallback", "onClientAdded");
+    public void onClientAdded(String client) {
+        Log.i("MyHappeningCallback", "onClientAdded " + client);
     }
 
     @Override
-    public void onClientUpdated(HappeningClient client) {
-        Log.i("MyHappeningCallback", "onClientUpdated");
+    public void onClientUpdated(String client) {
+        Log.i("MyHappeningCallback", "onClientUpdated " + client);
     }
 
     @Override
-    public void onClientRemoved(HappeningClient client) {
-        Log.i("MyHappeningCallback", "onClientRemoved");
+    public void onClientRemoved(String client) {
+        Log.i("MyHappeningCallback", "onClientRemoved " + client);
     }
 
     @Override
@@ -32,8 +30,4 @@ public class MyHappeningCallback implements HappeningCallback {
         Log.i("MyHappeningCallback", "onParcelQueued");
     }
 
-    @Override
-    public IBinder asBinder() {
-        return null;
-    }
 }

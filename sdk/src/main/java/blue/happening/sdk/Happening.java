@@ -21,6 +21,33 @@ public class Happening {
     private Context context;
     private RemoteServiceConnection remoteServiceConnection;
     private IHappeningService service;
+    private HappeningCallback appCallback;
+    private IHappeningCallback.Stub happeningCallback = new IHappeningCallback.Stub() {
+        @Override
+        public IBinder asBinder() {
+            return null;
+        }
+
+        @Override
+        public void onClientAdded(String client) throws RemoteException {
+            appCallback.onClientAdded(client);
+        }
+
+        @Override
+        public void onClientUpdated(String client) throws RemoteException {
+            appCallback.onClientUpdated(client);
+        }
+
+        @Override
+        public void onClientRemoved(String client) throws RemoteException {
+            appCallback.onClientRemoved(client);
+        }
+
+        @Override
+        public void onParcelQueued(long parcelId) throws RemoteException {
+            appCallback.onParcelQueued(parcelId);
+        }
+    };
 
     /**
      * To be able to send and receive data through the happening network service, you need to
@@ -28,7 +55,8 @@ public class Happening {
      *
      * @param context Your application context
      */
-    public void register(Context context) {
+    public void register(Context context, HappeningCallback appCallback) {
+        this.appCallback = appCallback;
         this.context = context;
         remoteServiceConnection = new RemoteServiceConnection();
         Intent intent = new Intent();
@@ -52,11 +80,13 @@ public class Happening {
         }
     }
 
-    public void registerHappeningCallback(HappeningCallback myClientCallback) {
+    public void registerHappeningCallback(HappeningCallback appCallback) {
+        this.appCallback = appCallback;
+        Log.d(this.getClass().getSimpleName(), "registerHappeningCallback");
         try {
-            service.registerHappeningCallback((IHappeningCallback) myClientCallback);
-        } catch (Exception exception) {
-
+            service.registerHappeningCallback(happeningCallback);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -86,6 +116,13 @@ public class Happening {
 
         public void onServiceConnected(ComponentName name, IBinder boundService) {
             service = IHappeningService.Stub.asInterface(boundService);
+
+            try {
+                service.registerHappeningCallback(happeningCallback);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+
             Log.i(this.getClass().getSimpleName(), "Service connected");
         }
 

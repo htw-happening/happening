@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import blue.happening.HappeningClient;
-import blue.happening.HappeningParcel;
 import blue.happening.IHappeningCallback;
 import blue.happening.IHappeningService;
 
@@ -25,13 +23,16 @@ public class HappeningService extends Service {
     private static final int START_MODE = START_STICKY;
     private static final boolean ALLOW_REBIND = true;
 
+    private IHappeningCallback helloCallback = null;
+
     private final IHappeningService.Stub binder = new IHappeningService.Stub() {
 
         final List<String> messages = Collections.synchronizedList(new ArrayList<String>());
 
         @Override
         public void registerHappeningCallback(IHappeningCallback happeningCallback) throws RemoteException {
-
+            Log.d("callback", " " + happeningCallback);
+            helloCallback = happeningCallback;
         }
 
         public String hello(String message) throws RemoteException {
@@ -39,28 +40,15 @@ public class HappeningService extends Service {
             Log.d(this.getClass().getSimpleName(), "hello " + message);
             String reply = "service@" + android.os.Process.myPid();
             Log.d(this.getClass().getSimpleName(), "reply " + reply);
+            helloCallback.onClientAdded("async call from service hello");
             return reply;
         }
 
         @Override
-        public HappeningClient getClient(String clientId) throws RemoteException {
+        public String getClient(String clientId) throws RemoteException {
             return null;
         }
 
-        @Override
-        public HappeningClient[] getClients() throws RemoteException {
-            return new HappeningClient[0];
-        }
-
-        @Override
-        public void send(HappeningClient[] recipients, HappeningParcel parcel) throws RemoteException {
-
-        }
-
-        @Override
-        public HappeningParcel[] getParcels() throws RemoteException {
-            return new HappeningParcel[0];
-        }
     };
 
     /**
@@ -101,42 +89,42 @@ public class HappeningService extends Service {
      */
     @Override
     public IBinder onBind(Intent intent) {
-        Log.v(this.getClass().getSimpleName(), "onBind");
-        try {
-            Log.d("Intent action", intent.getAction());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            Log.d("Intent class", intent.getClass().toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            Log.d("Intent data", intent.getDataString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            Log.d("Intent pack", intent.getPackage());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            Log.d("Intent scheme", intent.getScheme());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            Log.d("Intent type", intent.getType());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            Log.d("Intent string", intent.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        Log.v(this.getClass().getSimpleName(), "onBind");
+//        try {
+//            Log.d("Intent action", intent.getAction());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        try {
+//            Log.d("Intent class", intent.getClass().toString());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        try {
+//            Log.d("Intent data", intent.getDataString());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        try {
+//            Log.d("Intent pack", intent.getPackage());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        try {
+//            Log.d("Intent scheme", intent.getScheme());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        try {
+//            Log.d("Intent type", intent.getType());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        try {
+//            Log.d("Intent string", intent.toString());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
         return binder;
     }
 
