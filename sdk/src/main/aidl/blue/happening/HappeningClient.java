@@ -35,4 +35,5 @@ public class HappeningClient implements Parcelable {
             return new HappeningClient[size];
         }
     };
+
 }

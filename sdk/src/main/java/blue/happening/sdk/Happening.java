@@ -8,10 +8,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
-import blue.happening.HappeningClient;
-import blue.happening.HappeningParcel;
+import blue.happening.IHappeningCallback;
 import blue.happening.IHappeningService;
-
 
 /**
  * Entry point for your application into the happening mesh network. You need to register and
@@ -54,22 +52,13 @@ public class Happening {
         }
     }
 
-    /**
-     * Service connection class that wraps the remote service interfaces.
-     */
-    private class RemoteServiceConnection implements ServiceConnection {
+    public void registerHappeningCallback(HappeningCallback myClientCallback) {
+        try {
+            service.registerHappeningCallback((IHappeningCallback) myClientCallback);
+        } catch (Exception exception) {
 
-        public void onServiceConnected(ComponentName name, IBinder boundService) {
-            service = IHappeningService.Stub.asInterface(boundService);
-            Log.i(this.getClass().getSimpleName(), "Service connected");
-        }
-
-        public void onServiceDisconnected(ComponentName name) {
-            service = null;
-            Log.i(this.getClass().getSimpleName(), "Service disconnected");
         }
     }
-
 
     /**
      * Dummy method to demonstrate how to communicate with the happening service.
@@ -90,38 +79,20 @@ public class Happening {
         }
     }
 
-    public HappeningClient getClient(String clientId) {
-        try {
-            return service.getClient(clientId);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-            return null;
+    /**
+     * Service connection class that wraps the remote service interfaces.
+     */
+    private class RemoteServiceConnection implements ServiceConnection {
+
+        public void onServiceConnected(ComponentName name, IBinder boundService) {
+            service = IHappeningService.Stub.asInterface(boundService);
+            Log.i(this.getClass().getSimpleName(), "Service connected");
+        }
+
+        public void onServiceDisconnected(ComponentName name) {
+            service = null;
+            Log.i(this.getClass().getSimpleName(), "Service disconnected");
         }
     }
 
-    public HappeningClient[] getClients() {
-        try {
-            return service.getClients();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public void send(HappeningClient[] recipients, HappeningParcel parcel) {
-        try {
-            service.send(recipients, parcel);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public HappeningParcel[] getParcels() {
-        try {
-            return service.getParcels();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 }

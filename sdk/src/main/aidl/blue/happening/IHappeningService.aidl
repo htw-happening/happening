@@ -3,8 +3,12 @@ package blue.happening;
 import blue.happening.HappeningClient;
 import blue.happening.HappeningParcel;
 
+import blue.happening.IHappeningCallback;
+
 
 interface IHappeningService {
+
+    void registerHappeningCallback(IHappeningCallback happeningCallback);
 
     String hello(String message);
     HappeningClient getClient(String clientId);
