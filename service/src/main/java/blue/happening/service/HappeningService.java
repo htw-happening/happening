@@ -21,6 +21,7 @@ import blue.happening.IHappeningService;
  */
 public class HappeningService extends Service {
 
+    private static final String HAPPENING_APP_ID = "HAPPENING_APP_ID";
     private static final int START_MODE = START_STICKY;
     private static final boolean ALLOW_REBIND = true;
 
@@ -93,6 +94,8 @@ public class HappeningService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         Log.v(this.getClass().getSimpleName(), "onBind");
+        String appId = intent.getStringExtra(HAPPENING_APP_ID);
+        Toast.makeText(this, (appId == null ? "Something" : appId) + " bound", Toast.LENGTH_LONG).show();
         return binder;
     }
 
@@ -102,6 +105,8 @@ public class HappeningService extends Service {
     @Override
     public void onRebind(Intent intent) {
         super.onRebind(intent);
+        String appId = intent.getStringExtra(HAPPENING_APP_ID);
+        Toast.makeText(this, (appId == null ? "Something" : appId) + " rebound", Toast.LENGTH_LONG).show();
         Log.v(this.getClass().getSimpleName(), "onRebind");
     }
 
@@ -111,6 +116,8 @@ public class HappeningService extends Service {
     @Override
     public boolean onUnbind(Intent intent) {
         Log.v(this.getClass().getSimpleName(), "onUnbind");
+        String appId = intent.getStringExtra(HAPPENING_APP_ID);
+        Toast.makeText(this, (appId == null ? "Something" : appId) + " unbound", Toast.LENGTH_LONG).show();
         return ALLOW_REBIND;
     }
 }
