@@ -52,7 +52,6 @@ public class HappeningService extends Service {
         public String getClient(String clientId) throws RemoteException {
             return null;
         }
-
     };
 
     /**

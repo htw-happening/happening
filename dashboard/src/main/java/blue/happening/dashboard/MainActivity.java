@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import blue.happening.dashboard.fragment.DashboardFragment;
-import blue.happening.dashboard.fragment.MyHappeningCallback;
 import blue.happening.sdk.Happening;
 
 
@@ -29,7 +28,7 @@ public class MainActivity extends Activity {
 
         Context context = getApplicationContext();
         happening = new Happening();
-        happening.register(context, new MyHappeningCallback());
+        happening.register(context, new HappeningCallback());
     }
 
     public Happening getHappening() {

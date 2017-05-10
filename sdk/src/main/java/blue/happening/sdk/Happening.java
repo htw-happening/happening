@@ -81,16 +81,6 @@ public class Happening {
         }
     }
 
-    public void registerHappeningCallback(HappeningCallback appCallback) {
-        this.appCallback = appCallback;
-        Log.d(this.getClass().getSimpleName(), "registerHappeningCallback");
-        try {
-            service.registerHappeningCallback(happeningCallback);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     /**
      * Dummy method to demonstrate how to communicate with the happening service.
      *
@@ -117,13 +107,11 @@ public class Happening {
 
         public void onServiceConnected(ComponentName name, IBinder boundService) {
             service = IHappeningService.Stub.asInterface(boundService);
-
             try {
                 service.registerHappeningCallback(happeningCallback);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
-
             Log.i(this.getClass().getSimpleName(), "Service connected");
         }
 
