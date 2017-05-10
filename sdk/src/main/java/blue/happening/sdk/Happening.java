@@ -57,8 +57,8 @@ public class Happening {
      * @param context Your application context
      */
     public void register(Context context, HappeningCallback appCallback) {
-        this.appCallback = appCallback;
         this.context = context;
+        this.appCallback = appCallback;
         remoteServiceConnection = new RemoteServiceConnection();
         Intent intent = new Intent();
         intent.setClassName("blue.happening.service", "blue.happening.service.HappeningService");

@@ -30,8 +30,6 @@ public class MainActivity extends Activity {
         Context context = getApplicationContext();
         happening = new Happening();
         happening.register(context, new MyHappeningCallback());
-
-
     }
 
     public Happening getHappening() {
