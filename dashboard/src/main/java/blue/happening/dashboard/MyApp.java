@@ -3,6 +3,7 @@ package blue.happening.dashboard;
 import android.app.Application;
 import android.util.Log;
 
+
 public class MyApp extends Application {
 
     @Override

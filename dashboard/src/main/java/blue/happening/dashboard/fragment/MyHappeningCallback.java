@@ -26,5 +26,4 @@ public class MyHappeningCallback implements HappeningCallback {
     public void onParcelQueued(long parcelId) {
         Log.i("MyHappeningCallback", "onParcelQueued");
     }
-
 }

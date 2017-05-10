@@ -3,6 +3,7 @@ package blue.happening.service;
 import android.app.Application;
 import android.util.Log;
 
+
 /**
  * Basic {@link Application application} container for the happening service to be shippable.
  */

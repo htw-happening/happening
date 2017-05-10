@@ -14,6 +14,7 @@ import java.util.List;
 import blue.happening.IHappeningCallback;
 import blue.happening.IHappeningService;
 
+
 /**
  * Main happening {@link Service service} class containing lifecycle management and
  * an interface binding with the actual service methods.

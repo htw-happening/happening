@@ -8,6 +8,7 @@ import android.util.Log;
 
 import blue.happening.service.HappeningService;
 
+
 /**
  * {@link BroadcastReceiver BroadcastReceiver} that is configured to start our
  * {@link HappeningService service} on {@link Intent#ACTION_BOOT_COMPLETED device boot up}.

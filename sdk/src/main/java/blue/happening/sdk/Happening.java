@@ -11,6 +11,7 @@ import android.util.Log;
 import blue.happening.IHappeningCallback;
 import blue.happening.IHappeningService;
 
+
 /**
  * Entry point for your application into the happening mesh network. You need to register and
  * deregister your {@link android.content.Context application context} during start and destroy
@@ -131,5 +132,4 @@ public class Happening {
             Log.i(this.getClass().getSimpleName(), "Service disconnected");
         }
     }
-
 }

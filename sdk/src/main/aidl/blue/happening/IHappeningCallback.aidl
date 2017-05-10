@@ -1,5 +1,6 @@
 package blue.happening;
 
+
 interface IHappeningCallback {
     void onClientAdded(String client);
     void onClientUpdated(String client);
