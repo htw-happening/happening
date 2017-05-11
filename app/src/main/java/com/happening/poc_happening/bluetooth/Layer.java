@@ -275,7 +275,7 @@ public class Layer {
             if (d) Log.d(TAG, "addNewScan - Disconnect old ones");
             List<Device> oldDevices = getShadowDuplicates(scannedDevice);
             for (Device oldDevice : oldDevices) {
-                oldDevice.disconnect();
+                //TODO oldDevice.disconnect();
                 oldDevice.changeState(Device.STATE.SHADOW);
             }
             if (d) Log.d(TAG, "addNewScan - add shadow device to sink ("+scannedDevice.toString()+")");
