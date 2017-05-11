@@ -62,6 +62,8 @@ public class Layer {
 
     private List<Handler> handlers = new ArrayList<>();
     private ArrayList<Device> scannedDevices = new ArrayList<>();
+    private ArrayList<Device> clients = new ArrayList<>();
+
     private ArrayList<Device> connectedDevices = new ArrayList<>();
 
     private Connector connector = null;
@@ -91,6 +93,7 @@ public class Layer {
         this.connectedDevices = new ArrayList<>();
         this.counter = 0;
         this.startTimestamp = System.currentTimeMillis();
+        this.connector = new Connector();
         startConnector();
         Log.i(TAG, "*********************** I am " + mBluetoothAdapter.getName() + " | " + generateUserID() + " ***********************");
     }
@@ -111,6 +114,10 @@ public class Layer {
 
     public int getUserID() {
         return userID;
+    }
+
+    public ArrayList<Device> getClients() {
+        return clients;
     }
 
     public BluetoothGattServer getBluetoothGattServer() {
@@ -476,7 +483,6 @@ public class Layer {
     public void stopConnector(){
         if (connector != null){
             connector.interrupt();
-            connector = null;
         }
     }
 

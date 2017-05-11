@@ -137,7 +137,7 @@ public class Device {
                         changeState(STATE.OFFLINE);
 
                     }else{
-                        delayedConnectDevice(1500, STATE.RECONNECTING);
+                        //delayedConnectDevice(1500, STATE.RECONNECTING);
                     }
                     break;
                 default:
@@ -182,6 +182,7 @@ public class Device {
 //                    gatt.readCharacteristic(userinfo);
 
                     addConnection();
+                    gatt.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_LOW_POWER);
                     break;
                 case BluetoothGatt.GATT_FAILURE:
                     if (d) Log.d(TAG, "BluetoothGattCallback - onServicesDiscovered (GATT_FAILURE)");

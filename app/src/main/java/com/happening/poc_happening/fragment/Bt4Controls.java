@@ -58,6 +58,8 @@ public class Bt4Controls extends Fragment {
         textView = (TextView) rootView.findViewById(R.id.textView_info_bt);
 
         bluetoothLayer = Layer.getInstance();
+        bluetoothLayer.setAutoConnect(false);
+
 
         ListView deviceListView = (ListView) rootView.findViewById(R.id.discovered_devices_list);
         ArrayList<Device> scanResults = bluetoothLayer.getScannedDevices();

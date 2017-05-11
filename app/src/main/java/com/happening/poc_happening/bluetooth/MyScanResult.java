@@ -18,11 +18,6 @@ public class MyScanResult {
     byte[] raw;
     int id;
 
-    /*
-    05-02 16:56:12.021 24815-24815/com.happening.poc_happening D/Layer: Start Adevertising with id as bytearray: [0, -68, 97, 78]
-    05-02 16:56:12.022 24815-24815/com.happening.poc_happening D/Layer: Start Adevertising with id as binary: 00000000101111000110000101001110
-     */
-
     public MyScanResult(ScanResult scanResult) {
         this.scanResult = scanResult;
         this.raw = scanResult.getScanRecord().getBytes();
