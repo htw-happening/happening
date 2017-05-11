@@ -386,7 +386,7 @@ public class Layer {
                     if(d) Log.d(TAG,"About to wait, accepting for a client");
                     socket = serverSocket.accept();
                     if (socket != null) {
-                        connected(socket);
+                        connected(socket, new Device(socket.getRemoteDevice(), 0)); //TODO userID
                     }
                     serverSocket.close();
                 }
@@ -408,7 +408,11 @@ public class Layer {
         }
     }
 
-    private void connected(BluetoothSocket socket) {
-
+    /**
+     * Called form Acceptor and Connector
+     * @param socket
+     */
+    public void connected(BluetoothSocket socket, Device device) {
+        device.changeState(Device.STATE.CONNECTED);
     }
 }
