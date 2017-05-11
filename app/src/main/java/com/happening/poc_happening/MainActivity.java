@@ -281,7 +281,7 @@ public class MainActivity extends AppCompatActivity
         Layer layer = Layer.getInstance();
         //layer.stopScan();
         layer.stopAdvertising();
-        layer.stopGattServer();
+        layer.stopAcceptor();
         super.onDestroy();
     }
 }

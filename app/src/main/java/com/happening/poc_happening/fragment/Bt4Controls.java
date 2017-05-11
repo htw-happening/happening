@@ -67,7 +67,6 @@ public class Bt4Controls extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Device device = (Device) parent.getItemAtPosition(position);
                 Log.i("CLICK", "Clicked on device " + device.toString());
-                //device.connectDevice();
             }
         });
 
@@ -205,12 +204,12 @@ public class Bt4Controls extends Fragment {
     }
 
     private void startServer() {
-        Snackbar.make(rootView, "Start Gatt-Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        Snackbar.make(rootView, "Start Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         bluetoothLayer.createAcceptor();
     }
 
     private void stopServer() {
-        Snackbar.make(rootView, "Stop Gatt-Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        Snackbar.make(rootView, "Stop Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         bluetoothLayer.stopAcceptor();
     }
 

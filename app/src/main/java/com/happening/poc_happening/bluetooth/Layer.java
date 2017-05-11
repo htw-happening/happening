@@ -6,6 +6,8 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
@@ -23,6 +25,7 @@ import android.util.SparseArray;
 
 import com.happening.poc_happening.MyApp;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,6 +58,8 @@ public class Layer {
     private AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback();
     private List<Handler> handlers = new ArrayList<>();
     private ArrayList<Device> scannedDevices = new ArrayList<>();
+
+    private Acceptor acceptor = null;
 
 
     public static Layer getInstance() {
@@ -211,11 +216,18 @@ public class Layer {
     }
 
     public void createAcceptor() {
-        //TODO
+        if (acceptor == null){
+            acceptor = new Acceptor();
+            acceptor.start();
+        }
     }
 
     public void stopAcceptor() {
-        //TODO
+        if (acceptor != null){
+            acceptor.interrupt();
+            acceptor.cancel();
+            acceptor = null;
+        }
     }
 
 
@@ -353,5 +365,50 @@ public class Layer {
         for( int i = 0; i < Byte.SIZE * bytes.length; i++ )
             sb.append((bytes[i / Byte.SIZE] << i % Byte.SIZE & 0x80) == 0 ? '0' : '1');
         return sb.toString();
+    }
+
+
+    private class Acceptor extends Thread {
+
+        BluetoothServerSocket serverSocket = null;
+
+        public Acceptor() {
+        }
+
+        public void run() {
+            if(d) Log.d(TAG, "Acceptor is running");
+            setName("Acceptor");
+            BluetoothSocket socket = null;
+            try {
+                while(!interrupted()){
+                    serverSocket = mBluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("Happening", UUID.fromString(SERVICE_UUID) );
+
+                    if(d) Log.d(TAG,"About to wait, accepting for a client");
+                    socket = serverSocket.accept();
+                    if (socket != null) {
+                        connected(socket);
+                    }
+                    serverSocket.close();
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "accept() has been interrupted, cause: " + e.getMessage());
+            }
+            if(d) Log.i(TAG, "Acceptor stopped");
+        }
+        
+        public void cancel() {
+            if(d) Log.d(TAG, "stop " + this);
+            if (serverSocket!=null) {
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "close of server failed", e);
+                }
+            }
+        }
+    }
+
+    private void connected(BluetoothSocket socket) {
+
     }
 }
