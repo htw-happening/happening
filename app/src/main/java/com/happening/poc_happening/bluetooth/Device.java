@@ -210,7 +210,6 @@ public class Device {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if (d) Log.d(TAG, "BluetoothGattCallback - onCharacteristicRead (characteristic " + characteristic.getStringValue(0) + ", status " + status + ")");
-            Layer.getInstance().counter++;
             if (state == STATE.DISCOVERING){
 
             }

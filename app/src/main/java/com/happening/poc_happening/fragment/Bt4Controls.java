@@ -1,7 +1,5 @@
 package com.happening.poc_happening.fragment;
 
-import android.bluetooth.le.ScanResult;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,7 +7,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -18,7 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
@@ -56,10 +52,7 @@ public class Bt4Controls extends Fragment {
         }
 
         textView = (TextView) rootView.findViewById(R.id.textView_info_bt);
-
         bluetoothLayer = Layer.getInstance();
-        bluetoothLayer.setAutoConnect(false);
-
 
         ListView deviceListView = (ListView) rootView.findViewById(R.id.discovered_devices_list);
         ArrayList<Device> scanResults = bluetoothLayer.getScannedDevices();
@@ -78,26 +71,8 @@ public class Bt4Controls extends Fragment {
             }
         });
 
-        //region event listener
 
-        Button button = (Button) rootView.findViewById(R.id.button_uptime);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setTitle("Uptime Status")
-                        .setMessage(""+bluetoothLayer.calcUpTime() + "%");
-                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                    }
-                });
-
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
-        });
-
-        Switch adapterButton = (Switch) rootView.findViewById(R.id.adapter_button);
+        Switch adapterButton = (Switch) rootView.findViewById(R.id.switch_bluetooth_adapter);
         adapterButton.setChecked(bluetoothLayer.isEnabled());
         adapterButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -109,7 +84,7 @@ public class Bt4Controls extends Fragment {
             }
         });
 
-        Switch scanButton = (Switch) rootView.findViewById(R.id.scan_button);
+        Switch scanButton = (Switch) rootView.findViewById(R.id.swtich_scanner);
         scanButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -120,7 +95,7 @@ public class Bt4Controls extends Fragment {
             }
         });
 
-        Switch advertiseButton = (Switch) rootView.findViewById(R.id.advertise_button);
+        Switch advertiseButton = (Switch) rootView.findViewById(R.id.switch_advertiser);
         advertiseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -131,43 +106,25 @@ public class Bt4Controls extends Fragment {
             }
         });
 
-        Switch gattServerButton = (Switch) rootView.findViewById(R.id.gatt_server_button);
-        gattServerButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        Switch serverButton = (Switch) rootView.findViewById(R.id.switch_server);
+        serverButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    createGattServer();
+                    startServer();
                 } else {
-                    stopGattServer();
+                    stopServer();
                 }
             }
         });
 
-        Switch autoConnector = (Switch) rootView.findViewById(R.id.switch_auto_connect);
-        autoConnector.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    bluetoothLayer.setAutoConnect(true);
-                } else {
-                    bluetoothLayer.setAutoConnect(false);
-                }
-            }
-        });
-        //endregion
 
         if (!bluetoothLayer.isAdvertisingSupported()) {
             advertiseButton.setEnabled(false);
-            gattServerButton.setEnabled(false);
         }
 
         TextView userInfo = (TextView) rootView.findViewById(R.id.textView_info_user_id);
         userInfo.setText("    "+String.valueOf(bluetoothLayer.getUserID()));
 
-        (rootView.findViewById(R.id.button_startScan)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bluetoothLayer.scanOneSecond();
-            }
-        });
         return rootView;
     }
 
@@ -247,14 +204,14 @@ public class Bt4Controls extends Fragment {
         bluetoothLayer.stopScan();
     }
 
-    private void createGattServer() {
+    private void startServer() {
         Snackbar.make(rootView, "Start Gatt-Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.createGattServer();
+        bluetoothLayer.createAcceptor();
     }
 
-    private void stopGattServer() {
+    private void stopServer() {
         Snackbar.make(rootView, "Stop Gatt-Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.stopGattServer();
+        bluetoothLayer.stopAcceptor();
     }
 
     private Handler guiHandler = new Handler(Looper.getMainLooper()) {

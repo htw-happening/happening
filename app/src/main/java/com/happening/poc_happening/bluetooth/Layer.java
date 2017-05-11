@@ -37,45 +37,25 @@ public class Layer {
     private String TAG = getClass().getSimpleName();
     private boolean d = true;
 
-    private static Layer instance = null;
-
     public static final String ADVERTISE_UUID = "11111111-0000-0000-0000-000ad7e9415f";
     public static final String SERVICE_UUID = "11111111-0000-0000-0000-000005e971cf";
     public static final String CHARACTERISTIC_UUID = "11111111-0000-0000-00c8-a9ac4e91541c";
     public static final String USERINFO_UUID = "11111111-0000-0000-0000-000005371970";
 
+    private static Layer instance = null;
+
     private int userID = 0;
     private Context context = null;
-
     private BluetoothManager mBluetoothManager = null;
     private BluetoothAdapter mBluetoothAdapter = null;
-
-    private BluetoothGattServer bluetoothGattServer = null;
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser = null;
     private BluetoothGattService gattService = null;
-
     private BluetoothLeScanner mBluetoothLeScanner = null;
-
-    private BluetoothGattServerCallback bluetoothGattServerCallback = null;
     private ScanCallback mScanCallback = new ScanCallback();
     private AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback();
-
     private List<Handler> handlers = new ArrayList<>();
     private ArrayList<Device> scannedDevices = new ArrayList<>();
-    private ArrayList<Device> clients = new ArrayList<>();
 
-    private ArrayList<Device> connectedDevices = new ArrayList<>();
-
-    private Connector connector = null;
-
-    private Timer readerTimer;
-    private Timer writerTimer;
-
-    private Timer scanTimer;
-
-    // for analysing uptime
-    public int counter;
-    public long startTimestamp;
 
     public static Layer getInstance() {
         if (instance == null)
@@ -90,11 +70,6 @@ public class Layer {
         this.mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
         this.mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
         this.userID = generateUserID();
-        this.connectedDevices = new ArrayList<>();
-        this.counter = 0;
-        this.startTimestamp = System.currentTimeMillis();
-        this.connector = new Connector();
-        startConnector();
         Log.i(TAG, "*********************** I am " + mBluetoothAdapter.getName() + " | " + generateUserID() + " ***********************");
     }
 
@@ -104,24 +79,12 @@ public class Layer {
         return UUID.randomUUID().hashCode();
     }
 
-    public ArrayList<Device> getConnectedDevices() {
-        return connectedDevices;
-    }
-
     public ArrayList<Device> getScannedDevices() {
         return scannedDevices;
     }
 
     public int getUserID() {
         return userID;
-    }
-
-    public ArrayList<Device> getClients() {
-        return clients;
-    }
-
-    public BluetoothGattServer getBluetoothGattServer() {
-        return bluetoothGattServer;
     }
 
     public void notifyHandlers(int code) {
@@ -142,22 +105,6 @@ public class Layer {
         }
     }
 
-    /*
-    public void disconnectDevice(DeviceModel deviceModel) {
-        if (deviceModel.isConnected()) {
-            deviceModel.setTargetState(BluetoothProfile.STATE_DISCONNECTED);
-            if (Objects.equals(deviceModel.getType(), "client")) {
-                bluetoothGattServer.cancelConnection(deviceModel.getBluetoothDevice());
-            } else if (Objects.equals(deviceModel.getType(), "server")) {
-                deviceModel.getBluetoothGatt().disconnect();
-            }
-            Log.i("GATT", "Disconnecting " + deviceModel.getAddress());
-        } else {
-            Log.i("GATT", "Cannot disconnect state " + deviceModel.getCurrentState() + " gatt " + deviceModel.getBluetoothGatt());
-        }
-    }
-    */
-
     public boolean isEnabled() {
         return mBluetoothAdapter.isEnabled();
     }
@@ -167,8 +114,6 @@ public class Layer {
                 mBluetoothAdapter.isOffloadedFilteringSupported() &&
                 mBluetoothAdapter.isOffloadedScanBatchingSupported();
     }
-
-    //region Operations
 
     public void enableAdapter() {
         mBluetoothAdapter.enable();
@@ -215,52 +160,6 @@ public class Layer {
             if (d) Log.d(TAG, "Stopped Advertising");
         }
     }
-
-    public void createGattServer() {
-        if (d) Log.d(TAG, "Starting GattServer");
-        UUID serviceUuid = UuidFactory.getServiceUuid(getUserID());
-        Log.d(TAG, serviceUuid.toString());
-        UUID characteristicUuid = UUID.fromString(CHARACTERISTIC_UUID);
-
-        gattService = new BluetoothGattService(
-                serviceUuid, BluetoothGattService.SERVICE_TYPE_PRIMARY);
-
-        BluetoothGattCharacteristic characteristic = new BluetoothGattCharacteristic(
-                characteristicUuid,
-                BluetoothGattCharacteristic.PROPERTY_BROADCAST |
-                        BluetoothGattCharacteristic.PROPERTY_WRITE |
-                        BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE |
-                        BluetoothGattCharacteristic.PROPERTY_READ |
-                        BluetoothGattCharacteristic.PROPERTY_NOTIFY,
-                BluetoothGattCharacteristic.PERMISSION_READ |
-                        BluetoothGattCharacteristic.PERMISSION_WRITE);
-        characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-        characteristic.setValue("n/a".getBytes());
-
-        gattService.addCharacteristic(characteristic);
-
-        bluetoothGattServerCallback = new BluetoothGattServerCallback();
-        bluetoothGattServer = mBluetoothManager.openGattServer(context, bluetoothGattServerCallback);
-        bluetoothGattServer.addService(gattService);
-        startWriter();
-
-        if (d) Log.d(TAG, "Started Gattserver");
-    }
-
-    public void stopGattServer() {
-        stopWriter();
-        if (bluetoothGattServer != null) {
-            for (BluetoothDevice bluetoothDevice: bluetoothGattServer.getConnectedDevices() ) {
-                bluetoothGattServer.cancelConnection(bluetoothDevice);
-            }
-
-            bluetoothGattServer.clearServices();
-            bluetoothGattServer.close();
-            if (d) Log.d(TAG, "Stopped Gattserver");
-        }
-    }
-
-
 
     public void startScan() {
         if (d) Log.d(TAG, "Starting Scanner");
@@ -311,54 +210,13 @@ public class Layer {
         return num;
     }
 
-    public void scanOneSecond() {
-
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                stopScan();
-            }
-        };
-
-        this.scanTimer = new Timer();
-        scanTimer.schedule(timerTask, 1000);
-        startScan();
+    public void createAcceptor() {
+        //TODO
     }
 
-    public void setAutoConnect(boolean b) {
-        if (b) startConnector();
-        if (!b) stopConnector();
+    public void stopAcceptor() {
+        //TODO
     }
-
-/*
-    public void broadcastMessage(String message) {
-        Log.i("BROADCAST", "broadcast message" + message);
-        logger.info("Broadcast Message: " + message);
-
-        synchronized (devicePool.getConnectedDevices()) {
-            for (DeviceModel deviceModel : devicePool.getConnectedDevices()) {
-                try {
-
-                    Log.i("BROADCAST", "Device " + deviceModel.getAddress());
-                    BluetoothGatt bluetoothGatt = deviceModel.getBluetoothGatt();
-                    if (Objects.equals(deviceModel.getType(), "client")) continue;
-                    BluetoothGattService bluetoothGattService = bluetoothGatt.getService(UUID.fromString(SERVICE_UUID));
-                    BluetoothGattCharacteristic characteristic = bluetoothGattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
-                    characteristic.setValue(message.getBytes());
-                    bluetoothGatt.writeCharacteristic(characteristic);
-                } catch (Exception e) {
-                    Log.e(getClass().getSimpleName(), e.toString());
-                }
-            }
-        }
-        Log.i("BROADCAST", "Done");
-    }
-
-    //endregion
-
-    */
-
-    //region Callbacks
 
 
     public class ScanCallback extends android.bluetooth.le.ScanCallback {
@@ -408,7 +266,7 @@ public class Layer {
         if (!isUserIdInScannedDevices(scannedDevice)){
             // this is a fresh new device, nice
             if (d) Log.d(TAG, "addNewScan - This is Fresh NEW Never Seen Device ("+scannedDevice.toString()+")");
-            this.connector.addDevice(scannedDevice); //--> will automatically connect()
+            //TODO this.connector.addDevice(scannedDevice); //--> will automatically connect()
         }else{
             // this is a shadow device. We are already connected (or some other state) to this device
             // with an old mac address - lets try disconnect and fresh connect to the new one
@@ -421,7 +279,7 @@ public class Layer {
                 oldDevice.changeState(Device.STATE.SHADOW);
             }
             if (d) Log.d(TAG, "addNewScan - add shadow device to sink ("+scannedDevice.toString()+")");
-            this.connector.addDevice(scannedDevice);
+            //TODO this.connector.addDevice(scannedDevice);
         }
 
         // we added to the scanned devices list, cause we have to do stuff
@@ -480,53 +338,6 @@ public class Layer {
         }
     }
 
-    public void stopConnector(){
-        if (connector != null){
-            connector.interrupt();
-        }
-    }
-
-    public void startConnector(){
-        if (connector == null){
-            connector = new Connector();
-            connector.start();
-        }
-    }
-
-    private void startWriter(){
-//        if (writerTimer != null){
-//            return;
-//        }
-//        TimerTask timerTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                //if (d) Log.d(TAG, "Writer Trigger");
-//                BluetoothGattCharacteristic bluetoothGattCharacteristic = gattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID));
-//                if (bluetoothGattCharacteristic == null) return;
-//                bluetoothGattCharacteristic.setValue(String.valueOf(System.currentTimeMillis()));
-//                if (d) Log.d(TAG, "Writer - Changed Value");
-//            }
-//        };
-//        writerTimer = new Timer();
-//        writerTimer.scheduleAtFixedRate(timerTask, 1000, 1000);
-    }
-
-    private void stopWriter(){
-//        if (writerTimer == null){
-//            return;
-//        }
-//        writerTimer.cancel();
-//        writerTimer = null;
-    }
-
-    public double calcUpTime(){
-        if (counter == 0) return 0;
-        long now = System.currentTimeMillis();
-        int diff = (int) (now/1000 - startTimestamp/1000);
-        if (diff == 0) return 0;
-        return (counter/new Double(diff)*100);
-    }
-
     public static int bytesToInt (byte[] bytes){
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         return byteBuffer.getInt();
@@ -543,19 +354,4 @@ public class Layer {
             sb.append((bytes[i / Byte.SIZE] << i % Byte.SIZE & 0x80) == 0 ? '0' : '1');
         return sb.toString();
     }
-
-    public byte[] fromBinary( String s )
-    {
-        int sLen = s.length();
-        byte[] toReturn = new byte[(sLen + Byte.SIZE - 1) / Byte.SIZE];
-        char c;
-        for( int i = 0; i < sLen; i++ )
-            if( (c = s.charAt(i)) == '1' )
-                toReturn[i / Byte.SIZE] = (byte) (toReturn[i / Byte.SIZE] | (0x80 >>> (i % Byte.SIZE)));
-            else if ( c != '0' )
-                throw new IllegalArgumentException();
-        return toReturn;
-    }
-
-    //endregion
 }
