@@ -17,6 +17,7 @@ import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Handler;
 import android.os.ParcelUuid;
@@ -54,8 +55,7 @@ public class Layer {
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser = null;
     private BluetoothGattService gattService = null;
     private BluetoothLeScanner mBluetoothLeScanner = null;
-    private ScanCallback mScanCallback = new ScanCallback();
-    private AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback();
+    private ScannerCallback scannerCallback = new ScannerCallback();
     private List<Handler> handlers = new ArrayList<>();
     private ArrayList<Device> scannedDevices = new ArrayList<>();
 
@@ -128,81 +128,20 @@ public class Layer {
         mBluetoothAdapter.disable();
     }
 
-    public void startAdvertising() {
-        if (d) Log.d(TAG, "Starting Advertiser");
-        AdvertiseSettings.Builder advertiseSettingsBuilder = new AdvertiseSettings.Builder();
-        AdvertiseSettings advertiseSettings = advertiseSettingsBuilder
-                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
-                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
-                .setConnectable(true)
-                .build();
-
-        int userHash = getUserID();
-        byte[] userId = intToByte(userHash);
-
-        Log.d(TAG, "Start Adevertising with id: " + userHash);
-        Log.d(TAG, "Start Adevertising with id as bytearray: " + Arrays.toString(userId));
-        Log.d(TAG, "Start Adevertising with id as binary: " + toBinary(userId));
-
-        ParcelUuid advertiseUuid = ParcelUuid.fromString(ADVERTISE_UUID);
-        ParcelUuid userUuid = ParcelUuid.fromString(ADVERTISE_UUID);
-        AdvertiseData.Builder advertiseDataBuilder = new AdvertiseData.Builder();
-        AdvertiseData.Builder userDataBuilder = new AdvertiseData.Builder();
-
-        AdvertiseData advertiseData = advertiseDataBuilder
-                .addServiceUuid(advertiseUuid)
-                .addServiceData(userUuid, userId)
-                .build();
-
-        mBluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, mAdvertiseCallback);
-
-        if (d) Log.d(TAG, "Started Advertising");
-    }
-
-    public void stopAdvertising() {
-        if (mBluetoothLeAdvertiser != null) {
-            mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
-            if (d) Log.d(TAG, "Stopped Advertising");
-        }
-    }
-
     public void startScan() {
-        if (d) Log.d(TAG, "Starting Scanner");
-        ScanSettings.Builder scanSettingsBuilder = new ScanSettings.Builder();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            scanSettingsBuilder
-                    .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                    .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE);
-        } else {
-            scanSettingsBuilder.setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY);
-        }
-        ScanSettings scanSettings = scanSettingsBuilder.build();
-
-        ParcelUuid advertiseUuid = ParcelUuid.fromString(ADVERTISE_UUID);
-        ScanFilter.Builder scanFilterBuilder = new ScanFilter.Builder();
-        scanFilterBuilder.setServiceUuid(advertiseUuid);
-        ScanFilter scanFilter = scanFilterBuilder.build();
-        List<ScanFilter> scanFilters = new ArrayList<>();
-        scanFilters.add(scanFilter);
-
-        mBluetoothLeScanner.stopScan(mScanCallback);
-        mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
-        mBluetoothLeScanner.startScan(scanFilters, scanSettings, mScanCallback);
-
-
-
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        filter.addAction(BluetoothDevice.ACTION_UUID);
+        context.registerReceiver(scannerCallback, filter);
+        mBluetoothAdapter.startDiscovery();
         if (d) Log.d(TAG, "Started Scanner");
     }
 
     public void stopScan() {
-        if (mBluetoothLeScanner != null) {
-            mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
-            mBluetoothLeScanner.stopScan(mScanCallback);
-            if (d) Log.d(TAG, "Stopped Scanner");
-        }
-
-
+        if (d) Log.d(TAG, "Stopped Scanner");
+        mBluetoothAdapter.cancelDiscovery();
+        context.unregisterReceiver(scannerCallback);
     }
 
     public int getNumOfConnectedDevices() {
@@ -230,71 +169,11 @@ public class Layer {
         }
     }
 
-
-    public class ScanCallback extends android.bluetooth.le.ScanCallback {
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            super.onScanResult(callbackType, result);
-            //if (d) Log.d(TAG, "ScanCallback - onScanResult ("+result.getDevice().getAddress()+" type: "+callbackType+")");
-            addNewScan(result);
-        }
-    }
-
-    // verifying new devices through MAC Address (not necessary NEW - see userInfoUUID) // lack of changing MACs
-    // changing MAC every 15 minutes (exactly 15 mins!!)
-    private void addNewScan(ScanResult scanResult){
-
-//        MyScanResult myScanResult = new MyScanResult(scanResult);
-//        printScan(scanResult);
-
-        int userId = 0;
-        ScanRecord scanRecord = scanResult.getScanRecord();
-
-//        Log.d(TAG, "Scanrecord raw " + Arrays.toString(scanRecord.getBytes()));
-//        Log.d(TAG, "Scanrecord raw " + toBinary(scanRecord.getBytes()));
-        if (scanRecord != null) {
-            Map<ParcelUuid, byte[]> serviceData = scanRecord.getServiceData();
-            if (serviceData == null) return;
-            ParcelUuid test1 = ParcelUuid.fromString("00001111-0000-1000-8000-00805f9b34fb");
-            if (scanRecord.getServiceData(test1) != null) {
-                byte[] userInfo = scanRecord.getServiceData(test1);
-                userId = bytesToInt(userInfo);
-//                Log.d(TAG, "Scanrecord userInfo: " + Arrays.toString(userInfo));
-//                Log.d(TAG, "Scanrecord userInfo: " + toBinary(userInfo));
-//                Log.d(TAG, "Scanrecord userInfo: " + userId);
-                if (userId == 0) return;
-            }
-        }
-
-        Device scannedDevice = new Device(scanResult.getDevice(), userId);
-
+    public void addNewScan(BluetoothDevice device){
+        Device scannedDevice = new Device(device, 0);
         if (isMacAdressInScannedDevices(scannedDevice)){
-            // Ignore - this is just a duplicate with the same mac - 1 sec Scan
-//            if (d) Log.d(TAG, "addNewScan - do not add, its just a duplicate");
             return;
         }
-
-
-        if (!isUserIdInScannedDevices(scannedDevice)){
-            // this is a fresh new device, nice
-            if (d) Log.d(TAG, "addNewScan - This is Fresh NEW Never Seen Device ("+scannedDevice.toString()+")");
-            //TODO this.connector.addDevice(scannedDevice); //--> will automatically connect()
-        }else{
-            // this is a shadow device. We are already connected (or some other state) to this device
-            // with an old mac address - lets try disconnect and fresh connect to the new one
-            if (d) Log.d(TAG, "addNewScan - This is Shadow Device with a new MAC ("+scannedDevice.toString()+")");
-
-            if (d) Log.d(TAG, "addNewScan - Disconnect old ones");
-            List<Device> oldDevices = getShadowDuplicates(scannedDevice);
-            for (Device oldDevice : oldDevices) {
-                //TODO oldDevice.disconnect();
-                oldDevice.changeState(Device.STATE.SHADOW);
-            }
-            if (d) Log.d(TAG, "addNewScan - add shadow device to sink ("+scannedDevice.toString()+")");
-            //TODO this.connector.addDevice(scannedDevice);
-        }
-
-        // we added to the scanned devices list, cause we have to do stuff
         this.scannedDevices.add(scannedDevice);
         if (d) Log.d(TAG, "addNewScan - Yes added it ("+scannedDevice.toString()+")");
 

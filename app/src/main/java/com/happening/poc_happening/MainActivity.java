@@ -280,7 +280,6 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy() {
         Layer layer = Layer.getInstance();
         //layer.stopScan();
-        layer.stopAdvertising();
         layer.stopAcceptor();
         super.onDestroy();
     }

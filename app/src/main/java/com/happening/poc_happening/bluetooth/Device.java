@@ -54,7 +54,7 @@ public class Device {
 
     public String getName() {
         if(userID == 0){
-            return "N/A";
+            return bluetoothDevice.getName();
         }else{
             return String.valueOf(this.userID);
         }
@@ -171,12 +171,13 @@ public class Device {
                         }
 
                         if (d) Log.d(TAG, "END connector " + Device.this + " FAIL");
-                        if (attempts > 4) return;
+                        if (attempts > 4) {return;} else {continue;}
 
                     }
                     if (d) Log.i(TAG, "connection done, device:" + Device.this);
                     connector = null;
                     Layer.getInstance().connected(socket, Device.this);
+                    return;
                 }
 
             } finally {

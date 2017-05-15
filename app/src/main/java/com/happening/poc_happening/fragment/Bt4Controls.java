@@ -1,5 +1,7 @@
 package com.happening.poc_happening.fragment;
 
+import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -94,17 +96,6 @@ public class Bt4Controls extends Fragment {
             }
         });
 
-        Switch advertiseButton = (Switch) rootView.findViewById(R.id.switch_advertiser);
-        advertiseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    startAdvertising();
-                } else {
-                    stopAdvertising();
-                }
-            }
-        });
-
         Switch serverButton = (Switch) rootView.findViewById(R.id.switch_server);
         serverButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -117,12 +108,12 @@ public class Bt4Controls extends Fragment {
         });
 
 
-        if (!bluetoothLayer.isAdvertisingSupported()) {
-            advertiseButton.setEnabled(false);
-        }
-
         TextView userInfo = (TextView) rootView.findViewById(R.id.textView_info_user_id);
         userInfo.setText("    "+String.valueOf(bluetoothLayer.getUserID()));
+
+        Intent makeMeVisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        makeMeVisible.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0); //infinity
+        startActivity(makeMeVisible);
 
         return rootView;
     }
@@ -181,16 +172,6 @@ public class Bt4Controls extends Fragment {
     private void disableAdapter() {
         Snackbar.make(rootView, "Disable Adapter", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         bluetoothLayer.disableAdapter();
-    }
-
-    private void startAdvertising() {
-        Snackbar.make(rootView, "Start Advertising", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.startAdvertising();
-    }
-
-    private void stopAdvertising() {
-        Snackbar.make(rootView, "Stop Advertising", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.stopAdvertising();
     }
 
     private void startScan() {

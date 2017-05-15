@@ -41,14 +41,6 @@
         android:text="Scanner"
         android:textSize="16sp" />
 
-    <Switch
-        android:id="@+id/switch_advertiser"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="5sp"
-        android:checked="false"
-        android:text="Advertiser"
-        android:textSize="16sp" />
 
     <Switch
         android:id="@+id/switch_server"
