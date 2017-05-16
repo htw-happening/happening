@@ -38,7 +38,6 @@ publishing {
             version VERSION_NAME
 
             artifact("lib/jars/happening.jar")
-//            artifact("$buildDir/outputs/aar/happening_lib-release.aar")
         }
     }
     repositories {
