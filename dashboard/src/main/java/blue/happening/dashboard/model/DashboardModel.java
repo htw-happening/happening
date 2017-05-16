@@ -1,5 +1,6 @@
 package blue.happening.dashboard.model;
 
+
 public class DashboardModel {
 
     private final String title;

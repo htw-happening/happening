@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import blue.happening.sdk.IRemoteService;
+import blue.happening.IHappeningCallback;
+import blue.happening.IHappeningService;
+
 
 /**
  * Main happening {@link Service service} class containing lifecycle management and
@@ -19,19 +21,37 @@ import blue.happening.sdk.IRemoteService;
  */
 public class HappeningService extends Service {
 
+    private static final String HAPPENING_APP_ID = "HAPPENING_APP_ID";
     private static final int START_MODE = START_STICKY;
     private static final boolean ALLOW_REBIND = true;
 
-    private final IRemoteService.Stub binder = new IRemoteService.Stub() {
+    private static List<IHappeningCallback> callbacks = new ArrayList<>();
+
+    private final IHappeningService.Stub binder = new IHappeningService.Stub() {
 
         final List<String> messages = Collections.synchronizedList(new ArrayList<String>());
+
+        @Override
+        public void registerHappeningCallback(IHappeningCallback happeningCallback) throws RemoteException {
+            Log.d(this.getClass().getSimpleName(), "callback added " + happeningCallback);
+            callbacks.add(happeningCallback);
+        }
 
         public String hello(String message) throws RemoteException {
             messages.add(message);
             Log.d(this.getClass().getSimpleName(), "hello " + message);
             String reply = "service@" + android.os.Process.myPid();
             Log.d(this.getClass().getSimpleName(), "reply " + reply);
+            for (IHappeningCallback callback : callbacks) {
+                if (callback != null)
+                    callback.onClientAdded("async call from service hello");
+            }
             return reply;
+        }
+
+        @Override
+        public String getClient(String clientId) throws RemoteException {
+            return null;
         }
     };
 
@@ -74,6 +94,8 @@ public class HappeningService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         Log.v(this.getClass().getSimpleName(), "onBind");
+        String appId = intent.getStringExtra(HAPPENING_APP_ID);
+        Toast.makeText(this, (appId == null ? "Something" : appId) + " bound", Toast.LENGTH_LONG).show();
         return binder;
     }
 
@@ -83,6 +105,8 @@ public class HappeningService extends Service {
     @Override
     public void onRebind(Intent intent) {
         super.onRebind(intent);
+        String appId = intent.getStringExtra(HAPPENING_APP_ID);
+        Toast.makeText(this, (appId == null ? "Something" : appId) + " rebound", Toast.LENGTH_LONG).show();
         Log.v(this.getClass().getSimpleName(), "onRebind");
     }
 
@@ -92,6 +116,8 @@ public class HappeningService extends Service {
     @Override
     public boolean onUnbind(Intent intent) {
         Log.v(this.getClass().getSimpleName(), "onUnbind");
+        String appId = intent.getStringExtra(HAPPENING_APP_ID);
+        Toast.makeText(this, (appId == null ? "Something" : appId) + " unbound", Toast.LENGTH_LONG).show();
         return ALLOW_REBIND;
     }
 }

@@ -10,6 +10,7 @@ import android.util.Log;
 import blue.happening.dashboard.fragment.DashboardFragment;
 import blue.happening.sdk.Happening;
 
+
 public class MainActivity extends Activity {
 
     private Happening happening;
@@ -27,7 +28,7 @@ public class MainActivity extends Activity {
 
         Context context = getApplicationContext();
         happening = new Happening();
-        happening.register(context);
+        happening.register(context, new HappeningCallback());
     }
 
     public Happening getHappening() {

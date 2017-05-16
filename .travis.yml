@@ -28,6 +28,7 @@ before_script:
 
 script:
   - ./gradlew connectedAndroidTest
+  - ./gradlew createJar
   - ./gradlew publish
   - ./gradlew javadoc
 

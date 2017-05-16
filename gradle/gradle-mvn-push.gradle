@@ -30,7 +30,14 @@ publishing {
             version VERSION_NAME
 
             artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
-//            artifact("$buildDir/outputs/aar/happening_lib-release.aar")
+        }
+
+        jar (MavenPublication) {
+            groupId GROUP
+            artifactId POM_ARTIFACT_ID
+            version VERSION_NAME
+
+            artifact("lib/jars/happening.jar")
         }
     }
     repositories {

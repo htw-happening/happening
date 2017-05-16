@@ -18,7 +18,8 @@ import blue.happening.dashboard.adapter.DashboardAdapter;
 import blue.happening.dashboard.model.DashboardModel;
 import blue.happening.sdk.Happening;
 
-public class DashboardFragment extends Fragment implements View.OnClickListener {
+
+public class DashboardFragment extends Fragment implements View.OnClickListener  {
 
     private final List<DashboardModel> dashboardModels = new ArrayList<>();
     private DashboardAdapter dashboardAdapter;
@@ -32,7 +33,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
         Button button = (Button) rootView.findViewById(R.id.dashboard_button_hello);
         button.setOnClickListener(this);
 
-        dashboardAdapter = new DashboardAdapter(getContext(), dashboardModels);
+        dashboardAdapter = new DashboardAdapter(container.getContext(), dashboardModels);
         ListView listView = (ListView) rootView.findViewById(R.id.dashboard_model_list);
         listView.setAdapter(dashboardAdapter);
 
