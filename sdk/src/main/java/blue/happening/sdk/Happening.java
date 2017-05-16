@@ -7,6 +7,7 @@ import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import blue.happening.IHappeningCallback;
@@ -23,7 +24,6 @@ public class Happening {
     private static final String HAPPENING_APP_ID = "HAPPENING_APP_ID";
 
     private Context context;
-    private RemoteServiceConnection remoteServiceConnection;
     private IHappeningService service;
     private HappeningCallback appCallback;
     private IHappeningCallback.Stub happeningCallback = new IHappeningCallback.Stub() {
@@ -52,6 +52,23 @@ public class Happening {
             appCallback.onParcelQueued(parcelId);
         }
     };
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+
+        public void onServiceConnected(ComponentName name, IBinder boundService) {
+            service = IHappeningService.Stub.asInterface(boundService);
+            try {
+                service.registerHappeningCallback(happeningCallback);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            Log.i(this.getClass().getSimpleName(), "Service connected");
+        }
+
+        public void onServiceDisconnected(ComponentName name) {
+            service = null;
+            Log.i(this.getClass().getSimpleName(), "Service disconnected");
+        }
+    };
 
     /**
      * To be able to send and receive data through the happening network service, you need to
@@ -59,17 +76,16 @@ public class Happening {
      *
      * @param context Your application context
      */
-    public void register(Context context, HappeningCallback appCallback) {
+    public void register(@NonNull Context context, @NonNull HappeningCallback appCallback) {
         this.context = context;
         this.appCallback = appCallback;
-        remoteServiceConnection = new RemoteServiceConnection();
         Intent intent = new Intent();
         intent.setClassName("blue.happening.service", "blue.happening.service.HappeningService");
         ApplicationInfo info = context.getApplicationInfo();
         String appId = info.labelRes == 0 ? info.nonLocalizedLabel.toString() : context.getString(info.labelRes);
         intent.putExtra(HAPPENING_APP_ID, appId);
         context.startService(intent);
-        boolean success = context.bindService(intent, remoteServiceConnection, Context.BIND_AUTO_CREATE);
+        boolean success = context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
         Log.i(this.getClass().getSimpleName(), "start success " + success);
     }
 
@@ -78,9 +94,9 @@ public class Happening {
      * deregistered during its destroy routine.
      */
     public void deregister() {
-        if (remoteServiceConnection != null) {
-            context.unbindService(remoteServiceConnection);
-            remoteServiceConnection = null;
+        if (serviceConnection != null) {
+            context.unbindService(serviceConnection);
+            serviceConnection = null;
             Log.i(this.getClass().getSimpleName(), "service unbound");
         } else {
             Log.i(this.getClass().getSimpleName(), "no service to unbind from");
@@ -103,27 +119,6 @@ public class Happening {
         } catch (NullPointerException e) {
             e.printStackTrace();
             return "no service";
-        }
-    }
-
-    /**
-     * Service connection class that wraps the remote service interfaces.
-     */
-    private class RemoteServiceConnection implements ServiceConnection {
-
-        public void onServiceConnected(ComponentName name, IBinder boundService) {
-            service = IHappeningService.Stub.asInterface(boundService);
-            try {
-                service.registerHappeningCallback(happeningCallback);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-            Log.i(this.getClass().getSimpleName(), "Service connected");
-        }
-
-        public void onServiceDisconnected(ComponentName name) {
-            service = null;
-            Log.i(this.getClass().getSimpleName(), "Service disconnected");
         }
     }
 }
