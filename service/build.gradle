@@ -23,12 +23,13 @@ dependencies {
     androidTestCompile("com.android.support.test.espresso:espresso-core:2.2.2", {
         exclude group: "com.android.support", module: "support-annotations"
     })
+    compile 'com.android.support:appcompat-v7:25.3.1'
     testCompile "junit:junit:4.12"
 }
 
 task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
-    classpath+=project.files(android.getBootClasspath().join(File.pathSeparator))
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
     destinationDir = file("../javadoc/service/")
     failOnError false
 }

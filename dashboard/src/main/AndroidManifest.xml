@@ -3,12 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="blue.happening.dashboard">
 
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
