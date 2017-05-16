@@ -13,6 +13,7 @@ import java.util.List;
 import blue.happening.dashboard.R;
 import blue.happening.dashboard.model.DashboardModel;
 
+
 public class DashboardAdapter extends ArrayAdapter<DashboardModel> {
 
     public DashboardAdapter(Context context, List<DashboardModel> models) {

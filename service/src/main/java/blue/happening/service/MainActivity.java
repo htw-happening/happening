@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 
+
 /**
  * Translucent {@link Activity activity} that finishes shortly after creation
  * without rendering anything.
