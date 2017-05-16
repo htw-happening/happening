@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
@@ -24,6 +25,7 @@ public class Happening {
     private static final String HAPPENING_APP_ID = "HAPPENING_APP_ID";
 
     private Context context;
+    private Handler handler = new Handler();
     private IHappeningService service;
     private HappeningCallback appCallback;
     private IHappeningCallback.Stub happeningCallback = new IHappeningCallback.Stub() {
@@ -52,6 +54,15 @@ public class Happening {
             appCallback.onParcelQueued(parcelId);
         }
     };
+    private final Runnable runnable = new Runnable() {
+        public void run() {
+            if (service == null) {
+                boolean success = bindService();
+                Log.i(this.getClass().getSimpleName(), "Restart success " + success);
+                handler.postDelayed(this, 1000);
+            }
+        }
+    };
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
         public void onServiceConnected(ComponentName name, IBinder boundService) {
@@ -66,6 +77,7 @@ public class Happening {
 
         public void onServiceDisconnected(ComponentName name) {
             service = null;
+            handler.postDelayed(runnable, 10);
             Log.i(this.getClass().getSimpleName(), "Service disconnected");
         }
     };
@@ -79,14 +91,8 @@ public class Happening {
     public void register(@NonNull Context context, @NonNull HappeningCallback appCallback) {
         this.context = context;
         this.appCallback = appCallback;
-        Intent intent = new Intent();
-        intent.setClassName("blue.happening.service", "blue.happening.service.HappeningService");
-        ApplicationInfo info = context.getApplicationInfo();
-        String appId = info.labelRes == 0 ? info.nonLocalizedLabel.toString() : context.getString(info.labelRes);
-        intent.putExtra(HAPPENING_APP_ID, appId);
-        context.startService(intent);
-        boolean success = context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-        Log.i(this.getClass().getSimpleName(), "start success " + success);
+        boolean success = bindService();
+        Log.i(this.getClass().getSimpleName(), "Start success " + success);
     }
 
     /**
@@ -101,6 +107,21 @@ public class Happening {
         } else {
             Log.i(this.getClass().getSimpleName(), "no service to unbind from");
         }
+    }
+
+    /**
+     * Internal method for re/binding to a running HappeningService.
+     *
+     * @return Whether or not the binding has been kicked off successfully.
+     */
+    private boolean bindService() {
+        Intent intent = new Intent();
+        intent.setClassName("blue.happening.service", "blue.happening.service.HappeningService");
+        ApplicationInfo info = context.getApplicationInfo();
+        String appId = info.labelRes == 0 ? info.nonLocalizedLabel.toString() : context.getString(info.labelRes);
+        intent.putExtra(HAPPENING_APP_ID, appId);
+        context.startService(intent);
+        return context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
     /**

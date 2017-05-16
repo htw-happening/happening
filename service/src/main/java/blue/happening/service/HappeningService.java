@@ -44,7 +44,11 @@ public class HappeningService extends Service {
             Log.d(this.getClass().getSimpleName(), "reply " + reply);
             for (IHappeningCallback callback : callbacks) {
                 if (callback != null)
-                    callback.onClientAdded("async call from service hello");
+                    try {
+                        callback.onClientAdded("async call from service hello");
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
             }
             return reply;
         }

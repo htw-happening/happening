@@ -3,17 +3,13 @@ package blue.happening.dashboard;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
 import blue.happening.dashboard.fragment.DashboardFragment;
-import blue.happening.sdk.Happening;
 
 
 public class MainActivity extends Activity {
-
-    private Happening happening;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,20 +21,11 @@ public class MainActivity extends Activity {
         fragmentManager.beginTransaction()
                 .replace(R.id.content_holder, dashboardFragment, "dashboard")
                 .commit();
-
-        Context context = getApplicationContext();
-        happening = new Happening();
-        happening.register(context, new HappeningCallback());
-    }
-
-    public Happening getHappening() {
-        return happening;
     }
 
     @Override
     protected void onDestroy() {
         Log.v(this.getClass().getSimpleName(), "onDestroy");
-        happening.deregister();
         super.onDestroy();
     }
 }
