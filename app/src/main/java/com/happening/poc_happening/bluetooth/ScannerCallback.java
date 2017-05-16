@@ -16,7 +16,7 @@ public class ScannerCallback extends BroadcastReceiver {
     boolean debug = true;
     String TAG = this.getClass().getSimpleName();
 
-    public ScannerCallback(){
+    public ScannerCallback() {
     }
 
     @Override
@@ -29,7 +29,8 @@ public class ScannerCallback extends BroadcastReceiver {
                 break;
             case BluetoothDevice.ACTION_FOUND:
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (debug) Log.d(TAG, "ACTION_FOUND " + device.getName() + " " + device.getAddress());
+                if (debug)
+                    Log.d(TAG, "ACTION_FOUND " + device.getName() + " " + device.getAddress());
                 if (device != null) {
                     Layer.getInstance().addNewScan(device);
                 }
@@ -44,6 +45,8 @@ public class ScannerCallback extends BroadcastReceiver {
                 Parcelable[] uuidExtra = intent.getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID);
                 if (debug) Log.d(TAG, "UUIDs Found for " + deviceWithSDP.getName());
 
+                Device scannedDevice = Layer.getInstance().getDeviceByMac(deviceWithSDP);
+
                 if (uuidExtra == null) {
                     if (debug) Log.d(TAG, "UUIDs  have been NULL");
                 } else {
@@ -51,6 +54,7 @@ public class ScannerCallback extends BroadcastReceiver {
                     for (Parcelable parcelable : uuidExtra) {
                         ParcelUuid parcelUuid = (ParcelUuid) parcelable;
                         UUID uuid = parcelUuid.getUuid();
+                        scannedDevice.addFetchedUuid(uuid);
                         if (debug) Log.d("ParcelUuidTest", "uuid: " + uuid);
                     }
                 }

@@ -5,8 +5,7 @@ import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class Device {
@@ -14,42 +13,55 @@ public class Device {
     private String TAG = getClass().getSimpleName();
     private boolean d = true;
 
-    public static final int DEFAULT_MTU_BYTES = 128;
-
     private BluetoothDevice bluetoothDevice = null;
+    private ArrayList<UUID> fetchedUuids;
     private Connector connector;
     private int userID;
     private STATE state;
-    private Timer readerTimer;
-
-    public void fetchSdpList() {
-        bluetoothDevice.fetchUuidsWithSdp();
-    }
 
     public enum STATE {
         NEW_SCANNED_DEVICE(1),
-        CONNECTING(2),
-        CONNECTED(4),
-        DISCONNECTED(5),
-        RECONNECTING(6),
-        OFFLINE(7), // TODO cleanUpMethod
-        SHADOW(8),
+        FETCHING(2),
+        FETCHED(3),
+        IGNORE(4),
+        CONNECTING(5),
+        CONNECTED(6),
+        DISCONNECTED(7),
+        OFFLINE(8),
         UNKNOWN(0);
 
         private final int state;
-        public int getValue() {
+
+        public int getState() {
             return state;
         }
-        STATE (final int value){
+
+        STATE(final int value) {
             this.state = value;
         }
 
     }
 
-    public Device (BluetoothDevice bluetoothDevice, int userId) {
+    public Device(BluetoothDevice bluetoothDevice) {
         this.bluetoothDevice = bluetoothDevice;
         this.state = STATE.NEW_SCANNED_DEVICE;
-        this.userID = userId;
+    }
+
+    public void fetchSdpList() {
+        changeState(STATE.FETCHING);
+        if (bluetoothDevice.fetchUuidsWithSdp()) {
+            changeState(STATE.FETCHED);
+        } else {
+            changeState(STATE.UNKNOWN);
+        }
+    }
+
+    public void addFetchedUuid(UUID uuid) {
+        fetchedUuids.add(uuid);
+    }
+
+    public ArrayList<UUID> getFetchedUuids() {
+        return fetchedUuids;
     }
 
     public String getAddress() {
@@ -57,9 +69,9 @@ public class Device {
     }
 
     public String getName() {
-        if(userID == 0){
+        if (userID == 0) {
             return bluetoothDevice.getName();
-        }else{
+        } else {
             return String.valueOf(this.userID);
         }
     }
@@ -72,44 +84,29 @@ public class Device {
         return state;
     }
 
-    public void setBluetoothDevice(BluetoothDevice bluetoothDevice) {
-        this.bluetoothDevice = bluetoothDevice;
-    }
-
-    public boolean hasSameMacAddress(Device other){
+    public boolean hasSameMacAddress(Device other) {
         return this.bluetoothDevice.getAddress().equals(other.bluetoothDevice.getAddress());
     }
 
-    public boolean hasSameUserId(Device other){
+    public boolean hasSameUserId(Device other) {
         return this.getUserID() == other.getUserID();
-    }
-
-    public BluetoothDevice getBluetoothDevice() {
-        return bluetoothDevice;
     }
 
     public int getUserID() {
         return userID;
     }
 
-    public void changeState (STATE state) {
-        if (d) Log.d(TAG, "Change State from "+this.state+" to "+state + " of "+toString());
-        if (state == STATE.CONNECTED){
-
-        }
-        if (state != STATE.CONNECTED){
-
-        }
+    public void changeState(STATE state) {
+        if (d) Log.d(TAG, "Change State from " + this.state + " to " + state + " of " + toString());
         this.state = state;
         Layer.getInstance().notifyHandlers(1);
     }
 
-    public void connectDevice(STATE state) {
-        if (this.state == STATE.SHADOW) return;
+    public void connectDevice() {
         if (d) Log.d(TAG, "Connecting to Device " + toString());
         changeState(state);
 
-        if(d) Log.d(TAG, "Start Connecting to: " + this);
+        if (d) Log.d(TAG, "Start Connecting to: " + this);
         try {
             connector = new Connector();
             connector.setName("Connector for: " + this);
@@ -118,17 +115,6 @@ public class Device {
             Log.e(TAG, e.toString());
         }
 
-    }
-
-    public void delayedConnectDevice(int delay, final STATE state) {
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                connectDevice(state);
-            }
-        };
-        Timer timer = new Timer();
-        timer.schedule(timerTask, delay);
     }
 
     @Override
@@ -160,7 +146,7 @@ public class Device {
             int attempts = 0;
             if (d) Log.d(TAG, "Connector is running: " + Device.this);
             try {
-                while(true) {
+                while (true) {
                     try {
                         attempts++;
                         if (d) Log.i(TAG, "About to wait to connect to " + Device.this);
@@ -175,7 +161,11 @@ public class Device {
                         }
 
                         if (d) Log.d(TAG, "END connector " + Device.this + " FAIL");
-                        if (attempts > 4) {return;} else {continue;}
+                        if (attempts > 4) {
+                            return;
+                        } else {
+                            continue;
+                        }
 
                     }
                     if (d) Log.i(TAG, "connection done, device:" + Device.this);
