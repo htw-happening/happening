@@ -144,17 +144,28 @@ public class Layer {
             return;
         }
 
+//        scannedDevice.fetchSdpList();
+
+        this.scannedDevices.add(scannedDevice);
+        if (d) Log.d(TAG, "addNewScan - Yes added it (" + scannedDevice.toString() + ")");
+
+        notifyHandlers(1);
+    }
+
+    public void fetchedUUIDsFor(Device scannedDevice) {
+        scannedDevice.changeState(Device.STATE.FETCHED);
+
         ArrayList<UUID> fetchedUuids = scannedDevice.getFetchedUuids();
         if (!fetchedUuids.contains(UUID.fromString(SERVICE_UUID))) {
             scannedDevice.changeState(Device.STATE.IGNORE);
             return;
         }
 
-        scannedDevice.changeState(Device.STATE.FETCHED);
-        this.scannedDevices.add(scannedDevice);
-        if (d) Log.d(TAG, "addNewScan - Yes added it (" + scannedDevice.toString() + ")");
-
         notifyHandlers(1);
+    }
+
+    public void fetchedUUIDsFailedFor(Device scannedDevice) {
+        scannedDevice.changeState(Device.STATE.FETCHING_FAILED);
     }
 
     private boolean isMacAddressInScannedDevices(Device device) {
@@ -172,6 +183,7 @@ public class Layer {
         }
         return new Device(device);
     }
+
 
     private class Server extends Thread {
 
@@ -191,7 +203,7 @@ public class Layer {
                     if (d) Log.d(TAG, "About to wait, accepting for a client");
                     socket = serverSocket.accept();
                     if (socket != null) {
-                        connected(socket, new Device(socket.getRemoteDevice())); //TODO userID
+                        connectedToClient(socket, socket.getRemoteDevice());
                     }
                     serverSocket.close();
                 }
@@ -213,12 +225,35 @@ public class Layer {
         }
     }
 
-    /**
-     * Called form Server and Connector
-     *
-     * @param socket
-     */
-    public void connected(BluetoothSocket socket, Device device) {
+    public void connectedToServer(BluetoothSocket socket, Device device) {
+        if (device.getState() == Device.STATE.CONNECTED){
+            // TODO: 16.05.17 do we have to close the connection manually | will this cause side effects?
+            return;
+        }
         device.changeState(Device.STATE.CONNECTED);
+        // TODO: 16.05.17 handle io streams
+    }
+
+    public void connectedToClient(BluetoothSocket socket, BluetoothDevice bluetoothDevice) {
+        Device device = null;
+        //checking if BluetoothDevice is in scannedDevices
+        if (isMacAddressInScannedDevices(new Device(bluetoothDevice))){
+            // get it and use it
+            device = getDeviceByMac(bluetoothDevice);
+
+            //checking if an Connection already exists
+            if (device.getState() == Device.STATE.CONNECTED){
+                // TODO: 16.05.17 do we have to close the connection manually | will this cause side effects?
+                return;
+            }
+
+        } else {
+            // create a new one
+            device = new Device(bluetoothDevice);
+            scannedDevices.add(device);
+        }
+
+        device.changeState(Device.STATE.CONNECTED);
+        // TODO: 16.05.17 handle io streams
     }
 }

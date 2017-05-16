@@ -14,7 +14,7 @@ public class Device {
     private boolean d = true;
 
     private BluetoothDevice bluetoothDevice = null;
-    private ArrayList<UUID> fetchedUuids;
+    private ArrayList<UUID> fetchedUuids = new ArrayList<>();
     private Connector connector;
     private int userID;
     private STATE state;
@@ -28,6 +28,7 @@ public class Device {
         CONNECTED(6),
         DISCONNECTED(7),
         OFFLINE(8),
+        FETCHING_FAILED(9),
         UNKNOWN(0);
 
         private final int state;
@@ -41,7 +42,6 @@ public class Device {
         }
 
     }
-
     public Device(BluetoothDevice bluetoothDevice) {
         this.bluetoothDevice = bluetoothDevice;
         this.state = STATE.NEW_SCANNED_DEVICE;
@@ -49,11 +49,7 @@ public class Device {
 
     public void fetchSdpList() {
         changeState(STATE.FETCHING);
-        if (bluetoothDevice.fetchUuidsWithSdp()) {
-            changeState(STATE.FETCHED);
-        } else {
-            changeState(STATE.UNKNOWN);
-        }
+        if (bluetoothDevice.fetchUuidsWithSdp()) if (d) Log.d(TAG, "Fetching UUIDS");
     }
 
     public void addFetchedUuid(UUID uuid) {
@@ -104,7 +100,7 @@ public class Device {
 
     public void connectDevice() {
         if (d) Log.d(TAG, "Connecting to Device " + toString());
-        changeState(state);
+        changeState(STATE.CONNECTING);
 
         if (d) Log.d(TAG, "Start Connecting to: " + this);
         try {
@@ -117,9 +113,15 @@ public class Device {
 
     }
 
+    public void disconnect() {
+        // TODO: 16.05.17 handle disconnecting process
+
+    }
+
     @Override
     public String toString() {
         String s = "";
+        s += getName() + " | ";
         s += getAddress() + " | ";
         s += getUserID() + "";
         return s;
@@ -146,22 +148,24 @@ public class Device {
             int attempts = 0;
             if (d) Log.d(TAG, "Connector is running: " + Device.this);
             try {
-                while (true) {
+                while (!isInterrupted()) {
                     try {
                         attempts++;
                         if (d) Log.i(TAG, "About to wait to connect to " + Device.this);
                         socket.connect(); //blocking
                     } catch (IOException e) {
-
                         if (d) Log.d(TAG, "connection failed");
                         try {
                             socket.close();
+                            Device.this.changeState(STATE.UNKNOWN);
                         } catch (IOException e2) {
                             Log.e(TAG, "unable to close() socket during connection failure", e2);
+                            Device.this.changeState(STATE.UNKNOWN);
                         }
 
-                        if (d) Log.d(TAG, "END connector " + Device.this + " FAIL");
+                        if (d) Log.d(TAG, "connector to " + Device.this + " failed "+attempts+" times");
                         if (attempts > 4) {
+                            Device.this.changeState(STATE.UNKNOWN);
                             return;
                         } else {
                             continue;
@@ -170,7 +174,7 @@ public class Device {
                     }
                     if (d) Log.i(TAG, "connection done, device:" + Device.this);
                     connector = null;
-                    Layer.getInstance().connected(socket, Device.this);
+                    Layer.getInstance().connectedToServer(socket, Device.this);
                     return;
                 }
 
@@ -188,6 +192,7 @@ public class Device {
             } catch (IOException e) {
                 Log.e(TAG, "unable to close() socket", e);
             }
+            connector.interrupt();
         }
     }
 }

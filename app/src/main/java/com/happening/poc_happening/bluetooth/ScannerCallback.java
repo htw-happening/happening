@@ -9,12 +9,16 @@ import android.os.ParcelUuid;
 import android.os.Parcelable;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class ScannerCallback extends BroadcastReceiver {
 
     boolean debug = true;
     String TAG = this.getClass().getSimpleName();
+
+    List<Device> devicesToFetch;
 
     public ScannerCallback() {
     }
@@ -37,6 +41,11 @@ public class ScannerCallback extends BroadcastReceiver {
                 break;
             case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
                 if (debug) Log.d(TAG, "ACTION_DISCOVERY_STARTED");
+                devicesToFetch = (List<Device>) Layer.getInstance().getScannedDevices().clone();
+                if (!devicesToFetch.isEmpty()){
+                    Device deviceToFetch = devicesToFetch.remove(0);
+                    deviceToFetch.fetchSdpList();
+                }
                 break;
             case BluetoothDevice.ACTION_UUID:
                 Log.d(TAG, "ACTION_UUID");
@@ -49,6 +58,7 @@ public class ScannerCallback extends BroadcastReceiver {
 
                 if (uuidExtra == null) {
                     if (debug) Log.d(TAG, "UUIDs  have been NULL");
+                    Layer.getInstance().fetchedUUIDsFailedFor(scannedDevice);
                 } else {
                     if (debug) Log.d(TAG, "UUIDs  are available");
                     for (Parcelable parcelable : uuidExtra) {
@@ -57,6 +67,12 @@ public class ScannerCallback extends BroadcastReceiver {
                         scannedDevice.addFetchedUuid(uuid);
                         if (debug) Log.d("ParcelUuidTest", "uuid: " + uuid);
                     }
+                    Layer.getInstance().fetchedUUIDsFor(scannedDevice);
+                }
+
+                if (devicesToFetch != null && !devicesToFetch.isEmpty()){
+                    Device deviceToFetch = devicesToFetch.remove(0);
+                    deviceToFetch.fetchSdpList();
                 }
         }
     }

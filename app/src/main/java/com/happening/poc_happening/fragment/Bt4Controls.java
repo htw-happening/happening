@@ -142,11 +142,11 @@ public class Bt4Controls extends Fragment {
         switch(item.getItemId()) {
             case R.id.connect:
                 Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Connect!");
-                device.connectDevice(Device.STATE.CONNECTING);
+                device.connectDevice();
                 return true;
             case R.id.disconnect:
                 Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Disonnect!");
-                //TODO device.disconnect();
+                device.disconnect();
                 return true;
             case R.id.read:
                 Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Read!");

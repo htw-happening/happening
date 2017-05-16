@@ -16,6 +16,6 @@
 
     <item android:id="@+id/fetch_sdp_list"
         android:icon="@android:drawable/ic_dialog_info"
-        android:title="Read" />
+        android:title="Fetch SDP" />
 
 </menu>
