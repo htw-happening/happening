@@ -5,7 +5,7 @@
     <option name="ARTIFACT_NAME" value="" />
     <option name="PM_INSTALL_OPTIONS" value="" />
     <option name="ACTIVITY_EXTRA_FLAGS" value="" />
-    <option name="MODE" value="do_nothing" />
+    <option name="MODE" value="specific_activity" />
     <option name="PREFERRED_AVD" value="" />
     <option name="CLEAR_LOGCAT" value="false" />
     <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
