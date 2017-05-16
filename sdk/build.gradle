@@ -34,3 +34,10 @@ task javadoc(type: Javadoc) {
     destinationDir = file("../javadoc/sdk/")
     failOnError false
 }
+
+task createJar(type: Copy) {
+    from('build/intermediates/bundles/debug/')
+    into('lib/jars/')
+    include('classes.jar')
+    rename('classes.jar', 'happening.jar')
+}
