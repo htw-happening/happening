@@ -14,4 +14,8 @@
         android:icon="@android:drawable/ic_dialog_email"
         android:title="Read" />
 
+    <item android:id="@+id/fetch_sdp_list"
+        android:icon="@android:drawable/ic_dialog_info"
+        android:title="Read" />
+
 </menu>

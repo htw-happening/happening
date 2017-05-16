@@ -22,6 +22,10 @@ public class Device {
     private STATE state;
     private Timer readerTimer;
 
+    public void fetchSdpList() {
+        bluetoothDevice.fetchUuidsWithSdp();
+    }
+
     public enum STATE {
         NEW_SCANNED_DEVICE(1),
         CONNECTING(2),

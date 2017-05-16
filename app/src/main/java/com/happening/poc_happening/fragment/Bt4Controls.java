@@ -152,6 +152,10 @@ public class Bt4Controls extends Fragment {
                 Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Read!");
                 //TODO device.readCharacteristic();
                 return true;
+            case R.id.fetch_sdp_list:
+                Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Fetching SDP List");
+                device.fetchSdpList();
+                return true;
             default:
                 return super.onContextItemSelected(item);
         }
