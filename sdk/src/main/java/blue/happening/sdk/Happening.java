@@ -11,6 +11,9 @@ import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.util.List;
+
+import blue.happening.HappeningClient;
 import blue.happening.IHappeningCallback;
 import blue.happening.IHappeningService;
 
@@ -140,6 +143,24 @@ public class Happening {
         } catch (NullPointerException e) {
             e.printStackTrace();
             return "no service";
+        }
+    }
+
+    /**
+     * Method to get an initial list of all known happening clients in the area.
+     *
+     * @return List of {@link HappeningClient happening clients}
+     */
+    public List<HappeningClient> getClients() {
+        Log.v(this.getClass().getSimpleName(), "hello");
+        try {
+            return service.getClients();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return null;
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

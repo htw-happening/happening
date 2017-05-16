@@ -9,7 +9,9 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import blue.happening.HappeningClient;
 import blue.happening.IHappeningCallback;
 import blue.happening.IHappeningService;
 
@@ -28,7 +30,7 @@ public class HappeningService extends Service {
 
     private final IHappeningService.Stub binder = new IHappeningService.Stub() {
 
-        private List<String> messages = new ArrayList<>();
+        private List<HappeningClient> clients = new ArrayList<>();
 
         @Override
         public void registerHappeningCallback(IHappeningCallback happeningCallback) throws RemoteException {
@@ -37,7 +39,10 @@ public class HappeningService extends Service {
         }
 
         public String hello(String message) throws RemoteException {
-            messages.add(message);
+            String clientId = UUID.randomUUID().toString();
+            HappeningClient happeningClient = new HappeningClient(clientId, message);
+            clients.add(happeningClient);
+
             String reply = "service@" + android.os.Process.myPid();
             for (IHappeningCallback callback : callbacks) {
                 try {
@@ -50,11 +55,8 @@ public class HappeningService extends Service {
         }
 
         @Override
-        public String getClient(String clientId) throws RemoteException {
-            if (messages.contains(clientId)) {
-                return clientId;
-            }
-            return null;
+        public List<HappeningClient> getClients() throws RemoteException {
+            return clients;
         }
     };
 
