@@ -8,9 +8,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
+import blue.happening.HappeningClient;
 import blue.happening.IHappeningCallback;
 import blue.happening.IHappeningService;
 
@@ -29,7 +30,7 @@ public class HappeningService extends Service {
 
     private final IHappeningService.Stub binder = new IHappeningService.Stub() {
 
-        final List<String> messages = Collections.synchronizedList(new ArrayList<String>());
+        private List<HappeningClient> clients = new ArrayList<>();
 
         @Override
         public void registerHappeningCallback(IHappeningCallback happeningCallback) throws RemoteException {
@@ -38,24 +39,24 @@ public class HappeningService extends Service {
         }
 
         public String hello(String message) throws RemoteException {
-            messages.add(message);
-            Log.d(this.getClass().getSimpleName(), "hello " + message);
+            String clientId = UUID.randomUUID().toString();
+            HappeningClient happeningClient = new HappeningClient(clientId, message);
+            clients.add(happeningClient);
+
             String reply = "service@" + android.os.Process.myPid();
-            Log.d(this.getClass().getSimpleName(), "reply " + reply);
             for (IHappeningCallback callback : callbacks) {
-                if (callback != null)
-                    try {
-                        callback.onClientAdded("async call from service hello");
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    callback.onClientAdded("async call from service hello");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             return reply;
         }
 
         @Override
-        public String getClient(String clientId) throws RemoteException {
-            return null;
+        public List<HappeningClient> getClients() throws RemoteException {
+            return clients;
         }
     };
 
