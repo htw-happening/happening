@@ -28,7 +28,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
     private DashboardAdapter dashboardAdapter;
     private Happening happening = new Happening();
     private HappeningCallback happeningCallback = new HappeningCallback() {
-
+        // TODO: These callback methods don't do anything useful yet.
         @Override
         public void onClientAdded(String client) {
             Log.v(this.getClass().getSimpleName(), "onClientAdded " + client);
@@ -74,10 +74,10 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
         Context context = getActivity().getApplicationContext();
         happening.register(context, happeningCallback);
 
+        // Retrieve an initial set of clients from the service
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Log.v("Runnable", "Delay an initial client seed for half a second. Like a Bauer.");
                 for (HappeningClient client : happening.getClients()) {
                     dashboardModels.add(new DashboardModel(client.getClientId(), client.getClientName()));
                 }
