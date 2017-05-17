@@ -29,6 +29,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         Log.v(this.getClass().getSimpleName(), "onCreate");
 
+        setContentView(R.layout.fragment_bt4controls);
+
         List<String> requiredPermissions = new ArrayList<>();
         for (String permission : REQUIRED_PERMISSIONS) {
             if (ActivityCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_DENIED) {
