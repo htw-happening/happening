@@ -13,9 +13,9 @@ import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
-import android.widget.Toast;
 
 import blue.happening.service.R;
+import blue.happening.service.adapter.DeviceListAdapter;
 import blue.happening.service.bt4.Bt4Layer;
 
 public class Bt4Controls extends Fragment {
@@ -23,7 +23,7 @@ public class Bt4Controls extends Fragment {
     private static Bt4Controls instance = null;
     private Bt4Layer bluetooth4Layer = null;
     private View rootView = null;
-//    private DeviceListAdapter deviceListAdapter = null;
+    private DeviceListAdapter deviceListAdapter = null;
 
     public static Bt4Controls getInstance() {
         if (instance == null)
@@ -35,17 +35,17 @@ public class Bt4Controls extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_bt4controls, container, false);
 
-        bluetooth4Layer.getInstance();
+        this.bluetooth4Layer = Bt4Layer.getInstance();
 
 //        if (!getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
 //            Snackbar.make(rootView, "BLE features are not supported!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
 //        }
 
-//        bluetoothLayer.addHandler(guiHandler);
+        bluetooth4Layer.addHandler(guiHandler);
 
         ListView deviceListView = (ListView) rootView.findViewById(R.id.discovered_devices_list);
-//        deviceListAdapter = new DeviceListAdapter(rootView.getContext(), bluetoothLayer.getDevicePool());
-//        deviceListView.setAdapter(deviceListAdapter);
+        deviceListAdapter = new DeviceListAdapter(rootView.getContext(), bluetooth4Layer.getScannedDevices());
+        deviceListView.setAdapter(deviceListAdapter);
 
         deviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -86,17 +86,6 @@ public class Bt4Controls extends Fragment {
             }
         });
 
-        Switch advertiseButton = (Switch) rootView.findViewById(R.id.advertise_button);
-        advertiseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    startAdvertising();
-                } else {
-                    stopAdvertising();
-                }
-            }
-        });
-
         Switch gattServerButton = (Switch) rootView.findViewById(R.id.gatt_server_button);
         gattServerButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -119,7 +108,7 @@ public class Bt4Controls extends Fragment {
     @Override
     public void onPause() {
         Log.i("Bt4Controls", "onPause");
-        bluetooth4Layer.removeHandler(guiHandler);
+//        bluetooth4Layer.removeHandler(guiHandler);
         super.onPause();
     }
 
@@ -127,36 +116,26 @@ public class Bt4Controls extends Fragment {
     public void onResume() {
         Log.i("Bt4Controls", "onResume");
         super.onResume();
-        bluetooth4Layer.addHandler(guiHandler);
+//        bluetooth4Layer.addHandler(guiHandler);
     }
 
     private void enableAdapter() {
-//        Snackbar.make(rootView, "Enable Adapter", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        Log.d(this.getClass().getSimpleName(), "Enable BT4Adapter");
         bluetooth4Layer.enableAdapter();
     }
 
     private void disableAdapter() {
-//        Snackbar.make(rootView, "Disable Adapter", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        Log.d(this.getClass().getSimpleName(), "Disable BT4Adapter");
         bluetooth4Layer.disableAdapter();
     }
 
-    private void startAdvertising() {
-//        Snackbar.make(rootView, "Start Advertising", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-//        bluetooth4Layer.startAdvertising();
-    }
-
-    private void stopAdvertising() {
-//        Snackbar.make(rootView, "Stop Advertising", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-//        bluetooth4Layer.stopAdvertising();
-    }
-
     private void startScan() {
-//        Snackbar.make(rootView, "Start Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        Log.d(this.getClass().getSimpleName(), "Start Discovering BT4Adapter");
         bluetooth4Layer.startScan();
     }
 
     private void stopScan() {
-//        Snackbar.make(rootView, "Stop Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        Log.d(this.getClass().getSimpleName(), "Stop Discovering BT4Adapter");
         bluetooth4Layer.stopScan();
     }
 
@@ -171,28 +150,9 @@ public class Bt4Controls extends Fragment {
     }
 
     private Handler guiHandler = new Handler(Looper.getMainLooper()) {
-        Toast currentToast;
-
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-//                case Layer.DEVICE_POOL_UPDATED:
-//                    deviceListAdapter.notifyDataSetChanged();
-//                    break;
-//                case Layer.MESSAGE_RECEIVED:
-//                    String message = msg.getData().getString("content");
-//                    Log.i("HANDLER", "Message was " + message);
-//                    String preview = message.substring(0, Math.min(message.length(), 32));
-//                    preview = preview.length() == 32 ? preview + " ..." : preview;
-//                    if (currentToast != null)
-//                        currentToast.cancel();
-//                    currentToast = Toast.makeText(getContext(), preview, Toast.LENGTH_SHORT);
-//                    currentToast.show();
-//                    break;
-//                default:
-//                    Log.i("HANDLER", "Unresolved Message Code");
-//                    break;
-            }
+            deviceListAdapter.notifyDataSetChanged();
         }
     };
 }

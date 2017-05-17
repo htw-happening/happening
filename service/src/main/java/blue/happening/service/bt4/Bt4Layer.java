@@ -37,7 +37,8 @@ public class Bt4Layer {
     private Server acceptor = null;
 
     private Bt4Layer() {
-        context = MainActivity.getContext();
+        this.context = MainActivity.getContext();
+        Log.d(this.getClass().getSimpleName(), " " + context);
         this.bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.bluetoothAdapter = bluetoothManager.getAdapter();
         this.userID = generateUserID();
