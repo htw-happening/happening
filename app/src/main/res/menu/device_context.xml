@@ -10,9 +10,9 @@
         android:icon="@android:drawable/ic_menu_delete"
         android:title="Disconnect" />
 
-    <item android:id="@+id/read"
+    <item android:id="@+id/write"
         android:icon="@android:drawable/ic_dialog_email"
-        android:title="Read" />
+        android:title="Write" />
 
     <item android:id="@+id/fetch_sdp_list"
         android:icon="@android:drawable/ic_dialog_info"

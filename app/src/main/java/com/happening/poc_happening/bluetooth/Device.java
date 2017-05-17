@@ -20,6 +20,7 @@ public class Device {
     private Connector connector;
     private int userID;
     private STATE state;
+    public Connection connection;
 
     public enum STATE {
         NEW_SCANNED_DEVICE(1),

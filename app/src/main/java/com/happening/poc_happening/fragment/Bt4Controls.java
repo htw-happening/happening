@@ -27,8 +27,10 @@ import com.happening.poc_happening.R;
 import com.happening.poc_happening.adapter.DeviceListAdapter;
 import com.happening.poc_happening.bluetooth.Device;
 import com.happening.poc_happening.bluetooth.Layer;
+import com.happening.poc_happening.bluetooth.Package;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Bt4Controls extends Fragment {
 
@@ -148,9 +150,9 @@ public class Bt4Controls extends Fragment {
                 Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Disonnect!");
                 device.disconnect();
                 return true;
-            case R.id.read:
-                Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Read!");
-                //TODO device.readCharacteristic();
+            case R.id.write:
+                Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Write!");
+                device.connection.write(new Package(new byte[]{1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,23,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,23,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,}));
                 return true;
             case R.id.fetch_sdp_list:
                 Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Fetching SDP List");
@@ -206,6 +208,12 @@ public class Bt4Controls extends Fragment {
             //make gui
             deviceListAdapter.notifyDataSetChanged();
             textView.setText("Num Connections: "+bluetoothLayer.getNumOfConnectedDevices());
+
+            if (msg.what == 666){
+                Bundle bundle = msg.getData();
+                byte[] bytes = bundle.getByteArray("data");
+                Toast.makeText(getContext(), ""+ Arrays.toString(bytes), Toast.LENGTH_SHORT).show();
+            }
         }
     };
 

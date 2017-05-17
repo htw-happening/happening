@@ -7,13 +7,17 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.webkit.HttpAuthHandler;
 
 import com.happening.poc_happening.MyApp;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -192,6 +196,28 @@ public class Layer {
         // TODO: 16.05.17 handle clean shutdown
     }
 
+    public void receivedData(byte[] data, Device device) {
+        if (d) Log.d(TAG, "Received Data " + Arrays.toString(data) + " from "+ device);
+
+
+        for (Handler handler : handlers) {
+            Message msg = handler.obtainMessage(666);
+            Bundle bundle = new Bundle();
+            bundle.putByteArray("data", data);
+            msg.setData(bundle);
+            handler.sendMessage(msg);
+        }
+
+
+        // TODO: 17.05.17 Handle Data
+    }
+
+    public void connectionLost(Device device) {
+        // TODO: 17.05.17
+        device.connection.shutdown();
+        device.changeState(Device.STATE.DISCONNECTED);
+    }
+
 
     private class Server extends Thread {
 
@@ -239,7 +265,8 @@ public class Layer {
             return;
         }
         device.changeState(Device.STATE.CONNECTED);
-        // TODO: 16.05.17 handle io streams
+        device.connection = new Connection(device, socket);
+
     }
 
     public void connectedToClient(BluetoothSocket socket, BluetoothDevice bluetoothDevice) {
@@ -262,6 +289,6 @@ public class Layer {
         }
 
         device.changeState(Device.STATE.CONNECTED);
-        // TODO: 16.05.17 handle io streams
+        device.connection = new Connection(device, socket);
     }
 }
