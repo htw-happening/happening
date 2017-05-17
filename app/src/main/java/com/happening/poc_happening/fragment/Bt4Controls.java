@@ -208,4 +208,12 @@ public class Bt4Controls extends Fragment {
             textView.setText("Num Connections: "+bluetoothLayer.getNumOfConnectedDevices());
         }
     };
+
+    @Override
+    public void onDestroy() {
+        stopScan();
+        stopServer();
+        bluetoothLayer.shutdown();
+        super.onDestroy();
+    }
 }

@@ -153,15 +153,19 @@ public class Layer {
     }
 
     public void fetchedUUIDsFor(Device scannedDevice) {
+
         scannedDevice.changeState(Device.STATE.FETCHED);
 
         ArrayList<UUID> fetchedUuids = scannedDevice.getFetchedUuids();
         if (!fetchedUuids.contains(UUID.fromString(SERVICE_UUID))) {
             scannedDevice.changeState(Device.STATE.IGNORE);
-            return;
+        } else{
+            // TODO: 16.05.17 Connectible
+
         }
 
         notifyHandlers(1);
+
     }
 
     public void fetchedUUIDsFailedFor(Device scannedDevice) {
@@ -182,6 +186,10 @@ public class Layer {
                 return aDevice;
         }
         return new Device(device);
+    }
+
+    public void shutdown() {
+        // TODO: 16.05.17 handle clean shutdown
     }
 
 

@@ -6,6 +6,8 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 public class Device {
@@ -48,8 +50,18 @@ public class Device {
     }
 
     public void fetchSdpList() {
-        changeState(STATE.FETCHING);
-        if (bluetoothDevice.fetchUuidsWithSdp()) if (d) Log.d(TAG, "Fetching UUIDS");
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                changeState(STATE.FETCHING);
+                if (bluetoothDevice.fetchUuidsWithSdp()) {
+                    if (d) Log.d(TAG, "Fetching UUIDS");
+                }
+            }
+        };
+        Timer timer = new Timer();
+        timer.schedule(timerTask, 1000);
+
     }
 
     public void addFetchedUuid(UUID uuid) {
