@@ -10,7 +10,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import blue.happening.service.R;
-import blue.happening.service.bt4.Device;
+import blue.happening.service.bluetooth.Device;
 
 public class DeviceListAdapter extends ArrayAdapter<Device> {
 

@@ -1,4 +1,4 @@
-package blue.happening.service.bt4;
+package blue.happening.service.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -7,25 +7,31 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 import blue.happening.service.MainActivity;
 
-public class Bt4Layer {
+public class Layer {
+
+    private String TAG = getClass().getSimpleName();
+    private boolean d = true;
 
     public static final String ADVERTISE_UUID = "11111111-0000-0000-0000-000ad7e9415f";
     public static final String SERVICE_UUID = "11111111-0000-0000-0000-000005e971cf";
     public static final String CHARACTERISTIC_UUID = "11111111-0000-0000-00c8-a9ac4e91541c";
     public static final String USERINFO_UUID = "11111111-0000-0000-0000-000005371970";
-    private static Bt4Layer instance = null;
-    private String TAG = getClass().getSimpleName();
-    private boolean d = true;
+
+    private static Layer instance = null;
+
     private int userID = 0;
     private Context context = null;
     private BluetoothManager bluetoothManager = null;
@@ -36,20 +42,20 @@ public class Bt4Layer {
     private ArrayList<Device> scannedDevices = new ArrayList<>();
     private Server acceptor = null;
 
-    private Bt4Layer() {
-        this.context = MainActivity.getContext();
-        Log.d(this.getClass().getSimpleName(), " " + context);
+    public static Layer getInstance() {
+        if (instance == null)
+            instance = new Layer();
+        return instance;
+    }
+
+    private Layer() {
+        context = MainActivity.getContext();
         this.bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.bluetoothAdapter = bluetoothManager.getAdapter();
         this.userID = generateUserID();
         Log.i(TAG, "*********************** I am " + bluetoothAdapter.getName() + " | " + generateUserID() + " ***********************");
     }
 
-    public static Bt4Layer getInstance() {
-        if (instance == null)
-            instance = new Bt4Layer();
-        return instance;
-    }
 
     private int generateUserID() {
         // TODO: Return existing ID from database
@@ -150,15 +156,19 @@ public class Bt4Layer {
     }
 
     public void fetchedUUIDsFor(Device scannedDevice) {
+
         scannedDevice.changeState(Device.STATE.FETCHED);
 
         ArrayList<UUID> fetchedUuids = scannedDevice.getFetchedUuids();
         if (!fetchedUuids.contains(UUID.fromString(SERVICE_UUID))) {
             scannedDevice.changeState(Device.STATE.IGNORE);
-            return;
+        } else{
+            // TODO: 16.05.17 Connectible
+
         }
 
         notifyHandlers(1);
+
     }
 
     public void fetchedUUIDsFailedFor(Device scannedDevice) {
@@ -181,37 +191,32 @@ public class Bt4Layer {
         return new Device(device);
     }
 
-    public void connectedToServer(BluetoothSocket socket, Device device) {
-        if (device.getState() == Device.STATE.CONNECTED) {
-            // TODO: 16.05.17 do we have to close the connection manually | will this cause side effects?
-            return;
-        }
-        device.changeState(Device.STATE.CONNECTED);
-        // TODO: 16.05.17 handle io streams
+    public void shutdown() {
+        // TODO: 16.05.17 handle clean shutdown
     }
 
-    public void connectedToClient(BluetoothSocket socket, BluetoothDevice bluetoothDevice) {
-        Device device = null;
-        //checking if BluetoothDevice is in scannedDevices
-        if (isMacAddressInScannedDevices(new Device(bluetoothDevice))) {
-            // get it and use it
-            device = getDeviceByMac(bluetoothDevice);
+    public void receivedData(byte[] data, Device device) {
+        if (d) Log.d(TAG, "Received Data " + Arrays.toString(data) + " from "+ device);
 
-            //checking if an Connection already exists
-            if (device.getState() == Device.STATE.CONNECTED) {
-                // TODO: 16.05.17 do we have to close the connection manually | will this cause side effects?
-                return;
-            }
 
-        } else {
-            // create a new one
-            device = new Device(bluetoothDevice);
-            scannedDevices.add(device);
+        for (Handler handler : handlers) {
+            Message msg = handler.obtainMessage(666);
+            Bundle bundle = new Bundle();
+            bundle.putByteArray("data", data);
+            msg.setData(bundle);
+            handler.sendMessage(msg);
         }
 
-        device.changeState(Device.STATE.CONNECTED);
-        // TODO: 16.05.17 handle io streams
+
+        // TODO: 17.05.17 Handle Data
     }
+
+    public void connectionLost(Device device) {
+        // TODO: 17.05.17
+        device.connection.shutdown();
+        device.changeState(Device.STATE.DISCONNECTED);
+    }
+
 
     private class Server extends Thread {
 
@@ -253,5 +258,36 @@ public class Bt4Layer {
         }
     }
 
+    public void connectedToServer(BluetoothSocket socket, Device device) {
+        if (device.getState() == Device.STATE.CONNECTED){
+            // TODO: 16.05.17 do we have to close the connection manually | will this cause side effects?
+            return;
+        }
+        device.changeState(Device.STATE.CONNECTED);
+        device.connection = new Connection(device, socket);
 
+    }
+
+    public void connectedToClient(BluetoothSocket socket, BluetoothDevice bluetoothDevice) {
+        Device device = null;
+        //checking if BluetoothDevice is in scannedDevices
+        if (isMacAddressInScannedDevices(new Device(bluetoothDevice))){
+            // get it and use it
+            device = getDeviceByMac(bluetoothDevice);
+
+            //checking if an Connection already exists
+            if (device.getState() == Device.STATE.CONNECTED){
+                // TODO: 16.05.17 do we have to close the connection manually | will this cause side effects?
+                return;
+            }
+
+        } else {
+            // create a new one
+            device = new Device(bluetoothDevice);
+            scannedDevices.add(device);
+        }
+
+        device.changeState(Device.STATE.CONNECTED);
+        device.connection = new Connection(device, socket);
+    }
 }

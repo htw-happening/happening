@@ -1,4 +1,4 @@
-package blue.happening.service.bt4;
+package blue.happening.service.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -6,6 +6,8 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 public class Device {
@@ -18,15 +20,49 @@ public class Device {
     private Connector connector;
     private int userID;
     private STATE state;
+    public Connection connection;
 
+    public enum STATE {
+        NEW_SCANNED_DEVICE(1),
+        FETCHING(2),
+        FETCHED(3),
+        IGNORE(4),
+        CONNECTING(5),
+        CONNECTED(6),
+        DISCONNECTED(7),
+        OFFLINE(8),
+        FETCHING_FAILED(9),
+        UNKNOWN(0);
+
+        private final int state;
+
+        public int getState() {
+            return state;
+        }
+
+        STATE(final int value) {
+            this.state = value;
+        }
+
+    }
     public Device(BluetoothDevice bluetoothDevice) {
         this.bluetoothDevice = bluetoothDevice;
         this.state = STATE.NEW_SCANNED_DEVICE;
     }
 
     public void fetchSdpList() {
-        changeState(STATE.FETCHING);
-        if (bluetoothDevice.fetchUuidsWithSdp()) if (d) Log.d(TAG, "Fetching UUIDS");
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                changeState(STATE.FETCHING);
+                if (bluetoothDevice.fetchUuidsWithSdp()) {
+                    if (d) Log.d(TAG, "Fetching UUIDS");
+                }
+            }
+        };
+        Timer timer = new Timer();
+        timer.schedule(timerTask, 1000);
+
     }
 
     public void addFetchedUuid(UUID uuid) {
@@ -72,7 +108,7 @@ public class Device {
     public void changeState(STATE state) {
         if (d) Log.d(TAG, "Change State from " + this.state + " to " + state + " of " + toString());
         this.state = state;
-        Bt4Layer.getInstance().notifyHandlers(1);
+        Layer.getInstance().notifyHandlers(1);
     }
 
     public void connectDevice() {
@@ -104,29 +140,6 @@ public class Device {
         return s;
     }
 
-    public enum STATE {
-        NEW_SCANNED_DEVICE(1),
-        FETCHING(2),
-        FETCHED(3),
-        IGNORE(4),
-        CONNECTING(5),
-        CONNECTED(6),
-        DISCONNECTED(7),
-        OFFLINE(8),
-        FETCHING_FAILED(9),
-        UNKNOWN(0);
-
-        private final int state;
-
-        STATE(final int value) {
-            this.state = value;
-        }
-
-        public int getState() {
-            return state;
-        }
-
-    }
 
     private class Connector extends Thread {
         private final BluetoothSocket socket;
@@ -135,7 +148,7 @@ public class Device {
             if (d) Log.d(TAG, "Connector created: " + Device.this);
             BluetoothSocket tmp = null;
             try {
-                tmp = bluetoothDevice.createInsecureRfcommSocketToServiceRecord(UUID.fromString(Bt4Layer.SERVICE_UUID));
+                tmp = bluetoothDevice.createInsecureRfcommSocketToServiceRecord(UUID.fromString(Layer.SERVICE_UUID));
 
             } catch (IOException e) {
                 Log.e(TAG, "createRfcommSocketToServiceRecord() failed: " + Device.this, e);
@@ -163,8 +176,7 @@ public class Device {
                             Device.this.changeState(STATE.UNKNOWN);
                         }
 
-                        if (d)
-                            Log.d(TAG, "connector to " + Device.this + " failed " + attempts + " times");
+                        if (d) Log.d(TAG, "connector to " + Device.this + " failed "+attempts+" times");
                         if (attempts > 4) {
                             Device.this.changeState(STATE.UNKNOWN);
                             return;
@@ -175,7 +187,7 @@ public class Device {
                     }
                     if (d) Log.i(TAG, "connection done, device:" + Device.this);
                     connector = null;
-                    Bt4Layer.getInstance().connectedToServer(socket, Device.this);
+                    Layer.getInstance().connectedToServer(socket, Device.this);
                     return;
                 }
 
