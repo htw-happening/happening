@@ -2,6 +2,7 @@ package blue.happening.service;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -49,5 +50,9 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         Log.v(this.getClass().getSimpleName(), "onDestroy");
         super.onDestroy();
+    }
+
+    public static Context getContext() {
+        return MainActivity.getContext();
     }
 }

@@ -16,11 +16,12 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import blue.happening.service.R;
+import blue.happening.service.bt4.Bt4Layer;
 
 public class Bt4Controls extends Fragment {
 
     private static Bt4Controls instance = null;
-//    private Layer bluetoothLayer = null;
+    private Bt4Layer bluetooth4Layer = null;
     private View rootView = null;
 //    private DeviceListAdapter deviceListAdapter = null;
 
@@ -34,11 +35,12 @@ public class Bt4Controls extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_bt4controls, container, false);
 
+        bluetooth4Layer.getInstance();
+
 //        if (!getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
 //            Snackbar.make(rootView, "BLE features are not supported!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
 //        }
 
-//        bluetoothLayer = Layer.getInstance();
 //        bluetoothLayer.addHandler(guiHandler);
 
         ListView deviceListView = (ListView) rootView.findViewById(R.id.discovered_devices_list);
@@ -62,7 +64,7 @@ public class Bt4Controls extends Fragment {
 
         //region event listener
         Switch adapterButton = (Switch) rootView.findViewById(R.id.adapter_button);
-//        adapterButton.setChecked(bluetoothLayer.isEnabled());
+        adapterButton.setChecked(bluetooth4Layer.isEnabled());
         adapterButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -107,7 +109,7 @@ public class Bt4Controls extends Fragment {
         });
         //endregion
 
-//        if (!bluetoothLayer.isAdvertisingSupported()) {
+//        if (!bluetooth4Layer.isAdvertisingSupported()) {
 //            advertiseButton.setEnabled(false);
 //            gattServerButton.setEnabled(false);
 //        }
@@ -117,7 +119,7 @@ public class Bt4Controls extends Fragment {
     @Override
     public void onPause() {
         Log.i("Bt4Controls", "onPause");
-//        bluetoothLayer.removeHandler(guiHandler);
+        bluetooth4Layer.removeHandler(guiHandler);
         super.onPause();
     }
 
@@ -125,42 +127,42 @@ public class Bt4Controls extends Fragment {
     public void onResume() {
         Log.i("Bt4Controls", "onResume");
         super.onResume();
-//        bluetoothLayer.addHandler(guiHandler);
+        bluetooth4Layer.addHandler(guiHandler);
     }
 
     private void enableAdapter() {
 //        Snackbar.make(rootView, "Enable Adapter", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-//        bluetoothLayer.enableAdapter();
+        bluetooth4Layer.enableAdapter();
     }
 
     private void disableAdapter() {
 //        Snackbar.make(rootView, "Disable Adapter", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-//        bluetoothLayer.disableAdapter();
+        bluetooth4Layer.disableAdapter();
     }
 
     private void startAdvertising() {
 //        Snackbar.make(rootView, "Start Advertising", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-//        bluetoothLayer.startAdvertising();
+//        bluetooth4Layer.startAdvertising();
     }
 
     private void stopAdvertising() {
 //        Snackbar.make(rootView, "Stop Advertising", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-//        bluetoothLayer.stopAdvertising();
+//        bluetooth4Layer.stopAdvertising();
     }
 
     private void startScan() {
 //        Snackbar.make(rootView, "Start Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-//        bluetoothLayer.startScan();
+        bluetooth4Layer.startScan();
     }
 
     private void stopScan() {
 //        Snackbar.make(rootView, "Stop Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-//        bluetoothLayer.stopScan();
+        bluetooth4Layer.stopScan();
     }
 
     private void createGattServer() {
 //        Snackbar.make(rootView, "Start Gatt-Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-//        bluetoothLayer.createGattServer();
+//        bluetooth4Layer.createGattServer();
     }
 
     private void stopGattServer() {
