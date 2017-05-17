@@ -41,8 +41,6 @@ public class MainActivity extends Activity {
                     requiredPermissions.toArray(new String[0]),
                     TAG_MULTI_PERMISSION_REQUESTS);
         }
-
-        finish();
     }
 
     @Override
