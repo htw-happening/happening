@@ -53,6 +53,10 @@ public class Layer {
         this.bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.bluetoothAdapter = bluetoothManager.getAdapter();
         this.userID = generateUserID();
+
+        IntentFilter filter = new IntentFilter("android.bluetooth.device.action.PAIRING_REQUEST");
+        context.registerReceiver(new PairingRequest(), filter);
+
         Log.i(TAG, "*********************** I am " + bluetoothAdapter.getName() + " | " + generateUserID() + " ***********************");
     }
 
