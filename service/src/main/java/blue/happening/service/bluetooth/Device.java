@@ -25,7 +25,7 @@ public class Device {
     public enum STATE {
         NEW_SCANNED_DEVICE(1),
         FETCHING(2),
-        FETCHED(3),
+        FETCHED(3), // -> This means ready to connect!
         IGNORE(4),
         CONNECTING(5),
         CONNECTED(6),
@@ -106,7 +106,7 @@ public class Device {
     }
 
     public void changeState(STATE state) {
-        if (d) Log.d(TAG, "Change State from " + this.state + " to " + state + " of " + toString());
+        if (d) Log.d(TAG, "Change State from " + this.state + " to " + state + " of " + this);
         this.state = state;
         Layer.getInstance().notifyHandlers(1);
     }

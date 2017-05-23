@@ -146,29 +146,20 @@ public class Layer {
         if (isMacAddressInScannedDevices(scannedDevice)) {
             return;
         }
-
-//        scannedDevice.fetchSdpList();
-
         this.scannedDevices.add(scannedDevice);
         if (d) Log.d(TAG, "addNewScan - Yes added it (" + scannedDevice.toString() + ")");
-
         notifyHandlers(1);
     }
 
     public void fetchedUUIDsFor(Device scannedDevice) {
-
-        scannedDevice.changeState(Device.STATE.FETCHED);
-
         ArrayList<UUID> fetchedUuids = scannedDevice.getFetchedUuids();
         if (!fetchedUuids.contains(UUID.fromString(SERVICE_UUID))) {
             scannedDevice.changeState(Device.STATE.IGNORE);
         } else{
+            scannedDevice.changeState(Device.STATE.FETCHED);
             // TODO: 16.05.17 Connectible
-
         }
-
         notifyHandlers(1);
-
     }
 
     public void fetchedUUIDsFailedFor(Device scannedDevice) {
