@@ -112,9 +112,9 @@ public class Device implements IRemoteDevice{
     }
 
     @Override
-    public boolean send(Package aPackage) {
+    public boolean send(byte[] bytes) {
         if (this.getState() == STATE.CONNECTED && connection != null){
-            connection.write(aPackage);
+            connection.write(new Package(bytes));
             return true;
         }else{
             return false;

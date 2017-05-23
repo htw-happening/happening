@@ -61,6 +61,7 @@ public class Connection {
                     try {
                         inputStream.read(buffer);
                         Layer.getInstance().receivedData(buffer, device);
+                        Layer.getInstance().getLayerCallback().onReceivedMessage(buffer,device);
 
                     } catch (IOException e) {
                         Log.e(TAG, "Reader disconnected" + device, e);

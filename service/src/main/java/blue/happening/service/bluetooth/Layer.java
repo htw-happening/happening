@@ -80,6 +80,10 @@ public class Layer {
         return userID;
     }
 
+    public ILayerCallback getLayerCallback() {
+        return layerCallback;
+    }
+
     public void notifyHandlers(int code) {
         for (Handler handler : handlers) {
             handler.obtainMessage(code).sendToTarget();
@@ -240,6 +244,7 @@ public class Layer {
         // TODO: 17.05.17
         device.connection.shutdown();
         device.changeState(Device.STATE.DISCONNECTED);
+        layerCallback.onDeviceRemoved(device);
     }
 
 
@@ -290,6 +295,7 @@ public class Layer {
         }
         device.changeState(Device.STATE.CONNECTED);
         device.connection = new Connection(device, socket);
+        layerCallback.onDeviceAdded(device);
 
     }
 
@@ -314,5 +320,7 @@ public class Layer {
 
         device.changeState(Device.STATE.CONNECTED);
         device.connection = new Connection(device, socket);
+        layerCallback.onDeviceAdded(device);
+
     }
 }
