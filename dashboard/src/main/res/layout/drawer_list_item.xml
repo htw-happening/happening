@@ -7,6 +7,7 @@
     <TextView
         android:id="@+id/menu_item1"
         android:textColor="#FFFFFF"
+        android:textSize="22sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         />
