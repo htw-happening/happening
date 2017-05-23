@@ -10,7 +10,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
-public class Device {
+public class Device implements IRemoteDevice{
 
     private String TAG = getClass().getSimpleName();
     private boolean d = true;
@@ -109,6 +109,16 @@ public class Device {
         if (d) Log.d(TAG, "Change State from " + this.state + " to " + state + " of " + this);
         this.state = state;
         Layer.getInstance().notifyHandlers(1);
+    }
+
+    @Override
+    public boolean send(byte[] bytes) {
+        if (this.getState() == STATE.CONNECTED && connection != null){
+            connection.write(new Package(bytes));
+            return true;
+        }else{
+            return false;
+        }
     }
 
     public void connectDevice() {

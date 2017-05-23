@@ -37,10 +37,16 @@ public class Layer {
     private BluetoothManager bluetoothManager = null;
     private BluetoothAdapter bluetoothAdapter = null;
     private ScannerCallback scannerCallback = new ScannerCallback();
+    private DeviceFinder deviceFinder;
+    private ILayerCallback layerCallback;
 
     private List<Handler> handlers = new ArrayList<>();
     private ArrayList<Device> scannedDevices = new ArrayList<>();
     private Server acceptor = null;
+
+    public Context getContext() {
+        return context;
+    }
 
     public static Layer getInstance() {
         if (instance == null)
@@ -74,6 +80,10 @@ public class Layer {
         return userID;
     }
 
+    public ILayerCallback getLayerCallback() {
+        return layerCallback;
+    }
+
     public void notifyHandlers(int code) {
         for (Handler handler : handlers) {
             handler.obtainMessage(code).sendToTarget();
@@ -92,6 +102,10 @@ public class Layer {
         }
     }
 
+    public void registerLayerCallback(ILayerCallback layerCallback){
+        this.layerCallback = layerCallback;
+    }
+
     public boolean isEnabled() {
         return bluetoothAdapter.isEnabled();
     }
@@ -106,19 +120,34 @@ public class Layer {
 
     public void startScan() {
         ScanTrigger.getInstance().startLeScan();
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-        filter.addAction(BluetoothDevice.ACTION_UUID);
-        context.registerReceiver(scannerCallback, filter);
-        bluetoothAdapter.startDiscovery();
+        deviceFinder = new DeviceFinder(context, new DeviceFinder.Callback() {
+            @Override
+            public void onDeviceFound(BluetoothDevice bd) {
+                Log.d(TAG, "DeviceFinder - onDeviceFound");
+                addNewScan(bd);
+            }
+
+            @Override
+            public void onFinishedCallback() {
+                Log.d(TAG, "DeviceFinder - onFinishedCallback");
+
+            }
+
+            @Override
+            public void onStartCallback() {
+                Log.d(TAG, "DeviceFinder - onStartCallback");
+
+            }
+        });
+        deviceFinder.startScan();
         if (d) Log.d(TAG, "Started Scanner");
     }
 
     public void stopScan() {
         if (d) Log.d(TAG, "Stopped Scanner");
-        bluetoothAdapter.cancelDiscovery();
-        context.unregisterReceiver(scannerCallback);
+//        bluetoothAdapter.cancelDiscovery();
+//        context.unregisterReceiver(scannerCallback);
+        // TODO: 23.05.17 handle it
         ScanTrigger.getInstance().stopLeScan();
     }
 
@@ -155,6 +184,7 @@ public class Layer {
             return;
         }
         this.scannedDevices.add(scannedDevice);
+        Log.d(TAG, "-----------------------------------------"+device.getType());
         if (d) Log.d(TAG, "addNewScan - Yes added it (" + scannedDevice.toString() + ")");
         notifyHandlers(1);
     }
@@ -192,6 +222,10 @@ public class Layer {
 
     public void shutdown() {
         // TODO: 16.05.17 handle clean shutdown
+        if (deviceFinder != null){
+            deviceFinder.unregisterReciever();
+        }
+
     }
 
     public void receivedData(byte[] data, Device device) {
@@ -214,6 +248,7 @@ public class Layer {
         // TODO: 17.05.17
         device.connection.shutdown();
         device.changeState(Device.STATE.DISCONNECTED);
+        layerCallback.onDeviceRemoved(device);
     }
 
 
@@ -264,6 +299,7 @@ public class Layer {
         }
         device.changeState(Device.STATE.CONNECTED);
         device.connection = new Connection(device, socket);
+        layerCallback.onDeviceAdded(device);
 
     }
 
@@ -288,5 +324,7 @@ public class Layer {
 
         device.changeState(Device.STATE.CONNECTED);
         device.connection = new Connection(device, socket);
+        layerCallback.onDeviceAdded(device);
+
     }
 }
