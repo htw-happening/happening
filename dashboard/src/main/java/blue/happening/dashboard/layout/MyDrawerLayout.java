@@ -7,6 +7,7 @@ import android.widget.ListView;
 
 import blue.happening.dashboard.R;
 import blue.happening.dashboard.click_listener.DrawerItemClickListener;
+import blue.happening.dashboard.fragment.MyFragmentManager;
 
 public class MyDrawerLayout {
 
@@ -15,7 +16,7 @@ public class MyDrawerLayout {
     private ListView leftDrawerList;
 
     public MyDrawerLayout(Activity activity) {
-        menuItemList = activity.getResources().getStringArray(R.array.menu_item_list);
+        menuItemList = MyFragmentManager.MenuItems.toArray();
         mainContent = (DrawerLayout) activity.findViewById(R.id.main_content);
         leftDrawerList = (ListView) activity.findViewById(R.id.left_drawer);
 
