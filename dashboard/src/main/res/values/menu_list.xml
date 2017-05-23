@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array
+        name="menu_item_list">
+        <item>text_string0</item>
+        <item>text_string1</item>
+        <item>text_string2</item>
+        <item>text_string3</item>
+        <item>text_string4</item>
+    </string-array>
+</resources>
