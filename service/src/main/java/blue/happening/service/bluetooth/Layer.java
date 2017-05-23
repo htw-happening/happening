@@ -105,6 +105,7 @@ public class Layer {
     }
 
     public void startScan() {
+        ScanTrigger.getInstance().startLeScan();
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
@@ -118,6 +119,7 @@ public class Layer {
         if (d) Log.d(TAG, "Stopped Scanner");
         bluetoothAdapter.cancelDiscovery();
         context.unregisterReceiver(scannerCallback);
+        ScanTrigger.getInstance().stopLeScan();
     }
 
     public int getNumOfConnectedDevices() {
@@ -131,6 +133,7 @@ public class Layer {
     }
 
     public void createAcceptor() {
+        ScanTrigger.getInstance().startAdvertising();
         if (acceptor == null) {
             acceptor = new Server();
             acceptor.start();
@@ -138,6 +141,7 @@ public class Layer {
     }
 
     public void stopAcceptor() {
+        ScanTrigger.getInstance().stopAdvertising();
         if (acceptor != null) {
             acceptor.interrupt();
             acceptor.cancel();

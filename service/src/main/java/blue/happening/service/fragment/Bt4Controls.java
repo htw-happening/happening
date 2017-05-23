@@ -212,6 +212,10 @@ public class Bt4Controls extends Fragment {
                 byte[] bytes = bundle.getByteArray("data");
                 Toast.makeText(getContext(), ""+ Arrays.toString(bytes), Toast.LENGTH_SHORT).show();
             }
+
+            if (msg.what == 999){
+                Toast.makeText(getContext(), "BLE Scan found new device!", Toast.LENGTH_SHORT).show();
+            }
         }
     };
 
