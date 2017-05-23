@@ -10,7 +10,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
-public class Device {
+public class Device implements IRemoteDevice{
 
     private String TAG = getClass().getSimpleName();
     private boolean d = true;
@@ -25,7 +25,7 @@ public class Device {
     public enum STATE {
         NEW_SCANNED_DEVICE(1),
         FETCHING(2),
-        FETCHED(3),
+        FETCHED(3), // -> This means ready to connect!
         IGNORE(4),
         CONNECTING(5),
         CONNECTED(6),
@@ -106,9 +106,19 @@ public class Device {
     }
 
     public void changeState(STATE state) {
-        if (d) Log.d(TAG, "Change State from " + this.state + " to " + state + " of " + toString());
+        if (d) Log.d(TAG, "Change State from " + this.state + " to " + state + " of " + this);
         this.state = state;
         Layer.getInstance().notifyHandlers(1);
+    }
+
+    @Override
+    public boolean send(byte[] bytes) {
+        if (this.getState() == STATE.CONNECTED && connection != null){
+            connection.write(new Package(bytes));
+            return true;
+        }else{
+            return false;
+        }
     }
 
     public void connectDevice() {

@@ -76,10 +76,13 @@ public class ScannerCallback extends BroadcastReceiver {
                     Layer.getInstance().fetchedUUIDsFor(scannedDevice);
                 }
 
+                /**
+                 * procedure for fetching next device
+                 */
                 if (devicesToFetch != null && !devicesToFetch.isEmpty()){
                     Device deviceToFetch = devicesToFetch.remove(0);
                     if (debug) Log.d(TAG, "Removing device from devicesToFetch and start fetching "+deviceToFetch);
-                    if (deviceToFetch.getState() != Device.STATE.FETCHING || deviceToFetch.getState() != Device.STATE.CONNECTED |
+                    if (deviceToFetch.getState() != Device.STATE.FETCHING || deviceToFetch.getState() != Device.STATE.CONNECTED ||
                             deviceToFetch.getState() != Device.STATE.FETCHED || deviceToFetch.getState() != Device.STATE.CONNECTING) {
                         deviceToFetch.fetchSdpList();
                     }
