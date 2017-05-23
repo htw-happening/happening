@@ -86,13 +86,19 @@ public class Connection {
         @Override
         public void run() {
             while (!isInterrupted()){
-                Package aPackage;
-                aPackage = packageQueue.poll();
-                if (d) Log.d(TAG, "Polled a Package " + aPackage + " " + device);
+                Package aPackage = null;
+                try {
+                    aPackage = packageQueue.take();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Layer.getInstance().connectionLost(device); // TODO: 17.05.17 really?
+
+                }
+//                if (d) Log.d(TAG, "Polled a Package " + aPackage + " " + device);
                 if (aPackage != null){
                     try {
                         outputStream.write(aPackage.getData());
-                        if (d) Log.d(TAG, "Wrote data to outputstreamm " + device);
+//                        if (d) Log.d(TAG, "Wrote data to outputstreamm " + device);
                     } catch (IOException e) {
                         e.printStackTrace();
                         Layer.getInstance().connectionLost(device); // TODO: 17.05.17 really?

@@ -38,6 +38,7 @@ public class Layer {
     private BluetoothAdapter bluetoothAdapter = null;
     private ScannerCallback scannerCallback = new ScannerCallback();
     private DeviceFinder deviceFinder;
+    private ILayerCallback layerCallback;
 
     private List<Handler> handlers = new ArrayList<>();
     private ArrayList<Device> scannedDevices = new ArrayList<>();
@@ -95,6 +96,10 @@ public class Layer {
         if (handlers.contains(handler)) {
             handlers.remove(handler);
         }
+    }
+
+    public void registerLayerCallback(ILayerCallback layerCallback){
+        this.layerCallback = layerCallback;
     }
 
     public boolean isEnabled() {
@@ -171,6 +176,7 @@ public class Layer {
             return;
         }
         this.scannedDevices.add(scannedDevice);
+        Log.d(TAG, "-----------------------------------------"+device.getType());
         if (d) Log.d(TAG, "addNewScan - Yes added it (" + scannedDevice.toString() + ")");
         notifyHandlers(1);
     }
@@ -208,6 +214,10 @@ public class Layer {
 
     public void shutdown() {
         // TODO: 16.05.17 handle clean shutdown
+        if (deviceFinder != null){
+            deviceFinder.unregisterReciever();
+        }
+
     }
 
     public void receivedData(byte[] data, Device device) {
