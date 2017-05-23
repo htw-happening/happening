@@ -37,10 +37,15 @@ public class Layer {
     private BluetoothManager bluetoothManager = null;
     private BluetoothAdapter bluetoothAdapter = null;
     private ScannerCallback scannerCallback = new ScannerCallback();
+    private DeviceFinder deviceFinder;
 
     private List<Handler> handlers = new ArrayList<>();
     private ArrayList<Device> scannedDevices = new ArrayList<>();
     private Server acceptor = null;
+
+    public Context getContext() {
+        return context;
+    }
 
     public static Layer getInstance() {
         if (instance == null)
@@ -105,19 +110,34 @@ public class Layer {
     }
 
     public void startScan() {
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-        filter.addAction(BluetoothDevice.ACTION_UUID);
-        context.registerReceiver(scannerCallback, filter);
-        bluetoothAdapter.startDiscovery();
+        deviceFinder = new DeviceFinder(context, new DeviceFinder.Callback() {
+            @Override
+            public void onDeviceFound(BluetoothDevice bd) {
+                Log.d(TAG, "DeviceFinder - onDeviceFound");
+                addNewScan(bd);
+            }
+
+            @Override
+            public void onFinishedCallback() {
+                Log.d(TAG, "DeviceFinder - onFinishedCallback");
+
+            }
+
+            @Override
+            public void onStartCallback() {
+                Log.d(TAG, "DeviceFinder - onStartCallback");
+
+            }
+        });
+        deviceFinder.startScan();
         if (d) Log.d(TAG, "Started Scanner");
     }
 
     public void stopScan() {
         if (d) Log.d(TAG, "Stopped Scanner");
-        bluetoothAdapter.cancelDiscovery();
-        context.unregisterReceiver(scannerCallback);
+//        bluetoothAdapter.cancelDiscovery();
+//        context.unregisterReceiver(scannerCallback);
+        // TODO: 23.05.17 handle it
     }
 
     public int getNumOfConnectedDevices() {
