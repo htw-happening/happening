@@ -19,6 +19,7 @@ public class Device implements IRemoteDevice{
     private Connector connector;
     private STATE state;
     public Connection connection;
+    private int attempts = 0;
 
     public enum STATE {
         NEW_SCANNED_DEVICE(1),
@@ -107,6 +108,8 @@ public class Device implements IRemoteDevice{
 
     public void disconnect() {
         // TODO: 16.05.17 handle disconnecting process
+        connection.shutdown();
+        this.changeState(STATE.DISCONNECTED);
 
     }
 
@@ -136,7 +139,6 @@ public class Device implements IRemoteDevice{
 
         public synchronized void run() {
             setName("BNA Connector");
-            int attempts = 0;
             if (d) Log.d(TAG, "Connector is running: " + Device.this);
             while (!isInterrupted()) {
                 try {
@@ -155,10 +157,11 @@ public class Device implements IRemoteDevice{
 
                     if (d) Log.d(TAG, "connector to " + Device.this + " failed "+attempts+" times");
                     if (attempts > 4) {
-                        Device.this.changeState(STATE.UNKNOWN);
+                        Device.this.changeState(STATE.OFFLINE);
                         return;
                     } else {
-                        continue;
+                        connectDevice();
+                        return;
                     }
 
                 }
