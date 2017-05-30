@@ -80,6 +80,16 @@ public class Device implements IRemoteDevice{
         }
     }
 
+    public void delayedConnectDevice(){
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                connectDevice();
+            }
+        }, 6000);
+    }
+
     public void connectDevice() {
         if (d) Log.d(TAG, "Connecting to Device " + toString());
         changeState(STATE.CONNECTING);
@@ -128,39 +138,34 @@ public class Device implements IRemoteDevice{
             setName("BNA Connector");
             int attempts = 0;
             if (d) Log.d(TAG, "Connector is running: " + Device.this);
-            try {
-                while (!isInterrupted()) {
+            while (!isInterrupted()) {
+                try {
+                    attempts++;
+                    if (d) Log.i(TAG, "About to wait to connect to " + Device.this);
+                    socket.connect(); //blocking
+                } catch (IOException e) {
+                    if (d) Log.d(TAG, "connection failed");
                     try {
-                        attempts++;
-                        if (d) Log.i(TAG, "About to wait to connect to " + Device.this);
-                        socket.connect(); //blocking
-                    } catch (IOException e) {
-                        if (d) Log.d(TAG, "connection failed");
-                        try {
-                            socket.close();
-                            Device.this.changeState(STATE.UNKNOWN);
-                        } catch (IOException e2) {
-                            Log.e(TAG, "unable to close() socket during connection failure", e2);
-                            Device.this.changeState(STATE.UNKNOWN);
-                        }
-
-                        if (d) Log.d(TAG, "connector to " + Device.this + " failed "+attempts+" times");
-                        if (attempts > 4) {
-                            Device.this.changeState(STATE.UNKNOWN);
-                            return;
-                        } else {
-                            continue;
-                        }
-
+                        socket.close();
+                        Device.this.changeState(STATE.UNKNOWN);
+                    } catch (IOException e2) {
+                        Log.e(TAG, "unable to close() socket during connection failure", e2);
+                        Device.this.changeState(STATE.UNKNOWN);
                     }
-                    if (d) Log.i(TAG, "connection done, device:" + Device.this);
-                    connector = null;
-                    Layer.getInstance().connectedToServer(socket, Device.this);
-                    return;
-                }
 
-            } finally {
-                if (d) Log.d(TAG, "Connector stopped" + Device.this);
+                    if (d) Log.d(TAG, "connector to " + Device.this + " failed "+attempts+" times");
+                    if (attempts > 4) {
+                        Device.this.changeState(STATE.UNKNOWN);
+                        return;
+                    } else {
+                        continue;
+                    }
+
+                }
+                if (d) Log.i(TAG, "connection done, device:" + Device.this);
+                connector = null;
+                Layer.getInstance().connectedToServer(socket, Device.this);
+                return;
             }
         }
 

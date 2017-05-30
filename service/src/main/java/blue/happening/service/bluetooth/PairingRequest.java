@@ -17,19 +17,24 @@ public class PairingRequest extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equals("android.bluetooth.device.action.PAIRING_REQUEST")) {
+        if (intent.getAction().equals(BluetoothDevice.ACTION_PAIRING_REQUEST)) {
+            Log.d("PairingRequest", "Triggered Intent");
+
             try {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                int pin=intent.getIntExtra("android.bluetooth.device.extra.PAIRING_KEY", 0);
-                //the pin in case you need to accept for an specific pin
-                Log.d("PIN", " " + intent.getIntExtra("android.bluetooth.device.extra.PAIRING_KEY",0));
-                //maybe you look for a name or address
-                Log.d("Bonded", device.getName());
-                byte[] pinBytes;
-                pinBytes = (""+pin).getBytes("UTF-8");
-                device.setPin(pinBytes);
-                //setPairing confirmation if neeeded
-                device.setPairingConfirmation(true);
+                Log.d("PairingRequest", "Device was "+device.getName() + " " + device.getAddress());
+
+                int type  = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_VARIANT, BluetoothDevice.ERROR);
+                Log.d("PairingRequest", "Tyoe was "+type);
+
+                if (type == BluetoothDevice.PAIRING_VARIANT_PIN){
+                    int pin=intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_KEY, 0);
+                    device.setPin((""+pin).getBytes("UTF-8"));
+                    Log.d("PairingRequest", "Pin was " + pin);
+                    abortBroadcast();
+
+                }
+                //device.setPairingConfirmation(true);
             } catch (Exception e) {
                 e.printStackTrace();
             }

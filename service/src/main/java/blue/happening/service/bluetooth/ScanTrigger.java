@@ -8,15 +8,20 @@ import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.os.Build;
 import android.os.ParcelUuid;
+import android.provider.CallLog;
 import android.util.Log;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import blue.happening.service.MainActivity;
 
@@ -25,16 +30,16 @@ class ScanTrigger {
     private String TAG = getClass().getSimpleName();
     private boolean d = true;
 
+    private Context context = null;
     private BluetoothAdapter bluetoothAdapter = null;
     private BluetoothLeScanner bluetoothLeScanner = null;
     private BluetoothLeAdvertiser bluetoothLeAdvertiser = null;
 
     private ScanCallback scanCallback = new ScanCallback();
     private AdvertiseCallback advertiseCallback = new AdvertiseCallback();
-    private ArrayList<BluetoothDevice> scannedLeDevices = new ArrayList<>();
 
     ScanTrigger() {
-        Context context = MainActivity.getContext();
+        context = MainActivity.getContext();
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.bluetoothAdapter = bluetoothManager.getAdapter();
         this.bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
@@ -84,25 +89,27 @@ class ScanTrigger {
         if (isAdvertisingSupported()) {
             if (d) Log.d(TAG, "Starting Advertiser");
 
+            String macAddress = android.provider.Settings.Secure.getString(context.getContentResolver(), "bluetooth_address");
+
             AdvertiseSettings.Builder advertiseSettingsBuilder = new AdvertiseSettings.Builder();
             AdvertiseSettings advertiseSettings = advertiseSettingsBuilder
                     .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
                     .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
-                    .setConnectable(false)
+                    .setConnectable(true)
                     .build();
 
             ParcelUuid serviceUuid = ParcelUuid.fromString(Layer.SERVICE_UUID);
-            AdvertiseData.Builder advertiseDataBuilder = new AdvertiseData.Builder();
+            ParcelUuid addressUuid = ParcelUuid.fromString(Layer.ADVERTISE_UUID);
 
-            AdvertiseData advertiseData = advertiseDataBuilder
+            AdvertiseData advertiseData = new AdvertiseData.Builder()
                     .addServiceUuid(serviceUuid)
                     .build();
 
-            AdvertiseData additionalData = advertiseDataBuilder
-                    .addServiceData(serviceUuid, "TEST".getBytes())
+            AdvertiseData extraData = new AdvertiseData.Builder()
+                    .addServiceData(serviceUuid, macAddress.getBytes())
                     .build();
 
-            bluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, additionalData, advertiseCallback);
+            bluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, extraData, advertiseCallback);
 
             if (d) Log.d(TAG, "Started Advertising");
         }
@@ -115,19 +122,24 @@ class ScanTrigger {
         }
     }
 
-    private void addNewLeScanResult(BluetoothDevice device) {
-        if (!scannedLeDevices.contains(device)) {
-            if (d) Log.d(TAG, "LeScan found: " + device.getName() + " " + device.getAddress());
-            scannedLeDevices.add(device);
-            Layer.getInstance().triggerScan();
-        }
+    private void addNewLeScanResult(BluetoothDevice device, String macAddress) {
+
+        if (!BluetoothAdapter.checkBluetoothAddress(macAddress)) return; // TODO: 30.05.17 Maybe later trigger EDR scan
+
+        Layer.getInstance().addNewScan(macAddress);
     }
 
     private class ScanCallback extends android.bluetooth.le.ScanCallback {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
-            addNewLeScanResult(result.getDevice());
+            String macAddress = "";
+            if (result.getScanRecord() != null) {
+                byte[] resultBytes = result.getScanRecord().getServiceData(ParcelUuid.fromString(Layer.RANDOM_READ_UUID));
+                macAddress = new String(resultBytes, Charset.defaultCharset());
+            }
+            //if (d) Log.d(TAG, "Scanned mac address is " + macAddress);
+            addNewLeScanResult(result.getDevice(), macAddress);
         }
     }
 

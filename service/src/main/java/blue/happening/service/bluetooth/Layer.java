@@ -28,6 +28,7 @@ public class Layer {
     public static final String SERVICE_UUID = "11111111-0000-0000-0000-000005e971cf";
     public static final String CHARACTERISTIC_UUID = "11111111-0000-0000-00c8-a9ac4e91541c";
     public static final String USERINFO_UUID = "11111111-0000-0000-0000-000005371970";
+    public static final String RANDOM_READ_UUID = "00001111-0000-1000-8000-00805f9b34fb";
     private final ScanTrigger scanTrigger;
 
     private static Layer instance = null;
@@ -36,7 +37,6 @@ public class Layer {
     private Context context = null;
     private BluetoothManager bluetoothManager = null;
     private BluetoothAdapter bluetoothAdapter = null;
-    private DeviceFinder deviceFinder;
     private ILayerCallback layerCallback;
 
     private List<Handler> handlers = new ArrayList<>();
@@ -60,30 +60,10 @@ public class Layer {
         this.bluetoothAdapter = bluetoothManager.getAdapter();
         this.userID = generateUserID();
 
-        deviceFinder = new DeviceFinder(context, new DeviceFinder.Callback() {
-            @Override
-            public void onDeviceFound(BluetoothDevice bd) {
-                Log.d(TAG, "DeviceFinder - onDeviceFound");
-                addNewScan(bd);
-            }
+        String macAddress = "";
+        macAddress = android.provider.Settings.Secure.getString(context.getContentResolver(), "bluetooth_address");
 
-            @Override
-            public void onFinishedCallback() {
-                Log.d(TAG, "DeviceFinder - onFinishedCallback");
-
-            }
-
-            @Override
-            public void onStartCallback() {
-                Log.d(TAG, "DeviceFinder - onStartCallback");
-
-            }
-        });
-
-        //IntentFilter filter = new IntentFilter("android.bluetooth.device.action.PAIRING_REQUEST");
-        //context.registerReceiver(new PairingRequest(), filter);
-
-        Log.i(TAG, "*********************** I am " + bluetoothAdapter.getName() + " | " + generateUserID() + " ***********************");
+        Log.i(TAG, "*********************** I am " + bluetoothAdapter.getName() + " | " + generateUserID() + " | " + macAddress + " ***********************");
     }
 
 
@@ -144,23 +124,6 @@ public class Layer {
 
     public void stopScanTrigger() {
         scanTrigger.stopLeScan();
-        stopScan();
-    }
-
-    public void triggerScan() {
-        startScan();
-    }
-
-    public void startScan() {
-        if (!deviceFinder.isActive) {
-            deviceFinder.startScan();
-            if (d) Log.d(TAG, "Started Scanner");
-        }
-    }
-
-    public void stopScan() {
-        if (d) Log.d(TAG, "Stopped Scanner");
-        bluetoothAdapter.cancelDiscovery();
     }
 
     public int getNumOfConnectedDevices() {
@@ -190,15 +153,16 @@ public class Layer {
         }
     }
 
-    public void addNewScan(BluetoothDevice device) {
+    public void addNewScan(String macAddress) {
+        BluetoothDevice device = bluetoothAdapter.getRemoteDevice(macAddress);
         Device scannedDevice = new Device(device);
         if (isMacAddressInScannedDevices(scannedDevice)) {
             return;
         }
         this.scannedDevices.add(scannedDevice);
-        Log.d(TAG, "-----------------------------------------"+device.getType());
         if (d) Log.d(TAG, "addNewScan - Yes added it (" + scannedDevice.toString() + ")");
         notifyHandlers(1);
+//        scannedDevice.delayedConnectDevice();
     }
 
     private boolean isMacAddressInScannedDevices(Device device) {
@@ -218,16 +182,13 @@ public class Layer {
     }
 
     public void shutdown() {
-        if (deviceFinder != null){
-            deviceFinder.unregisterReciever();
-        }
         for (Device device : scannedDevices) {
             if (device.getState() == Device.STATE.CONNECTED){
                 device.connection.shutdown();
             }
         }
-        stopScan();
         stopAcceptor();
+        stopScanTrigger();
 
     }
 

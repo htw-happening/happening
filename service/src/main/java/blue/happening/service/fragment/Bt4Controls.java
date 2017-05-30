@@ -198,6 +198,8 @@ public class Bt4Controls extends Fragment {
         bluetoothLayer.stopAcceptor();
     }
 
+
+
     private Handler guiHandler = new Handler(Looper.getMainLooper()) {
         Toast currentToast;
 
@@ -221,8 +223,6 @@ public class Bt4Controls extends Fragment {
 
     @Override
     public void onDestroy() {
-        stopScan();
-        stopServer();
         bluetoothLayer.shutdown();
         super.onDestroy();
     }

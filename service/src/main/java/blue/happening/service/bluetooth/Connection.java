@@ -81,11 +81,9 @@ public class Connection {
                     } catch (IOException e) {
                         Log.e(TAG, "Reader disconnected" + device, e);
                         shutdown();
-                        break;
+                        return;
                     }
                 }
-                if(d) Log.i(TAG, "Reader stopped: " + device);
-
             }
         }
     }
@@ -115,6 +113,7 @@ public class Connection {
                     } catch (IOException e) {
                         e.printStackTrace();
                         shutdown();
+                        return;
                     }
                 }
             }
