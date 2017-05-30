@@ -109,7 +109,7 @@ public class Bt4Controls extends Fragment {
 
 
         TextView userInfo = (TextView) rootView.findViewById(R.id.textView_info_user_id);
-        userInfo.setText("    "+String.valueOf(bluetoothLayer.getUserID()));
+        userInfo.setText("    "+String.valueOf(bluetoothLayer.getMacAddress()));
 
         Intent makeMeVisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         makeMeVisible.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0); //infinity

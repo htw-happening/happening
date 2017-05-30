@@ -33,7 +33,6 @@ public class Layer {
 
     private static Layer instance = null;
 
-    private int userID = 0;
     private Context context = null;
     private BluetoothManager bluetoothManager = null;
     private BluetoothAdapter bluetoothAdapter = null;
@@ -42,6 +41,8 @@ public class Layer {
     private List<Handler> handlers = new ArrayList<>();
     private ArrayList<Device> scannedDevices = new ArrayList<>();
     private Server acceptor = null;
+    private AutoConnectSink connectSink = null;
+    private String macAddress = "";
 
     public Context getContext() {
         return context;
@@ -58,26 +59,18 @@ public class Layer {
         this.scanTrigger = new ScanTrigger();
         this.bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.bluetoothAdapter = bluetoothManager.getAdapter();
-        this.userID = generateUserID();
-
-        String macAddress = "";
+        this.connectSink = new AutoConnectSink();
+        this.connectSink.start();
         macAddress = android.provider.Settings.Secure.getString(context.getContentResolver(), "bluetooth_address");
-
-        Log.i(TAG, "*********************** I am " + bluetoothAdapter.getName() + " | " + generateUserID() + " | " + macAddress + " ***********************");
+        Log.i(TAG, "*********************** I am " + bluetoothAdapter.getName() + " | " + macAddress + " ***********************");
     }
 
-
-    private int generateUserID() {
-        // TODO: Return existing ID from database
-        return UUID.randomUUID().hashCode();
+    public String getMacAddress() {
+        return macAddress;
     }
 
     public ArrayList<Device> getScannedDevices() {
         return scannedDevices;
-    }
-
-    public int getUserID() {
-        return userID;
     }
 
     public ILayerCallback getLayerCallback() {
@@ -160,6 +153,7 @@ public class Layer {
             return;
         }
         this.scannedDevices.add(scannedDevice);
+        this.connectSink.addDevice(scannedDevice);
         if (d) Log.d(TAG, "addNewScan - Yes added it (" + scannedDevice.toString() + ")");
         notifyHandlers(1);
 //        scannedDevice.delayedConnectDevice();
@@ -189,6 +183,7 @@ public class Layer {
         }
         stopAcceptor();
         stopScanTrigger();
+        connectSink.interrupt();
 
     }
 

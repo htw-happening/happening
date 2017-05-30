@@ -87,7 +87,7 @@ public class Device implements IRemoteDevice{
             public void run() {
                 connectDevice();
             }
-        }, 6000);
+        }, 1000);
     }
 
     public void connectDevice() {
