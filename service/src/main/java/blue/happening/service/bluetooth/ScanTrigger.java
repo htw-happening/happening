@@ -25,27 +25,17 @@ class ScanTrigger {
     private String TAG = getClass().getSimpleName();
     private boolean d = true;
 
-    private static ScanTrigger instance = null;
-
-    private Context context = null;
-    private BluetoothManager bluetoothManager = null;
     private BluetoothAdapter bluetoothAdapter = null;
-    private ScanCallback scanCallback = new ScanCallback();
-    private AdvertiseCallback advertiseCallback = new AdvertiseCallback();
     private BluetoothLeScanner bluetoothLeScanner = null;
     private BluetoothLeAdvertiser bluetoothLeAdvertiser = null;
 
+    private ScanCallback scanCallback = new ScanCallback();
+    private AdvertiseCallback advertiseCallback = new AdvertiseCallback();
     private ArrayList<BluetoothDevice> scannedLeDevices = new ArrayList<>();
 
-    static ScanTrigger getInstance() {
-        if (instance == null)
-            instance = new ScanTrigger();
-        return instance;
-    }
-
-    private ScanTrigger() {
-        context = MainActivity.getContext();
-        this.bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+    ScanTrigger() {
+        Context context = MainActivity.getContext();
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.bluetoothAdapter = bluetoothManager.getAdapter();
         this.bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
         this.bluetoothLeAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
@@ -91,30 +81,31 @@ class ScanTrigger {
     }
 
     void startAdvertising() {
-        if (d) Log.d(TAG, "Starting Advertiser");
-        AdvertiseSettings.Builder advertiseSettingsBuilder = new AdvertiseSettings.Builder();
-        AdvertiseSettings advertiseSettings = advertiseSettingsBuilder
-                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
-                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
-                .setConnectable(false)
-                .build();
-
-        ParcelUuid serviceUuid = ParcelUuid.fromString(Layer.SERVICE_UUID);
-        AdvertiseData.Builder advertiseDataBuilder = new AdvertiseData.Builder();
-
-        AdvertiseData advertiseData = advertiseDataBuilder
-                .addServiceUuid(serviceUuid)
-                .build();
-
-        AdvertiseData additionalData = advertiseDataBuilder
-                .addServiceData(serviceUuid, "TEST".getBytes())
-                .build();
-
         if (isAdvertisingSupported()) {
-            bluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, additionalData, advertiseCallback);
-        }
+            if (d) Log.d(TAG, "Starting Advertiser");
 
-        if (d) Log.d(TAG, "Started Advertising");
+            AdvertiseSettings.Builder advertiseSettingsBuilder = new AdvertiseSettings.Builder();
+            AdvertiseSettings advertiseSettings = advertiseSettingsBuilder
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
+                    .setConnectable(false)
+                    .build();
+
+            ParcelUuid serviceUuid = ParcelUuid.fromString(Layer.SERVICE_UUID);
+            AdvertiseData.Builder advertiseDataBuilder = new AdvertiseData.Builder();
+
+            AdvertiseData advertiseData = advertiseDataBuilder
+                    .addServiceUuid(serviceUuid)
+                    .build();
+
+            AdvertiseData additionalData = advertiseDataBuilder
+                    .addServiceData(serviceUuid, "TEST".getBytes())
+                    .build();
+
+            bluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, additionalData, advertiseCallback);
+
+            if (d) Log.d(TAG, "Started Advertising");
+        }
     }
 
     void stopAdvertising() {
@@ -124,16 +115,19 @@ class ScanTrigger {
         }
     }
 
-    private void addNewLeScan(BluetoothDevice device) {
-        this.scannedLeDevices.add(device);
-        Layer.getInstance().notifyHandlers(999);
+    private void addNewLeScanResult(BluetoothDevice device) {
+        if (!scannedLeDevices.contains(device)) {
+            if (d) Log.d(TAG, "LeScan found: " + device.getName() + " " + device.getAddress());
+            scannedLeDevices.add(device);
+            Layer.getInstance().triggerScan();
+        }
     }
 
     private class ScanCallback extends android.bluetooth.le.ScanCallback {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
-            addNewLeScan(result.getDevice());
+            addNewLeScanResult(result.getDevice());
         }
     }
 

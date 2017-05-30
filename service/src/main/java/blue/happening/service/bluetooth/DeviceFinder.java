@@ -12,11 +12,9 @@ import android.util.Log;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
-
-/**
- * Created by fabi on 23.05.17.
- */
 
 public class DeviceFinder{
 
@@ -26,6 +24,7 @@ public class DeviceFinder{
         void onStartCallback();
     }
 
+    public boolean isActive = false;
     private ArrayList<BluetoothDevice> tempDevices = new ArrayList<>();
     private Callback mCallback;
     private Context mContext;
@@ -43,12 +42,21 @@ public class DeviceFinder{
                 Log.d(getClass().getSimpleName(), "Devicefinder Found");
             }else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)){
                 Log.d(getClass().getSimpleName(), "Devicefinder Discovery Started");
+                isActive = true;
 
                 // Prepare for new search
                 tempDevices = new ArrayList<>();
                 mCallback.onStartCallback();
             }else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
                 Log.d(getClass().getSimpleName(), "Devicefinder Discovery Finished");
+
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        DeviceFinder.this.isActive = false;
+                    }
+                }, 5000);
 
                 // Do a sdpSearch for all found devices
                 for (BluetoothDevice bd : tempDevices){

@@ -154,7 +154,6 @@ public class Bt4Controls extends Fragment {
                 return true;
             case R.id.fetch_sdp_list:
                 Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Fetching SDP List");
-                device.fetchSdpList();
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -180,12 +179,13 @@ public class Bt4Controls extends Fragment {
 
     private void startScan() {
 //        Snackbar.make(rootView, "Start Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.startScan();
+        bluetoothLayer.startScanTrigger();
+
     }
 
     private void stopScan() {
 //        Snackbar.make(rootView, "Stop Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.stopScan();
+        bluetoothLayer.stopScanTrigger();
     }
 
     private void startServer() {

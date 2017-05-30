@@ -22,22 +22,35 @@ public class Connection {
     public Connection (Device device, BluetoothSocket bluetoothSocket){
         this.device = device;
         this.socket = bluetoothSocket;
-        try {
-            this.reader = new Reader(bluetoothSocket.getInputStream());
-            this.writer = new Writer(bluetoothSocket.getOutputStream());
-            this.reader.start();
-            this.writer.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        start();
     }
 
     public void write(Package aPackage){
         writer.write(aPackage);
     }
 
+    public void start(){
+        try {
+            this.reader = new Reader(this.socket.getInputStream());
+            this.writer = new Writer(this.socket.getOutputStream());
+            this.reader.start();
+            this.writer.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+            shutdown();
+        }
+
+    }
+
     public void shutdown() {
-        // TODO: 17.05.17
+        try {
+            this.reader.inputStream.close();
+            this.writer.packageQueue.clear();
+            this.writer.outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Layer.getInstance().connectionLost(device);
     }
 
 
@@ -61,11 +74,13 @@ public class Connection {
                     try {
                         inputStream.read(buffer);
                         Layer.getInstance().receivedData(buffer, device);
-                        Layer.getInstance().getLayerCallback().onReceivedMessage(buffer,device);
+                        if (Layer.getInstance().getLayerCallback() != null) {
+                            Layer.getInstance().getLayerCallback().onReceivedMessage(buffer, device);
+                        }
 
                     } catch (IOException e) {
                         Log.e(TAG, "Reader disconnected" + device, e);
-                        Layer.getInstance().connectionLost(device);
+                        shutdown();
                         break;
                     }
                 }
@@ -92,17 +107,14 @@ public class Connection {
                     aPackage = packageQueue.take();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                    Layer.getInstance().connectionLost(device); // TODO: 17.05.17 really?
-
+                    shutdown();
                 }
-//                if (d) Log.d(TAG, "Polled a Package " + aPackage + " " + device);
                 if (aPackage != null){
                     try {
                         outputStream.write(aPackage.getData());
-//                        if (d) Log.d(TAG, "Wrote data to outputstreamm " + device);
                     } catch (IOException e) {
                         e.printStackTrace();
-                        Layer.getInstance().connectionLost(device); // TODO: 17.05.17 really?
+                        shutdown();
                     }
                 }
             }

@@ -16,22 +16,16 @@ public class Device implements IRemoteDevice{
     private boolean d = true;
 
     private BluetoothDevice bluetoothDevice = null;
-    private ArrayList<UUID> fetchedUuids = new ArrayList<>();
     private Connector connector;
-    private int userID;
     private STATE state;
     public Connection connection;
 
     public enum STATE {
         NEW_SCANNED_DEVICE(1),
-        FETCHING(2),
-        FETCHED(3), // -> This means ready to connect!
-        IGNORE(4),
         CONNECTING(5),
         CONNECTED(6),
         DISCONNECTED(7),
         OFFLINE(8),
-        FETCHING_FAILED(9),
         UNKNOWN(0);
 
         private final int state;
@@ -50,39 +44,12 @@ public class Device implements IRemoteDevice{
         this.state = STATE.NEW_SCANNED_DEVICE;
     }
 
-    public void fetchSdpList() {
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                changeState(STATE.FETCHING);
-                if (bluetoothDevice.fetchUuidsWithSdp()) {
-                    if (d) Log.d(TAG, "Fetching UUIDS");
-                }
-            }
-        };
-        Timer timer = new Timer();
-        timer.schedule(timerTask, 1000);
-
-    }
-
-    public void addFetchedUuid(UUID uuid) {
-        fetchedUuids.add(uuid);
-    }
-
-    public ArrayList<UUID> getFetchedUuids() {
-        return fetchedUuids;
-    }
-
     public String getAddress() {
         return this.bluetoothDevice.getAddress();
     }
 
     public String getName() {
-        if (userID == 0) {
-            return bluetoothDevice.getName();
-        } else {
-            return String.valueOf(this.userID);
-        }
+        return bluetoothDevice.getName();
     }
 
     public String getStateAsString() {
@@ -95,14 +62,6 @@ public class Device implements IRemoteDevice{
 
     public boolean hasSameMacAddress(Device other) {
         return this.bluetoothDevice.getAddress().equals(other.bluetoothDevice.getAddress());
-    }
-
-    public boolean hasSameUserId(Device other) {
-        return this.getUserID() == other.getUserID();
-    }
-
-    public int getUserID() {
-        return userID;
     }
 
     public void changeState(STATE state) {
@@ -145,8 +104,7 @@ public class Device implements IRemoteDevice{
     public String toString() {
         String s = "";
         s += getName() + " | ";
-        s += getAddress() + " | ";
-        s += getUserID() + "";
+        s += getAddress();
         return s;
     }
 
