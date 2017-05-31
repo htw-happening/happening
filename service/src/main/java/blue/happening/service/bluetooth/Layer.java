@@ -61,6 +61,12 @@ public class Layer {
         this.bluetoothAdapter = bluetoothManager.getAdapter();
         this.connectSink = new AutoConnectSink();
         this.connectSink.start();
+
+        if (acceptor == null) {
+            acceptor = new Server();
+            acceptor.start();
+        }
+
         macAddress = android.provider.Settings.Secure.getString(context.getContentResolver(), "bluetooth_address");
         Log.i(TAG, "*********************** I am " + bluetoothAdapter.getName() + " | " + macAddress + " ***********************");
     }
@@ -129,21 +135,12 @@ public class Layer {
         return num;
     }
 
-    public void createAcceptor() {
+    public void startAdvertiser() {
         scanTrigger.startAdvertising();
-        if (acceptor == null) {
-            acceptor = new Server();
-            acceptor.start();
-        }
     }
 
-    public void stopAcceptor() {
+    public void stopAdervtiser() {
         scanTrigger.stopAdvertising();
-        if (acceptor != null) {
-            acceptor.interrupt();
-            acceptor.cancel();
-            acceptor = null;
-        }
     }
 
     public void addNewScan(String macAddress) {
@@ -176,12 +173,17 @@ public class Layer {
     }
 
     public void shutdown() {
+        if (acceptor != null) {
+            acceptor.interrupt();
+            acceptor.cancel();
+            acceptor = null;
+        }
         for (Device device : scannedDevices) {
             if (device.getState() == Device.STATE.CONNECTED){
                 device.connection.shutdown();
             }
         }
-        stopAcceptor();
+        stopAdervtiser();
         stopScanTrigger();
         connectSink.interrupt();
 

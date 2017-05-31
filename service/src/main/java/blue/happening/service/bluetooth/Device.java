@@ -138,7 +138,7 @@ public class Device implements IRemoteDevice{
         }
 
         public synchronized void run() {
-            setName("BNA Connector");
+            setName("Connector");
             if (d) Log.d(TAG, "Connector is running: " + Device.this);
             while (!isInterrupted()) {
                 try {
@@ -156,7 +156,7 @@ public class Device implements IRemoteDevice{
                     }
 
                     if (d) Log.d(TAG, "connector to " + Device.this + " failed "+attempts+" times");
-                    if (attempts > 4) {
+                    if (attempts >= 3) {
                         Device.this.changeState(STATE.OFFLINE);
                         return;
                     } else {

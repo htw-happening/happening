@@ -99,7 +99,6 @@ class ScanTrigger {
                     .build();
 
             ParcelUuid serviceUuid = ParcelUuid.fromString(Layer.SERVICE_UUID);
-            ParcelUuid addressUuid = ParcelUuid.fromString(Layer.ADVERTISE_UUID);
 
             AdvertiseData advertiseData = new AdvertiseData.Builder()
                     .addServiceUuid(serviceUuid)
