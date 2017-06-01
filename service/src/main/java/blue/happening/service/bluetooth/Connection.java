@@ -79,7 +79,7 @@ public class Connection {
                         }
 
                     } catch (IOException e) {
-                        Log.e(TAG, "Reader disconnected" + device, e);
+                        Log.e(TAG, "Reader disconnected " + device, e);
                         shutdown();
                         return;
                     }

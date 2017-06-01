@@ -14,6 +14,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -101,7 +102,7 @@ public class Layer {
         }
     }
 
-    public void registerLayerCallback(ILayerCallback layerCallback){
+    public void registerLayerCallback(ILayerCallback layerCallback) {
         this.layerCallback = layerCallback;
     }
 
@@ -145,19 +146,20 @@ public class Layer {
 
     public void addNewScan(String macAddress) {
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(macAddress);
-        Device scannedDevice = new Device(device);
-        if (isMacAddressInScannedDevices(scannedDevice)) {
-            return;
+        Device scannedDevice = getDeviceByMac(device);
+        if (!isMacAddressAlreadyInList(scannedDevice, connectSink.getSink()) && scannedDevice.getState() != Device.STATE.CONNECTED) {
+            if (d) Log.d(TAG, "addNewScan - Yes added to sink (" + scannedDevice.toString() + ")");
+            connectSink.addDevice(scannedDevice);
         }
-        this.scannedDevices.add(scannedDevice);
-        this.connectSink.addDevice(scannedDevice);
-        if (d) Log.d(TAG, "addNewScan - Yes added it (" + scannedDevice.toString() + ")");
+        if (!isMacAddressAlreadyInList(scannedDevice, scannedDevices)) {
+            if (d) Log.d(TAG, "addNewScan - Yes added to list (" + scannedDevice.toString() + ")");
+            scannedDevices.add(scannedDevice);
+        }
         notifyHandlers(1);
-//        scannedDevice.delayedConnectDevice();
     }
 
-    private boolean isMacAddressInScannedDevices(Device device) {
-        for (Device aDevice : scannedDevices) {
+    private boolean isMacAddressAlreadyInList(Device device, Collection<Device> collection) {
+        for (Device aDevice : collection) {
             if (device.hasSameMacAddress(aDevice))
                 return true;
         }
@@ -179,7 +181,7 @@ public class Layer {
             acceptor = null;
         }
         for (Device device : scannedDevices) {
-            if (device.getState() == Device.STATE.CONNECTED){
+            if (device.getState() == Device.STATE.CONNECTED) {
                 device.connection.shutdown();
             }
         }
@@ -190,7 +192,7 @@ public class Layer {
     }
 
     public void receivedData(byte[] data, Device device) {
-        if (d) Log.d(TAG, "Received Data " + Arrays.toString(data) + " from "+ device);
+        if (d) Log.d(TAG, "Received Data " + Arrays.toString(data) + " from " + device);
         for (Handler handler : handlers) {
             Message msg = handler.obtainMessage(666);
             Bundle bundle = new Bundle();
@@ -202,7 +204,7 @@ public class Layer {
 
     public void connectionLost(Device device) {
         device.changeState(Device.STATE.DISCONNECTED);
-        if (layerCallback != null){
+        if (layerCallback != null) {
             layerCallback.onDeviceRemoved(device);
         }
     }
@@ -248,13 +250,14 @@ public class Layer {
     }
 
     public void connectedToServer(BluetoothSocket socket, Device device) {
-        if (device.getState() == Device.STATE.CONNECTED){
+        if (device.getState() == Device.STATE.CONNECTED) {
             // TODO: 16.05.17 do we have to close the connection manually | will this cause side effects?
             return;
         }
         device.changeState(Device.STATE.CONNECTED);
+        device.resetTrials();
         device.connection = new Connection(device, socket);
-        if (layerCallback != null){
+        if (layerCallback != null) {
             layerCallback.onDeviceAdded(device);
         }
 
@@ -263,12 +266,13 @@ public class Layer {
     public void connectedToClient(BluetoothSocket socket, BluetoothDevice bluetoothDevice) {
         Device device = null;
         //checking if BluetoothDevice is in scannedDevices
-        if (isMacAddressInScannedDevices(new Device(bluetoothDevice))){
+        if (isMacAddressAlreadyInList(new Device(bluetoothDevice), scannedDevices)) {
             // get it and use it
             device = getDeviceByMac(bluetoothDevice);
+            device.resetTrials();
 
             //checking if an Connection already exists
-            if (device.getState() == Device.STATE.CONNECTED){
+            if (device.getState() == Device.STATE.CONNECTED) {
                 // TODO: 16.05.17 do we have to close the connection manually | will this cause side effects?
                 return;
             }
@@ -281,7 +285,7 @@ public class Layer {
 
         device.changeState(Device.STATE.CONNECTED);
         device.connection = new Connection(device, socket);
-        if (layerCallback!=null) {
+        if (layerCallback != null) {
             layerCallback.onDeviceAdded(device);
         }
 

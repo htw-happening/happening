@@ -5,12 +5,9 @@ import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 
-public class Device implements IRemoteDevice{
+public class Device implements IRemoteDevice {
 
     private String TAG = getClass().getSimpleName();
     private boolean d = true;
@@ -19,14 +16,16 @@ public class Device implements IRemoteDevice{
     private Connector connector;
     private STATE state;
     public Connection connection;
-    private int attempts = 0;
+    private boolean scheduled;
+    private int trials = 0;
 
-    public enum STATE {
+    enum STATE {
         NEW_SCANNED_DEVICE(1),
-        CONNECTING(5),
-        CONNECTED(6),
-        DISCONNECTED(7),
-        OFFLINE(8),
+        CONNECTING(2),
+        CONNECTED(3),
+        DISCONNECTED(4),
+        SCHEDULED(5),
+        OFFLINE(6),
         UNKNOWN(0);
 
         private final int state;
@@ -38,9 +37,34 @@ public class Device implements IRemoteDevice{
         STATE(final int value) {
             this.state = value;
         }
-
     }
-    public Device(BluetoothDevice bluetoothDevice) {
+
+    boolean isScheduled() {
+        return scheduled;
+    }
+
+    void setSchedule(boolean schedule) {
+        this.scheduled = schedule;
+        this.state = STATE.SCHEDULED;
+    }
+
+    int getTrials() {
+        return trials;
+    }
+
+    void addTrial() {
+        this.trials += 1;
+    }
+
+    void resetTrials() {
+        this.trials = 0;
+    }
+
+    int getDelay() {
+        return (int) Math.pow(this.trials, 2);
+    }
+
+    Device(BluetoothDevice bluetoothDevice) {
         this.bluetoothDevice = bluetoothDevice;
         this.state = STATE.NEW_SCANNED_DEVICE;
     }
@@ -73,22 +97,12 @@ public class Device implements IRemoteDevice{
 
     @Override
     public boolean send(byte[] bytes) {
-        if (this.getState() == STATE.CONNECTED && connection != null){
+        if (this.getState() == STATE.CONNECTED && connection != null) {
             connection.write(new Package(bytes));
             return true;
-        }else{
+        } else {
             return false;
         }
-    }
-
-    public void delayedConnectDevice(){
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                connectDevice();
-            }
-        }, 1000);
     }
 
     public void connectDevice() {
@@ -140,36 +154,23 @@ public class Device implements IRemoteDevice{
         public synchronized void run() {
             setName("Connector");
             if (d) Log.d(TAG, "Connector is running: " + Device.this);
-            while (!isInterrupted()) {
+            try {
+                if (d) Log.i(TAG, "About to wait to connect to " + Device.this);
+                socket.connect(); //blocking
+            } catch (IOException e) {
+                if (d) Log.d(TAG, "connection failed");
                 try {
-                    attempts++;
-                    if (d) Log.i(TAG, "About to wait to connect to " + Device.this);
-                    socket.connect(); //blocking
-                } catch (IOException e) {
-                    if (d) Log.d(TAG, "connection failed");
-                    try {
-                        socket.close();
-                        Device.this.changeState(STATE.UNKNOWN);
-                    } catch (IOException e2) {
-                        Log.e(TAG, "unable to close() socket during connection failure", e2);
-                        Device.this.changeState(STATE.UNKNOWN);
-                    }
-
-                    if (d) Log.d(TAG, "connector to " + Device.this + " failed "+attempts+" times");
-                    if (attempts >= 3) {
-                        Device.this.changeState(STATE.OFFLINE);
-                        return;
-                    } else {
-                        connectDevice();
-                        return;
-                    }
-
+                    socket.close();
+                    Device.this.changeState(STATE.OFFLINE);
+                } catch (IOException e2) {
+                    Log.e(TAG, "unable to close() socket during connection failure", e2);
+                    Device.this.changeState(STATE.UNKNOWN);
                 }
-                if (d) Log.i(TAG, "connection done, device:" + Device.this);
-                connector = null;
-                Layer.getInstance().connectedToServer(socket, Device.this);
                 return;
             }
+            if (d) Log.i(TAG, "connection done, device:" + Device.this);
+            connector = null;
+            Layer.getInstance().connectedToServer(socket, Device.this);
         }
 
         /**
