@@ -19,7 +19,7 @@ public class Connection {
     private Device device;
     private BluetoothSocket socket;
 
-    public Connection (Device device, BluetoothSocket bluetoothSocket){
+    Connection(Device device, BluetoothSocket bluetoothSocket){
         this.device = device;
         this.socket = bluetoothSocket;
         start();
@@ -29,7 +29,7 @@ public class Connection {
         writer.write(aPackage);
     }
 
-    public void start(){
+    private void start(){
         try {
             this.reader = new Reader(this.socket.getInputStream());
             this.writer = new Writer(this.socket.getOutputStream());
@@ -42,7 +42,7 @@ public class Connection {
 
     }
 
-    public void shutdown() {
+    void shutdown() {
         try {
             this.reader.inputStream.close();
             this.writer.packageQueue.clear();
@@ -54,12 +54,12 @@ public class Connection {
     }
 
 
-    class Reader extends Thread {
+    private class Reader extends Thread {
 
         private InputStream inputStream;
         private PackageHandler packageHandler;
 
-        public Reader (InputStream inputStream){
+        Reader(InputStream inputStream){
             this.inputStream = inputStream;
             this.packageHandler = new PackageHandler();
         }
@@ -94,19 +94,19 @@ public class Connection {
         }
     }
 
-    class Writer extends Thread {
+    private class Writer extends Thread {
 
         private OutputStream outputStream;
         private LinkedBlockingQueue<Package> packageQueue = new LinkedBlockingQueue<>();
 
-        public Writer (OutputStream outputStream){
+        Writer(OutputStream outputStream){
             this.outputStream = outputStream;
         }
 
         @Override
         public void run() {
             while (!isInterrupted()){
-                Package aPackage = null;
+                Package aPackage;
                 try {
                     aPackage = packageQueue.take();
                     if (aPackage != null) {
@@ -123,7 +123,7 @@ public class Connection {
             }
         }
 
-        public void write(Package aPackage){
+        void write(Package aPackage){
             packageQueue.offer(aPackage);
         }
     }
