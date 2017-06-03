@@ -25,11 +25,8 @@ public class Layer {
     private String TAG = getClass().getSimpleName();
     private boolean d = true;
 
-    public static final String ADVERTISE_UUID = "11111111-0000-0000-0000-000ad7e9415f";
-    public static final String SERVICE_UUID = "11111111-0000-0000-0000-000005e971cf";
-    public static final String CHARACTERISTIC_UUID = "11111111-0000-0000-00c8-a9ac4e91541c";
-    public static final String USERINFO_UUID = "11111111-0000-0000-0000-000005371970";
-    public static final String RANDOM_READ_UUID = "00001111-0000-1000-8000-00805f9b34fb";
+    static final String SERVICE_UUID = "11111111-0000-0000-0000-000005e971cf";
+    static final String RANDOM_READ_UUID = "00001111-0000-1000-8000-00805f9b34fb";
     private final ScanTrigger scanTrigger;
 
     private static Layer instance = null;
@@ -140,11 +137,11 @@ public class Layer {
         scanTrigger.startAdvertising();
     }
 
-    public void stopAdervtiser() {
+    public void stopAdvertiser() {
         scanTrigger.stopAdvertising();
     }
 
-    public void addNewScan(String macAddress) {
+    void addNewScan(String macAddress) {
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(macAddress);
         Device scannedDevice = getDeviceByMac(device);
         if (!isMacAddressAlreadyInList(scannedDevice, connectSink.getSink())
@@ -169,7 +166,7 @@ public class Layer {
         return false;
     }
 
-    public Device getDeviceByMac(BluetoothDevice device) {
+    private Device getDeviceByMac(BluetoothDevice device) {
         for (Device aDevice : scannedDevices) {
             if (device.getAddress().equals(aDevice.getAddress()))
                 return aDevice;
@@ -188,13 +185,13 @@ public class Layer {
                 device.connection.shutdown();
             }
         }
-        stopAdervtiser();
+        stopAdvertiser();
         stopScanTrigger();
         connectSink.interrupt();
 
     }
 
-    public void receivedData(byte[] data, Device device) {
+    void receivedData(byte[] data, Device device) {
         if (d) Log.d(TAG, "Received Data " + Arrays.toString(data) + " from " + device);
         for (Handler handler : handlers) {
             Message msg = handler.obtainMessage(666);
@@ -205,7 +202,7 @@ public class Layer {
         }
     }
 
-    public void connectionLost(Device device) {
+    void connectionLost(Device device) {
         device.changeState(Device.STATE.DISCONNECTED);
         if (layerCallback != null) {
             layerCallback.onDeviceRemoved(device);
@@ -216,7 +213,7 @@ public class Layer {
 
         BluetoothServerSocket serverSocket = null;
 
-        public Server() {
+        Server() {
         }
 
         public void run() {
@@ -227,7 +224,7 @@ public class Layer {
                 while (!interrupted()) {
                     serverSocket = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("Happening", UUID.fromString(SERVICE_UUID));
 
-                    if (d) Log.d(TAG, "About to wait, accepting for a client");
+                    if (d) Log.d(TAG, "About to wait, accepting for a client (Blocking Call)");
                     socket = serverSocket.accept();
                     if (socket != null) {
                         connectedToClient(socket, socket.getRemoteDevice());
@@ -240,8 +237,8 @@ public class Layer {
             if (d) Log.i(TAG, "Server stopped");
         }
 
-        public void cancel() {
-            if (d) Log.d(TAG, "stop " + this);
+        void cancel() {
+            if (d) Log.d(TAG, "cancel()");
             if (serverSocket != null) {
                 try {
                     serverSocket.close();
@@ -252,7 +249,7 @@ public class Layer {
         }
     }
 
-    public void connectedToServer(BluetoothSocket socket, Device device) {
+    void connectedToServer(BluetoothSocket socket, Device device) {
         if (device.getState() == Device.STATE.CONNECTED) {
             // TODO: 16.05.17 do we have to close the connection manually | will this cause side effects?
             return;
@@ -266,7 +263,7 @@ public class Layer {
 
     }
 
-    public void connectedToClient(BluetoothSocket socket, BluetoothDevice bluetoothDevice) {
+    private void connectedToClient(BluetoothSocket socket, BluetoothDevice bluetoothDevice) {
         Device device = null;
         //checking if BluetoothDevice is in scannedDevices
         if (isMacAddressAlreadyInList(new Device(bluetoothDevice), scannedDevices)) {

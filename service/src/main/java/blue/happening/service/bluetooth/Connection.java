@@ -66,7 +66,7 @@ public class Connection {
 
         @Override
         public void run() {
-            setName("Reader for " + device);
+            setName("Reader of " + device);
             while (!isInterrupted()){
 
                 try {
@@ -86,7 +86,7 @@ public class Connection {
                     }
 
                 } catch (IOException e) {
-                    Log.e(TAG, "Reader disconnected " + device, e);
+                    Log.e(TAG, "Reader disconnected of " + device, e);
                     shutdown();
                     return;
                 }
@@ -105,6 +105,7 @@ public class Connection {
 
         @Override
         public void run() {
+            setName("Writer of " + device);
             while (!isInterrupted()){
                 Package aPackage;
                 try {

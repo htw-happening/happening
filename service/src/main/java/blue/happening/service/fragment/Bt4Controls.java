@@ -144,7 +144,7 @@ public class Bt4Controls extends Fragment {
         switch(item.getItemId()) {
             case R.id.connect:
                 Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Connect!");
-                device.connectDevice();
+                device.connect();
                 return true;
             case R.id.disconnect:
                 Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Disonnect!");
@@ -197,7 +197,7 @@ public class Bt4Controls extends Fragment {
 
     private void stopServer() {
 //        Snackbar.make(rootView, "Stop Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.stopAdervtiser();
+        bluetoothLayer.stopAdvertiser();
     }
 
 

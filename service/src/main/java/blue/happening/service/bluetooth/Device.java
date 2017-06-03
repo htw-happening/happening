@@ -39,6 +39,11 @@ public class Device implements IRemoteDevice {
         }
     }
 
+    Device(BluetoothDevice bluetoothDevice) {
+        this.bluetoothDevice = bluetoothDevice;
+        this.state = STATE.NEW_SCANNED_DEVICE;
+    }
+
     boolean isScheduled() {
         return scheduled;
     }
@@ -66,11 +71,6 @@ public class Device implements IRemoteDevice {
         return (int) Math.pow(this.trials, 2);
     }
 
-    Device(BluetoothDevice bluetoothDevice) {
-        this.bluetoothDevice = bluetoothDevice;
-        this.state = STATE.NEW_SCANNED_DEVICE;
-    }
-
     public String getAddress() {
         return this.bluetoothDevice.getAddress();
     }
@@ -79,22 +79,22 @@ public class Device implements IRemoteDevice {
         return bluetoothDevice.getName();
     }
 
+    void changeState(STATE state) {
+        if (d) Log.d(TAG, "Change State from " + this.state + " to " + state + " of " + this);
+        this.state = state;
+        Layer.getInstance().notifyHandlers(1);
+    }
+
     public String getStateAsString() {
         return state.toString();
     }
 
-    public STATE getState() {
+    STATE getState() {
         return state;
     }
 
-    public boolean hasSameMacAddress(Device other) {
+    boolean hasSameMacAddress(Device other) {
         return this.bluetoothDevice.getAddress().equals(other.bluetoothDevice.getAddress());
-    }
-
-    public void changeState(STATE state) {
-        if (d) Log.d(TAG, "Change State from " + this.state + " to " + state + " of " + this);
-        this.state = state;
-        Layer.getInstance().notifyHandlers(1);
     }
 
     @Override
@@ -107,7 +107,7 @@ public class Device implements IRemoteDevice {
         }
     }
 
-    public void connectDevice() {
+    public void connect() {
         if (d) Log.d(TAG, "Connecting to Device " + toString());
         changeState(STATE.CONNECTING);
 
@@ -124,6 +124,9 @@ public class Device implements IRemoteDevice {
 
     public void disconnect() {
         connection.shutdown();
+        if (this.connector != null){
+            this.connector.cancel();
+        }
         this.changeState(STATE.DISCONNECTED);
 
     }
@@ -138,51 +141,48 @@ public class Device implements IRemoteDevice {
 
 
     private class Connector extends Thread {
+
         private final BluetoothSocket socket;
 
-        public Connector() {
-            if (d) Log.d(TAG, "Connector created: " + Device.this);
-            BluetoothSocket tmp = null;
+        Connector() {
+            if (d) Log.d(TAG, "Connector created for " + Device.this);
+            BluetoothSocket bluetoothSocket = null;
             try {
-                tmp = bluetoothDevice.createInsecureRfcommSocketToServiceRecord(UUID.fromString(Layer.SERVICE_UUID));
+                bluetoothSocket = bluetoothDevice.createInsecureRfcommSocketToServiceRecord(UUID.fromString(Layer.SERVICE_UUID));
 
             } catch (IOException e) {
                 Log.e(TAG, "createRfcommSocketToServiceRecord() failed: " + Device.this, e);
             }
-            socket = tmp;
+            socket = bluetoothSocket;
         }
 
         public synchronized void run() {
-            setName("Connector");
-            if (d) Log.d(TAG, "Connector is running: " + Device.this);
+            if (d) Log.d(TAG, "Connector is running for " + Device.this);
             try {
-                if (d) Log.i(TAG, "About to wait to connect to " + Device.this);
+                if (d) Log.i(TAG, "Connecting to Device (Blocking Call) " + Device.this);
                 socket.connect(); //blocking
             } catch (IOException e) {
-                if (d) Log.d(TAG, "connection failed");
+                if (d) Log.d(TAG, "Connecting Failed for Device "+Device.this);
                 try {
                     socket.close();
                     Device.this.changeState(STATE.OFFLINE);
-                } catch (IOException e2) {
-                    Log.e(TAG, "unable to close() socket during connection failure", e2);
+                } catch (IOException ee) {
+                    Log.e(TAG, "Something went wrong during Socket Close! " +Device.this, ee);
                     Device.this.changeState(STATE.UNKNOWN);
                 }
                 return;
             }
-            if (d) Log.i(TAG, "connection done, device:" + Device.this);
+            if (d) Log.i(TAG, "Connecting successfully for Device: " + Device.this);
             connector = null;
             Device.this.setSchedule(false);
             Layer.getInstance().connectedToServer(socket, Device.this);
         }
 
-        /**
-         * Stopping the Connector.
-         */
         public void cancel() {
             try {
                 socket.close();
             } catch (IOException e) {
-                Log.e(TAG, "unable to close() socket", e);
+                Log.e(TAG, "Something went wrong during Socket Close! " + Device.this, e);
             }
             connector.interrupt();
         }
