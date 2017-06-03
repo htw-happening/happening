@@ -61,7 +61,7 @@ class AutoConnectSink extends Thread {
                     device = sink.take();
                     device.addTrial();
                     device.connectDevice();
-                    device.setSchedule(false);
+                    //device.setSchedule(false); // TODO: 03.06.17 too early! setSchedule(true) after Connection trial!
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -73,5 +73,10 @@ class AutoConnectSink extends Thread {
     public void interrupt() {
         sink.clear();
         super.interrupt();
+    }
+
+    @Override
+    public String toString() {
+        return "AutoConnectSink has "+ this.sink.size()+" devices";
     }
 }

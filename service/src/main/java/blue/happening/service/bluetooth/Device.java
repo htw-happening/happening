@@ -45,7 +45,9 @@ public class Device implements IRemoteDevice {
 
     void setSchedule(boolean schedule) {
         this.scheduled = schedule;
-        this.state = STATE.SCHEDULED;
+        if (schedule){
+            changeState(STATE.SCHEDULED);
+        }
     }
 
     int getTrials() {
@@ -121,7 +123,6 @@ public class Device implements IRemoteDevice {
     }
 
     public void disconnect() {
-        // TODO: 16.05.17 handle disconnecting process
         connection.shutdown();
         this.changeState(STATE.DISCONNECTED);
 
@@ -170,6 +171,7 @@ public class Device implements IRemoteDevice {
             }
             if (d) Log.i(TAG, "connection done, device:" + Device.this);
             connector = null;
+            Device.this.setSchedule(false);
             Layer.getInstance().connectedToServer(socket, Device.this);
         }
 

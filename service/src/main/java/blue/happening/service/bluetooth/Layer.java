@@ -147,7 +147,10 @@ public class Layer {
     public void addNewScan(String macAddress) {
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(macAddress);
         Device scannedDevice = getDeviceByMac(device);
-        if (!isMacAddressAlreadyInList(scannedDevice, connectSink.getSink()) && scannedDevice.getState() != Device.STATE.CONNECTED) {
+        if (!isMacAddressAlreadyInList(scannedDevice, connectSink.getSink())
+                && scannedDevice.getState() != Device.STATE.CONNECTING
+                && scannedDevice.getState() != Device.STATE.SCHEDULED
+                && scannedDevice.getState() != Device.STATE.CONNECTED) {
             if (d) Log.d(TAG, "addNewScan - Yes added to sink (" + scannedDevice.toString() + ")");
             connectSink.addDevice(scannedDevice);
         }

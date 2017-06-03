@@ -123,7 +123,7 @@ class ScanTrigger {
 
     private void addNewLeScanResult(BluetoothDevice device, String macAddress) {
 
-        if (!BluetoothAdapter.checkBluetoothAddress(macAddress)) return; // TODO: 30.05.17 Maybe later trigger EDR scan
+        if (!BluetoothAdapter.checkBluetoothAddress(macAddress)) return;
 
         Layer.getInstance().addNewScan(macAddress);
     }
