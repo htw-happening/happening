@@ -18,9 +18,10 @@ public class ConnectionStrokeTransformer<I extends Connection, O extends Stroke>
 
     @Override
     public Stroke transform(Connection connection) {
-
-        return connection.getFromDev().isSending() && connection.getToDev()
-                .isReceiving() ? edgeStroke2 : edgeStroke;
+        // TODO implement logic?
+        /*return connection.getFromDev().isSending() && connection.getToDev()
+                .isReceiving() ? edgeStroke2 : edgeStroke;*/
+        return null;
     }
 }
 
