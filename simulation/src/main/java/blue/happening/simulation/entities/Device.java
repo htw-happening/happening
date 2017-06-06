@@ -35,6 +35,11 @@ public class Device extends Observable {
 
     public void setClicked(boolean clicked) {
         isClicked = clicked;
+        if(isClicked){
+            notifyDeviceObserver(DeviceObserver.Events.DEVICE_CLICKED);
+        } else {
+            notifyDeviceObserver(DeviceObserver.Events.DEVICE_UNCLICKED);
+        }
     }
 
     public boolean isNeighbour() {
@@ -43,6 +48,7 @@ public class Device extends Observable {
 
     public void setNeighbour(boolean neighbour) {
         isNeighbour = neighbour;
+        notifyDeviceObserver(DeviceObserver.Events.BECAME_NEIGHBOUR);
     }
 
     public String getName() {
@@ -54,8 +60,8 @@ public class Device extends Observable {
     }
 
     public void sendMessageTo(Device toDevice, Message message) {
-        notifyDeviceObserver("sending");
-        toDevice.notifyDeviceObserver("receiving");
+        notifyDeviceObserver(DeviceObserver.Events.SEND_MESSAGE);
+        toDevice.notifyDeviceObserver(DeviceObserver.Events.RECEIVE_MESSAGE);
         mockLayer.sendMessage(message);
     }
 
