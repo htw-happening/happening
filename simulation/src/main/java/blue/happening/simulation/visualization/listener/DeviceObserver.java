@@ -27,26 +27,15 @@ public class DeviceObserver implements Observer {
 
     public void update(Observable obj, Object arg) {
         Device device = (Device) obj;
-        if (arg == "visualize passive connections") {
-            /*for (UUID uuid : device.getHappeningMeshHandler().getPassiveConnectionDeviceList()) {
-                for (Device d : blue.happening.bla.graph.getVertices()) {
-                    if (d.getUUID().equals(uuid)) {
-                        d.setIsAddedAsPassive(true);
-                    }
 
+        if (device.isClicked()) {
+            for (Object object : device.getNetworkGraph().getVertices()) {
+                Device graphDevice = (Device) object;
+                graphDevice.setNeighbour(false);
+                if (device.getMeshHandler().getRoutingTable().containsKey(graphDevice.getName())) {
+                    graphDevice.setNeighbour(true);
                 }
-            }*/
+            }
         }
-        if (arg == "receiving") {
-            device.setIsReceiving(true);
-            device.setIsSending(false);
-
-        }
-        if (arg == "sending") {
-            device.setIsReceiving(false);
-            device.setIsSending(true);
-
-        }
-
     }
 }
