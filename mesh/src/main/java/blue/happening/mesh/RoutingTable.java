@@ -9,6 +9,12 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class RoutingTable extends HashMap<String, RemoteDevice> {
 
+    private IMeshHandlerCallback meshHandlerCallback;
+
+    void registerMeshHandlerCallback(IMeshHandlerCallback meshHandlerCallback){
+        this.meshHandlerCallback = meshHandlerCallback;
+    }
+
     List<RemoteDevice> getNeighbours() {
         return values().stream()
                 .filter(RemoteDevice::isNeighbour)
@@ -77,6 +83,7 @@ public class RoutingTable extends HashMap<String, RemoteDevice> {
             // Device did not previously exist
             put(discoveredDevice.getUuid(), discoveredDevice);
             existingDevice = discoveredDevice;
+            meshHandlerCallback.onDeviceAdded(discoveredDevice.getUuid());
         } else if (discoveredDevice.isNeighbour()) {
             // Device was a multi hop device and becomes a neighbour
             discoveredDevice.mergeNeighbours(existingDevice);
