@@ -14,6 +14,7 @@ public class MockRemoteDevice extends RemoteDevice {
 
     public boolean sendMessage(Message message) {
         device.getMockLayer().sendMessage(message);
+        return true;
     }
 
     @Override
