@@ -1,5 +1,6 @@
 package blue.happening.mesh;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,9 +27,13 @@ class SlidingWindow extends HashSet<Integer> {
     }
 
     private List<Integer> getOutdatedSequences() {
-        return stream()
-                .filter(this::isSequenceOutOfWindow)
-                .collect(Collectors.toList());
+        List<Integer> outdatedSequences = new ArrayList<>();
+        for (Integer sequence: this) {
+            if (isSequenceOutOfWindow(sequence)) {
+                outdatedSequences.add(sequence);
+            }
+        }
+        return outdatedSequences;
     }
 
     boolean isSequenceOutOfWindow(int sequence) {
