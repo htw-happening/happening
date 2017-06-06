@@ -34,10 +34,11 @@ public class Device extends Observable {
     }
 
     public void setClicked(boolean clicked) {
+        boolean wasClicked = isClicked;
         isClicked = clicked;
-        if(isClicked){
+        if (!wasClicked && isClicked) {
             notifyDeviceObserver(DeviceObserver.Events.DEVICE_CLICKED);
-        } else {
+        } else if(wasClicked && !isClicked){
             notifyDeviceObserver(DeviceObserver.Events.DEVICE_UNCLICKED);
         }
     }
