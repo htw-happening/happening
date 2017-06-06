@@ -26,7 +26,7 @@ public class Device extends Observable {
         mockLayer = new MockLayer();
         meshHandler = new MeshHandler(this.name);
         meshHandler.registerLayer(mockLayer);
-        meshHandler.registerCallback(new MockMeshHandlerCallback());
+        meshHandler.registerCallback(new MockMeshHandlerCallback(this));
     }
 
     public boolean isClicked() {
