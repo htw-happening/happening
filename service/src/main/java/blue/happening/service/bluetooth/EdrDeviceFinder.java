@@ -20,7 +20,7 @@ import java.util.UUID;
  * BL EDR Scanner
  * is using Reflection! See ACTION_SDP_RECORD
  */
-class DeviceFinder{
+class EdrDeviceFinder {
 
     interface Callback{
         void onDeviceFound(BluetoothDevice bd);
@@ -58,7 +58,7 @@ class DeviceFinder{
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        DeviceFinder.this.isActive = false;
+                        EdrDeviceFinder.this.isActive = false;
                     }
                 }, 5000);
 
@@ -84,7 +84,7 @@ class DeviceFinder{
     };
 
 
-    public DeviceFinder(Context context, Callback mCallback){
+    public EdrDeviceFinder(Context context, Callback mCallback){
         this.mCallback = mCallback;
         this.mContext = context;
 

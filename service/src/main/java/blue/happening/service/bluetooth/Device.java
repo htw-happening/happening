@@ -15,33 +15,23 @@ public class Device extends RemoteDevice {
     private String TAG = getClass().getSimpleName();
     private boolean d = true;
 
+    private static final int[] DELAYS = {0, 1, 2, 3, 5, 10, 15, 30, 60, 90};
     private BluetoothDevice bluetoothDevice = null;
     private Connector connector;
     private STATE state;
     public Connection connection;
+
     private int trials = 0;
 
     public enum STATE {
-        NEW_SCANNED_DEVICE(1),
-        SCHEDULED(5),
-        CONNECTING(2),
-        CONNECTED(3),
-        DISCONNECTED(4),
-        OFFLINE(6),
-        UNKNOWN(0);
-
-        private final int state;
-
-        public int getState() {
-            return state;
-        }
-
-        STATE(final int value) {
-            this.state = value;
-        }
+        NEW_SCANNED_DEVICE,
+        SCHEDULED,
+        CONNECTING,
+        CONNECTED,
+        DISCONNECTED,
+        OFFLINE,
+        UNKNOWN
     }
-
-    private int[] delays = {0, 1, 2, 3, 5, 10, 15, 30, 60, 90};
 
     Device(BluetoothDevice bluetoothDevice) {
         super(bluetoothDevice.getAddress());
@@ -54,18 +44,18 @@ public class Device extends RemoteDevice {
     }
 
     void addTrial() {
-        this.trials += 1;
+        trials += 1;
     }
 
     void resetTrials() {
-        this.trials = 0;
+        trials = 0;
     }
 
     int getDelay() {
         try {
-            return delays[trials];
+            return DELAYS[trials];
         }catch (IndexOutOfBoundsException e){
-            return delays[delays.length-1];
+            return DELAYS[DELAYS.length-1];
         }
     }
 
@@ -177,7 +167,7 @@ public class Device extends RemoteDevice {
             Layer.getInstance().connectedToServer(socket, Device.this);
         }
 
-        public void cancel() {
+        void cancel() {
             try {
                 socket.close();
             } catch (IOException e) {
