@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import blue.happening.mesh.ILayerCallback;
 import blue.happening.service.MainActivity;
 
 public class Layer {
