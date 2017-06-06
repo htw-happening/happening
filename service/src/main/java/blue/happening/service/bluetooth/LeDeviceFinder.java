@@ -25,7 +25,7 @@ import java.util.Map;
 
 import blue.happening.service.MainActivity;
 
-class ScanTrigger {
+class LeDeviceFinder implements IDeviceFinder {
 
     private String TAG = getClass().getSimpleName();
     private boolean d = true;
@@ -37,8 +37,9 @@ class ScanTrigger {
 
     private ScanCallback scanCallback = new ScanCallback();
     private AdvertiseCallback advertiseCallback = new AdvertiseCallback();
+    private Layer layer;
 
-    ScanTrigger() {
+    LeDeviceFinder() {
         context = MainActivity.getContext();
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.bluetoothAdapter = bluetoothManager.getAdapter();
@@ -52,7 +53,7 @@ class ScanTrigger {
                 bluetoothAdapter.isOffloadedScanBatchingSupported();
     }
 
-    void startLeScan() {
+    private void startLeScan() {
         if (d) Log.d(TAG, "Starting Scanner");
         ScanSettings.Builder scanSettingsBuilder = new ScanSettings.Builder();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -77,7 +78,7 @@ class ScanTrigger {
         bluetoothLeScanner.startScan(scanFilters, scanSettings, scanCallback);
     }
 
-    void stopLeScan() {
+    private void stopLeScan() {
         if (bluetoothLeScanner != null) {
             bluetoothLeScanner.flushPendingScanResults(scanCallback);
             bluetoothLeScanner.stopScan(scanCallback);
@@ -85,7 +86,7 @@ class ScanTrigger {
         }
     }
 
-    void startAdvertising() {
+    private void startAdvertising() {
         if (isAdvertisingSupported()) {
             if (d) Log.d(TAG, "Starting Advertiser");
 
@@ -114,7 +115,7 @@ class ScanTrigger {
         }
     }
 
-    void stopAdvertising() {
+    private void stopAdvertising() {
         if (bluetoothLeAdvertiser != null) {
             bluetoothLeAdvertiser.stopAdvertising(advertiseCallback);
             if (d) Log.d(TAG, "Stopped Advertising");
@@ -124,9 +125,28 @@ class ScanTrigger {
     private void addNewLeScanResult(BluetoothDevice device, String macAddress) {
 
         if (!BluetoothAdapter.checkBluetoothAddress(macAddress)) return;
-
-        Layer.getInstance().addNewScan(macAddress);
+        if (layer != null){
+            layer.addNewScan(macAddress);
+        }
     }
+
+    @Override
+    public void registerCallback(Layer layer) {
+        this.layer = layer;
+    }
+
+    @Override
+    public void start() {
+        startAdvertising();
+        startLeScan();
+    }
+
+    @Override
+    public void stop() {
+        stopAdvertising();
+        stopLeScan();
+    }
+
 
     private class ScanCallback extends android.bluetooth.le.ScanCallback {
         @Override
