@@ -2,7 +2,7 @@ package blue.happening.service.bluetooth;
 
 import java.nio.ByteBuffer;
 
-public class PackageHandler {
+public class Packetizer {
 
     public static final int PAYLOAD_SIZE = 8;
     public static final int CHUNK_SIZE = 4;
@@ -12,11 +12,11 @@ public class PackageHandler {
     private int payloadNum = 0;
     private int payloadSize = 0;
 
-    public PackageHandler (){
+    public Packetizer(){
 
     }
 
-    public PackageHandler createNewFromMeta(byte[] metadata) {
+    public Packetizer createNewFromMeta(byte[] metadata) {
         byte[] payloadNumBytes = new byte[CHUNK_NUM];
         byte[] payloadSizeBytes = new byte[CHUNK_SIZE];
         System.arraycopy(metadata, 0, payloadNumBytes, 0, CHUNK_NUM);

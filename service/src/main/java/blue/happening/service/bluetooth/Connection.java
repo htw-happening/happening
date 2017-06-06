@@ -57,11 +57,11 @@ public class Connection {
     private class Reader extends Thread {
 
         private InputStream inputStream;
-        private PackageHandler packageHandler;
+        private Packetizer packageHandler;
 
         Reader(InputStream inputStream){
             this.inputStream = inputStream;
-            this.packageHandler = new PackageHandler();
+            this.packageHandler = new Packetizer();
         }
 
         @Override
@@ -70,11 +70,11 @@ public class Connection {
             while (!isInterrupted()){
 
                 try {
-                    byte[] buffer = new byte[PackageHandler.CHUNK_NUM + PackageHandler.CHUNK_SIZE];
+                    byte[] buffer = new byte[Packetizer.CHUNK_NUM + Packetizer.CHUNK_SIZE];
                     inputStream.read(buffer);
                     packageHandler.createNewFromMeta(buffer);
                     for (int i = 0; i < packageHandler.getPayloadNum(); i++) {
-                        buffer = new byte[PackageHandler.PAYLOAD_SIZE];
+                        buffer = new byte[Packetizer.PAYLOAD_SIZE];
                         inputStream.read(buffer);
                         packageHandler.addContent(buffer);
                     }
@@ -82,7 +82,7 @@ public class Connection {
                     packageHandler.clear();
                     Layer.getInstance().receivedData(aPackage.getData(), device);
                     if (Layer.getInstance().getLayerCallback() != null) {
-                        Layer.getInstance().getLayerCallback().onReceivedMessage(aPackage.getData(), device);
+                        Layer.getInstance().getLayerCallback().onMessageReceived(aPackage.getData());
                     }
 
                 } catch (IOException e) {
@@ -111,7 +111,7 @@ public class Connection {
                 try {
                     aPackage = packageQueue.take();
                     if (aPackage != null) {
-                        Package[] packages = PackageHandler.splitPackages(aPackage);
+                        Package[] packages = Packetizer.splitPackages(aPackage);
                         for (Package packageToSend : packages) {
                             outputStream.write(packageToSend.getData());
                         }

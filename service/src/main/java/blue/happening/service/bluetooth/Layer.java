@@ -1,5 +1,6 @@
 package blue.happening.service.bluetooth;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -28,21 +29,23 @@ public class Layer {
 
     static final String SERVICE_UUID = "11111111-0000-0000-0000-000005e971cf";
     static final String RANDOM_READ_UUID = "00001111-0000-1000-8000-00805f9b34fb";
-    private final ScanTrigger scanTrigger;
 
+    @SuppressLint("StaticFieldLeak")
     private static Layer instance = null;
 
     private Context context = null;
-    private BluetoothManager bluetoothManager = null;
+
     private BluetoothAdapter bluetoothAdapter = null;
     private ILayerCallback layerCallback;
     private PairingRequest pairingRequest;
+    private IDeviceFinder deviceFinder;
 
-    private List<Handler> handlers = new ArrayList<>();
-    private ArrayList<Device> scannedDevices = new ArrayList<>();
+    private List<Handler> handlers;
+    private ArrayList<Device> scannedDevices;
     private Server acceptor = null;
     private AutoConnectSink connectSink = null;
     private String macAddress = "";
+    private boolean autoConnect = true;
 
     public Context getContext() {
         return context;
@@ -55,37 +58,87 @@ public class Layer {
     }
 
     private Layer() {
-        context = MainActivity.getContext();
-        this.scanTrigger = new ScanTrigger();
-        this.bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        this.context = MainActivity.getContext();
+        this.scannedDevices = new ArrayList<>();
+        this.handlers = new ArrayList<>();
+        BluetoothManager bluetoothManager = (BluetoothManager) this.context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.bluetoothAdapter = bluetoothManager.getAdapter();
+        this.macAddress = android.provider.Settings.Secure.getString(context.getContentResolver(), "bluetooth_address");
+        Log.i(TAG, "*********************** I am " + bluetoothAdapter.getName() + " | " + macAddress + " ***********************");
+
+    }
+
+    public void setAutoConnect(boolean value){
+        this.autoConnect = value;
+    }
+
+    public void start(){
+        // TODO: 06.06.17 check autoconnect bool
+        this.deviceFinder = new LeDeviceFinder();
+        this.deviceFinder.registerCallback(this);
+        this.deviceFinder.start();
         this.pairingRequest = new PairingRequest();
-        context.registerReceiver(pairingRequest, new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST));
+        this.context.registerReceiver(pairingRequest, new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST));
         this.connectSink = new AutoConnectSink();
         this.connectSink.start();
+        this.acceptor = new Server();
+        this.acceptor.start();
+        // TODO: 06.06.17 bl stack aufräumen
+        notifyHandlers(1);
 
-        if (acceptor == null) {
-            acceptor = new Server();
-            acceptor.start();
+    }
+
+
+    public void shutdown() {
+        if (deviceFinder != null){
+            this.deviceFinder.stop();
         }
+        if (acceptor != null) {
+            acceptor.cancel();
+        }
+        for (Device device : scannedDevices) {
+            if (device != null && device.getState() == Device.STATE.CONNECTED) {
+                device.connection.shutdown();
+            }
+        }
+        context.unregisterReceiver(pairingRequest);
+        connectSink.interrupt();
+        handlers.clear();
+        // TODO: 06.06.17 aufräumen
+        notifyHandlers(1);
 
-        macAddress = android.provider.Settings.Secure.getString(context.getContentResolver(), "bluetooth_address");
-        Log.i(TAG, "*********************** I am " + bluetoothAdapter.getName() + " | " + macAddress + " ***********************");
+    }
+
+    public void connectTo(Device device){
+        connectSink.addDevice(device);
+    }
+
+    public void disconnectFrom(Device device){
+        device.disconnect();
+    }
+
+    public void reset(){
+        shutdown();
+        start();
     }
 
     public String getMacAddress() {
         return macAddress;
     }
 
-    public ArrayList<Device> getScannedDevices() {
+    public ArrayList<Device> getDevices() {
         return scannedDevices;
     }
 
-    public ILayerCallback getLayerCallback() {
+    public void registerLayerCallback(ILayerCallback layerCallback) {
+        this.layerCallback = layerCallback;
+    }
+
+    ILayerCallback getLayerCallback() {
         return layerCallback;
     }
 
-    public void notifyHandlers(int code) {
+    void notifyHandlers(int code) {
         for (Handler handler : handlers) {
             handler.obtainMessage(code).sendToTarget();
         }
@@ -103,28 +156,16 @@ public class Layer {
         }
     }
 
-    public void registerLayerCallback(ILayerCallback layerCallback) {
-        this.layerCallback = layerCallback;
-    }
-
-    public boolean isEnabled() {
+    public boolean isBluetoothEnabled() {
         return bluetoothAdapter.isEnabled();
     }
 
-    public void enableAdapter() {
+    public void enableBluetooth() {
         bluetoothAdapter.enable();
     }
 
-    public void disableAdapter() {
+    public void disableBluetooth() {
         bluetoothAdapter.disable();
-    }
-
-    public void startScanTrigger() {
-        scanTrigger.startLeScan();
-    }
-
-    public void stopScanTrigger() {
-        scanTrigger.stopLeScan();
     }
 
     public int getNumOfConnectedDevices() {
@@ -135,14 +176,6 @@ public class Layer {
             }
         }
         return num;
-    }
-
-    public void startAdvertiser() {
-        scanTrigger.startAdvertising();
-    }
-
-    public void stopAdvertiser() {
-        scanTrigger.stopAdvertising();
     }
 
     void addNewScan(String macAddress) {
@@ -178,24 +211,6 @@ public class Layer {
         return new Device(device);
     }
 
-    public void shutdown() {
-        if (acceptor != null) {
-            acceptor.interrupt();
-            acceptor.cancel();
-            acceptor = null;
-        }
-        for (Device device : scannedDevices) {
-            if (device.getState() == Device.STATE.CONNECTED) {
-                device.connection.shutdown();
-            }
-        }
-        stopAdvertiser();
-        stopScanTrigger();
-        connectSink.interrupt();
-        context.unregisterReceiver(pairingRequest);
-
-    }
-
     void receivedData(byte[] data, Device device) {
         if (d) Log.d(TAG, "Received Data " + Arrays.toString(data) + " from " + device);
         for (Handler handler : handlers) {
@@ -224,7 +239,7 @@ public class Layer {
         public void run() {
             if (d) Log.d(TAG, "Server is running");
             setName("Server");
-            BluetoothSocket socket = null;
+            BluetoothSocket socket;
             try {
                 while (!interrupted()) {
                     serverSocket = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("Happening", UUID.fromString(SERVICE_UUID));
@@ -243,6 +258,7 @@ public class Layer {
         }
 
         void cancel() {
+            interrupt();
             if (d) Log.d(TAG, "cancel()");
             if (serverSocket != null) {
                 try {
@@ -256,7 +272,6 @@ public class Layer {
 
     void connectedToServer(BluetoothSocket socket, Device device) {
         if (device.getState() == Device.STATE.CONNECTED) {
-            // TODO: 16.05.17 do we have to close the connection manually | will this cause side effects?
             return;
         }
         device.changeState(Device.STATE.CONNECTED);
@@ -269,25 +284,18 @@ public class Layer {
     }
 
     private void connectedToClient(BluetoothSocket socket, BluetoothDevice bluetoothDevice) {
-        Device device = null;
-        //checking if BluetoothDevice is in scannedDevices
+        Device device;
         if (isMacAddressAlreadyInList(new Device(bluetoothDevice), scannedDevices)) {
-            // get it and use it
             device = getDeviceByMac(bluetoothDevice);
             device.resetTrials();
-
-            //checking if an Connection already exists
             if (device.getState() == Device.STATE.CONNECTED) {
-                // TODO: 16.05.17 do we have to close the connection manually | will this cause side effects?
                 return;
             }
 
         } else {
-            // create a new one
             device = new Device(bluetoothDevice);
             scannedDevices.add(device);
         }
-
         device.changeState(Device.STATE.CONNECTED);
         device.connection = new Connection(device, socket);
         if (layerCallback != null) {
