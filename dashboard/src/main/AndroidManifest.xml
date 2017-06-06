@@ -3,10 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="blue.happening.dashboard">
 
-    <uses-feature
-        android:name="android.hardware.bluetooth_le"
-        android:required="true" />
-
     <application
         android:name="android.app.Application"
         android:allowBackup="true"
@@ -17,6 +13,7 @@
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

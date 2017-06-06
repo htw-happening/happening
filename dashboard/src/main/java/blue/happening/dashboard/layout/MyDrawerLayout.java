@@ -1,24 +1,22 @@
 package blue.happening.dashboard.layout;
 
 import android.app.Activity;
-import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import blue.happening.dashboard.R;
-import blue.happening.dashboard.click_listener.DrawerItemClickListener;
-import blue.happening.dashboard.fragment.MyFragmentManager;
+import blue.happening.dashboard.fragment.MenuItems;
 
 public class MyDrawerLayout {
 
     private String[] menuItemList;
-    private DrawerLayout mainContent;
+//    private DrawerLayout mainContent;
     private ListView leftDrawerList;
 
     public MyDrawerLayout(Activity activity) {
-        menuItemList = MyFragmentManager.MenuItems.toArray();
-        mainContent = (DrawerLayout) activity.findViewById(R.id.main_content);
-        leftDrawerList = (ListView) activity.findViewById(R.id.left_drawer);
+        menuItemList = MenuItems.toArray();
+//        mainContent = (DrawerLayout) activity.findViewById(R.id.main_content);
+//        leftDrawerList = (ListView) activity.findViewById(R.id.left_drawer);
 
         // Set the adapter for the list view
         leftDrawerList.setAdapter(new ArrayAdapter<>(
@@ -28,7 +26,7 @@ public class MyDrawerLayout {
                 menuItemList));
 
         // Set the list's click listener
-        leftDrawerList.setOnItemClickListener(new DrawerItemClickListener(activity));
+//        leftDrawerList.setOnItemClickListener(new DrawerItemClickListener(activity));
 
     }
 }

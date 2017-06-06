@@ -2,7 +2,7 @@ package blue.happening.dashboard.fragment;
 
 import java.util.LinkedList;
 
-enum MenuItems {
+public enum MenuItems {
     /**
      * List of Enums
      * Add a new Enum to create a new Menu item
