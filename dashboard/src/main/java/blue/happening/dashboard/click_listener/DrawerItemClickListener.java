@@ -16,13 +16,14 @@ public class DrawerItemClickListener
         implements ListView.OnItemClickListener {
 
     private Activity activity;
-
     private String[] menuItemList;
+    MyFragmentManager myFragmentManager;
 
     public DrawerItemClickListener(Activity activity) {
         this.activity = activity;
-
         menuItemList = MenuItems.toArray();
+        myFragmentManager = MyFragmentManager.getInstance(activity);
+        myFragmentManager.swapFragment(MenuItems.DASHBOARD_FRAGMENT);
     }
 
     @Override
@@ -36,7 +37,6 @@ public class DrawerItemClickListener
      * @param position
      */
     private void selectItem(int position) {
-        MyFragmentManager myFragmentManager = MyFragmentManager.getInstance(activity);
         myFragmentManager.swapFragment(MenuItems.getById(menuItemList[position]));
 
         // update the title, and close the drawer

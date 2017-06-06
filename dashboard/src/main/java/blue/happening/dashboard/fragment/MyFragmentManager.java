@@ -91,7 +91,6 @@ public class MyFragmentManager {
                 .replace(current.getId(), fragment, tag)
                 .addToBackStack(null)
                 .commit();
-
     }
 
 }

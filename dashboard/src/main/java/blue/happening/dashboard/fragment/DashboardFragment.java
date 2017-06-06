@@ -3,7 +3,6 @@ package blue.happening.dashboard.fragment;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +13,6 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
-import blue.happening.HappeningClient;
 import blue.happening.dashboard.R;
 import blue.happening.dashboard.adapter.DashboardAdapter;
 import blue.happening.dashboard.model.DashboardModel;
@@ -87,15 +85,16 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
         happening.register(context, happeningCallback);
 
         // Retrieve an initial set of clients from the service
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                for (HappeningClient client : happening.getClients()) {
-                    dashboardModels.add(new DashboardModel(client.getClientId(), client.getClientName()));
-                }
-                dashboardAdapter.notifyDataSetChanged();
-            }
-        }, 500);
+        // TODO fix error
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                for (HappeningClient client : happening.getClients()) {
+//                    dashboardModels.add(new DashboardModel(client.getClientId(), client.getClientName()));
+//                }
+//                dashboardAdapter.notifyDataSetChanged();
+//            }
+//        }, 500);
 
         return rootView;
     }
