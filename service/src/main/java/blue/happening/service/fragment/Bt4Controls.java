@@ -81,6 +81,13 @@ public class Bt4Controls extends Fragment {
 
         bluetoothLayer.start();
 
+        rootView.findViewById(R.id.button_reset).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bluetoothLayer.reset();
+            }
+        });
+
         return rootView;
     }
 

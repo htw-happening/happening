@@ -75,7 +75,6 @@ public class Layer {
 
     public void start(){
         // TODO: 06.06.17 check autoconnect bool
-        this.scannedDevices.clear();
         this.deviceFinder = new LeDeviceFinder();
         this.deviceFinder.registerCallback(this);
         this.deviceFinder.start();
@@ -86,7 +85,6 @@ public class Layer {
         this.acceptor = new Server();
         this.acceptor.start();
         // TODO: 06.06.17 bl stack aufräumen
-        notifyHandlers(1);
 
     }
 
@@ -107,8 +105,8 @@ public class Layer {
         connectSink.interrupt();
         handlers.clear();
         // TODO: 06.06.17 aufräumen
+        this.scannedDevices.clear();
         notifyHandlers(1);
-
     }
 
     public void connectTo(Device device){
