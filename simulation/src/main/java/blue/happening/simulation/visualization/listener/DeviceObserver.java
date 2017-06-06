@@ -28,8 +28,11 @@ public class DeviceObserver implements Observer {
 
     public void update(Observable obj, Object arg) {
         Device device = (Device) obj;
+        Events event = (Events) arg;
 
-        if (device.isClicked()) {
+        if (device.isClicked() &&
+                (event == Events.NEIGHBOUR_ADDED || event == Events.NEIGHBOUR_REMOVED)
+                ) {
             for (Object object : device.getNetworkGraph().getVertices()) {
                 Device graphDevice = (Device) object;
                 graphDevice.setNeighbour(false);
