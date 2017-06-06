@@ -13,6 +13,7 @@ public class DeviceObserver implements Observer {
         NEIGHBOUR_ADDED,
         NEIGHBOUR_REMOVED,
         BECAME_NEIGHBOUR,
+        IS_NOT_NEIGHBOUR_ANYMORE,
         DEVICE_CLICKED,
         DEVICE_UNCLICKED,
         SEND_MESSAGE,
