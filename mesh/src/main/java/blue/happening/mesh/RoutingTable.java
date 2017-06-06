@@ -48,7 +48,7 @@ public class RoutingTable extends HashMap<String, RemoteDevice> {
         RemoteDevice remoteDevice = get(remoteDeviceUuid);
         if (remoteDevice == null) {
             remoteDevice = new RemoteDevice(remoteDeviceUuid) {
-                public void sendMessage(Message message) {
+                public boolean sendMessage(Message message) {
                     throw new NotImplementedException();
                 }
             };

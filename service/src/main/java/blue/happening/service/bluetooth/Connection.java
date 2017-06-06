@@ -82,7 +82,7 @@ public class Connection {
                     packageHandler.clear();
                     Layer.getInstance().receivedData(aPackage.getData(), device);
                     if (Layer.getInstance().getLayerCallback() != null) {
-                        Layer.getInstance().getLayerCallback().onReceivedMessage(aPackage.getData(), device);
+                        Layer.getInstance().getLayerCallback().onMessageReceived(aPackage.getData());
                     }
 
                 } catch (IOException e) {
