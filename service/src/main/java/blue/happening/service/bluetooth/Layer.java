@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -35,6 +36,7 @@ public class Layer {
     private BluetoothManager bluetoothManager = null;
     private BluetoothAdapter bluetoothAdapter = null;
     private ILayerCallback layerCallback;
+    private PairingRequest pairingRequest;
 
     private List<Handler> handlers = new ArrayList<>();
     private ArrayList<Device> scannedDevices = new ArrayList<>();
@@ -57,6 +59,8 @@ public class Layer {
         this.scanTrigger = new ScanTrigger();
         this.bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.bluetoothAdapter = bluetoothManager.getAdapter();
+        this.pairingRequest = new PairingRequest();
+        context.registerReceiver(pairingRequest, new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST));
         this.connectSink = new AutoConnectSink();
         this.connectSink.start();
 
@@ -188,6 +192,7 @@ public class Layer {
         stopAdvertiser();
         stopScanTrigger();
         connectSink.interrupt();
+        context.unregisterReceiver(pairingRequest);
 
     }
 

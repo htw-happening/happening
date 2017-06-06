@@ -4,7 +4,11 @@ import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.ParcelUuid;
 import android.util.Log;
+
+import java.lang.reflect.Method;
+import java.util.UUID;
 
 /**
  * Created by fabi on 23.05.17.
@@ -30,6 +34,10 @@ public class PairingRequest extends BroadcastReceiver {
                 if (type == BluetoothDevice.PAIRING_VARIANT_PIN){
                     int pin=intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_KEY, 0);
                     device.setPin((""+pin).getBytes("UTF-8"));
+
+                    Method m = device.getClass().getDeclaredMethod("cancelPairingUserInput");
+                    m.invoke(device);
+
                     Log.d("PairingRequest", "Pin was " + pin);
                     abortBroadcast();
 

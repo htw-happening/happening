@@ -16,15 +16,14 @@ public class Device implements IRemoteDevice {
     private Connector connector;
     private STATE state;
     public Connection connection;
-    private boolean scheduled;
     private int trials = 0;
 
-    enum STATE {
+    public enum STATE {
         NEW_SCANNED_DEVICE(1),
+        SCHEDULED(5),
         CONNECTING(2),
         CONNECTED(3),
         DISCONNECTED(4),
-        SCHEDULED(5),
         OFFLINE(6),
         UNKNOWN(0);
 
@@ -39,20 +38,11 @@ public class Device implements IRemoteDevice {
         }
     }
 
+    private int[] delays = {0, 1, 2, 3, 5, 10, 15, 30, 60, 90};
+
     Device(BluetoothDevice bluetoothDevice) {
         this.bluetoothDevice = bluetoothDevice;
         this.state = STATE.NEW_SCANNED_DEVICE;
-    }
-
-    boolean isScheduled() {
-        return scheduled;
-    }
-
-    void setSchedule(boolean schedule) {
-        this.scheduled = schedule;
-        if (schedule){
-            changeState(STATE.SCHEDULED);
-        }
     }
 
     int getTrials() {
@@ -68,7 +58,11 @@ public class Device implements IRemoteDevice {
     }
 
     int getDelay() {
-        return (int) Math.pow(this.trials, 2);
+        try {
+            return delays[trials];
+        }catch (IndexOutOfBoundsException e){
+            return delays[delays.length-1];
+        }
     }
 
     public String getAddress() {
@@ -89,7 +83,7 @@ public class Device implements IRemoteDevice {
         return state.toString();
     }
 
-    STATE getState() {
+    public STATE getState() {
         return state;
     }
 
@@ -109,6 +103,7 @@ public class Device implements IRemoteDevice {
 
     public void connect() {
         if (d) Log.d(TAG, "Connecting to Device " + toString());
+        if (getState() == STATE.CONNECTED) return;
         changeState(STATE.CONNECTING);
 
         if (d) Log.d(TAG, "Start Connecting to: " + this);
@@ -174,7 +169,6 @@ public class Device implements IRemoteDevice {
             }
             if (d) Log.i(TAG, "Connecting successfully for Device: " + Device.this);
             connector = null;
-            Device.this.setSchedule(false);
             Layer.getInstance().connectedToServer(socket, Device.this);
         }
 
