@@ -9,6 +9,16 @@ import blue.happening.simulation.graph.NetworkGraph;
 
 
 public class DeviceObserver implements Observer {
+    public enum Events {
+        NEIGHBOUR_ADDED,
+        NEIGHBOUR_REMOVED,
+        BECAME_NEIGHBOUR,
+        DEVICE_CLICKED,
+        DEVICE_UNCLICKED,
+        SEND_MESSAGE,
+        RECEIVE_MESSAGE
+    }
+
     private NetworkGraph<Device, Connection> graph;
 
     public DeviceObserver(NetworkGraph graph) {
@@ -17,26 +27,15 @@ public class DeviceObserver implements Observer {
 
     public void update(Observable obj, Object arg) {
         Device device = (Device) obj;
-        if (arg == "visualize passive connections") {
-            /*for (UUID uuid : device.getHappeningMeshHandler().getPassiveConnectionDeviceList()) {
-                for (Device d : blue.happening.bla.graph.getVertices()) {
-                    if (d.getUUID().equals(uuid)) {
-                        d.setIsAddedAsPassive(true);
-                    }
 
+        if (device.isClicked()) {
+            for (Object object : device.getNetworkGraph().getVertices()) {
+                Device graphDevice = (Device) object;
+                graphDevice.setNeighbour(false);
+                if (device.getMeshHandler().getRoutingTable().containsKey(graphDevice.getName())) {
+                    graphDevice.setNeighbour(true);
                 }
-            }*/
+            }
         }
-        if (arg == "receiving") {
-            device.setIsReceiving(true);
-            device.setIsSending(false);
-
-        }
-        if (arg == "sending") {
-            device.setIsReceiving(false);
-            device.setIsSending(true);
-
-        }
-
     }
 }

@@ -68,7 +68,7 @@ public abstract class RemoteDevice implements Comparable<RemoteDevice> {
         neighbourUuids.addAll(remoteDevice.getNeighbourUuids());
     }
 
-    public abstract void sendMessage(Message message);
+    public abstract boolean sendMessage(Message message);
 
     public void remove() {
     }

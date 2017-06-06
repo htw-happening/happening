@@ -46,6 +46,7 @@ public class MeshHandler {
 
     public void registerCallback(IMeshHandlerCallback callback) {
         meshHandlerCallback = callback;
+        routingTable.registerMeshHandlerCallback(callback);
     }
 
     public RoutingTable getRoutingTable() {
@@ -88,6 +89,7 @@ public class MeshHandler {
         public void onDeviceAdded(RemoteDevice remoteDevice) {
             System.out.println(uuid + " DEVICE ADDED: " + remoteDevice);
             routingTable.ensureConnection(remoteDevice, remoteDevice);
+            meshHandlerCallback.onDeviceAdded(remoteDevice.getUuid());
         }
 
         @Override

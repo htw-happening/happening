@@ -1,18 +1,27 @@
 package blue.happening.mesh;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 
 public class RoutingTable extends HashMap<String, RemoteDevice> {
 
+    private IMeshHandlerCallback meshHandlerCallback;
+
+    void registerMeshHandlerCallback(IMeshHandlerCallback meshHandlerCallback){
+        this.meshHandlerCallback = meshHandlerCallback;
+    }
+
     List<RemoteDevice> getNeighbours() {
-        return values().stream()
-                .filter(RemoteDevice::isNeighbour)
-                .collect(Collectors.toList());
+        List<RemoteDevice> neighbourList = new ArrayList<>();
+        for (RemoteDevice device : values()) {
+            if (device.isNeighbour()) {
+                neighbourList.add(device);
+            }
+        }
+        return neighbourList;
     }
 
     /**
@@ -21,20 +30,25 @@ public class RoutingTable extends HashMap<String, RemoteDevice> {
      * when no neighbour exist
      */
     RemoteDevice getBestNeighbourForRemoteDevice(RemoteDevice remoteDevice) {
-        return values().stream()
-                .filter(RemoteDevice::isNeighbour)
-                .filter(
-                        device -> remoteDevice.getNeighbourUuids().contains(device.getUuid())
-                )
-                .sorted()
-                .findFirst()
-                .orElse(null);
+        List<RemoteDevice> bestNeighboursForRemoteDevice = new ArrayList<>();
+
+        for (RemoteDevice neighbour : getNeighbours()) {
+            if (remoteDevice.getNeighbourUuids().contains(neighbour.getUuid())) {
+                bestNeighboursForRemoteDevice.add(neighbour);
+            }
+        }
+        Collections.sort(bestNeighboursForRemoteDevice);
+        return bestNeighboursForRemoteDevice.get(0);
     }
 
     List<RemoteDevice> getExpiredRemoteDevices() {
-        return this.values().stream()
-                .filter(RemoteDevice::isExpired)
-                .collect(Collectors.toList());
+        List<RemoteDevice> expiredRemoteDevices = new ArrayList<>();
+        for (RemoteDevice device : values()) {
+            if (device.isExpired()) {
+                expiredRemoteDevices.add(device);
+            }
+        }
+        return expiredRemoteDevices;
     }
 
     /**
@@ -48,8 +62,8 @@ public class RoutingTable extends HashMap<String, RemoteDevice> {
         RemoteDevice remoteDevice = get(remoteDeviceUuid);
         if (remoteDevice == null) {
             remoteDevice = new RemoteDevice(remoteDeviceUuid) {
-                public void sendMessage(Message message) {
-                    throw new NotImplementedException();
+                public boolean sendMessage(Message message) {
+                    throw new UnsupportedOperationException();
                 }
             };
         }
@@ -77,6 +91,7 @@ public class RoutingTable extends HashMap<String, RemoteDevice> {
             // Device did not previously exist
             put(discoveredDevice.getUuid(), discoveredDevice);
             existingDevice = discoveredDevice;
+            meshHandlerCallback.onDeviceAdded(discoveredDevice.getUuid());
         } else if (discoveredDevice.isNeighbour()) {
             // Device was a multi hop device and becomes a neighbour
             discoveredDevice.mergeNeighbours(existingDevice);

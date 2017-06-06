@@ -26,7 +26,7 @@ public class Device extends Observable {
         mockLayer = new MockLayer();
         meshHandler = new MeshHandler(this.name);
         meshHandler.registerLayer(mockLayer);
-        meshHandler.registerCallback(new MockMeshHandlerCallback());
+        meshHandler.registerCallback(new MockMeshHandlerCallback(this));
     }
 
     public boolean isClicked() {
@@ -35,6 +35,11 @@ public class Device extends Observable {
 
     public void setClicked(boolean clicked) {
         isClicked = clicked;
+        if(isClicked){
+            notifyDeviceObserver(DeviceObserver.Events.DEVICE_CLICKED);
+        } else {
+            notifyDeviceObserver(DeviceObserver.Events.DEVICE_UNCLICKED);
+        }
     }
 
     public boolean isNeighbour() {
@@ -43,6 +48,7 @@ public class Device extends Observable {
 
     public void setNeighbour(boolean neighbour) {
         isNeighbour = neighbour;
+        notifyDeviceObserver(DeviceObserver.Events.BECAME_NEIGHBOUR);
     }
 
     public String getName() {
@@ -54,8 +60,8 @@ public class Device extends Observable {
     }
 
     public void sendMessageTo(Device toDevice, Message message) {
-        notifyDeviceObserver("sending");
-        toDevice.notifyDeviceObserver("receiving");
+        notifyDeviceObserver(DeviceObserver.Events.SEND_MESSAGE);
+        toDevice.notifyDeviceObserver(DeviceObserver.Events.RECEIVE_MESSAGE);
         mockLayer.sendMessage(message);
     }
 
@@ -93,23 +99,7 @@ public class Device extends Observable {
         return this.name.equals(((Device) o).name);
     }
 
-    public void setIsSending(boolean isSending) {
-        this.isSending = isSending;
-    }
-
-    public void setIsReceiving(boolean isReceiving) {
-        this.isReceiving = isReceiving;
-    }
-
-    public boolean isSending() {
-        return isSending;
-    }
-
-    public boolean isReceiving() {
-        return isReceiving;
-    }
-
-    public void notifyDeviceObserver(String arg) {
+    public void notifyDeviceObserver(DeviceObserver.Events arg) {
         setChanged();
         notifyObservers(arg);
     }

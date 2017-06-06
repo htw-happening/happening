@@ -7,7 +7,10 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.UUID;
 
-public class Device implements IRemoteDevice {
+import blue.happening.mesh.Message;
+import blue.happening.mesh.RemoteDevice;
+
+public class Device extends RemoteDevice {
 
     private String TAG = getClass().getSimpleName();
     private boolean d = true;
@@ -31,6 +34,7 @@ public class Device implements IRemoteDevice {
     }
 
     Device(BluetoothDevice bluetoothDevice) {
+        super(bluetoothDevice.getAddress());
         this.bluetoothDevice = bluetoothDevice;
         this.state = STATE.NEW_SCANNED_DEVICE;
     }
@@ -82,7 +86,8 @@ public class Device implements IRemoteDevice {
     }
 
     @Override
-    public boolean send(byte[] bytes) {
+    public boolean sendMessage(Message message) {
+        byte[] bytes = message.toBytes();
         if (this.getState() == STATE.CONNECTED && connection != null) {
             connection.write(new Package(bytes));
             return true;

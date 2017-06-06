@@ -12,8 +12,9 @@ public class MockRemoteDevice extends RemoteDevice {
         super(uuid);
     }
 
-    public void sendMessage(Message message) {
+    public boolean sendMessage(Message message) {
         device.getMockLayer().sendMessage(message);
+        return true;
     }
 
     @Override
