@@ -125,4 +125,5 @@ public class HappeningService extends Service {
         Toast.makeText(this, (appId == null ? "Something" : appId) + " unbound", Toast.LENGTH_LONG).show();
         return ALLOW_REBIND;
     }
+
 }

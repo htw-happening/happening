@@ -21,11 +21,12 @@ import blue.happening.dashboard.model.DashboardModel;
 import blue.happening.sdk.Happening;
 import blue.happening.sdk.HappeningCallback;
 
-
 public class DashboardFragment extends Fragment implements View.OnClickListener {
 
+    private static DashboardFragment instance = null;
     private List<DashboardModel> dashboardModels = new ArrayList<>();
     private DashboardAdapter dashboardAdapter;
+
     private Happening happening = new Happening();
     private HappeningCallback happeningCallback = new HappeningCallback() {
         // TODO: These callback methods don't do anything useful yet.
@@ -57,6 +58,17 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
             dashboardAdapter.notifyDataSetChanged();
         }
     };
+
+    public DashboardFragment() {
+
+    }
+
+    public static DashboardFragment getInstance() {
+        if (instance == null)
+            instance = new DashboardFragment();
+
+        return instance;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -104,4 +116,5 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
         dashboardModels.add(new DashboardModel("reply", reply));
         dashboardAdapter.notifyDataSetChanged();
     }
+
 }
