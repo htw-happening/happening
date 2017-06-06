@@ -15,14 +15,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.CompoundButton;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 import blue.happening.mesh.IMeshHandlerCallback;
 import blue.happening.mesh.MeshHandler;
@@ -40,6 +38,9 @@ public class Bt4Controls extends Fragment {
     private Layer bluetoothLayer = null;
     private View rootView = null;
     private DeviceListAdapter deviceListAdapter = null;
+
+    private ArrayAdapter<String> meshMembersAdapter = null;
+    private List<String> meshMembers;
 
     public static Bt4Controls getInstance() {
         if (instance == null)
@@ -74,6 +75,14 @@ public class Bt4Controls extends Fragment {
             }
         });
 
+
+        ListView meshMembersListView = (ListView) rootView.findViewById(R.id.mesh_members_list);
+        meshMembers = new ArrayList<>();
+        meshMembers.add("foo");
+        meshMembers.add("bar");
+        meshMembersAdapter = new ArrayAdapter<>(rootView.getContext(), 0, meshMembers);
+        meshMembersListView.setAdapter(meshMembersAdapter);
+
         TextView userInfo = (TextView) rootView.findViewById(R.id.textView_info_user_id);
         userInfo.setText("    "+String.valueOf(bluetoothLayer.getMacAddress()));
 
@@ -86,14 +95,17 @@ public class Bt4Controls extends Fragment {
         meshHandler.registerCallback(new IMeshHandlerCallback() {
             @Override
             public void onMessageReceived(String message) {
+
             }
 
             @Override
             public void onDeviceAdded(String uuid) {
+                meshMembers.add(uuid);
             }
 
             @Override
             public void onDeviceRemoved(String uuid) {
+                meshMembers.remove(uuid);
             }
         });
 
@@ -122,7 +134,7 @@ public class Bt4Controls extends Fragment {
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         int pos = info.position;
-        Device device = (Device) deviceListAdapter.getItem(pos);
+        Device device = deviceListAdapter.getItem(pos);
         switch(item.getItemId()) {
             case R.id.connect:
                 Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Connect!");
@@ -153,23 +165,13 @@ public class Bt4Controls extends Fragment {
 
 
     private Handler guiHandler = new Handler(Looper.getMainLooper()) {
-        Toast currentToast;
 
         @Override
         public void handleMessage(Message msg) {
             //make gui
             deviceListAdapter.notifyDataSetChanged();
+            meshMembersAdapter.notifyDataSetChanged();
             textView.setText("Num Connections: "+bluetoothLayer.getNumOfConnectedDevices());
-
-            if (msg.what == 666){
-                Bundle bundle = msg.getData();
-                byte[] bytes = bundle.getByteArray("data");
-                Toast.makeText(getContext(), ""+ Arrays.toString(bytes), Toast.LENGTH_SHORT).show();
-            }
-
-            if (msg.what == 999){
-                Toast.makeText(getContext(), "BLE Scan found new device!", Toast.LENGTH_SHORT).show();
-            }
         }
     };
 
