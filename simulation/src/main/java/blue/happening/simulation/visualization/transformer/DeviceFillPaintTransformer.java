@@ -17,10 +17,6 @@ public class DeviceFillPaintTransformer<I extends Device, O extends Paint>
             return Color.GREEN;
         } else if (device.isNeighbour()) {
             return Color.YELLOW;
-        } else if (device.isSending()) {
-            return Color.YELLOW;
-        } else if (device.isReceiving()) {
-            return Color.ORANGE;
         } else {
             return Color.RED;
         }

@@ -99,23 +99,7 @@ public class Device extends Observable {
         return this.name.equals(((Device) o).name);
     }
 
-    public void setIsSending(boolean isSending) {
-        this.isSending = isSending;
-    }
-
-    public void setIsReceiving(boolean isReceiving) {
-        this.isReceiving = isReceiving;
-    }
-
-    public boolean isSending() {
-        return isSending;
-    }
-
-    public boolean isReceiving() {
-        return isReceiving;
-    }
-
-    public void notifyDeviceObserver(String arg) {
+    public void notifyDeviceObserver(DeviceObserver.Events arg) {
         setChanged();
         notifyObservers(arg);
     }
