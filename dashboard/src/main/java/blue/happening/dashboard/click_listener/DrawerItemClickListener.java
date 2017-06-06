@@ -1,49 +1,56 @@
 package blue.happening.dashboard.click_listener;
 
-public class DrawerItemClickListener
-//        implements ListView.OnItemClickListener
-{
+import android.app.Activity;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
-//    private Activity activity;
-//
-//    private String[] menuItemList;
-//    private DrawerLayout mainContent;
-////    private ListView leftDrawerList;
-//
-//    public DrawerItemClickListener(Activity activity) {
-//        this.activity = activity;
-//
-//        menuItemList = MenuItems.toArray();
-//        mainContent = (DrawerLayout) activity.findViewById(R.id.main_content);
-////        leftDrawerList = (ListView) activity.findViewById(R.id.left_drawer);
-//    }
-//
-//    @Override
-//    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//        selectItem(position);
-//    }
-//
-//    /**
-//     * Swaps fragments in content holder view
-//     *
-//     * @param position
-//     */
-//    private void selectItem(int position) {
-//        MyFragmentManager myFragmentManager = MyFragmentManager.getInstance(activity);
-//        myFragmentManager.swapFragment(MenuItems.getById(menuItemList[position]));
-//
-//        // update the title, and close the drawer
-//        setTitle(menuItemList[position]);
-////        mainContent.closeDrawer(leftDrawerList);
-//    }
-//
-//    /**
-//     * Set ActionBar title as menu item title
-//     *
-//     * @param title
-//     */
-//    public void setTitle(CharSequence title) {
-//        activity.getActionBar().setTitle(title);
-//    }
+import blue.happening.dashboard.R;
+import blue.happening.dashboard.fragment.MenuItems;
+import blue.happening.dashboard.fragment.MyFragmentManager;
+
+public class DrawerItemClickListener
+        implements ListView.OnItemClickListener {
+
+    private Activity activity;
+
+    private String[] menuItemList;
+
+    public DrawerItemClickListener(Activity activity) {
+        this.activity = activity;
+
+        menuItemList = MenuItems.toArray();
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        selectItem(position);
+    }
+
+    /**
+     * Swaps fragments in content holder view
+     *
+     * @param position
+     */
+    private void selectItem(int position) {
+        MyFragmentManager myFragmentManager = MyFragmentManager.getInstance(activity);
+        myFragmentManager.swapFragment(MenuItems.getById(menuItemList[position]));
+
+        // update the title, and close the drawer
+        setTitle(menuItemList[position]);
+        ((DrawerLayout) activity.findViewById(R.id.drawer_layout)).closeDrawer(GravityCompat.START);
+    }
+
+    /**
+     * Set ActionBar title as menu item title
+     *
+     * @param title
+     */
+    public void setTitle(CharSequence title) {
+        ((Toolbar) activity.findViewById(R.id.toolbar)).setTitle(title);
+    }
 
 }
