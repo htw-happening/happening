@@ -34,10 +34,11 @@ public class Device extends Observable {
     }
 
     public void setClicked(boolean clicked) {
+        boolean wasClicked = isClicked;
         isClicked = clicked;
-        if(isClicked){
+        if (!wasClicked && isClicked) {
             notifyDeviceObserver(DeviceObserver.Events.DEVICE_CLICKED);
-        } else {
+        } else if(wasClicked && !isClicked){
             notifyDeviceObserver(DeviceObserver.Events.DEVICE_UNCLICKED);
         }
     }
@@ -47,8 +48,13 @@ public class Device extends Observable {
     }
 
     public void setNeighbour(boolean neighbour) {
+        boolean wasNeighbour = isNeighbour;
         isNeighbour = neighbour;
-        notifyDeviceObserver(DeviceObserver.Events.BECAME_NEIGHBOUR);
+        if (!wasNeighbour && isNeighbour) {
+            notifyDeviceObserver(DeviceObserver.Events.BECAME_NEIGHBOUR);
+        } else if(wasNeighbour && !isNeighbour){
+            notifyDeviceObserver(DeviceObserver.Events.IS_NOT_NEIGHBOUR_ANYMORE);
+        }
     }
 
     public String getName() {

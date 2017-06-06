@@ -23,7 +23,7 @@ import java.util.UUID;
 import blue.happening.mesh.ILayerCallback;
 import blue.happening.service.MainActivity;
 
-public class Layer {
+public class Layer extends blue.happening.mesh.Layer {
 
     private String TAG = getClass().getSimpleName();
     private boolean d = true;
@@ -128,14 +128,6 @@ public class Layer {
 
     public ArrayList<Device> getDevices() {
         return scannedDevices;
-    }
-
-    public void registerLayerCallback(ILayerCallback layerCallback) {
-        this.layerCallback = layerCallback;
-    }
-
-    ILayerCallback getLayerCallback() {
-        return layerCallback;
     }
 
     void notifyHandlers(int code) {

@@ -24,6 +24,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import blue.happening.mesh.IMeshHandlerCallback;
+import blue.happening.mesh.MeshHandler;
 import blue.happening.service.R;
 import blue.happening.service.adapter.DeviceListAdapter;
 import blue.happening.service.bluetooth.Device;
@@ -78,6 +80,22 @@ public class Bt4Controls extends Fragment {
         Intent makeMeVisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         makeMeVisible.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0); //infinity
         startActivity(makeMeVisible);
+
+        MeshHandler meshHandler = new MeshHandler(bluetoothLayer.getMacAddress());
+        meshHandler.registerLayer(bluetoothLayer);
+        meshHandler.registerCallback(new IMeshHandlerCallback() {
+            @Override
+            public void onMessageReceived(String message) {
+            }
+
+            @Override
+            public void onDeviceAdded(String uuid) {
+            }
+
+            @Override
+            public void onDeviceRemoved(String uuid) {
+            }
+        });
 
         bluetoothLayer.start();
 
