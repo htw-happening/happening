@@ -7,7 +7,7 @@
             android:icon="@drawable/ic_menu_manage"
             android:title="Dashboard" />
         <item
-            android:id="@+id/bt2controls"
+            android:id="@+id/impressum"
             android:icon="@drawable/ic_menu_share"
             android:title="Impressum" />
     </group>

@@ -1,7 +1,7 @@
 package blue.happening.dashboard.fragment;
 
-import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +18,7 @@ public class ImpressumFragment extends Fragment {
     }
 
     public static ImpressumFragment getInstance() {
-        if(instance == null)
+        if (instance == null)
             instance = new ImpressumFragment();
 
         return instance;

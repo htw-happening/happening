@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import blue.happening.dashboard.fragment.DashboardFragment;
+import blue.happening.dashboard.fragment.ImpressumFragment;
 
 
 public class MainActivity extends AppCompatActivity
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity
 
     // Fragment Tags
     private static final String TAG_FRAGMENT_DASHBOARD = "dashboard";
+    private static final String TAG_FRAGMENT_IMPRESSUM = "impressum";
 
     private String TAG = getClass().getSimpleName();
     private FragmentManager fm = getSupportFragmentManager();
@@ -33,6 +35,7 @@ public class MainActivity extends AppCompatActivity
     private String currentFragmentTag = null;
 
     private Fragment dashboardFragment;
+    private Fragment impressumFragment;
 
     public MainActivity() {
 
@@ -90,29 +93,6 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-//        // set image in drawer header
-//        View drawerHeader = navigationView.getHeaderView(0);
-//        Drawable headerImage = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_mobile);
-//
-//        if (deviceName.contains("white")) {
-//            color = ContextCompat.getColor(this, R.color.mobile_white);
-//        } else if (deviceName.contains("black")) {
-//            color = ContextCompat.getColor(this, R.color.mobile_black);
-//        } else if (deviceName.contains("red")) {
-//            color = ContextCompat.getColor(this, R.color.mobile_red);
-//        } else if (deviceName.contains("blue")) {
-//            color = ContextCompat.getColor(this, R.color.mobile_blue);
-//        } else if (deviceName.contains("yellow")) {
-//            color = ContextCompat.getColor(this, R.color.mobile_yellow);
-//        }
-//
-//        headerImage.setColorFilter(color, PorterDuff.Mode.SRC_IN);
-//        ((ImageView) drawerHeader.findViewById(R.id.drawer_header_image)).setImageDrawable(headerImage);
-//
-//        // set device stats in drawer header
-//        ((TextView) drawerHeader.findViewById(R.id.drawer_header_main_text)).setText(BluetoothAdapter.getDefaultAdapter().getName());
-//        ((TextView) drawerHeader.findViewById(R.id.drawer_header_sub_text)).setText(Build.SERIAL);
-
         // initialise start fragment
         this.currentFragment = DashboardFragment.getInstance();
         this.currentFragmentTag = TAG_FRAGMENT_DASHBOARD;
@@ -145,7 +125,7 @@ public class MainActivity extends AppCompatActivity
 
         int id = item.getItemId();
 
-        if (id == R.id.chat) {
+        if (id == R.id.dashboard) {
             if (this.dashboardFragment == null) {
                 this.dashboardFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_DASHBOARD);
                 if (this.dashboardFragment == null) {
@@ -156,6 +136,20 @@ public class MainActivity extends AppCompatActivity
             loadFragment(currentFragment, dashboardFragment, TAG_FRAGMENT_DASHBOARD);
             this.currentFragment = dashboardFragment;
             this.currentFragmentTag = TAG_FRAGMENT_DASHBOARD;
+
+        }
+
+        if (id == R.id.impressum) {
+            if (this.impressumFragment == null) {
+                this.impressumFragment = getSupportFragmentManager().findFragmentByTag(this.TAG_FRAGMENT_IMPRESSUM);
+                if (this.impressumFragment == null) {
+                    this.impressumFragment = ImpressumFragment.getInstance();
+                }
+            }
+
+            loadFragment(currentFragment, impressumFragment, TAG_FRAGMENT_IMPRESSUM);
+            this.currentFragment = impressumFragment;
+            this.currentFragmentTag = TAG_FRAGMENT_IMPRESSUM;
 
         }
 
