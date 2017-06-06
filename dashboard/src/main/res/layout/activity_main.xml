@@ -26,7 +26,7 @@
 
             <include
                 android:id="@+id/my"
-                layout="@layout/nav_header_main" />
+                layout="@layout/drawer_header_main" />
 
             <ListView
                 android:id="@+id/list_view_inside_nav"
