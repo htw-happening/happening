@@ -24,6 +24,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import blue.happening.mesh.IMeshHandlerCallback;
+import blue.happening.mesh.MeshHandler;
 import blue.happening.service.R;
 import blue.happening.service.adapter.DeviceListAdapter;
 import blue.happening.service.bluetooth.Device;
@@ -57,7 +59,7 @@ public class Bt4Controls extends Fragment {
         bluetoothLayer = Layer.getInstance();
 
         ListView deviceListView = (ListView) rootView.findViewById(R.id.discovered_devices_list);
-        ArrayList<Device> scanResults = bluetoothLayer.getScannedDevices();
+        ArrayList<Device> scanResults = bluetoothLayer.getDevices();
         deviceListAdapter = new DeviceListAdapter(rootView.getContext(), scanResults);
         deviceListView.setAdapter(deviceListAdapter);
         registerForContextMenu(deviceListView);
@@ -72,50 +74,30 @@ public class Bt4Controls extends Fragment {
             }
         });
 
-        startServer();
-
-
-        Switch adapterButton = (Switch) rootView.findViewById(R.id.switch_bluetooth_adapter);
-        adapterButton.setChecked(bluetoothLayer.isEnabled());
-        adapterButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    enableAdapter();
-                } else {
-                    disableAdapter();
-                }
-            }
-        });
-
-        Switch scanButton = (Switch) rootView.findViewById(R.id.swtich_scanner);
-        scanButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    startScan();
-                } else {
-                    stopScan();
-                }
-            }
-        });
-
-        Switch serverButton = (Switch) rootView.findViewById(R.id.switch_advertiser);
-        serverButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    startServer();
-                } else {
-                    stopServer();
-                }
-            }
-        });
-
-
         TextView userInfo = (TextView) rootView.findViewById(R.id.textView_info_user_id);
         userInfo.setText("    "+String.valueOf(bluetoothLayer.getMacAddress()));
 
         Intent makeMeVisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         makeMeVisible.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0); //infinity
         startActivity(makeMeVisible);
+
+        MeshHandler meshHandler = new MeshHandler(bluetoothLayer.getMacAddress());
+        meshHandler.registerLayer(bluetoothLayer);
+        meshHandler.registerCallback(new IMeshHandlerCallback() {
+            @Override
+            public void onMessageReceived(String message) {
+            }
+
+            @Override
+            public void onDeviceAdded(String uuid) {
+            }
+
+            @Override
+            public void onDeviceRemoved(String uuid) {
+            }
+        });
+
+        bluetoothLayer.start();
 
         return rootView;
     }
@@ -168,38 +150,6 @@ public class Bt4Controls extends Fragment {
         Log.i("Bt4Controls", "onPause");
         super.onPause();
     }
-
-    private void enableAdapter() {
-//        Snackbar.make(rootView, "Enable Adapter", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.enableAdapter();
-    }
-
-    private void disableAdapter() {
-//        Snackbar.make(rootView, "Disable Adapter", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.disableAdapter();
-    }
-
-    private void startScan() {
-//        Snackbar.make(rootView, "Start Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.startScanTrigger();
-
-    }
-
-    private void stopScan() {
-//        Snackbar.make(rootView, "Stop Discovering", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.stopScanTrigger();
-    }
-
-    private void startServer() {
-//        Snackbar.make(rootView, "Start Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.startAdvertiser();
-    }
-
-    private void stopServer() {
-//        Snackbar.make(rootView, "Stop Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.stopAdvertiser();
-    }
-
 
 
     private Handler guiHandler = new Handler(Looper.getMainLooper()) {
