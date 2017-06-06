@@ -37,7 +37,6 @@ public class Layer extends blue.happening.mesh.Layer {
     private Context context = null;
 
     private BluetoothAdapter bluetoothAdapter = null;
-    private ILayerCallback layerCallback;
     private PairingRequest pairingRequest;
     private IDeviceFinder deviceFinder;
 
@@ -216,8 +215,8 @@ public class Layer extends blue.happening.mesh.Layer {
 
     void connectionLost(Device device) {
         device.changeState(Device.STATE.DISCONNECTED);
-        if (layerCallback != null) {
-            layerCallback.onDeviceRemoved(device);
+        if (getLayerCallback() != null) {
+            getLayerCallback().onDeviceRemoved(device);
         }
     }
 
@@ -269,8 +268,8 @@ public class Layer extends blue.happening.mesh.Layer {
         device.changeState(Device.STATE.CONNECTED);
         device.resetTrials();
         device.connection = new Connection(device, socket);
-        if (layerCallback != null) {
-            layerCallback.onDeviceAdded(device);
+        if (getLayerCallback() != null) {
+            getLayerCallback().onDeviceAdded(device);
         }
 
     }
@@ -290,8 +289,8 @@ public class Layer extends blue.happening.mesh.Layer {
         }
         device.changeState(Device.STATE.CONNECTED);
         device.connection = new Connection(device, socket);
-        if (layerCallback != null) {
-            layerCallback.onDeviceAdded(device);
+        if (getLayerCallback() != null) {
+            getLayerCallback().onDeviceAdded(device);
         }
 
     }
