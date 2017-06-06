@@ -74,6 +74,7 @@ public class Layer {
 
     public void start(){
         // TODO: 06.06.17 check autoconnect bool
+        this.scannedDevices.clear();
         this.deviceFinder = new LeDeviceFinder();
         this.deviceFinder.registerCallback(this);
         this.deviceFinder.start();
