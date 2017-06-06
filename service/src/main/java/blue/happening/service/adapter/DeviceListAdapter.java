@@ -1,6 +1,7 @@
 package blue.happening.service.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,19 @@ public class DeviceListAdapter extends ArrayAdapter<Device> {
         address.setText(device.getAddress());
         name.setText(device.getName());
         state.setText(device.getStateAsString());
+
+        if (device.getState() == Device.STATE.OFFLINE ||
+                device.getState() == Device.STATE.UNKNOWN ||
+                device.getState() == Device.STATE.DISCONNECTED){
+            address.setTextColor(Color.RED);
+        }
+        if (device.getState() == Device.STATE.CONNECTED){
+            address.setTextColor(Color.GREEN);
+        }
+        if (device.getState() == Device.STATE.SCHEDULED ||
+                device.getState() == Device.STATE.CONNECTING){
+            address.setTextColor(Color.YELLOW);
+        }
 
         return convertView;
     }

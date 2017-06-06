@@ -2,45 +2,78 @@ package blue.happening.service.bluetooth;
 
 import android.util.Log;
 
-import java.util.LinkedList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-public class AutoConnectSink extends Thread{
+class AutoConnectSink extends Thread {
 
-    private boolean d = false;
+    private boolean d = true;
     private String TAG = getClass().getSimpleName();
 
-    private LinkedList<Device> sink = null;
+    private LinkedBlockingQueue<Device> sink = null;
 
-    public AutoConnectSink (){
-        this.sink = new LinkedList<>();
+    AutoConnectSink() {
+        sink = new LinkedBlockingQueue<>();
     }
 
-    public void addDevice (Device device){
-        if (d) Log.d(TAG, "Connector - addDevice to Sink ("+device+")");
-        this.sink.add(device);
+    LinkedBlockingQueue<Device> getSink() {
+        return sink;
+    }
+
+    void addDevice(Device device) {
+        if (d) Log.d(TAG, "Connector - addDevice to Sink (" + device + ")");
+        Log.d(TAG, "trials: " + device.getTrials());
+        scheduleDevice(device);
+    }
+
+    private void scheduleDevice(final Device device) {
+        if (device.getState() == Device.STATE.SCHEDULED ||
+                device.getState() == Device.STATE.CONNECTING ||
+                device.getState() == Device.STATE.CONNECTED) return;
+
+        device.changeState(Device.STATE.SCHEDULED);
+        int delay = device.getDelay();
+
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.schedule(new Runnable() {
+            @Override
+            public void run() {
+                sink.offer(device);
+            }
+        }, delay, TimeUnit.SECONDS);
+
     }
 
     @Override
     public void run() {
-        while (!isInterrupted()){
-            if (d) Log.d(TAG, "Connector Thread Trigger - Lets Poll");
-            Device device = this.sink.poll();
-            if (device!=null){
-                if (d) Log.d(TAG, "Connector Thread Trigger - Polling works - Device " + device +" - Sinksize: "+sink.size());
-                device.delayedConnectDevice();
-            }
+
+        Device device = null;
+
+        while (!isInterrupted()) {
             try {
-                Thread.sleep(3000);
+                if (device != null && device.getState() == Device.STATE.CONNECTING) {
+                    Thread.sleep(1000);
+                } else {
+                    device = sink.take();
+                    device.addTrial();
+                    device.connect();
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
-                return;
             }
         }
     }
 
     @Override
     public void interrupt() {
-        this.sink.clear();
+        sink.clear();
         super.interrupt();
+    }
+
+    @Override
+    public String toString() {
+        return "AutoConnectSink has "+ this.sink.size()+" devices";
     }
 }

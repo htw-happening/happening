@@ -16,9 +16,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
-public class DeviceFinder{
+/**
+ * BL EDR Scanner
+ * is using Reflection! See ACTION_SDP_RECORD
+ */
+class DeviceFinder{
 
-    public interface Callback{
+    interface Callback{
         void onDeviceFound(BluetoothDevice bd);
         void onFinishedCallback();
         void onStartCallback();

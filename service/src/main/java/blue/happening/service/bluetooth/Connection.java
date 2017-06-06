@@ -19,7 +19,7 @@ public class Connection {
     private Device device;
     private BluetoothSocket socket;
 
-    public Connection (Device device, BluetoothSocket bluetoothSocket){
+    Connection(Device device, BluetoothSocket bluetoothSocket){
         this.device = device;
         this.socket = bluetoothSocket;
         start();
@@ -29,7 +29,7 @@ public class Connection {
         writer.write(aPackage);
     }
 
-    public void start(){
+    private void start(){
         try {
             this.reader = new Reader(this.socket.getInputStream());
             this.writer = new Writer(this.socket.getOutputStream());
@@ -42,7 +42,7 @@ public class Connection {
 
     }
 
-    public void shutdown() {
+    void shutdown() {
         try {
             this.reader.inputStream.close();
             this.writer.packageQueue.clear();
@@ -54,72 +54,77 @@ public class Connection {
     }
 
 
-    class Reader extends Thread {
+    private class Reader extends Thread {
 
         private InputStream inputStream;
+        private PackageHandler packageHandler;
 
-        public Reader (InputStream inputStream){
+        Reader(InputStream inputStream){
             this.inputStream = inputStream;
+            this.packageHandler = new PackageHandler();
         }
 
         @Override
         public void run() {
-            setName("Reader for " + device);
+            setName("Reader of " + device);
             while (!isInterrupted()){
 
-                if(d) Log.i(TAG, "Reader is running: " + device);
-
-                byte[] buffer = new byte[128];
-                while (true) {
-                    try {
+                try {
+                    byte[] buffer = new byte[PackageHandler.CHUNK_NUM + PackageHandler.CHUNK_SIZE];
+                    inputStream.read(buffer);
+                    packageHandler.createNewFromMeta(buffer);
+                    for (int i = 0; i < packageHandler.getPayloadNum(); i++) {
+                        buffer = new byte[PackageHandler.PAYLOAD_SIZE];
                         inputStream.read(buffer);
-                        Layer.getInstance().receivedData(buffer, device);
-                        if (Layer.getInstance().getLayerCallback() != null) {
-                            Layer.getInstance().getLayerCallback().onReceivedMessage(buffer, device);
-                        }
-
-                    } catch (IOException e) {
-                        Log.e(TAG, "Reader disconnected" + device, e);
-                        shutdown();
-                        return;
+                        packageHandler.addContent(buffer);
                     }
+                    Package aPackage = packageHandler.getPackage();
+                    packageHandler.clear();
+                    Layer.getInstance().receivedData(aPackage.getData(), device);
+                    if (Layer.getInstance().getLayerCallback() != null) {
+                        Layer.getInstance().getLayerCallback().onReceivedMessage(aPackage.getData(), device);
+                    }
+
+                } catch (IOException e) {
+                    Log.e(TAG, "Reader disconnected of " + device, e);
+                    shutdown();
+                    return;
                 }
             }
         }
     }
 
-    class Writer extends Thread {
+    private class Writer extends Thread {
 
         private OutputStream outputStream;
         private LinkedBlockingQueue<Package> packageQueue = new LinkedBlockingQueue<>();
 
-        public Writer (OutputStream outputStream){
+        Writer(OutputStream outputStream){
             this.outputStream = outputStream;
         }
 
         @Override
         public void run() {
+            setName("Writer of " + device);
             while (!isInterrupted()){
-                Package aPackage = null;
+                Package aPackage;
                 try {
                     aPackage = packageQueue.take();
-                } catch (InterruptedException e) {
+                    if (aPackage != null) {
+                        Package[] packages = PackageHandler.splitPackages(aPackage);
+                        for (Package packageToSend : packages) {
+                            outputStream.write(packageToSend.getData());
+                        }
+                    }
+                } catch (Exception e) {
                     e.printStackTrace();
                     shutdown();
-                }
-                if (aPackage != null){
-                    try {
-                        outputStream.write(aPackage.getData());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        shutdown();
-                        return;
-                    }
+                    return;
                 }
             }
         }
 
-        public void write(Package aPackage){
+        void write(Package aPackage){
             packageQueue.offer(aPackage);
         }
     }

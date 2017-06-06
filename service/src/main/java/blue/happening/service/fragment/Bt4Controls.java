@@ -72,6 +72,8 @@ public class Bt4Controls extends Fragment {
             }
         });
 
+        startServer();
+
 
         Switch adapterButton = (Switch) rootView.findViewById(R.id.switch_bluetooth_adapter);
         adapterButton.setChecked(bluetoothLayer.isEnabled());
@@ -96,7 +98,7 @@ public class Bt4Controls extends Fragment {
             }
         });
 
-        Switch serverButton = (Switch) rootView.findViewById(R.id.switch_server);
+        Switch serverButton = (Switch) rootView.findViewById(R.id.switch_advertiser);
         serverButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -142,7 +144,7 @@ public class Bt4Controls extends Fragment {
         switch(item.getItemId()) {
             case R.id.connect:
                 Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Connect!");
-                device.connectDevice();
+                device.connect();
                 return true;
             case R.id.disconnect:
                 Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Disonnect!");
@@ -190,12 +192,12 @@ public class Bt4Controls extends Fragment {
 
     private void startServer() {
 //        Snackbar.make(rootView, "Start Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.createAcceptor();
+        bluetoothLayer.startAdvertiser();
     }
 
     private void stopServer() {
 //        Snackbar.make(rootView, "Stop Server", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        bluetoothLayer.stopAcceptor();
+        bluetoothLayer.stopAdvertiser();
     }
 
 
