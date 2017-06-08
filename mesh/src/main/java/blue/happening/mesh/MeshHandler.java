@@ -100,12 +100,22 @@ public class MeshHandler {
 
         @Override
         public void onMessageReceived(byte[] bytes) {
-            Message message = Message.fromBytes(bytes);
+            Message message;
+
+            try {
+                message = Message.fromBytes(bytes);
+                assert message != null;
+            } catch (Exception e) {
+                System.out.println(uuid + " MESSAGE BROKEN: " + e.getMessage());
+                return;
+            }
             try {
                 message = router.routeMessage(message);
             } catch (Router.RoutingException e) {
                 System.out.println(uuid + " ROUTING FAILED: " + e.getMessage());
+                return;
             }
+
             if (message != null) {
                 meshHandlerCallback.onMessageReceived(message.getBody());
             }

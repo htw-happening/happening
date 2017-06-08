@@ -80,7 +80,6 @@ public class Connection {
                     }
                     Package aPackage = packageHandler.getPackage();
                     packageHandler.clear();
-                    Layer.getInstance().receivedData(aPackage.getData(), device);
                     if (Layer.getInstance().getLayerCallback() != null) {
                         Layer.getInstance().getLayerCallback().onMessageReceived(aPackage.getData());
                     }

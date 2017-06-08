@@ -118,10 +118,14 @@ public class RoutingTable extends HashMap<String, RemoteDevice> {
         return existing;
     }
 
+
     @Override
     public RemoteDevice remove(Object key) {
-        // TODO: Cascade delete into bestNextHop table
-        return super.remove(key);
+        RemoteDevice result = super.remove(key);
+        for (RemoteDevice device : values()) {
+            device.getNeighbourUuids().remove(key);
+        }
+        return result;
     }
 
     interface RoutingTableCallback {

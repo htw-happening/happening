@@ -8,19 +8,15 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.IntentFilter;
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import blue.happening.mesh.ILayerCallback;
 import blue.happening.service.MainActivity;
 
 public class Layer extends blue.happening.mesh.Layer {
@@ -193,23 +189,12 @@ public class Layer extends blue.happening.mesh.Layer {
         return false;
     }
 
-    private Device getDeviceByMac(BluetoothDevice device) {
+    public Device getDeviceByMac(BluetoothDevice device) {
         for (Device aDevice : scannedDevices) {
             if (device.getAddress().equals(aDevice.getAddress()))
                 return aDevice;
         }
         return new Device(device);
-    }
-
-    void receivedData(byte[] data, Device device) {
-        if (d) Log.d(TAG, "Received Data " + Arrays.toString(data) + " from " + device);
-        for (Handler handler : handlers) {
-            Message msg = handler.obtainMessage(666);
-            Bundle bundle = new Bundle();
-            bundle.putByteArray("data", data);
-            msg.setData(bundle);
-            handler.sendMessage(msg);
-        }
     }
 
     void connectionLost(Device device) {
