@@ -70,7 +70,13 @@ public class Layer extends blue.happening.mesh.Layer {
 
     public void start(){
         // TODO: 06.06.17 check autoconnect bool
-        this.deviceFinder = new LeDeviceFinder();
+        if (isAdvertisingSupported()){
+            Log.d(TAG, "start: isAdvertisingSupported TRUE");
+            this.deviceFinder = new LeDeviceFinder();
+        }else{
+            Log.d(TAG, "start: isAdvertisingSupported FALSE");
+            this.deviceFinder = new EdrDeviceFinder();
+        }
         this.deviceFinder.registerCallback(this);
         this.deviceFinder.start();
         this.pairingRequest = new PairingRequest();
@@ -276,6 +282,11 @@ public class Layer extends blue.happening.mesh.Layer {
         if (getLayerCallback() != null) {
             getLayerCallback().onDeviceAdded(device);
         }
+    }
 
+    public boolean isAdvertisingSupported() {
+        return bluetoothAdapter.isMultipleAdvertisementSupported() &&
+                bluetoothAdapter.isOffloadedFilteringSupported() &&
+                bluetoothAdapter.isOffloadedScanBatchingSupported();
     }
 }
