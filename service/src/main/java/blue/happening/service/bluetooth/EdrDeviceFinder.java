@@ -16,24 +16,80 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
+import blue.happening.service.MainActivity;
+
 /**
  * BL EDR Scanner
  * is using Reflection! See ACTION_SDP_RECORD
  */
-class EdrDeviceFinder {
+class EdrDeviceFinder implements IDeviceFinder {
 
-    interface Callback{
-        void onDeviceFound(BluetoothDevice bd);
-        void onFinishedCallback();
-        void onStartCallback();
-    }
+    private static final int SCANINTERVALL = 30000;
+    private static final int SCANDELAY = 1000;
 
     public boolean isActive = false;
     private ArrayList<BluetoothDevice> tempDevices = new ArrayList<>();
-    private Callback mCallback;
-    private Context mContext;
     private String ACTION_SDP_RECORD;
     private String EXTRA_SDP_SEARCH_RESULT;
+    private Layer layer;
+    private Context context;
+    private Timer timer;
+    private TimerTask timerTask;
+
+
+    public EdrDeviceFinder(){
+        context = MainActivity.getContext();
+        try {
+            Field f = BluetoothDevice.class.getDeclaredField("ACTION_SDP_RECORD");
+            ACTION_SDP_RECORD = ((String)f.get(null));
+            f = BluetoothDevice.class.getDeclaredField("EXTRA_SDP_SEARCH_STATUS");
+            EXTRA_SDP_SEARCH_RESULT = ((String)f.get(null));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void registerCallback(Layer layer) {
+        this.layer = layer;
+    }
+
+    @Override
+    public void start() {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothDevice.ACTION_FOUND);
+        intentFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        intentFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        intentFilter.addAction(ACTION_SDP_RECORD);
+        context.registerReceiver(mReceiver, intentFilter);
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                startScan();
+            }
+        };
+        timer = new Timer();
+        timer.scheduleAtFixedRate(timerTask, SCANDELAY, SCANINTERVALL);
+        Log.d(getClass().getSimpleName(), "Devicefinder created");
+    }
+
+    @Override
+    public void stop() {
+        context.unregisterReceiver(mReceiver);
+        timerTask.cancel();
+        timer.cancel();
+        timer.purge();
+    }
+
+    public void startScan(){
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (!bluetoothAdapter.isDiscovering()) {
+            bluetoothAdapter.startDiscovery();
+        }
+        Log.d(getClass().getSimpleName(), "Devicefinder startScan");
+
+    }
+
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -50,7 +106,6 @@ class EdrDeviceFinder {
 
                 // Prepare for new search
                 tempDevices = new ArrayList<>();
-                mCallback.onStartCallback();
             }else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
                 Log.d(getClass().getSimpleName(), "Devicefinder Discovery Finished");
 
@@ -71,52 +126,14 @@ class EdrDeviceFinder {
                         e.printStackTrace();
                     }
                 }
-                mCallback.onFinishedCallback();
             }else if( ACTION_SDP_RECORD.equals(action)){
                 Log.d(getClass().getSimpleName(), "Devicefinder ACTION_SDP_RECORD");
                 // check if the device has the specified uuid
                 BluetoothDevice bd = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (intent.getIntExtra(EXTRA_SDP_SEARCH_RESULT, 1) == 0){
-                    mCallback.onDeviceFound(bd);
+                    layer.addNewScan(bd.getAddress());
                 }
             }
         }
     };
-
-
-    public EdrDeviceFinder(Context context, Callback mCallback){
-        this.mCallback = mCallback;
-        this.mContext = context;
-
-        try {
-            Field f = BluetoothDevice.class.getDeclaredField("ACTION_SDP_RECORD");
-            ACTION_SDP_RECORD = ((String)f.get(null));
-            f = BluetoothDevice.class.getDeclaredField("EXTRA_SDP_SEARCH_STATUS");
-            EXTRA_SDP_SEARCH_RESULT = ((String)f.get(null));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BluetoothDevice.ACTION_FOUND);
-        intentFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-        intentFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        intentFilter.addAction(ACTION_SDP_RECORD);
-        context.registerReceiver(mReceiver, intentFilter);
-        Log.d(getClass().getSimpleName(), "Devicefinder created");
-    }
-
-    public void startScan(){
-
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (!bluetoothAdapter.isDiscovering()) {
-            bluetoothAdapter.startDiscovery();
-        }
-        Log.d(getClass().getSimpleName(), "Devicefinder startScan");
-
-    }
-
-    public void unregisterReciever(){
-        mContext.unregisterReceiver(mReceiver);
-    }
 }
