@@ -105,7 +105,6 @@ public class Happening {
     public void deregister() {
         if (serviceConnection != null) {
             context.unbindService(serviceConnection);
-            serviceConnection = null;
             Log.i(this.getClass().getSimpleName(), "service unbound");
         } else {
             Log.i(this.getClass().getSimpleName(), "no service to unbind from");
