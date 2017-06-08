@@ -27,7 +27,6 @@ class EdrDeviceFinder implements IDeviceFinder {
     private static final int SCANINTERVALL = 30000;
     private static final int SCANDELAY = 1000;
 
-    public boolean isActive = false;
     private ArrayList<BluetoothDevice> tempDevices = new ArrayList<>();
     private String ACTION_SDP_RECORD;
     private String EXTRA_SDP_SEARCH_RESULT;
@@ -102,20 +101,10 @@ class EdrDeviceFinder implements IDeviceFinder {
                 Log.d(getClass().getSimpleName(), "Devicefinder Found");
             }else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)){
                 Log.d(getClass().getSimpleName(), "Devicefinder Discovery Started");
-                isActive = true;
-
                 // Prepare for new search
                 tempDevices = new ArrayList<>();
             }else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
                 Log.d(getClass().getSimpleName(), "Devicefinder Discovery Finished");
-
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        EdrDeviceFinder.this.isActive = false;
-                    }
-                }, 5000);
 
                 // Do a sdpSearch for all found devices
                 for (BluetoothDevice bd : tempDevices){
