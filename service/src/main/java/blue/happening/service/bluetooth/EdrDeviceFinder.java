@@ -36,7 +36,7 @@ class EdrDeviceFinder implements IDeviceFinder {
     private TimerTask timerTask;
 
 
-    public EdrDeviceFinder(){
+    EdrDeviceFinder(){
         context = MainActivity.getContext();
         try {
             Field f = BluetoothDevice.class.getDeclaredField("ACTION_SDP_RECORD");
@@ -80,7 +80,7 @@ class EdrDeviceFinder implements IDeviceFinder {
         timer.purge();
     }
 
-    public void startScan(){
+    private void startScan(){
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (!bluetoothAdapter.isDiscovering()) {
             bluetoothAdapter.startDiscovery();
