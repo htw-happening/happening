@@ -116,7 +116,9 @@ public class MeshHandler {
                 return;
             }
 
-            meshHandlerCallback.onMessageReceived(message.getBody());
+            if (message != null) {
+                meshHandlerCallback.onMessageReceived(message.getBody());
+            }
         }
     }
 }
