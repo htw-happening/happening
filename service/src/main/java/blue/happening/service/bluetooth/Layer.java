@@ -8,22 +8,18 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.IntentFilter;
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import blue.happening.mesh.ILayerCallback;
 import blue.happening.service.MainActivity;
 
-public class Layer {
+public class Layer extends blue.happening.mesh.Layer {
 
     private String TAG = getClass().getSimpleName();
     private boolean d = true;
@@ -37,7 +33,6 @@ public class Layer {
     private Context context = null;
 
     private BluetoothAdapter bluetoothAdapter = null;
-    private ILayerCallback layerCallback;
     private PairingRequest pairingRequest;
     private IDeviceFinder deviceFinder;
 
@@ -132,14 +127,6 @@ public class Layer {
         return scannedDevices;
     }
 
-    public void registerLayerCallback(ILayerCallback layerCallback) {
-        this.layerCallback = layerCallback;
-    }
-
-    ILayerCallback getLayerCallback() {
-        return layerCallback;
-    }
-
     void notifyHandlers(int code) {
         for (Handler handler : handlers) {
             handler.obtainMessage(code).sendToTarget();
@@ -205,7 +192,7 @@ public class Layer {
         return false;
     }
 
-    private Device getDeviceByMac(BluetoothDevice device) {
+    public Device getDeviceByMac(BluetoothDevice device) {
         for (Device aDevice : scannedDevices) {
             if (device.getAddress().equals(aDevice.getAddress()))
                 return aDevice;
@@ -213,21 +200,10 @@ public class Layer {
         return new Device(device);
     }
 
-    void receivedData(byte[] data, Device device) {
-        if (d) Log.d(TAG, "Received Data " + Arrays.toString(data) + " from " + device);
-        for (Handler handler : handlers) {
-            Message msg = handler.obtainMessage(666);
-            Bundle bundle = new Bundle();
-            bundle.putByteArray("data", data);
-            msg.setData(bundle);
-            handler.sendMessage(msg);
-        }
-    }
-
     void connectionLost(Device device) {
         device.changeState(Device.STATE.DISCONNECTED);
-        if (layerCallback != null) {
-            layerCallback.onDeviceRemoved(device);
+        if (getLayerCallback() != null) {
+            getLayerCallback().onDeviceRemoved(device);
         }
     }
 
@@ -279,8 +255,8 @@ public class Layer {
         device.changeState(Device.STATE.CONNECTED);
         device.resetTrials();
         device.connection = new Connection(device, socket);
-        if (layerCallback != null) {
-            layerCallback.onDeviceAdded(device);
+        if (getLayerCallback() != null) {
+            getLayerCallback().onDeviceAdded(device);
         }
 
     }
@@ -300,8 +276,8 @@ public class Layer {
         }
         device.changeState(Device.STATE.CONNECTED);
         device.connection = new Connection(device, socket);
-        if (layerCallback != null) {
-            layerCallback.onDeviceAdded(device);
+        if (getLayerCallback() != null) {
+            getLayerCallback().onDeviceAdded(device);
         }
 
     }
