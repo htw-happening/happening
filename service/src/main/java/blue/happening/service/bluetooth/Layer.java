@@ -102,7 +102,6 @@ public class Layer extends blue.happening.mesh.Layer {
         }
         context.unregisterReceiver(pairingRequest);
         connectSink.interrupt();
-        handlers.clear();
         // TODO: 06.06.17 aufräumen
         this.scannedDevices.clear();
         notifyHandlers(1);
