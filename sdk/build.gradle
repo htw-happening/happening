@@ -38,7 +38,7 @@ task javadoc(type: Javadoc) {
 
 task createJar(type: Copy) {
     from('build/intermediates/bundles/debug/')
-    into('lib/jars/')
+    into('build/outputs/jar/')
     include('classes.jar')
     rename('classes.jar', 'happening.jar')
 }

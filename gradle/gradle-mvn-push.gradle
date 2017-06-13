@@ -37,7 +37,7 @@ publishing {
             artifactId POM_ARTIFACT_ID
             version VERSION_NAME
 
-            artifact("lib/jars/happening.jar")
+            artifact("$buildDir/outputs/jar/happening.jar")
         }
     }
     repositories {
