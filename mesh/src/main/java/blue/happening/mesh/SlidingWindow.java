@@ -1,6 +1,7 @@
 package blue.happening.mesh;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -9,7 +10,7 @@ import java.util.List;
 class SlidingWindow extends HashSet<Integer> {
 
     public static final int WINDOW_SIZE = 12;
-    private static Logger logger = Logger.getLogger(SlidingWindow.class);
+    private static Logger logger = LogManager.getLogger(SlidingWindow.class);
 
     private int sequence;
 

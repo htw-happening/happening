@@ -21,7 +21,8 @@
 
 package blue.happening.simulation.graph;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -220,7 +221,7 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
     static final int REMOVED_VERTEX = JSL.getNextEnumConstant();
     static final int ADDED_EDGE = JSL.getNextEnumConstant();
     static final int REMOVED_EDGE = JSL.getNextEnumConstant();
-    private static Logger logger = Logger.getLogger(NetworkGraph.class);
+    private static Logger logger = LogManager.getLogger(NetworkGraph.class);
     // containers
     private final Map<V, VertexProperties<V, E>> verticesProperties;
     private final EdgePool<V, E> edgePool;

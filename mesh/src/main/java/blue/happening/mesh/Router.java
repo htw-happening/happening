@@ -1,10 +1,12 @@
 package blue.happening.mesh;
 
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 class Router {
 
-    private static Logger logger = Logger.getLogger(Router.class);
+    private static Logger logger = LogManager.getLogger(Router.class);
     private RoutingTable routingTable;
     private String uuid;
 

@@ -21,7 +21,8 @@
 
 package blue.happening.simulation.graph.internal;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 import java.util.List;
@@ -47,7 +48,7 @@ import jsl.modeling.Scheduler;
  */
 public class VertexArrivalAction<V, E> implements ActionListenerIfc {
 
-    private static Logger logger = Logger.getLogger(VertexArrivalAction.class);
+    private static Logger logger = LogManager.getLogger(VertexArrivalAction.class);
 
     private final NetworkGraph<V, E> graph;
     private final VertexProperties<V, E> vertexProperties;

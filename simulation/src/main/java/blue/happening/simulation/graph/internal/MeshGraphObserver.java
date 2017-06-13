@@ -1,6 +1,7 @@
 package blue.happening.simulation.graph.internal;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import blue.happening.simulation.entities.Connection;
 import blue.happening.simulation.entities.Device;
@@ -11,7 +12,7 @@ import blue.happening.simulation.graph.NetworkGraphObserver;
 public class MeshGraphObserver
         extends NetworkGraphObserver<Device, Connection> {
 
-    private static Logger logger = Logger.getLogger(MeshGraphObserver.class);
+    private static Logger logger = LogManager.getLogger(MeshGraphObserver.class);
 
     @Override
     protected void addedEdge(final NetworkGraph<Device, Connection> networkGraph,
