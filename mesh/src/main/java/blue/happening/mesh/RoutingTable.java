@@ -121,20 +121,34 @@ public class RoutingTable extends HashMap<String, RemoteDevice> {
     @Override
     public RemoteDevice put(String key, RemoteDevice value) {
         RemoteDevice existing = super.put(key, value);
-        if (existing == null) {
-            // TODO: callback foo
-        }
+        //if (existing == null) {
+        meshHandlerCallback.onDeviceAdded(value.getUuid());
+        //}
         return existing;
     }
 
-
-    @Override
-    public RemoteDevice remove(Object key) {
-        RemoteDevice result = super.remove(key);
+    public void removeFromNeighbours(String uuid) {
+        // remove device from neighbour list from all devices where it is listed as neighbour
         for (RemoteDevice device : values()) {
-            device.getNeighbourUuids().remove(key);
+            device.getNeighbourUuids().remove(uuid);
+
+            if (device.getNeighbourUuids().size() == 0) {
+                super.remove(device.getUuid());
+                meshHandlerCallback.onDeviceRemoved(device.getUuid());
+            }
         }
-        return result;
+    }
+
+    public RemoteDevice remove(Object key) {
+        RemoteDevice existing = get(key);
+        if (existing != null) {
+            removeFromNeighbours(existing.getUuid());
+        }
+        RemoteDevice deleted = super.remove(key);
+        if (deleted != null) {
+            meshHandlerCallback.onDeviceRemoved(deleted.getUuid());
+        }
+        return deleted;
     }
 
     interface RoutingTableCallback {

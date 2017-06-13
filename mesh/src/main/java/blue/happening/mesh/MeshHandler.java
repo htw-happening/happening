@@ -95,7 +95,7 @@ public class MeshHandler {
         @Override
         public void onDeviceRemoved(RemoteDevice remoteDevice) {
             System.out.println(uuid + " DEVICE REMOVED: " + remoteDevice);
-            routingTable.remove(remoteDevice.getUuid());
+            routingTable.removeFromNeighbours(remoteDevice.getUuid());
         }
 
         @Override
