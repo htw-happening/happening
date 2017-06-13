@@ -1,6 +1,8 @@
 package blue.happening.simulation.entities;
 
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import blue.happening.mesh.IMeshHandlerCallback;
 import blue.happening.simulation.visualization.listener.DeviceObserver;
@@ -8,7 +10,7 @@ import blue.happening.simulation.visualization.listener.DeviceObserver;
 
 public class MockMeshHandlerCallback implements IMeshHandlerCallback {
 
-    private static Logger logger = Logger.getLogger(MockMeshHandlerCallback.class);
+    private static Logger logger = LogManager.getLogger(MockMeshHandlerCallback.class);
     private Device device;
 
     public MockMeshHandlerCallback(Device device) {

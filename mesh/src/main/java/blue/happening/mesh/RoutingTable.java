@@ -1,6 +1,7 @@
 package blue.happening.mesh;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
 
-    private static Logger logger = Logger.getLogger(RoutingTable.class);
+    private static Logger logger = LogManager.getLogger(RoutingTable.class);
     private IMeshHandlerCallback meshHandlerCallback;
 
     void registerMeshHandlerCallback(IMeshHandlerCallback meshHandlerCallback) {

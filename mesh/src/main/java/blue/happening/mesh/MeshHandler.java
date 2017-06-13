@@ -1,6 +1,7 @@
 package blue.happening.mesh;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -15,7 +16,7 @@ public class MeshHandler {
     public static final int PURGE_INTERVAL = 2;
     public static final int HOP_PENALTY = 15;
     public static final String BROADCAST_ADDRESS = "broadcast";
-    private static Logger logger = Logger.getLogger(MeshHandler.class);
+    private static Logger logger = LogManager.getLogger(MeshHandler.class);
 
     private final RoutingTable routingTable;
     private final Router router;
