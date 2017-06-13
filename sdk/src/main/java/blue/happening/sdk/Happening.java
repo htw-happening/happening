@@ -142,43 +142,6 @@ public class Happening {
     }
 
     /**
-     * Dummy method to demonstrate how to communicate with the happening service.
-     *
-     * @param message A dummy message
-     * @return error string
-     */
-    public String hello(String message) {
-        Log.v(this.getClass().getSimpleName(), "hello");
-        try {
-            return service.hello(message);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-            return "no reply";
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            return "no service";
-        }
-    }
-
-    /**
-     * Method to get an initial list of all known happening clients in the area.
-     *
-     * @return List of {@link HappeningClient happening clients}
-     */
-    public List<HappeningClient> getClients() {
-        Log.v(this.getClass().getSimpleName(), "hello");
-        try {
-            return service.getClients();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-            return null;
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
      * Method to get List of all connected Devices.
      *
      * @return List of {@link HappeningClient happening clients}
