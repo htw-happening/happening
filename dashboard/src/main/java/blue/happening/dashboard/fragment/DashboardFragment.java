@@ -130,6 +130,8 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
         }
         dashboardAdapter.notifyDataSetChanged();
 
+//        happening.sendDataTo();
+
     }
 
 }

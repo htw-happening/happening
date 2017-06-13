@@ -8,22 +8,18 @@ import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanFilter;
-import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.os.Build;
 import android.os.ParcelUuid;
-import android.provider.CallLog;
 import android.util.Log;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
-import blue.happening.service.MainActivity;
+import blue.happening.MyApplication;
 
 class LeDeviceFinder implements IDeviceFinder {
 
@@ -40,7 +36,7 @@ class LeDeviceFinder implements IDeviceFinder {
     private Layer layer;
 
     LeDeviceFinder() {
-        context = MainActivity.getContext();
+        context = MyApplication.getAppContext();
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.bluetoothAdapter = bluetoothManager.getAdapter();
         this.bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();

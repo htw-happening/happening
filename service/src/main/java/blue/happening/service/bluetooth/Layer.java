@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import blue.happening.service.MainActivity;
+import blue.happening.MyApplication;
 
 public class Layer extends blue.happening.mesh.Layer {
 
@@ -54,7 +54,7 @@ public class Layer extends blue.happening.mesh.Layer {
     }
 
     private Layer() {
-        this.context = MainActivity.getContext();
+        this.context = MyApplication.getAppContext();
         this.scannedDevices = new ArrayList<>();
         this.handlers = new ArrayList<>();
         BluetoothManager bluetoothManager = (BluetoothManager) this.context.getSystemService(Context.BLUETOOTH_SERVICE);

@@ -28,6 +28,8 @@ import static android.content.ContentValues.TAG;
 public class Happening {
 
     private static final String HAPPENING_APP_ID = "HAPPENING_APP_ID";
+    private static ApplicationInfo info = null;
+    private static String appId = null;
 
     private Context context;
     private Handler handler = new Handler();
@@ -65,21 +67,12 @@ public class Happening {
         }
 
     };
-    private final Runnable runnable = new Runnable() {
-        public void run() {
-            if (service == null) {
-                boolean success = bindService();
-                Log.i(this.getClass().getSimpleName(), "Restart success " + success);
-                handler.postDelayed(this, 1000);
-            }
-        }
-    };
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
         public void onServiceConnected(ComponentName name, IBinder boundService) {
             service = IHappeningService.Stub.asInterface(boundService);
             try {
-                service.registerHappeningCallback(happeningCallback);
+                service.registerHappeningCallback(happeningCallback, appId);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -92,6 +85,15 @@ public class Happening {
             Log.i(this.getClass().getSimpleName(), "Service disconnected");
         }
     };
+    private final Runnable runnable = new Runnable() {
+        public void run() {
+            if (service == null) {
+                boolean success = bindService();
+                Log.i(this.getClass().getSimpleName(), "Restart success " + success);
+                handler.postDelayed(this, 1000);
+            }
+        }
+    };
 
     /**
      * To be able to send and receive data through the happening network service, you need to
@@ -102,6 +104,10 @@ public class Happening {
     public void register(@NonNull Context context, @NonNull HappeningCallback appCallback) {
         this.context = context;
         this.appCallback = appCallback;
+
+        info = context.getApplicationInfo();
+        appId = info.labelRes == 0 ? info.nonLocalizedLabel.toString() : context.getString(info.labelRes);
+
         boolean success = bindService();
         Log.i(this.getClass().getSimpleName(), "Start success " + success);
     }
@@ -198,7 +204,7 @@ public class Happening {
     public void sendDataTo(String deviceId, byte[] content) {
         Log.v(this.getClass().getSimpleName(), "sendToDevice");
         try {
-            service.sendToDevice(deviceId, content);
+            service.sendToDevice(deviceId, appId, content);
         } catch (RemoteException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {
@@ -209,7 +215,6 @@ public class Happening {
     /**
      * Restart the happening Service.
      * In case of Emergency - Use this Methdo when nothing works:-)
-     *
      */
     public void restartHappeningService() {
         Log.v(this.getClass().getSimpleName(), "restartHappeningService");
