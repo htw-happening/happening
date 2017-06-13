@@ -55,6 +55,11 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
             dashboardModels.add(new DashboardModel("queue", "" + parcelId));
             dashboardAdapter.notifyDataSetChanged();
         }
+
+        @Override
+        public void onMessageReceived(byte[] message, int deviceId) {
+            // TODO: Do something with the received Messages.
+        }
     };
 
     public DashboardFragment() {

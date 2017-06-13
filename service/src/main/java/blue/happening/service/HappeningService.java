@@ -78,7 +78,7 @@ public class HappeningService extends Service {
         }
 
         @Override
-        public void sendToDeice(int deviceId) throws RemoteException {
+        public void sendToDevice(int deviceId) throws RemoteException {
             Log.v(this.getClass().getSimpleName(), "sendToDeice");
 
         }

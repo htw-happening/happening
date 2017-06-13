@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -169,16 +170,54 @@ public class Happening {
         }
     }
 
-
-    /*
-    List<HappeningClient> getDevices();
-    void registerApp(int appId);
-    void deregisterApp(int appId);
-    void sendToDeice(int deviceId);
-    void restart();
+    /**
+     * Method to get List of all connected Devices.
+     *
+     * @return List of {@link HappeningClient happening clients}
      */
+    public List<HappeningClient> getDevices() {
+        Log.v(this.getClass().getSimpleName(), "getDevices");
+        try {
+            return service.getDevices();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return null;
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
-    
+    /**
+     * Method to send data to a specific device.
+     *
+     * @param deviceId Device id of recipient device.
+     */
+    public void sendDataTo(int deviceId) {
+        Log.v(this.getClass().getSimpleName(), "sendToDevice");
+        try {
+            service.sendToDevice(deviceId);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
 
+    /**
+     * Restart the happening Service.
+     * In case of Emergency - Use this Methdo when nothing works:-)
+     *
+     */
+    public void restartHappeningService() {
+        Log.v(this.getClass().getSimpleName(), "restartHappeningService");
+        try {
+            service.restart();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
