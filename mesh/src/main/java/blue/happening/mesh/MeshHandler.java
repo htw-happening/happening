@@ -76,8 +76,8 @@ public class MeshHandler {
         public void run() {
             try {
                 for (RemoteDevice remoteDevice : routingTable.getExpiredRemoteDevices()) {
-                    remoteDevice.remove();
                     routingTable.remove(remoteDevice.getUuid());
+                    remoteDevice.remove();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
