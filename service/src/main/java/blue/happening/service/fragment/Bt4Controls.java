@@ -93,7 +93,7 @@ public class Bt4Controls extends Fragment {
         meshHandler.registerLayer(bluetoothLayer);
         meshHandler.registerCallback(new IMeshHandlerCallback() {
             @Override
-            public void onMessageReceived(String message) {
+            public void onMessageReceived(byte[] message) {
 
             }
 

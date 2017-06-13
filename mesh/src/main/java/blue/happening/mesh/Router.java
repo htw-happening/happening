@@ -1,12 +1,8 @@
 package blue.happening.mesh;
 
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 class Router {
 
-    private static Logger logger = LogManager.getLogger(Router.class);
+    private static Logger logger = new Logger();
     private RoutingTable routingTable;
     private String uuid;
 
@@ -23,6 +19,7 @@ class Router {
      */
     Message routeMessage(Message message) throws RoutingException {
         routingTable.ensureConnection(message.getSource(), message.getPreviousHop());
+        adjustTq(message);
 
         if (message.getType() == Message.MESSAGE_TYPE_OGM) {
             routeOgm(message);
@@ -104,7 +101,15 @@ class Router {
     private void prepareMessage(Message message) {
         message.setPreviousHop(uuid);
         message.setTtl(message.getTtl() - 1);
-        message.setTq(message.getTq() - MeshHandler.HOP_PENALTY);
+    }
+
+    private void adjustTq(Message message) {
+        RemoteDevice previousHop = routingTable.get(message.getPreviousHop());
+        float previousTq = 0;
+        if (previousHop != null) {
+            previousTq = previousHop.getSlidingWindow().getTransmissionQuality();
+        }
+        message.setTq((int) (message.getTq() * previousTq) - MeshHandler.HOP_PENALTY);
     }
 
     private void forwardMessage(Message message) {

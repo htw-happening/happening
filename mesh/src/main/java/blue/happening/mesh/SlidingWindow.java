@@ -1,8 +1,5 @@
 package blue.happening.mesh;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,7 +10,7 @@ class SlidingWindow extends HashMap<Integer, Integer> {
     public static final int WINDOW_SIZE = 12;
     public static final int ECHO_MESSAGE = 1;
     public static final int RECEIVED_MESSAGE = 2;
-    private static Logger logger = LogManager.getLogger(SlidingWindow.class);
+    private static Logger logger = new Logger();
 
     private int sequence;
     private String uuid;
@@ -41,7 +38,7 @@ class SlidingWindow extends HashMap<Integer, Integer> {
                 remove(outdatedSequence);
             }
         } else {
-            logger.error("This shouldn't happen");
+            logger.debug("This shouldn't happen");
         }
     }
 
@@ -72,6 +69,6 @@ class SlidingWindow extends HashMap<Integer, Integer> {
     }
 
     float getTransmissionQuality() {
-        return getEchoQuality() / getReceiveQuality();
+        return getEchoQuality() / Math.min(1, getReceiveQuality());
     }
 }
