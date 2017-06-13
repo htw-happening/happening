@@ -75,7 +75,6 @@ public class MeshHandler {
                 for (RemoteDevice remoteDevice : routingTable.getExpiredRemoteDevices()) {
                     remoteDevice.remove();
                     routingTable.remove(remoteDevice.getUuid());
-                    meshHandlerCallback.onDeviceRemoved(remoteDevice.getUuid());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
