@@ -59,6 +59,15 @@ public class MeshHandler {
         return new ArrayList<String>(routingTable.keySet());
     }
 
+    public boolean sendMessage(String uuid, byte[] bytes) {
+        RemoteDevice remoteDevice = routingTable.get(uuid);
+        if (remoteDevice == null) {
+            return false;
+        }
+        Message message = new Message(this.uuid, uuid, ++sequence, Message.MESSAGE_TYPE_UCM, bytes);
+        return remoteDevice.sendMessage(message);
+    }
+
     private class OGMRunner implements Runnable {
         @Override
         public void run() {

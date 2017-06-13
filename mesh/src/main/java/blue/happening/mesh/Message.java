@@ -20,20 +20,20 @@ public class Message implements Serializable {
     private String source;
     private String previousHop;
     private String destination;
-    private String body;
+    private byte[] body;
     private int tq;
     private int type;
     private int sequence;
     private int ttl;
 
     public Message(String source, String destination, int sequence, int type,
-                   String body) {
+                   byte[] body) {
         this(source, destination, sequence, type, INITIAL_MESSAGE_TQ,
                 INITIAL_MESSAGE_TTL, body);
     }
 
     private Message(String source, String destination, int sequence, int type,
-                    int tq, int ttl, String body) {
+                    int tq, int ttl, byte[] body) {
         this.source = source;
         this.previousHop = source;
         this.destination = destination;
@@ -69,7 +69,7 @@ public class Message implements Serializable {
         this.previousHop = lastSender;
     }
 
-    public String getBody() {
+    public byte[] getBody() {
         return body;
     }
 
