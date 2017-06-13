@@ -15,7 +15,6 @@ public class MeshHandler {
     public static final int PURGE_INTERVAL = 2;
     public static final int HOP_PENALTY = 15;
     public static final String BROADCAST_ADDRESS = "broadcast";
-    private static Logger logger = new Logger();
 
     private final RoutingTable routingTable;
     private final Router router;
@@ -71,7 +70,7 @@ public class MeshHandler {
             try {
                 for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
                     Message message = new Message(uuid, BROADCAST_ADDRESS, ++sequence, Message.MESSAGE_TYPE_OGM, null);
-                    logger.debug(uuid + " OGM SENT: " + message);
+                    System.out.println(uuid + " OGM SENT: " + message);
                     remoteDevice.sendMessage(message);
                 }
             } catch (Exception e) {
@@ -98,14 +97,14 @@ public class MeshHandler {
 
         @Override
         public void onDeviceAdded(RemoteDevice remoteDevice) {
-            logger.debug(uuid + " DEVICE ADDED: " + remoteDevice);
+            System.out.println(uuid + " DEVICE ADDED: " + remoteDevice);
             routingTable.ensureConnection(remoteDevice, remoteDevice);
             meshHandlerCallback.onDeviceAdded(remoteDevice.getUuid());
         }
 
         @Override
         public void onDeviceRemoved(RemoteDevice remoteDevice) {
-            logger.debug(uuid + " DEVICE REMOVED: " + remoteDevice);
+            System.out.println(uuid + " DEVICE REMOVED: " + remoteDevice);
             routingTable.removeFromNeighbours(remoteDevice.getUuid());
         }
 
@@ -117,13 +116,13 @@ public class MeshHandler {
                 message = Message.fromBytes(bytes);
                 assert message != null;
             } catch (Exception e) {
-                logger.debug(uuid + " MESSAGE BROKEN: " + e.getMessage());
+                System.out.println(uuid + " MESSAGE BROKEN: " + e.getMessage());
                 return;
             }
             try {
                 message = router.routeMessage(message);
             } catch (Router.RoutingException e) {
-                logger.debug(uuid + " ROUTING FAILED: " + e.getMessage());
+                System.out.println(uuid + " ROUTING FAILED: " + e.getMessage());
                 return;
             }
 

@@ -9,7 +9,6 @@ import blue.happening.simulation.graph.internal.MeshGraph;
 import blue.happening.simulation.mobility.DTWaypoint;
 import blue.happening.simulation.mobility.MobilityPattern;
 import blue.happening.simulation.mobility.PredefinedMobilityPattern;
-import blue.happening.simulation.mobility.RandomDSMobilityPattern;
 import blue.happening.simulation.mobility.RectangularBoundary;
 import blue.happening.simulation.visualization.MeshVisualizerFrame;
 import blue.happening.simulation.visualization.NOOPAction;

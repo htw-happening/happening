@@ -10,7 +10,6 @@ class SlidingWindow extends HashMap<Integer, Integer> {
     public static final int WINDOW_SIZE = 12;
     public static final int ECHO_MESSAGE = 1;
     public static final int RECEIVED_MESSAGE = 2;
-    private static Logger logger = new Logger();
 
     private int sequence;
     private String uuid;
@@ -38,7 +37,7 @@ class SlidingWindow extends HashMap<Integer, Integer> {
                 remove(outdatedSequence);
             }
         } else {
-            logger.debug("This shouldn't happen");
+            System.out.println("This shouldn't happen");
         }
     }
 

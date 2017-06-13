@@ -9,7 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
 
-    private static Logger logger = new Logger();
     private IMeshHandlerCallback meshHandlerCallback;
 
     void registerMeshHandlerCallback(IMeshHandlerCallback meshHandlerCallback) {
@@ -65,7 +64,7 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
         if (remoteDevice == null) {
             remoteDevice = new RemoteDevice(remoteDeviceUuid) {
                 public boolean sendMessage(Message message) {
-                    logger.debug("DEVICE " + this.getUuid() + " DOES NOT HAVE THIS OP");
+                    System.out.println("DEVICE " + this.getUuid() + " DOES NOT HAVE THIS OP");
                     throw new UnsupportedOperationException();
                 }
             };

@@ -21,9 +21,6 @@
 
 package blue.happening.simulation.demo;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-
 import java.io.IOException;
 import java.util.Random;
 
@@ -48,11 +45,7 @@ import jsl.modeling.Experiment;
 public class VaryingVariableDemo {
 
     public static void main(String[] args) throws IOException {
-
-        // we are not interested in logging here. Disable it.
-        LogManager.getLoggerRepository().setThreshold(Level.OFF);
-
-		/*
+        /*
          * Enable one of these. Each varies a differnt variables: the number of
 		 * vertices, the speed, the radii, the arena size, and all of the above.
 		 */
