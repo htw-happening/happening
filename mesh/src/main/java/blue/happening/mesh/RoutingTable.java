@@ -3,14 +3,17 @@ package blue.happening.mesh;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
-public class RoutingTable extends HashMap<String, RemoteDevice> {
+public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
 
     private IMeshHandlerCallback meshHandlerCallback;
 
-    void registerMeshHandlerCallback(IMeshHandlerCallback meshHandlerCallback){
+    void registerMeshHandlerCallback(IMeshHandlerCallback meshHandlerCallback) {
         this.meshHandlerCallback = meshHandlerCallback;
     }
 
@@ -63,6 +66,7 @@ public class RoutingTable extends HashMap<String, RemoteDevice> {
         if (remoteDevice == null) {
             remoteDevice = new RemoteDevice(remoteDeviceUuid) {
                 public boolean sendMessage(Message message) {
+                    System.out.println("DEVICE " + this.getUuid() + " DOES NOT HAVE THIS OP");
                     throw new UnsupportedOperationException();
                 }
             };
