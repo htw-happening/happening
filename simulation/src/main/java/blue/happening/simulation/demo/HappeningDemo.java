@@ -1,9 +1,5 @@
 package blue.happening.simulation.demo;
 
-import org.apache.log4j.PropertyConfigurator;
-
-import java.io.File;
-
 import blue.happening.simulation.entities.Connection;
 import blue.happening.simulation.entities.Device;
 import blue.happening.simulation.graph.internal.MeshGraph;
@@ -18,13 +14,6 @@ import jsl.modeling.Replication;
 public class HappeningDemo {
 
     public static void main(String[] args) throws InterruptedException {
-
-        try {
-            File log4jfile = new File("./log4j.properties");
-            PropertyConfigurator.configure(log4jfile.getAbsolutePath());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         // create a custom blue.happening.bla.graph with Vertex: Device and Edge: Connection
         MeshGraph graph = new MeshGraph();

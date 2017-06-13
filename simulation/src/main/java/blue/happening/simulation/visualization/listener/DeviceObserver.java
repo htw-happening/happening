@@ -36,7 +36,7 @@ public class DeviceObserver implements Observer {
             for (Object object : device.getNetworkGraph().getVertices()) {
                 Device graphDevice = (Device) object;
                 graphDevice.setNeighbour(false);
-                if (device.getMeshHandler().getRoutingTable().containsKey(graphDevice.getName())) {
+                if (device.getMeshHandler().getDevices().contains(graphDevice.getName())) {
                     graphDevice.setNeighbour(true);
                 }
             }

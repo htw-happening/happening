@@ -4,26 +4,42 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
-class SlidingWindow extends HashSet<Integer> {
+class SlidingWindow extends HashMap<Integer, Integer> {
 
     public static final int WINDOW_SIZE = 12;
+    public static final int ECHO_MESSAGE = 1;
+    public static final int RECEIVED_MESSAGE = 2;
     private static Logger logger = LogManager.getLogger(SlidingWindow.class);
 
     private int sequence;
+    private String uuid;
 
-    void addIfIsSequenceInWindow(int sequence) {
-        if (isSequenceInWindow(sequence)) {
-            add(sequence);
+    SlidingWindow(String uuid) {
+        this.uuid = uuid;
+    }
+
+    void addIfIsSequenceInWindow(Message message) {
+        int type;
+        if (message.getSource().equals(uuid)) {
+            type = ECHO_MESSAGE;
+        } else {
+            type = RECEIVED_MESSAGE;
+        }
+        if (isSequenceInWindow(message.getSequence())) {
+            put(message.getSequence(), type);
         }
     }
 
     void slideSequence(int sequence) {
         if (isSequenceOutOfWindow(sequence)) {
             this.sequence = sequence;
-            removeAll(getOutdatedSequences());
+            for (int outdatedSequence : getOutdatedSequences()) {
+                remove(outdatedSequence);
+            }
         } else {
             logger.error("This shouldn't happen");
         }
@@ -31,7 +47,7 @@ class SlidingWindow extends HashSet<Integer> {
 
     private List<Integer> getOutdatedSequences() {
         List<Integer> outdatedSequences = new ArrayList<>();
-        for (Integer sequence : this) {
+        for (Integer sequence : keySet()) {
             if (isSequenceOutOfWindow(sequence)) {
                 outdatedSequences.add(sequence);
             }
@@ -45,5 +61,17 @@ class SlidingWindow extends HashSet<Integer> {
 
     boolean isSequenceInWindow(int sequence) {
         return !isSequenceOutOfWindow(sequence);
+    }
+
+    private float getEchoQuality() {
+        return (float) Collections.frequency(values(), ECHO_MESSAGE) / WINDOW_SIZE;
+    }
+
+    private float getReceiveQuality() {
+        return (float) Collections.frequency(values(), RECEIVED_MESSAGE) / WINDOW_SIZE;
+    }
+
+    float getTransmissionQuality() {
+        return getEchoQuality() / getReceiveQuality();
     }
 }

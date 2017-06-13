@@ -2,7 +2,7 @@ package blue.happening.mesh;
 
 public interface IMeshHandlerCallback {
 
-    void onMessageReceived(String message);
+    void onMessageReceived(byte[] message);
 
     void onDeviceAdded(String uuid);
 
