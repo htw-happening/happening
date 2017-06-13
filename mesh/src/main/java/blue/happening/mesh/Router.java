@@ -37,10 +37,9 @@ class Router {
     private void routeOgm(Message message) throws RoutingException {
         RemoteDevice existingDevice = routingTable.get(message.getSource());
         if (existingDevice != null) {
-            SlidingWindow window = existingDevice.getSlidingWindow();
-
             if (message.getDestination().equals(MeshHandler.BROADCAST_ADDRESS)) {
-                window.addIfIsSequenceInWindow(message.getSequence());
+                SlidingWindow window = existingDevice.getSlidingWindow();
+                window.addIfIsSequenceInWindow(message);
                 if (shouldMessageBeForwarded(message)) {
                     logger.debug(uuid + " OGM BROADCAST: " + message);
                     window.slideSequence(message.getSequence());

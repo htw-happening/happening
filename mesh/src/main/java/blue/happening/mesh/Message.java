@@ -108,7 +108,7 @@ public class Message implements Serializable {
     }
 
     public String toString() {
-        return this.getSource() + "->" + this.getPreviousHop() + "->"
+        return getSource() + "->" + getPreviousHop() + "->"
                 + getDestination() + ", TTL: " + getTtl() + ", TQ:" + getTq() + ", " + getSequence();
     }
 }

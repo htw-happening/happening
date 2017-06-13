@@ -7,8 +7,6 @@ public abstract class RemoteDevice implements Comparable<RemoteDevice> {
 
     private final String uuid;
     private long lastSeen;
-    private float echoQuality;
-    private float receiveQuality;
     private SlidingWindow slidingWindow;
 
     private HashSet<String> neighbourUuids;
@@ -16,31 +14,16 @@ public abstract class RemoteDevice implements Comparable<RemoteDevice> {
     public RemoteDevice(String uuid) {
         this.uuid = uuid;
         lastSeen = System.currentTimeMillis();
-        echoQuality = 1;
-        receiveQuality = 1;
         neighbourUuids = new HashSet<>();
-        slidingWindow = new SlidingWindow();
+        slidingWindow = new SlidingWindow(uuid);
     }
 
     public final String getUuid() {
         return uuid;
     }
 
-    public SlidingWindow getSlidingWindow() {
+    SlidingWindow getSlidingWindow() {
         return slidingWindow;
-    }
-
-    private float getTransmissionQuality() {
-        return getEchoQuality() / getReceiveQuality();
-    }
-
-    public float getEchoQuality() {
-        return echoQuality;
-    }
-
-    public float getReceiveQuality() {
-        //return (float) slidingWindow.size() / (float) SlidingWindow.WINDOW_SIZE;
-        return 1;
     }
 
     public final long getLastSeen() {
@@ -76,8 +59,8 @@ public abstract class RemoteDevice implements Comparable<RemoteDevice> {
     @Override
     public int compareTo(RemoteDevice other) {
         return Float.compare(
-                this.getTransmissionQuality(),
-                other.getTransmissionQuality());
+                this.getSlidingWindow().getTransmissionQuality(),
+                other.getSlidingWindow().getTransmissionQuality());
     }
 
     public boolean equals(Object object) {
@@ -91,6 +74,6 @@ public abstract class RemoteDevice implements Comparable<RemoteDevice> {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "@" + getUuid();
+        return getClass().getSimpleName() + "@" + getUuid();
     }
 }
