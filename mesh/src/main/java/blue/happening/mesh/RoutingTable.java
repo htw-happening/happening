@@ -1,16 +1,20 @@
 package blue.happening.mesh;
 
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 
-public class RoutingTable extends HashMap<String, RemoteDevice> {
+public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
 
+    private static Logger logger = Logger.getLogger(RoutingTable.class);
     private IMeshHandlerCallback meshHandlerCallback;
 
-    void registerMeshHandlerCallback(IMeshHandlerCallback meshHandlerCallback){
+    void registerMeshHandlerCallback(IMeshHandlerCallback meshHandlerCallback) {
         this.meshHandlerCallback = meshHandlerCallback;
     }
 
@@ -63,6 +67,7 @@ public class RoutingTable extends HashMap<String, RemoteDevice> {
         if (remoteDevice == null) {
             remoteDevice = new RemoteDevice(remoteDeviceUuid) {
                 public boolean sendMessage(Message message) {
+                    logger.debug("DEVICE " + this.getUuid() + " DOES NOT HAVE THIS OP");
                     throw new UnsupportedOperationException();
                 }
             };
@@ -87,21 +92,30 @@ public class RoutingTable extends HashMap<String, RemoteDevice> {
     RemoteDevice ensureConnection(RemoteDevice discoveredDevice,
                                   RemoteDevice neighbour) {
         RemoteDevice existingDevice = get(discoveredDevice.getUuid());
+
         if (existingDevice == null) {
             // Device did not previously exist
             put(discoveredDevice.getUuid(), discoveredDevice);
             existingDevice = discoveredDevice;
             meshHandlerCallback.onDeviceAdded(discoveredDevice.getUuid());
-        } else if (discoveredDevice.isNeighbour()) {
-            // Device was a multi hop device and becomes a neighbour
-            discoveredDevice.mergeNeighbours(existingDevice);
-            put(discoveredDevice.getUuid(), discoveredDevice);
-            existingDevice = discoveredDevice;
-        } else if (existingDevice.isNeighbour()) {
-            // Device was neighbour and also becomes reachable as multi hop
-            existingDevice.mergeNeighbours(discoveredDevice);
         } else {
-            // Device remains multi hop
+            // When discovered and neighbour are the same add neighbour to make sure that
+            // discovered device is handled as neighbour
+            if (discoveredDevice.equals(neighbour)) {
+                discoveredDevice.getNeighbourUuids().add(neighbour.getUuid());
+            }
+
+            if (discoveredDevice.isNeighbour()) {
+                // Device was a multi hop device and becomes a neighbour
+                discoveredDevice.mergeNeighbours(existingDevice);
+                put(discoveredDevice.getUuid(), discoveredDevice);
+                existingDevice = discoveredDevice;
+            } else if (existingDevice.isNeighbour()) {
+                // Device was neighbour and also becomes reachable as multi hop
+                existingDevice.mergeNeighbours(discoveredDevice);
+            } else {
+                // Device remains multi hop
+            }
         }
 
         existingDevice.setLastSeen(System.currentTimeMillis());
@@ -112,20 +126,34 @@ public class RoutingTable extends HashMap<String, RemoteDevice> {
     @Override
     public RemoteDevice put(String key, RemoteDevice value) {
         RemoteDevice existing = super.put(key, value);
-        if (existing == null) {
-            // TODO: callback foo
-        }
+        //if (existing == null) {
+        meshHandlerCallback.onDeviceAdded(value.getUuid());
+        //}
         return existing;
     }
 
-
-    @Override
-    public RemoteDevice remove(Object key) {
-        RemoteDevice result = super.remove(key);
+    public void removeFromNeighbours(String uuid) {
+        // remove device from neighbour list from all devices where it is listed as neighbour
         for (RemoteDevice device : values()) {
-            device.getNeighbourUuids().remove(key);
+            device.getNeighbourUuids().remove(uuid);
+
+            if (device.getNeighbourUuids().size() == 0) {
+                super.remove(device.getUuid());
+                meshHandlerCallback.onDeviceRemoved(device.getUuid());
+            }
         }
-        return result;
+    }
+
+    public RemoteDevice remove(Object key) {
+        RemoteDevice existing = get(key);
+        if (existing != null) {
+            removeFromNeighbours(existing.getUuid());
+        }
+        RemoteDevice deleted = super.remove(key);
+        if (deleted != null) {
+            meshHandlerCallback.onDeviceRemoved(deleted.getUuid());
+        }
+        return deleted;
     }
 
     interface RoutingTableCallback {

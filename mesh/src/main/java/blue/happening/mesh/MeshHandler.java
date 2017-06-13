@@ -1,5 +1,7 @@
 package blue.happening.mesh;
 
+import org.apache.log4j.Logger;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
@@ -13,6 +15,7 @@ public class MeshHandler {
     public static final int PURGE_INTERVAL = 2;
     public static final int HOP_PENALTY = 15;
     public static final String BROADCAST_ADDRESS = "broadcast";
+    private static Logger logger = Logger.getLogger(MeshHandler.class);
 
     private final RoutingTable routingTable;
     private final Router router;
@@ -59,7 +62,7 @@ public class MeshHandler {
             try {
                 for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
                     Message message = new Message(uuid, BROADCAST_ADDRESS, ++sequence, Message.MESSAGE_TYPE_OGM, null);
-                    System.out.println(uuid + " OGM SENT:            " + message);
+                    logger.debug(uuid + " OGM SENT: " + message);
                     remoteDevice.sendMessage(message);
                 }
             } catch (Exception e) {
@@ -73,9 +76,8 @@ public class MeshHandler {
         public void run() {
             try {
                 for (RemoteDevice remoteDevice : routingTable.getExpiredRemoteDevices()) {
-                    remoteDevice.remove();
                     routingTable.remove(remoteDevice.getUuid());
-                    meshHandlerCallback.onDeviceRemoved(remoteDevice.getUuid());
+                    remoteDevice.remove();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -87,15 +89,15 @@ public class MeshHandler {
 
         @Override
         public void onDeviceAdded(RemoteDevice remoteDevice) {
-            System.out.println(uuid + " DEVICE ADDED: " + remoteDevice);
+            logger.debug(uuid + " DEVICE ADDED: " + remoteDevice);
             routingTable.ensureConnection(remoteDevice, remoteDevice);
             meshHandlerCallback.onDeviceAdded(remoteDevice.getUuid());
         }
 
         @Override
         public void onDeviceRemoved(RemoteDevice remoteDevice) {
-            System.out.println(uuid + " DEVICE REMOVED: " + remoteDevice);
-            routingTable.remove(remoteDevice.getUuid());
+            logger.debug(uuid + " DEVICE REMOVED: " + remoteDevice);
+            routingTable.removeFromNeighbours(remoteDevice.getUuid());
         }
 
         @Override
@@ -106,13 +108,13 @@ public class MeshHandler {
                 message = Message.fromBytes(bytes);
                 assert message != null;
             } catch (Exception e) {
-                System.out.println(uuid + " MESSAGE BROKEN: " + e.getMessage());
+                logger.debug(uuid + " MESSAGE BROKEN: " + e.getMessage());
                 return;
             }
             try {
                 message = router.routeMessage(message);
             } catch (Router.RoutingException e) {
-                System.out.println(uuid + " ROUTING FAILED: " + e.getMessage());
+                logger.debug(uuid + " ROUTING FAILED: " + e.getMessage());
                 return;
             }
 
