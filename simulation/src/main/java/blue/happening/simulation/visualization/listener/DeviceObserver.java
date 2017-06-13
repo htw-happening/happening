@@ -31,7 +31,7 @@ public class DeviceObserver implements Observer {
         Events event = (Events) arg;
 
         if (device.isClicked() &&
-                (event == Events.NEIGHBOUR_ADDED || event == Events.NEIGHBOUR_REMOVED)
+                (event == Events.DEVICE_CLICKED || event == Events.NEIGHBOUR_ADDED || event == Events.NEIGHBOUR_REMOVED)
                 ) {
             for (Object object : device.getNetworkGraph().getVertices()) {
                 Device graphDevice = (Device) object;
