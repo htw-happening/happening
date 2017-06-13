@@ -72,6 +72,6 @@ class SlidingWindow extends HashMap<Integer, Integer> {
     }
 
     float getTransmissionQuality() {
-        return getEchoQuality() / getReceiveQuality();
+        return getEchoQuality() / Math.min(1, getReceiveQuality());
     }
 }
