@@ -2,6 +2,7 @@ apply plugin: 'java'
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    runtime files('src/main/resources')
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.8.2'
     compile project(":mesh")
