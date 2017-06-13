@@ -8,12 +8,14 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 import blue.happening.HappeningClient;
 import blue.happening.IHappeningCallback;
 import blue.happening.IHappeningService;
+import blue.happening.service.bluetooth.Layer;
 
 
 /**
@@ -27,6 +29,7 @@ public class HappeningService extends Service {
     private static final boolean ALLOW_REBIND = true;
 
     private static List<IHappeningCallback> callbacks = new ArrayList<>();
+    private static HashMap<Integer, String> registeredApps = new HashMap<>();
 
     private final IHappeningService.Stub binder = new IHappeningService.Stub() {
 
@@ -66,27 +69,15 @@ public class HappeningService extends Service {
         }
 
         @Override
-        public void registerApp(int appId) throws RemoteException {
-            Log.v(this.getClass().getSimpleName(), "registerApp");
-
-        }
-
-        @Override
-        public void deregisterApp(int appId) throws RemoteException {
-            Log.v(this.getClass().getSimpleName(), "deregisterApp");
-
-        }
-
-        @Override
-        public void sendToDevice(int deviceId) throws RemoteException {
+        public void sendToDevice(int deviceId, byte[] content) throws RemoteException {
             Log.v(this.getClass().getSimpleName(), "sendToDeice");
-
+            
         }
 
         @Override
         public void restart() throws RemoteException {
             Log.v(this.getClass().getSimpleName(), "restart");
-
+            Layer.getInstance().reset();
         }
     };
 
@@ -130,6 +121,7 @@ public class HappeningService extends Service {
     public IBinder onBind(Intent intent) {
         Log.v(this.getClass().getSimpleName(), "onBind");
         String appId = intent.getStringExtra(HAPPENING_APP_ID);
+        registeredApps.put(appId.hashCode(), appId);
         Toast.makeText(this, (appId == null ? "Something" : appId) + " bound", Toast.LENGTH_LONG).show();
         return binder;
     }
@@ -141,6 +133,7 @@ public class HappeningService extends Service {
     public void onRebind(Intent intent) {
         super.onRebind(intent);
         String appId = intent.getStringExtra(HAPPENING_APP_ID);
+        registeredApps.put(appId.hashCode(), appId);
         Toast.makeText(this, (appId == null ? "Something" : appId) + " rebound", Toast.LENGTH_LONG).show();
         Log.v(this.getClass().getSimpleName(), "onRebind");
     }
@@ -152,6 +145,7 @@ public class HappeningService extends Service {
     public boolean onUnbind(Intent intent) {
         Log.v(this.getClass().getSimpleName(), "onUnbind");
         String appId = intent.getStringExtra(HAPPENING_APP_ID);
+        registeredApps.remove(appId.hashCode());
         Toast.makeText(this, (appId == null ? "Something" : appId) + " unbound", Toast.LENGTH_LONG).show();
         return ALLOW_REBIND;
     }

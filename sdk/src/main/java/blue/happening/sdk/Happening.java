@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -17,6 +16,8 @@ import java.util.List;
 import blue.happening.HappeningClient;
 import blue.happening.IHappeningCallback;
 import blue.happening.IHappeningService;
+
+import static android.content.ContentValues.TAG;
 
 
 /**
@@ -129,6 +130,7 @@ public class Happening {
         ApplicationInfo info = context.getApplicationInfo();
         String appId = info.labelRes == 0 ? info.nonLocalizedLabel.toString() : context.getString(info.labelRes);
         intent.putExtra(HAPPENING_APP_ID, appId);
+        Log.d(TAG, "bindService: " + appId);
         context.startService(intent);
         return context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
@@ -193,10 +195,10 @@ public class Happening {
      *
      * @param deviceId Device id of recipient device.
      */
-    public void sendDataTo(int deviceId) {
+    public void sendDataTo(int deviceId, byte[] content) {
         Log.v(this.getClass().getSimpleName(), "sendToDevice");
         try {
-            service.sendToDevice(deviceId);
+            service.sendToDevice(deviceId, content);
         } catch (RemoteException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {

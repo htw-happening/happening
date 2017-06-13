@@ -119,6 +119,8 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
         String reply = happening.hello(message);
         dashboardModels.add(new DashboardModel("reply", reply));
         dashboardAdapter.notifyDataSetChanged();
+
+
     }
 
 }

@@ -12,9 +12,7 @@ interface IHappeningService {
 
 
     List<HappeningClient> getDevices();
-    void registerApp(int appId);
-    void deregisterApp(int appId);
-    void sendToDevice(int deviceId);
+    void sendToDevice(int deviceId, in byte[] content);
     void restart();
 
 }
