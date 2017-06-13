@@ -15,12 +15,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import blue.happening.mesh.IMeshHandlerCallback;
 import blue.happening.mesh.MeshHandler;
@@ -36,6 +34,7 @@ public class Bt4Controls extends Fragment {
 
     private static Bt4Controls instance = null;
     private Layer bluetoothLayer = null;
+    private MeshHandler meshHandler = null;
     private View rootView = null;
     private DeviceListAdapter deviceListAdapter = null;
 
@@ -90,7 +89,7 @@ public class Bt4Controls extends Fragment {
         makeMeVisible.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0); //infinity
         startActivity(makeMeVisible);
 
-        MeshHandler meshHandler = new MeshHandler(bluetoothLayer.getMacAddress());
+        meshHandler = new MeshHandler(bluetoothLayer.getMacAddress());
         meshHandler.registerLayer(bluetoothLayer);
         meshHandler.registerCallback(new IMeshHandlerCallback() {
             @Override

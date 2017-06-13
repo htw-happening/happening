@@ -15,6 +15,7 @@ import java.util.UUID;
 import blue.happening.HappeningClient;
 import blue.happening.IHappeningCallback;
 import blue.happening.IHappeningService;
+import blue.happening.service.bluetooth.Device;
 import blue.happening.service.bluetooth.Layer;
 
 
@@ -27,6 +28,7 @@ public class HappeningService extends Service {
     private static final String HAPPENING_APP_ID = "HAPPENING_APP_ID";
     private static final int START_MODE = START_STICKY;
     private static final boolean ALLOW_REBIND = true;
+    private final String TAG = getClass().getSimpleName();
 
     private static List<IHappeningCallback> callbacks = new ArrayList<>();
     private static HashMap<Integer, String> registeredApps = new HashMap<>();
@@ -65,12 +67,20 @@ public class HappeningService extends Service {
         @Override
         public List<HappeningClient> getDevices() throws RemoteException {
             Log.v(this.getClass().getSimpleName(), "getDevices");
-            return null;
+            List<HappeningClient> devices = new ArrayList<>();
+
+            for (Device device : Layer.getInstance().getDevices()) {
+                devices.add(new HappeningClient(device.getAddress(), device.getName()));
+                Log.d(TAG, "getDevices: " + devices.size());
+            }
+
+            return devices;
         }
 
         @Override
-        public void sendToDevice(int deviceId, byte[] content) throws RemoteException {
+        public void sendToDevice(String deviceId, byte[] content) throws RemoteException {
             Log.v(this.getClass().getSimpleName(), "sendToDeice");
+
             
         }
 

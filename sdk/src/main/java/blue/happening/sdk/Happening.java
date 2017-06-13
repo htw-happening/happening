@@ -195,7 +195,7 @@ public class Happening {
      *
      * @param deviceId Device id of recipient device.
      */
-    public void sendDataTo(int deviceId, byte[] content) {
+    public void sendDataTo(String deviceId, byte[] content) {
         Log.v(this.getClass().getSimpleName(), "sendToDevice");
         try {
             service.sendToDevice(deviceId, content);

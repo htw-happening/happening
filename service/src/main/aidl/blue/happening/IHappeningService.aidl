@@ -12,7 +12,7 @@ interface IHappeningService {
 
 
     List<HappeningClient> getDevices();
-    void sendToDevice(int deviceId, in byte[] content);
+    void sendToDevice(String deviceId, in byte[] content);
     void restart();
 
 }

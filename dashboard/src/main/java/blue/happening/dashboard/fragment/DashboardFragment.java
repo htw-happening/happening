@@ -13,6 +13,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import blue.happening.HappeningClient;
 import blue.happening.dashboard.R;
 import blue.happening.dashboard.adapter.DashboardAdapter;
 import blue.happening.dashboard.model.DashboardModel;
@@ -22,6 +23,7 @@ import blue.happening.sdk.HappeningCallback;
 public class DashboardFragment extends Fragment implements View.OnClickListener {
 
     private static DashboardFragment instance = null;
+    private final String TAG = this.getClass().getSimpleName();
     private List<DashboardModel> dashboardModels = new ArrayList<>();
     private DashboardAdapter dashboardAdapter;
 
@@ -79,7 +81,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
         Log.v(this.getClass().getSimpleName(), "onCreateView");
         final View rootView = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
-        Button button = (Button) rootView.findViewById(R.id.dashboard_button_hello);
+        Button button = (Button) rootView.findViewById(R.id.dashboard_button_get_devices);
         button.setOnClickListener(this);
 
         dashboardAdapter = new DashboardAdapter(container.getContext(), dashboardModels);
@@ -114,12 +116,19 @@ public class DashboardFragment extends Fragment implements View.OnClickListener 
     @Override
     public void onClick(View v) {
         Log.v(this.getClass().getSimpleName(), "onClick");
-        String message = "dashboard@" + android.os.Process.myPid();
-        dashboardModels.add(new DashboardModel("hello", message));
-        String reply = happening.hello(message);
-        dashboardModels.add(new DashboardModel("reply", reply));
-        dashboardAdapter.notifyDataSetChanged();
+//        String message = "dashboard@" + android.os.Process.myPid();
+//        dashboardModels.add(new DashboardModel("hello", message));
+//        String reply = happening.hello(message);
+//        dashboardModels.add(new DashboardModel("reply", reply));
+//        dashboardAdapter.notifyDataSetChanged();
 
+        List<HappeningClient> devices = happening.getDevices();
+
+        for (HappeningClient device : devices) {
+            dashboardModels.add(new DashboardModel(device.getClientName(), device.getClientId()));
+            Log.d(TAG, "onClick: " + device.getClientName());
+        }
+        dashboardAdapter.notifyDataSetChanged();
 
     }
 

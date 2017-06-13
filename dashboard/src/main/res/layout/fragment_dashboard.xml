@@ -5,10 +5,10 @@
     android:orientation="vertical">
 
     <Button
-        android:id="@+id/dashboard_button_hello"
+        android:id="@+id/dashboard_button_get_devices"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button_hello" />
+        android:text="get Devices" />
 
     <ListView
         android:id="@+id/dashboard_model_list"

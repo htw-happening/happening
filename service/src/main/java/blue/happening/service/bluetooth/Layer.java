@@ -129,7 +129,14 @@ public class Layer extends blue.happening.mesh.Layer {
     public ArrayList<Device> getDevices() {
         return scannedDevices;
     }
-
+/*
+    public void sendToDevice (String identifier, byte[] content){
+        Device device = getDeviceByMacOrNull(identifier);
+        if (device == null) return;
+        if (device.getState() != Device.STATE.CONNECTED) return;
+        device.se
+    }
+*/
     void notifyHandlers(int code) {
         for (Handler handler : handlers) {
             handler.obtainMessage(code).sendToTarget();
@@ -201,6 +208,14 @@ public class Layer extends blue.happening.mesh.Layer {
                 return aDevice;
         }
         return new Device(device);
+    }
+
+    public Device getDeviceByMacOrNull(String id) {
+        for (Device aDevice : scannedDevices) {
+            if (id.equals(aDevice.getAddress()))
+                return aDevice;
+        }
+        return null;
     }
 
     void connectionLost(Device device) {
