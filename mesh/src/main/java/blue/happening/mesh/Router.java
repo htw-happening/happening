@@ -2,7 +2,6 @@ package blue.happening.mesh;
 
 class Router {
 
-    private static Logger logger = new Logger();
     private RoutingTable routingTable;
     private String uuid;
 
@@ -38,7 +37,7 @@ class Router {
                 SlidingWindow window = existingDevice.getSlidingWindow();
                 window.addIfIsSequenceInWindow(message);
                 if (shouldMessageBeForwarded(message)) {
-                    logger.debug(uuid + " OGM BROADCAST: " + message);
+                    System.out.println(uuid + " OGM BROADCAST: " + message);
                     window.slideSequence(message.getSequence());
                     broadcastMessage(message);
                 } else {
@@ -54,10 +53,10 @@ class Router {
         if (message.getDestination().equals(MeshHandler.BROADCAST_ADDRESS)) {
             throw new RoutingException("Cannot broadcast UPC");
         } else if (message.getDestination().equals(uuid)) {
-            logger.debug("MESSAGE RECEIVED: " + message);
+            System.out.println("MESSAGE RECEIVED: " + message);
             return message;
         } else {
-            logger.debug("MESSAGE FORWARDED: " + message);
+            System.out.println("MESSAGE FORWARDED: " + message);
             forwardMessage(message);
             return null;
         }
@@ -84,14 +83,14 @@ class Router {
         if (sourceIsNeighbour(message)) {
             return true;
         } else if (isMyMessage(message)) {
-            logger.debug(uuid + " OGM WAS MINE: " + message);
+            System.out.println(uuid + " OGM WAS MINE: " + message);
             return false;
         } else {
             if (!isMessageVital(message)) {
-                logger.debug(uuid + " OGM NOT VITAL: " + message);
+                System.out.println(uuid + " OGM NOT VITAL: " + message);
                 return false;
             } else if (!slidingWindowSaysYes(message)) {
-                logger.debug(uuid + " OGM IN WINDOW: " + message);
+                System.out.println(uuid + " OGM IN WINDOW: " + message);
                 return false;
             }
             return true;
