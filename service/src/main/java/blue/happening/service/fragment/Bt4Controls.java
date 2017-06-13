@@ -39,8 +39,8 @@ public class Bt4Controls extends Fragment {
     private View rootView = null;
     private DeviceListAdapter deviceListAdapter = null;
 
-    private ArrayAdapter<String> meshMembersAdapter = null;
-    private List<String> meshMembers;
+//    private ArrayAdapter<String> meshMembersAdapter = null;
+//    private List<String> meshMembers;
 
     public static Bt4Controls getInstance() {
         if (instance == null)
@@ -76,12 +76,12 @@ public class Bt4Controls extends Fragment {
         });
 
 
-        ListView meshMembersListView = (ListView) rootView.findViewById(R.id.mesh_members_list);
-        meshMembers = new ArrayList<>();
-        meshMembers.add("foo");
-        meshMembers.add("bar");
-        meshMembersAdapter = new ArrayAdapter<>(rootView.getContext(), 0, meshMembers);
-        meshMembersListView.setAdapter(meshMembersAdapter);
+//        ListView meshMembersListView = (ListView) rootView.findViewById(R.id.mesh_members_list);
+//        meshMembers = new ArrayList<>();
+//        meshMembers.add("foo");
+//        meshMembers.add("bar");
+//        meshMembersAdapter = new ArrayAdapter<>(rootView.getContext(), 0, meshMembers);
+//        meshMembersListView.setAdapter(meshMembersAdapter);
 
         TextView userInfo = (TextView) rootView.findViewById(R.id.textView_info_user_id);
         userInfo.setText("    "+String.valueOf(bluetoothLayer.getMacAddress()));
@@ -100,16 +100,23 @@ public class Bt4Controls extends Fragment {
 
             @Override
             public void onDeviceAdded(String uuid) {
-                meshMembers.add(uuid);
+//                meshMembers.add(uuid);
             }
 
             @Override
             public void onDeviceRemoved(String uuid) {
-                meshMembers.remove(uuid);
+//                meshMembers.remove(uuid);
             }
         });
 
         bluetoothLayer.start();
+
+        rootView.findViewById(R.id.button_reset).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bluetoothLayer.reset();
+            }
+        });
 
         return rootView;
     }
@@ -170,7 +177,7 @@ public class Bt4Controls extends Fragment {
         public void handleMessage(Message msg) {
             //make gui
             deviceListAdapter.notifyDataSetChanged();
-            meshMembersAdapter.notifyDataSetChanged();
+//            meshMembersAdapter.notifyDataSetChanged();
             textView.setText("Num Connections: "+bluetoothLayer.getNumOfConnectedDevices());
         }
     };
