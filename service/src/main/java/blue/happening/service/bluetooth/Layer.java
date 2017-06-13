@@ -70,8 +70,13 @@ public class Layer extends blue.happening.mesh.Layer {
 
     public void start(){
         // TODO: 06.06.17 check autoconnect bool
-        this.scannedDevices.clear();
-        this.deviceFinder = new LeDeviceFinder();
+        if (isAdvertisingSupported()){
+            Log.d(TAG, "start: isAdvertisingSupported TRUE");
+            this.deviceFinder = new LeDeviceFinder();
+        }else{
+            Log.d(TAG, "start: isAdvertisingSupported FALSE");
+            this.deviceFinder = new EdrDeviceFinder();
+        }
         this.deviceFinder.registerCallback(this);
         this.deviceFinder.start();
         this.pairingRequest = new PairingRequest();
@@ -81,7 +86,6 @@ public class Layer extends blue.happening.mesh.Layer {
         this.acceptor = new Server();
         this.acceptor.start();
         // TODO: 06.06.17 bl stack aufräumen
-        notifyHandlers(1);
 
     }
 
@@ -100,10 +104,9 @@ public class Layer extends blue.happening.mesh.Layer {
         }
         context.unregisterReceiver(pairingRequest);
         connectSink.interrupt();
-        handlers.clear();
         // TODO: 06.06.17 aufräumen
+        this.scannedDevices.clear();
         notifyHandlers(1);
-
     }
 
     public void connectTo(Device device){
@@ -279,6 +282,11 @@ public class Layer extends blue.happening.mesh.Layer {
         if (getLayerCallback() != null) {
             getLayerCallback().onDeviceAdded(device);
         }
+    }
 
+    public boolean isAdvertisingSupported() {
+        return bluetoothAdapter.isMultipleAdvertisementSupported() &&
+                bluetoothAdapter.isOffloadedFilteringSupported() &&
+                bluetoothAdapter.isOffloadedScanBatchingSupported();
     }
 }
