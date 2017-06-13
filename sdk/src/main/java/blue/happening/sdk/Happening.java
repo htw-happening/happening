@@ -56,6 +56,12 @@ public class Happening {
         public void onParcelQueued(long parcelId) throws RemoteException {
             appCallback.onParcelQueued(parcelId);
         }
+
+        @Override
+        public void onMessageReceived(byte[] message, int deviceId) throws RemoteException {
+            appCallback.onMessageReceived(message, deviceId);
+        }
+
     };
     private final Runnable runnable = new Runnable() {
         public void run() {
@@ -162,4 +168,17 @@ public class Happening {
             return null;
         }
     }
+
+
+    /*
+    List<HappeningClient> getDevices();
+    void registerApp(int appId);
+    void deregisterApp(int appId);
+    void sendToDeice(int deviceId);
+    void restart();
+     */
+
+    
+
+
 }

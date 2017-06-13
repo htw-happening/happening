@@ -58,6 +58,36 @@ public class HappeningService extends Service {
         public List<HappeningClient> getClients() throws RemoteException {
             return clients;
         }
+
+        @Override
+        public List<HappeningClient> getDevices() throws RemoteException {
+            Log.v(this.getClass().getSimpleName(), "getDevices");
+            return null;
+        }
+
+        @Override
+        public void registerApp(int appId) throws RemoteException {
+            Log.v(this.getClass().getSimpleName(), "registerApp");
+
+        }
+
+        @Override
+        public void deregisterApp(int appId) throws RemoteException {
+            Log.v(this.getClass().getSimpleName(), "deregisterApp");
+
+        }
+
+        @Override
+        public void sendToDeice(int deviceId) throws RemoteException {
+            Log.v(this.getClass().getSimpleName(), "sendToDeice");
+
+        }
+
+        @Override
+        public void restart() throws RemoteException {
+            Log.v(this.getClass().getSimpleName(), "restart");
+
+        }
     };
 
     /**
