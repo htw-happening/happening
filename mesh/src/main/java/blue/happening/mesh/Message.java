@@ -12,7 +12,7 @@ import java.io.Serializable;
 
 public class Message implements Serializable {
 
-    public static final int INITIAL_MESSAGE_TQ = 100;
+    public static final int INITIAL_MESSAGE_TQ = 255;
     public static final int INITIAL_MESSAGE_TTL = 5;
     public static final int MESSAGE_TYPE_OGM = 1;
     public static final int MESSAGE_TYPE_UCM = 2;

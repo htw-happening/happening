@@ -18,6 +18,19 @@ class Router {
      */
     Message routeMessage(Message message) throws RoutingException {
         routingTable.ensureConnection(message.getSource(), message.getPreviousHop());
+
+        RemoteDevice previousDevice = routingTable.get(message.getPreviousHop());
+        if (previousDevice != null) {
+            SlidingWindow window;
+            if (message.getSource().equals(uuid)) {
+                window = previousDevice.getEchoSlidingWindow();
+            } else {
+                window = previousDevice.getReceiveSlidingWindow();
+            }
+            window.slideSequence(message.getSequence());
+            window.addIfIsSequenceInWindow(message);
+        }
+
         adjustTq(message);
 
         if (message.getType() == Message.MESSAGE_TYPE_OGM) {
@@ -34,11 +47,8 @@ class Router {
         RemoteDevice existingDevice = routingTable.get(message.getSource());
         if (existingDevice != null) {
             if (message.getDestination().equals(MeshHandler.BROADCAST_ADDRESS)) {
-                SlidingWindow window = existingDevice.getSlidingWindow();
-                window.addIfIsSequenceInWindow(message);
                 if (shouldMessageBeForwarded(message)) {
                     System.out.println(uuid + " OGM BROADCAST: " + message);
-                    window.slideSequence(message.getSequence());
                     broadcastMessage(message);
                 } else {
                     // Message is dropped
@@ -75,7 +85,7 @@ class Router {
     }
 
     private boolean slidingWindowSaysYes(Message message) {
-        SlidingWindow window = routingTable.get(message.getSource()).getSlidingWindow();
+        SlidingWindow window = routingTable.get(message.getSource()).getReceiveSlidingWindow();
         return window.isSequenceOutOfWindow(message.getSequence());
     }
 
@@ -106,8 +116,9 @@ class Router {
         RemoteDevice previousHop = routingTable.get(message.getPreviousHop());
         float previousTq = 0;
         if (previousHop != null) {
-            previousTq = previousHop.getSlidingWindow().getTransmissionQuality();
+            previousTq = previousHop.getTq();
         }
+        System.out.println("TQ MESSAGE: " + message.getTq() + ", PREVIOUS TQ: " + previousTq + ", = " + (float) (message.getTq() * previousTq));
         message.setTq((int) (message.getTq() * previousTq) - MeshHandler.HOP_PENALTY);
     }
 
