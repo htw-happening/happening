@@ -3,6 +3,8 @@ package blue.happening.mesh;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
@@ -53,8 +55,8 @@ public class MeshHandler {
         routingTable.registerMeshHandlerCallback(callback);
     }
 
-    public RoutingTable getRoutingTable() {
-        return routingTable;
+    public List<String> getDevices() {
+        return new ArrayList<String>(routingTable.keySet());
     }
 
     private class OGMRunner implements Runnable {
