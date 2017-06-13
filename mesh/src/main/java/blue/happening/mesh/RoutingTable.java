@@ -87,21 +87,30 @@ public class RoutingTable extends HashMap<String, RemoteDevice> {
     RemoteDevice ensureConnection(RemoteDevice discoveredDevice,
                                   RemoteDevice neighbour) {
         RemoteDevice existingDevice = get(discoveredDevice.getUuid());
+
         if (existingDevice == null) {
             // Device did not previously exist
             put(discoveredDevice.getUuid(), discoveredDevice);
             existingDevice = discoveredDevice;
             meshHandlerCallback.onDeviceAdded(discoveredDevice.getUuid());
-        } else if (discoveredDevice.isNeighbour()) {
-            // Device was a multi hop device and becomes a neighbour
-            discoveredDevice.mergeNeighbours(existingDevice);
-            put(discoveredDevice.getUuid(), discoveredDevice);
-            existingDevice = discoveredDevice;
-        } else if (existingDevice.isNeighbour()) {
-            // Device was neighbour and also becomes reachable as multi hop
-            existingDevice.mergeNeighbours(discoveredDevice);
         } else {
-            // Device remains multi hop
+            // When discovered and neighbour are the same add neighbour to make sure that
+            // discovered device is handled as neighbour
+            if (discoveredDevice.equals(neighbour)) {
+                discoveredDevice.getNeighbourUuids().add(neighbour.getUuid());
+            }
+
+            if (discoveredDevice.isNeighbour()) {
+                // Device was a multi hop device and becomes a neighbour
+                discoveredDevice.mergeNeighbours(existingDevice);
+                put(discoveredDevice.getUuid(), discoveredDevice);
+                existingDevice = discoveredDevice;
+            } else if (existingDevice.isNeighbour()) {
+                // Device was neighbour and also becomes reachable as multi hop
+                existingDevice.mergeNeighbours(discoveredDevice);
+            } else {
+                // Device remains multi hop
+            }
         }
 
         existingDevice.setLastSeen(System.currentTimeMillis());
