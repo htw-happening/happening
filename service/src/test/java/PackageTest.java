@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
+import blue.happening.service.bluetooth.AppPackage;
 import blue.happening.service.bluetooth.Package;
 import blue.happening.service.bluetooth.Packetizer;
 
@@ -12,9 +13,9 @@ public class PackageTest {
 
     @Test
     public void checkSplittingAndMerging() {
-        Assert.assertEquals(1,1);
+        Assert.assertEquals(1, 1);
 
-        Package aPackage = new Package(new byte[]{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20});
+        Package aPackage = new Package(new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20});
         Package other = null;
 
         Packetizer handler = new Packetizer();
@@ -28,7 +29,7 @@ public class PackageTest {
                 outputStream.write(aData.getData());
             }
 
-            while (true){
+            while (true) {
                 byte[] buffer = new byte[Packetizer.CHUNK_SIZE + Packetizer.CHUNK_NUM];
                 inputStream.read(buffer);
                 handler.createNewFromMeta(buffer);
@@ -47,5 +48,20 @@ public class PackageTest {
         }
         Assert.assertEquals(aPackage, other);
 
+    }
+
+    @Test
+    public void checkAppPackage() {
+        Assert.assertEquals("Works!", 1, 1);
+
+        int appID = 666;
+        byte[] content = new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
+
+        AppPackage appPackage = new AppPackage();
+        byte[] appPackageBytes = appPackage.createAppPackage(appID, content);
+
+        Assert.assertEquals("Length", content.length + 4, appPackageBytes.length);
+        Assert.assertEquals("AppID", appID, appPackage.getAppID(appPackageBytes));
+        Assert.assertArrayEquals("Content", content, appPackage.getContent(appPackageBytes));
     }
 }
