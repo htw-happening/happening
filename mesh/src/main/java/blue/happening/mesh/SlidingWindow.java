@@ -1,5 +1,7 @@
 package blue.happening.mesh;
 
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -7,6 +9,7 @@ import java.util.List;
 class SlidingWindow extends HashSet<Integer> {
 
     public static final int WINDOW_SIZE = 12;
+    private static Logger logger = Logger.getLogger(SlidingWindow.class);
 
     private int sequence;
 
@@ -21,7 +24,7 @@ class SlidingWindow extends HashSet<Integer> {
             this.sequence = sequence;
             removeAll(getOutdatedSequences());
         } else {
-            System.out.println("This shouldn't happen");
+            logger.error("This shouldn't happen");
         }
     }
 

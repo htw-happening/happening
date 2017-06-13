@@ -1,7 +1,10 @@
 package blue.happening.mesh;
 
+import org.apache.log4j.Logger;
+
 class Router {
 
+    private static Logger logger = Logger.getLogger(Router.class);
     private RoutingTable routingTable;
     private String uuid;
 
@@ -31,13 +34,13 @@ class Router {
 
     private void routeOgm(Message message) throws RoutingException {
         RemoteDevice existingDevice = routingTable.get(message.getSource());
-        if(existingDevice != null){
+        if (existingDevice != null) {
             SlidingWindow window = existingDevice.getSlidingWindow();
 
             if (message.getDestination().equals(MeshHandler.BROADCAST_ADDRESS)) {
                 window.addIfIsSequenceInWindow(message.getSequence());
                 if (shouldMessageBeForwarded(message)) {
-                    System.out.println(uuid + " OGM BROADCAST:       " + message);
+                    logger.debug(uuid + " OGM BROADCAST: " + message);
                     window.slideSequence(message.getSequence());
                     broadcastMessage(message);
                 } else {
@@ -53,10 +56,10 @@ class Router {
         if (message.getDestination().equals(MeshHandler.BROADCAST_ADDRESS)) {
             throw new RoutingException("Cannot broadcast UPC");
         } else if (message.getDestination().equals(uuid)) {
-            System.out.println("MESSAGE RECEIVED: " + message);
+            logger.debug("MESSAGE RECEIVED: " + message);
             return message;
         } else {
-            System.out.println("MESSAGE FORWARDED: " + message);
+            logger.debug("MESSAGE FORWARDED: " + message);
             forwardMessage(message);
             return null;
         }
@@ -83,14 +86,14 @@ class Router {
         if (sourceIsNeighbour(message)) {
             return true;
         } else if (isMyMessage(message)) {
-            System.out.println(uuid + " OGM WAS MINE:        " + message);
+            logger.debug(uuid + " OGM WAS MINE: " + message);
             return false;
         } else {
             if (!isMessageVital(message)) {
-                System.out.println(uuid + " OGM NOT VITAL:     " + message);
+                logger.debug(uuid + " OGM NOT VITAL: " + message);
                 return false;
             } else if (!slidingWindowSaysYes(message)) {
-                System.out.println(uuid + " OGM IN WINDOW:       " + message);
+                logger.debug(uuid + " OGM IN WINDOW: " + message);
                 return false;
             }
             return true;

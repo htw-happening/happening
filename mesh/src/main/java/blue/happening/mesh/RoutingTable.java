@@ -1,16 +1,17 @@
 package blue.happening.mesh;
 
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
 public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
 
+    private static Logger logger = Logger.getLogger(RoutingTable.class);
     private IMeshHandlerCallback meshHandlerCallback;
 
     void registerMeshHandlerCallback(IMeshHandlerCallback meshHandlerCallback) {
@@ -66,7 +67,7 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
         if (remoteDevice == null) {
             remoteDevice = new RemoteDevice(remoteDeviceUuid) {
                 public boolean sendMessage(Message message) {
-                    System.out.println("DEVICE " + this.getUuid() + " DOES NOT HAVE THIS OP");
+                    logger.debug("DEVICE " + this.getUuid() + " DOES NOT HAVE THIS OP");
                     throw new UnsupportedOperationException();
                 }
             };
