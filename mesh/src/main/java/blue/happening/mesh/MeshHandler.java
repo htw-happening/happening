@@ -75,7 +75,6 @@ public class MeshHandler {
                 for (RemoteDevice remoteDevice : routingTable.getExpiredRemoteDevices()) {
                     remoteDevice.remove();
                     routingTable.remove(remoteDevice.getUuid());
-                    meshHandlerCallback.onDeviceRemoved(remoteDevice.getUuid());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -95,7 +94,7 @@ public class MeshHandler {
         @Override
         public void onDeviceRemoved(RemoteDevice remoteDevice) {
             System.out.println(uuid + " DEVICE REMOVED: " + remoteDevice);
-            routingTable.remove(remoteDevice.getUuid());
+            routingTable.removeFromNeighbours(remoteDevice.getUuid());
         }
 
         @Override

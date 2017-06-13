@@ -93,7 +93,7 @@ public class Device extends Observable {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "@" + this.name;
+        return this.name;
     }
 
     @Override

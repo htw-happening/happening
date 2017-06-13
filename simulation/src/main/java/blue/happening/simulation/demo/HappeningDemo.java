@@ -44,8 +44,6 @@ public class HappeningDemo {
             }
         }
 
-        Device focusDevice = graph.getLastAddedVertex();
-
         // Enable blue.happening.bla.visualization frame and panel
         MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<Device, Connection>(
                 graph);

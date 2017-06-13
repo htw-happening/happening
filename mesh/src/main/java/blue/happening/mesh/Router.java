@@ -30,19 +30,22 @@ class Router {
     }
 
     private void routeOgm(Message message) throws RoutingException {
-        SlidingWindow window = routingTable.get(message.getSource()).getSlidingWindow();
+        RemoteDevice existingDevice = routingTable.get(message.getSource());
+        if(existingDevice != null){
+            SlidingWindow window = existingDevice.getSlidingWindow();
 
-        if (message.getDestination().equals(MeshHandler.BROADCAST_ADDRESS)) {
-            window.addIfIsSequenceInWindow(message.getSequence());
-            if (shouldMessageBeForwarded(message)) {
-                System.out.println(uuid + " OGM BROADCAST:       " + message);
-                window.slideSequence(message.getSequence());
-                broadcastMessage(message);
+            if (message.getDestination().equals(MeshHandler.BROADCAST_ADDRESS)) {
+                window.addIfIsSequenceInWindow(message.getSequence());
+                if (shouldMessageBeForwarded(message)) {
+                    System.out.println(uuid + " OGM BROADCAST:       " + message);
+                    window.slideSequence(message.getSequence());
+                    broadcastMessage(message);
+                } else {
+                    // Message is dropped
+                }
             } else {
-                // Message is dropped
+                throw new RoutingException("OGM needs broadcast destination");
             }
-        } else {
-            throw new RoutingException("OGM needs broadcast destination");
         }
     }
 
