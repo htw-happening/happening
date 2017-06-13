@@ -24,7 +24,7 @@ public class MyFragmentManager {
         this.fragmentManager = activity.getFragmentManager();
 
         // inflate default fragment
-        this.dashboardFragment = new DashboardFragment();
+        this.dashboardFragment = DashboardFragment.getInstance();
         this.currentFragment = this.dashboardFragment;
         this.newFragment = this.dashboardFragment;
 
