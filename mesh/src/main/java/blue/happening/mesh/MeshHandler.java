@@ -59,9 +59,15 @@ public class MeshHandler {
         RemoteDevice remoteDevice = routingTable.get(uuid);
         if (remoteDevice == null) {
             return false;
+        } else {
+            RemoteDevice bestNeighbour = routingTable.getBestNeighbourForRemoteDevice(remoteDevice);
+            if (bestNeighbour != null) {
+                Message message = new Message(this.uuid, uuid, ++sequence, Message.MESSAGE_TYPE_UCM, bytes);
+                return bestNeighbour.sendMessage(message);
+            } else {
+                return false;
+            }
         }
-        Message message = new Message(this.uuid, uuid, ++sequence, Message.MESSAGE_TYPE_UCM, bytes);
-        return remoteDevice.sendMessage(message);
     }
 
     private class OGMRunner implements Runnable {
