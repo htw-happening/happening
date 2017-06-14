@@ -15,15 +15,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import blue.happening.mesh.IMeshHandlerCallback;
 import blue.happening.mesh.MeshHandler;
 import blue.happening.service.R;
 import blue.happening.service.adapter.DeviceListAdapter;
+import blue.happening.service.adapter.MeshDevice;
+import blue.happening.service.adapter.MeshDeviceListAdapter;
 import blue.happening.service.bluetooth.Device;
 import blue.happening.service.bluetooth.Layer;
 import blue.happening.service.bluetooth.Package;
@@ -38,8 +42,8 @@ public class Bt4Controls extends Fragment {
     private View rootView = null;
     private DeviceListAdapter deviceListAdapter = null;
 
-//    private ArrayAdapter<String> meshMembersAdapter = null;
-//    private List<String> meshMembers;
+    private MeshDeviceListAdapter meshDeviceListAdapter = null;
+    private ArrayList<MeshDevice> meshDevices;
 
     public static Bt4Controls getInstance() {
         if (instance == null)
@@ -75,12 +79,12 @@ public class Bt4Controls extends Fragment {
         });
 
 
-//        ListView meshMembersListView = (ListView) rootView.findViewById(R.id.mesh_members_list);
-//        meshMembers = new ArrayList<>();
-//        meshMembers.add("foo");
-//        meshMembers.add("bar");
-//        meshMembersAdapter = new ArrayAdapter<>(rootView.getContext(), 0, meshMembers);
-//        meshMembersListView.setAdapter(meshMembersAdapter);
+        ListView meshMembersListView = (ListView) rootView.findViewById(R.id.mesh_members_list);
+        meshDevices = new ArrayList<>();
+        meshDevices.add(new MeshDevice("Peter", "Pan"));
+        meshDevices.add(new MeshDevice("Bla", "Kesks"));
+        meshDeviceListAdapter = new MeshDeviceListAdapter(rootView.getContext(), meshDevices);
+        meshMembersListView.setAdapter(meshDeviceListAdapter);
 
         TextView userInfo = (TextView) rootView.findViewById(R.id.textView_info_user_id);
         userInfo.setText("    "+String.valueOf(bluetoothLayer.getMacAddress()));
@@ -99,7 +103,8 @@ public class Bt4Controls extends Fragment {
 
             @Override
             public void onDeviceAdded(String uuid) {
-//                meshMembers.add(uuid);
+                mergeIntoList(uuid);
+                guiHandler.obtainMessage(1).sendToTarget();
             }
 
             @Override
@@ -162,6 +167,16 @@ public class Bt4Controls extends Fragment {
         }
     }
 
+    void mergeIntoList(String id){
+        MeshDevice newMeshDevice  = new MeshDevice(id, "Name");
+        for (MeshDevice meshDevice : meshDevices) {
+            if (meshDevice.equals(newMeshDevice)){
+                return;
+            }
+        }
+        meshDevices.add(newMeshDevice);
+    }
+
 
     @Override
     public void onPause() {
@@ -176,6 +191,7 @@ public class Bt4Controls extends Fragment {
         public void handleMessage(Message msg) {
             //make gui
             deviceListAdapter.notifyDataSetChanged();
+            meshDeviceListAdapter.notifyDataSetChanged();
 //            meshMembersAdapter.notifyDataSetChanged();
             textView.setText("Num Connections: "+bluetoothLayer.getNumOfConnectedDevices());
         }
