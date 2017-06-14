@@ -1,12 +1,15 @@
 package blue.happening.service.fragment;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -18,10 +21,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import blue.happening.MyApplication;
 import blue.happening.mesh.IMeshHandlerCallback;
 import blue.happening.mesh.MeshHandler;
 import blue.happening.service.R;
@@ -78,6 +83,20 @@ public class Bt4Controls extends Fragment {
             }
         });
 
+        rootView.findViewById(R.id.get_devices).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("CLICK", "Clicked on get_devices");
+                List<String> ids = meshHandler.getDevices();
+
+                String message = "";
+                for (String id : ids) {
+                    message += id + " \n";
+                }
+                Toast.makeText(MyApplication.getAppContext(), message, Toast.LENGTH_LONG).show();
+
+            }
+        });
 
         ListView meshMembersListView = (ListView) rootView.findViewById(R.id.mesh_members_list);
         meshDevices = new ArrayList<>();

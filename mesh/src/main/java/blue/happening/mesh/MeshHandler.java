@@ -2,6 +2,7 @@ package blue.happening.mesh;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
@@ -52,7 +53,11 @@ public class MeshHandler {
     }
 
     public List<String> getDevices() {
-        return new ArrayList<String>(routingTable.keySet());
+        ArrayList<String> strings = new ArrayList<String>();
+        for (Map.Entry<String, RemoteDevice> stringRemoteDeviceEntry : routingTable.entrySet()) {
+            strings.add(stringRemoteDeviceEntry.getKey());
+        }
+        return strings;
     }
 
     public boolean sendMessage(String uuid, byte[] bytes) {
