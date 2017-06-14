@@ -11,6 +11,7 @@ import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import blue.happening.HappeningClient;
@@ -148,15 +149,18 @@ public class Happening {
      */
     public List<HappeningClient> getDevices() {
         Log.v(this.getClass().getSimpleName(), "getDevices");
+        List<HappeningClient> devicesList = null;
         try {
-            return service.getDevices();
+            devicesList = service.getDevices();
         } catch (RemoteException e) {
             e.printStackTrace();
-            return null;
         } catch (NullPointerException e) {
             e.printStackTrace();
-            return null;
         }
+        if (devicesList == null) {
+            devicesList = new ArrayList<>();
+        }
+        return devicesList;
     }
 
     /**
