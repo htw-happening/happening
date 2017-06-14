@@ -31,7 +31,6 @@
         android:layout_below="@+id/linearLayout"
         android:layout_height="wrap_content" >
     </ListView>
-<!--
     <ListView
         android:id="@+id/mesh_members_list"
         android:layout_width="match_parent"
@@ -41,7 +40,6 @@
         android:layout_below="@+id/discovered_devices_list"
         android:layout_height="wrap_content" >
     </ListView>
--->
     <Button
         android:id="@+id/button_reset"
         android:layout_width="match_parent"

@@ -81,8 +81,6 @@ public class Bt4Controls extends Fragment {
 
         ListView meshMembersListView = (ListView) rootView.findViewById(R.id.mesh_members_list);
         meshDevices = new ArrayList<>();
-        meshDevices.add(new MeshDevice("Peter", "Pan"));
-        meshDevices.add(new MeshDevice("Bla", "Kesks"));
         meshDeviceListAdapter = new MeshDeviceListAdapter(rootView.getContext(), meshDevices);
         meshMembersListView.setAdapter(meshDeviceListAdapter);
 
