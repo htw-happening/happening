@@ -75,10 +75,11 @@ public class Bt4Controls extends Fragment {
             }
         });
 
-        Button getDevices = (Button) container.findViewById(R.id.get_devices);
+        Button getDevices = (Button) rootView.findViewById(R.id.get_devices);
         getDevices.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("click", "click");
                 meshHandler.getDevices();
             }
         });
