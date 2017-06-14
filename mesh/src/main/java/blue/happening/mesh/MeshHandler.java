@@ -57,9 +57,11 @@ public class MeshHandler {
 
     public boolean sendMessage(String uuid, byte[] bytes) {
         RemoteDevice remoteDevice = routingTable.get(uuid);
+        System.out.println("ACHTUNG " + routingTable.size());
         if (remoteDevice == null) {
             return false;
         }
+        System.out.printf("JAUUU" + remoteDevice.getUuid());
         Message message = new Message(this.uuid, uuid, ++sequence, Message.MESSAGE_TYPE_UCM, bytes);
         return remoteDevice.sendMessage(message);
     }

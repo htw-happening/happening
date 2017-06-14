@@ -125,6 +125,7 @@ public class Connection {
 
         void write(Package aPackage){
             packageQueue.offer(aPackage);
+            Log.d("SEND", aPackage.toString());
         }
     }
 

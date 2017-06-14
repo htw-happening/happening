@@ -21,15 +21,12 @@ import blue.happening.MyApplication;
 
 public class Layer extends blue.happening.mesh.Layer {
 
-    private String TAG = getClass().getSimpleName();
-    private boolean d = true;
-
     static final String SERVICE_UUID = "11111111-0000-0000-0000-000005e971cf";
     static final String RANDOM_READ_UUID = "00001111-0000-1000-8000-00805f9b34fb";
-
     @SuppressLint("StaticFieldLeak")
     private static Layer instance = null;
-
+    private String TAG = getClass().getSimpleName();
+    private boolean d = true;
     private Context context = null;
 
     private BluetoothAdapter bluetoothAdapter = null;
@@ -43,16 +40,6 @@ public class Layer extends blue.happening.mesh.Layer {
     private String macAddress = "";
     private boolean autoConnect = true;
 
-    public Context getContext() {
-        return context;
-    }
-
-    public static Layer getInstance() {
-        if (instance == null)
-            instance = new Layer();
-        return instance;
-    }
-
     private Layer() {
         this.context = MyApplication.getAppContext();
         this.scannedDevices = new ArrayList<>();
@@ -64,16 +51,26 @@ public class Layer extends blue.happening.mesh.Layer {
 
     }
 
-    public void setAutoConnect(boolean value){
+    public static Layer getInstance() {
+        if (instance == null)
+            instance = new Layer();
+        return instance;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public void setAutoConnect(boolean value) {
         this.autoConnect = value;
     }
 
-    public void start(){
+    public void start() {
         // TODO: 06.06.17 check autoconnect bool
-        if (isAdvertisingSupported()){
+        if (isAdvertisingSupported()) {
             Log.d(TAG, "start: isAdvertisingSupported TRUE");
             this.deviceFinder = new LeDeviceFinder();
-        }else{
+        } else {
             Log.d(TAG, "start: isAdvertisingSupported FALSE");
             this.deviceFinder = new EdrDeviceFinder();
         }
@@ -91,7 +88,7 @@ public class Layer extends blue.happening.mesh.Layer {
 
 
     public void shutdown() {
-        if (deviceFinder != null){
+        if (deviceFinder != null) {
             this.deviceFinder.stop();
         }
         if (acceptor != null) {
@@ -109,15 +106,15 @@ public class Layer extends blue.happening.mesh.Layer {
         notifyHandlers(1);
     }
 
-    public void connectTo(Device device){
+    public void connectTo(Device device) {
         connectSink.addDevice(device);
     }
 
-    public void disconnectFrom(Device device){
+    public void disconnectFrom(Device device) {
         device.disconnect();
     }
 
-    public void reset(){
+    public void reset() {
         shutdown();
         start();
     }
@@ -129,14 +126,14 @@ public class Layer extends blue.happening.mesh.Layer {
     public ArrayList<Device> getDevices() {
         return scannedDevices;
     }
-/*
-    public void sendToDevice (String identifier, byte[] content){
+
+    public void sendToDevice(String identifier, byte[] content) {
         Device device = getDeviceByMacOrNull(identifier);
         if (device == null) return;
         if (device.getState() != Device.STATE.CONNECTED) return;
-        device.se
+        device.sendMessage(content);
     }
-*/
+
     void notifyHandlers(int code) {
         for (Handler handler : handlers) {
             handler.obtainMessage(code).sendToTarget();
@@ -225,6 +222,45 @@ public class Layer extends blue.happening.mesh.Layer {
         }
     }
 
+    void connectedToServer(BluetoothSocket socket, Device device) {
+        if (device.getState() == Device.STATE.CONNECTED) {
+            return;
+        }
+        device.changeState(Device.STATE.CONNECTED);
+        device.resetTrials();
+        device.connection = new Connection(device, socket);
+        if (getLayerCallback() != null) {
+            getLayerCallback().onDeviceAdded(device);
+        }
+
+    }
+
+    private void connectedToClient(BluetoothSocket socket, BluetoothDevice bluetoothDevice) {
+        Device device;
+        if (isMacAddressAlreadyInList(new Device(bluetoothDevice), scannedDevices)) {
+            device = getDeviceByMac(bluetoothDevice);
+            device.resetTrials();
+            if (device.getState() == Device.STATE.CONNECTED) {
+                return;
+            }
+
+        } else {
+            device = new Device(bluetoothDevice);
+            scannedDevices.add(device);
+        }
+        device.changeState(Device.STATE.CONNECTED);
+        device.connection = new Connection(device, socket);
+        if (getLayerCallback() != null) {
+            getLayerCallback().onDeviceAdded(device);
+        }
+    }
+
+    public boolean isAdvertisingSupported() {
+        return bluetoothAdapter.isMultipleAdvertisementSupported() &&
+                bluetoothAdapter.isOffloadedFilteringSupported() &&
+                bluetoothAdapter.isOffloadedScanBatchingSupported();
+    }
+
     private class Server extends Thread {
 
         BluetoothServerSocket serverSocket = null;
@@ -264,44 +300,5 @@ public class Layer extends blue.happening.mesh.Layer {
                 }
             }
         }
-    }
-
-    void connectedToServer(BluetoothSocket socket, Device device) {
-        if (device.getState() == Device.STATE.CONNECTED) {
-            return;
-        }
-        device.changeState(Device.STATE.CONNECTED);
-        device.resetTrials();
-        device.connection = new Connection(device, socket);
-        if (getLayerCallback() != null) {
-            getLayerCallback().onDeviceAdded(device);
-        }
-
-    }
-
-    private void connectedToClient(BluetoothSocket socket, BluetoothDevice bluetoothDevice) {
-        Device device;
-        if (isMacAddressAlreadyInList(new Device(bluetoothDevice), scannedDevices)) {
-            device = getDeviceByMac(bluetoothDevice);
-            device.resetTrials();
-            if (device.getState() == Device.STATE.CONNECTED) {
-                return;
-            }
-
-        } else {
-            device = new Device(bluetoothDevice);
-            scannedDevices.add(device);
-        }
-        device.changeState(Device.STATE.CONNECTED);
-        device.connection = new Connection(device, socket);
-        if (getLayerCallback() != null) {
-            getLayerCallback().onDeviceAdded(device);
-        }
-    }
-
-    public boolean isAdvertisingSupported() {
-        return bluetoothAdapter.isMultipleAdvertisementSupported() &&
-                bluetoothAdapter.isOffloadedFilteringSupported() &&
-                bluetoothAdapter.isOffloadedScanBatchingSupported();
     }
 }

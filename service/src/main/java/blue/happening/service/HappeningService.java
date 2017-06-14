@@ -18,7 +18,6 @@ import blue.happening.IHappeningService;
 import blue.happening.mesh.IMeshHandlerCallback;
 import blue.happening.mesh.MeshHandler;
 import blue.happening.service.bluetooth.AppPackage;
-import blue.happening.service.bluetooth.Device;
 import blue.happening.service.bluetooth.Layer;
 
 
@@ -46,23 +45,23 @@ public class HappeningService extends Service {
         public List<HappeningClient> getDevices() throws RemoteException {
             Log.v(this.getClass().getSimpleName(), "getDevices");
 
-//            List<String> deviceKeys = meshHandler.getDevices();
+            List<String> deviceKeys = meshHandler.getDevices();
             List<HappeningClient> devices = new ArrayList<>();
 
-//            Log.d(TAG, "getDevices: size "+deviceKeys.size());
+            Log.d(TAG, "getDevices: size "+deviceKeys.size());
+            System.out.println("getDevices: size "+deviceKeys.size());
 
-
-//            for (String deviceKey : deviceKeys) {
-//                devices.add(new HappeningClient(deviceKey, "N/A"));
-//                Log.d(TAG, "getDevices: " + deviceKey);
-//            }
-
-
-
-            for (Device device : Layer.getInstance().getDevices()) {
-                devices.add(new HappeningClient(device.getAddress(), device.getName()));
-                Log.d(TAG, "getDevices: " + devices.size());
+            for (String deviceKey : deviceKeys) {
+                devices.add(new HappeningClient(deviceKey, "N/A"));
+                Log.d(TAG, "getDevices: " + deviceKey);
             }
+
+
+
+//            for (Device device : Layer.getInstance().getDevices()) {
+//                devices.add(new HappeningClient(device.getAddress(), device.getName()));
+//                Log.d(TAG, "getDevices: " + devices.size());
+//            }
 
             return devices;
         }
@@ -73,6 +72,7 @@ public class HappeningService extends Service {
             // TODO: Meshhandler.sendId(deviceId, content)
             byte[] data = AppPackage.createAppPackage(appId.hashCode(), content);
             meshHandler.sendMessage(deviceId, data);
+//            Layer.getInstance().sendToDevice(deviceId, content);
         }
 
         @Override
@@ -115,6 +115,7 @@ public class HappeningService extends Service {
 
             @Override
             public void onDeviceAdded(String uuid) {
+                System.out.println("DISCO DISCOVERED: " + uuid);
 //                meshMembers.add(uuid);
             }
 
