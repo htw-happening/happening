@@ -108,6 +108,9 @@ public class Bt4Controls extends Fragment {
             @Override
             public void onDeviceRemoved(String uuid) {
 //                meshMembers.remove(uuid);
+                removeMeshDevice(uuid);
+                guiHandler.obtainMessage(1).sendToTarget();
+
             }
         });
 
@@ -173,6 +176,15 @@ public class Bt4Controls extends Fragment {
             }
         }
         meshDevices.add(newMeshDevice);
+    }
+
+    private void removeMeshDevice(String uuid) {
+        MeshDevice newMeshDevice  = new MeshDevice(uuid, "Name");
+        for (MeshDevice meshDevice : meshDevices) {
+            if (meshDevice.equals(newMeshDevice)){
+                meshDevices.remove(newMeshDevice);
+            }
+        }
     }
 
 
