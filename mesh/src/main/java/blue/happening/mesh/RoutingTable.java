@@ -105,7 +105,8 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
             if (discoveredDevice.isNeighbour()) {
                 // Device was a multi hop device and becomes a neighbour
                 discoveredDevice.mergeNeighbours(existingDevice);
-                discoveredDevice.getSlidingWindow().clear();
+                discoveredDevice.getEchoSlidingWindow().clear();
+                discoveredDevice.getReceiveSlidingWindow().clear();
                 put(discoveredDevice.getUuid(), discoveredDevice);
                 existingDevice = discoveredDevice;
             } else if (existingDevice.isNeighbour()) {
