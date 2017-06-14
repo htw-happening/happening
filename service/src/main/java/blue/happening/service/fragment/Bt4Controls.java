@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -71,6 +72,14 @@ public class Bt4Controls extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Device device = (Device) parent.getItemAtPosition(position);
                 Log.i("CLICK", "Clicked on device " + device.toString());
+            }
+        });
+
+        Button getDevices = (Button) container.findViewById(R.id.get_devices);
+        getDevices.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                meshHandler.getDevices();
             }
         });
 
