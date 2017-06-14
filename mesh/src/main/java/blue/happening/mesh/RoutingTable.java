@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Exchanger;
 
 
 public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
@@ -101,15 +102,14 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
             if (discoveredDevice.equals(neighbour)) {
                 discoveredDevice.getNeighbourUuids().add(neighbour.getUuid());
             }
-
-            if (discoveredDevice.isNeighbour()) {
+            if (discoveredDevice.isNeighbour() && !existingDevice.isNeighbour()) {
                 // Device was a multi hop device and becomes a neighbour
                 discoveredDevice.mergeNeighbours(existingDevice);
                 discoveredDevice.getEchoSlidingWindow().clear();
                 discoveredDevice.getReceiveSlidingWindow().clear();
                 put(discoveredDevice.getUuid(), discoveredDevice);
                 existingDevice = discoveredDevice;
-            } else if (existingDevice.isNeighbour()) {
+            } else if (!discoveredDevice.isNeighbour() && existingDevice.isNeighbour()) {
                 // Device was neighbour and also becomes reachable as multi hop
                 existingDevice.mergeNeighbours(discoveredDevice);
             } else {

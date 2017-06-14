@@ -57,10 +57,16 @@ public abstract class RemoteDevice implements Comparable<RemoteDevice> {
         neighbourUuids.addAll(remoteDevice.getNeighbourUuids());
     }
 
-    final float getTq() {
-        return 1;
-//        return (echoSlidingWindow.size() / SlidingWindow.WINDOW_SIZE) *
-//                (receiveSlidingWindow.size() / SlidingWindow.WINDOW_SIZE);
+    public final float getEq() {
+        return ((float) echoSlidingWindow.size()) / MeshHandler.SLIDING_WINDOW_SIZE;
+    }
+
+    public final float getRq() {
+        return ((float) receiveSlidingWindow.size()) / MeshHandler.SLIDING_WINDOW_SIZE;
+    }
+
+    public final float getTq() {
+        return getEq() / getRq();
     }
 
     public abstract boolean sendMessage(Message message);

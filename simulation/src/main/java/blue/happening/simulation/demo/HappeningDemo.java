@@ -36,8 +36,8 @@ public class HappeningDemo {
         MobilityPattern<Device, Connection> mobilityPattern = new RandomDSMobilityPattern<Device, Connection>(
                 bound, speedMin, speedMax);
 
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 1; j++) {
                 graph.addVertex(new Device("Test_" + i + "_" + j, graph),
                         100 + (i * 100), 100 + (j * 100), mobilityPattern, txRadius,
                         rxRadius);

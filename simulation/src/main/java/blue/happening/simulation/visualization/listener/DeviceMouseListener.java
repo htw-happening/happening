@@ -3,6 +3,7 @@ package blue.happening.simulation.visualization.listener;
 import java.awt.event.MouseEvent;
 
 import blue.happening.simulation.entities.Device;
+import blue.happening.simulation.visualization.DevicePanel;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 
 
@@ -17,6 +18,10 @@ public class DeviceMouseListener<V extends Device> implements GraphMouseListener
                 graphDevice.setClicked(false);
             }
             device.setClicked(true);
+            DevicePanel panel = device.getNetworkGraph().getDevicePanel();
+            if (panel != null) {
+                panel.setDevice(device);
+            }
         }
         me.consume();
     }

@@ -17,8 +17,8 @@ public class MeshHandler {
     public static final int INITIAL_MIN_SEQUENCE = 0;
     public static final int MESSAGE_TYPE_OGM = 1;
     public static final int MESSAGE_TYPE_UCM = 2;
-    public static final int OGM_INTERVAL = 10;
-    public static final int PURGE_INTERVAL = 2;
+    public static final int OGM_INTERVAL = 2;
+    public static final int PURGE_INTERVAL = 200;
     public static final int SLIDING_WINDOW_SIZE = 12;
     public static final long DEVICE_EXPIRATION_DURATION = 200;
     public static final String BROADCAST_ADDRESS = "BROADCAST";
@@ -55,6 +55,10 @@ public class MeshHandler {
     public void registerCallback(IMeshHandlerCallback callback) {
         meshHandlerCallback = callback;
         routingTable.registerMeshHandlerCallback(callback);
+    }
+
+    public RoutingTable getRoutingTable() {
+        return routingTable;
     }
 
     public List<String> getDevices() {

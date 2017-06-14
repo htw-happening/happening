@@ -17,14 +17,11 @@ class Router {
      * @throws RoutingException Caused by invalid message header
      */
     Message routeMessage(Message message) throws RoutingException {
-        if (isEchoOGM(message)) {
-            System.out.println(uuid + " OGM WAS MINE: " + message);
-            return null;
+        if (!isEchoOGM(message)) {
+            routingTable.ensureConnection(message.getSource(), message.getPreviousHop());
         }
 
-        routingTable.ensureConnection(message.getSource(), message.getPreviousHop());
         if (message.getType() == MeshHandler.MESSAGE_TYPE_OGM) {
-
             slideWindows(message);
             adjustTq(message);
             routeOgm(message);
@@ -147,6 +144,7 @@ class Router {
 
     private void broadcastMessage(Message message) {
         prepareMessage(message);
+        // TODO: Only send to prevHop if source == prevHop
         for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
             remoteDevice.sendMessage(message);
         }
