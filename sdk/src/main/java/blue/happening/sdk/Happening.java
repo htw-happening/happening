@@ -11,6 +11,7 @@ import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import blue.happening.HappeningClient;
@@ -28,7 +29,6 @@ import static android.content.ContentValues.TAG;
 public class Happening {
 
     private static final String HAPPENING_APP_ID = "HAPPENING_APP_ID";
-    private static ApplicationInfo info = null;
     private static String appId = null;
 
     private Context context;
@@ -105,7 +105,7 @@ public class Happening {
         this.context = context;
         this.appCallback = appCallback;
 
-        info = context.getApplicationInfo();
+        ApplicationInfo info = context.getApplicationInfo();
         appId = info.labelRes == 0 ? info.nonLocalizedLabel.toString() : context.getString(info.labelRes);
 
         boolean success = bindService();
@@ -148,15 +148,16 @@ public class Happening {
      */
     public List<HappeningClient> getDevices() {
         Log.v(this.getClass().getSimpleName(), "getDevices");
+        List<HappeningClient> devicesList = null;
         try {
-            return service.getDevices();
-        } catch (RemoteException e) {
+            devicesList = service.getDevices();
+        } catch (RemoteException | NullPointerException e) {
             e.printStackTrace();
-            return null;
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            return null;
         }
+        if (devicesList == null) {
+            devicesList = new ArrayList<>();
+        }
+        return devicesList;
     }
 
     /**
@@ -168,24 +169,20 @@ public class Happening {
         Log.v(this.getClass().getSimpleName(), "sendToDevice");
         try {
             service.sendToDevice(deviceId, appId, content);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
+        } catch (RemoteException | NullPointerException e) {
             e.printStackTrace();
         }
     }
 
     /**
      * Restart the happening Service.
-     * In case of Emergency - Use this Methdo when nothing works:-)
+     * In case of Emergency - Use this Method when nothing works :-)
      */
     public void restartHappeningService() {
         Log.v(this.getClass().getSimpleName(), "restartHappeningService");
         try {
             service.restart();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
+        } catch (RemoteException | NullPointerException e) {
             e.printStackTrace();
         }
     }

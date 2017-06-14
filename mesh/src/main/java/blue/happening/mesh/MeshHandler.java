@@ -116,7 +116,9 @@ public class MeshHandler {
 
             try {
                 message = Message.fromBytes(bytes);
-                assert message != null;
+                if (message == null) {
+                    throw new Exception("Could not parse message");
+                }
             } catch (Exception e) {
                 System.out.println(uuid + " MESSAGE BROKEN: " + e.getMessage());
                 return;
