@@ -58,8 +58,9 @@ public abstract class RemoteDevice implements Comparable<RemoteDevice> {
     }
 
     final float getTq() {
-        return (echoSlidingWindow.size() / SlidingWindow.WINDOW_SIZE) *
-                (receiveSlidingWindow.size() / SlidingWindow.WINDOW_SIZE);
+        return 1;
+//        return (echoSlidingWindow.size() / SlidingWindow.WINDOW_SIZE) *
+//                (receiveSlidingWindow.size() / SlidingWindow.WINDOW_SIZE);
     }
 
     public abstract boolean sendMessage(Message message);
