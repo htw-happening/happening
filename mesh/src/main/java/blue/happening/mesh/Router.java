@@ -34,7 +34,7 @@ class Router {
         adjustTq(message);
 
         if(isMyMessage(message)){
-            logger.debug(uuid + " OGM WAS MINE: " + message);
+            System.out.println(uuid + " OGM WAS MINE: " + message);
             return null;
         }
 
