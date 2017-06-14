@@ -69,7 +69,7 @@ public class DashboardFragment extends Fragment {
 
         @Override
         public void onMessageReceived(byte[] message, int deviceId) {
-            // TODO: Do something with the received Messages.
+            Log.d(TAG, "onMessageReceived: " + new String(message));
             Toast.makeText(MyApplication.getAppContext(), String.valueOf(message), Toast.LENGTH_SHORT).show();
         }
     };

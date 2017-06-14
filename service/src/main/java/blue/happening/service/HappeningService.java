@@ -61,6 +61,7 @@ public class HappeningService extends Service {
 
         @Override
         public void sendToDevice(String deviceId, String appId, byte[] content) throws RemoteException {
+            System.out.println(TAG + " " + "sendToDevice: " + new String(content));
             Log.v(this.getClass().getSimpleName(), "sendToDevice");
             // TODO: Meshhandler.sendId(deviceId, content)
             byte[] data = AppPackage.createAppPackage(appId.hashCode(), content);

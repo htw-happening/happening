@@ -169,6 +169,7 @@ public class Happening {
         Log.v(this.getClass().getSimpleName(), "sendToDevice");
         try {
             service.sendToDevice(deviceId, appId, content);
+            Log.d(TAG, "sendDataTo: "+deviceId + " with appId "+appId);
         } catch (RemoteException | NullPointerException e) {
             e.printStackTrace();
         }

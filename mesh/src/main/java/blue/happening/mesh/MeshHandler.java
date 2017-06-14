@@ -61,11 +61,20 @@ public class MeshHandler {
     }
 
     public boolean sendMessage(String uuid, byte[] bytes) {
+        System.out.println("MeshHandler sendMessage " + new String(bytes) + " to " + uuid);
+        System.out.println("MeshHandler ACHTUNG routingTable.size()" + routingTable.size());
+        String s = "";
+        for (Map.Entry<String, RemoteDevice> stringRemoteDeviceEntry : routingTable.entrySet()) {
+            s += stringRemoteDeviceEntry.getKey() + ", ";
+        }
+        System.out.println("MeshHandler routingTable values " + s);
+
         RemoteDevice remoteDevice = routingTable.get(uuid);
-        System.out.println("ACHTUNG " + routingTable.size());
         if (remoteDevice == null) {
+            System.out.println("MeshHandler found NO device in routingtabel for uuid " + uuid );
             return false;
         }
+        System.out.println("MeshHandler found device in routingtabel " + remoteDevice.getUuid());
         System.out.printf("JAUUU" + remoteDevice.getUuid());
         Message message = new Message(this.uuid, uuid, ++sequence, Message.MESSAGE_TYPE_UCM, bytes);
         return remoteDevice.sendMessage(message);
