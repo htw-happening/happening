@@ -46,22 +46,15 @@ public class HappeningService extends Service {
             Log.v(this.getClass().getSimpleName(), "getDevices");
 
             List<String> deviceKeys = meshHandler.getDevices();
-            List<HappeningClient> devices = new ArrayList<>();
 
-            Log.d(TAG, "getDevices: size "+deviceKeys.size());
+            System.out.println("getDevices Num of real direct connections " + bluetoothLayer.getNumOfConnectedDevices());
             System.out.println("getDevices: size "+deviceKeys.size());
 
+            List<HappeningClient> devices = new ArrayList<>();
             for (String deviceKey : deviceKeys) {
                 devices.add(new HappeningClient(deviceKey, "N/A"));
                 Log.d(TAG, "getDevices: " + deviceKey);
             }
-
-
-
-//            for (Device device : Layer.getInstance().getDevices()) {
-//                devices.add(new HappeningClient(device.getAddress(), device.getName()));
-//                Log.d(TAG, "getDevices: " + devices.size());
-//            }
 
             return devices;
         }
