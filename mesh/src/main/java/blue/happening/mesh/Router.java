@@ -17,7 +17,7 @@ class Router {
      * @throws RoutingException Caused by invalid message header
      */
     Message routeMessage(Message message) throws RoutingException {
-        routingTable.ensureConnection(message.getSource(), message.getPreviousHop());
+
 
         RemoteDevice previousDevice = routingTable.get(message.getPreviousHop());
         if (previousDevice != null) {
@@ -33,6 +33,12 @@ class Router {
 
         adjustTq(message);
 
+        if(isMyMessage(message)){
+            logger.debug(uuid + " OGM WAS MINE: " + message);
+            return null;
+        }
+
+        routingTable.ensureConnection(message.getSource(), message.getPreviousHop());
         if (message.getType() == Message.MESSAGE_TYPE_OGM) {
             routeOgm(message);
             return null;
@@ -92,9 +98,6 @@ class Router {
     private boolean shouldMessageBeForwarded(Message message) {
         if (sourceIsNeighbour(message)) {
             return true;
-        } else if (isMyMessage(message)) {
-            System.out.println(uuid + " OGM WAS MINE: " + message);
-            return false;
         } else {
             if (!isMessageVital(message)) {
                 System.out.println(uuid + " OGM NOT VITAL: " + message);
