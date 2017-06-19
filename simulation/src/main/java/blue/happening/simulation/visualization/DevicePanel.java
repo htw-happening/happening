@@ -54,11 +54,11 @@ public class DevicePanel extends JPanel {
             if (remoteDevice.isNeighbour()) {
                 builder.append(remoteDevice.getUuid());
                 builder.append(": ");
-                builder.append(remoteDevice.getEq());
+                builder.append(String.format("%.2f",remoteDevice.getEq()));
                 builder.append("/");
-                builder.append(remoteDevice.getRq());
+                builder.append(String.format("%.2f",remoteDevice.getRq()));
                 builder.append("=");
-                builder.append(remoteDevice.getTq());
+                builder.append(String.format("%.2f",remoteDevice.getTq()));
                 builder.append(", ");
             }
         }

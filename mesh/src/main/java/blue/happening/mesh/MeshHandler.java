@@ -97,8 +97,8 @@ public class MeshHandler {
         @Override
         public void run() {
             try {
+                Message message = new Message(uuid, BROADCAST_ADDRESS, ++sequence, MESSAGE_TYPE_OGM, null);
                 for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
-                    Message message = new Message(uuid, BROADCAST_ADDRESS, ++sequence, MESSAGE_TYPE_OGM, null);
                     System.out.println(uuid + " OGM SENT: " + message);
                     remoteDevice.sendMessage(message);
                 }
