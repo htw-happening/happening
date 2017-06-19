@@ -6,5 +6,5 @@ interface IHappeningCallback {
     void onClientUpdated(String client);
     void onClientRemoved(String client);
     void onParcelQueued(long parcelId);
-    void onMessageReceived(out byte[] message, int deviceId);
+    void onMessageReceived(in byte[] message, int deviceId);
 }
