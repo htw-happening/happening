@@ -22,15 +22,7 @@ import blue.happening.service.fragment.Bt4Controls;
  */
 public class MainActivity extends FragmentActivity {
 
-    private static Context context = null;
-
-    private Fragment currentFragment;
-    private String currentFragmentTag;
-
-    private FragmentManager fm = getSupportFragmentManager();
-    private Fragment bt4Controls = null;
     private static final String TAG_FRAGMENT_BT4CONTROLS = "bt4";
-
     private static final int TAG_MULTI_PERMISSION_REQUESTS = 100;
     private static final String[] REQUIRED_PERMISSIONS = new String[]{
             Manifest.permission.BLUETOOTH,
@@ -38,6 +30,15 @@ public class MainActivity extends FragmentActivity {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.RECEIVE_BOOT_COMPLETED};
+    private static Context context = null;
+    private Fragment currentFragment;
+    private String currentFragmentTag;
+    private FragmentManager fm = getSupportFragmentManager();
+    private Fragment bt4Controls = null;
+
+    public static Context getContext() {
+        return MainActivity.context;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,13 +72,14 @@ public class MainActivity extends FragmentActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
     protected void onDestroy() {
         Log.v(this.getClass().getSimpleName(), "onDestroy");
         super.onDestroy();
-    }
-
-    public static Context getContext() {
-        return MainActivity.context;
     }
 
 }

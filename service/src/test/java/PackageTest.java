@@ -57,11 +57,10 @@ public class PackageTest {
         int appID = 666;
         byte[] content = new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
 
-        AppPackage appPackage = new AppPackage();
-        byte[] appPackageBytes = appPackage.createAppPackage(appID, content);
+        byte[] appPackageBytes = AppPackage.createAppPackage(appID, content);
 
         Assert.assertEquals("Length", content.length + 4, appPackageBytes.length);
-        Assert.assertEquals("AppID", appID, appPackage.getAppID(appPackageBytes));
-        Assert.assertArrayEquals("Content", content, appPackage.getContent(appPackageBytes));
+        Assert.assertEquals("AppID", appID, AppPackage.getAppID(appPackageBytes));
+        Assert.assertArrayEquals("Content", content, AppPackage.getContent(appPackageBytes));
     }
 }
