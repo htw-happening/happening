@@ -79,6 +79,7 @@ public class Connection {
                     inputStream.read(buffer);
                     packageHandler.addContent(buffer);
                     Package aPackage = packageHandler.getPackage();
+                    System.out.println(TAG  + " " + getName()+ " package received " + aPackage);
                     packageHandler.clear();
                     if (Layer.getInstance().getLayerCallback() != null) {
                         Layer.getInstance().getLayerCallback().onMessageReceived(aPackage.getData());
