@@ -135,7 +135,6 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
         // remove device from neighbour list from all devices where it is listed as neighbour
         for (RemoteDevice device : values()) {
             device.getNeighbourUuids().remove(uuid);
-
             if (device.getNeighbourUuids().size() == 0) {
                 super.remove(device.getUuid());
                 meshHandlerCallback.onDeviceRemoved(device.getUuid());
@@ -154,11 +153,4 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
         }
         return deleted;
     }
-
-    interface RoutingTableCallback {
-        void onDeviceAdded(RemoteDevice remoteDevice);
-
-        void onDeviceRemoved(RemoteDevice remoteDevice);
-    }
-
 }

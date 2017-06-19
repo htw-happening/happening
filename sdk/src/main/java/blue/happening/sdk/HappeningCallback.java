@@ -8,8 +8,6 @@ public interface HappeningCallback {
 
     void onClientRemoved(String client);
 
-    void onParcelQueued(long parcelId);
-
     void onMessageReceived(byte[] message, int deviceId);
 
 }

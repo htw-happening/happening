@@ -17,7 +17,6 @@ class SlidingWindow extends HashSet<Integer> {
         if (isSequenceInWindow(message.getSequence())) {
             System.out.println("ADD MESSAGE #" + message.getSequence() + " FROM " + message.getSource());
             add(message.getSequence());
-            System.out.println("current size " + size());
         } else {
             System.out.println("DROP MESSAGE #" + message.getSequence() + " FROM " + message.getSource());
         }

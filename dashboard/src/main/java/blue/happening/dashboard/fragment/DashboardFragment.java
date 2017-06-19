@@ -58,13 +58,6 @@ public class DashboardFragment extends Fragment {
         }
 
         @Override
-        public void onParcelQueued(long parcelId) {
-            Log.v(this.getClass().getSimpleName(), "onParcelQueued");
-            dashboardModels.add(new DashboardModel("queue", "" + parcelId));
-            dashboardAdapter.notifyDataSetChanged();
-        }
-
-        @Override
         public void onMessageReceived(byte[] message, int deviceId) {
             Log.d(TAG, "onMessageReceived: " + new String(message));
 //            Toast.makeText(MyApplication.getAppContext(), String.valueOf(message), Toast.LENGTH_SHORT).show();

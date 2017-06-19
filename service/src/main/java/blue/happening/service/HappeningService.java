@@ -69,7 +69,7 @@ public class HappeningService extends Service {
             // TODO: Meshhandler.sendId(deviceId, content)
             byte[] data = AppPackage.createAppPackage(appId.hashCode(), content);
             meshHandler.sendMessage(deviceId, data);
-//            Layer.getInstance().sendToDevice(deviceId, content);
+            // Layer.getInstance().sendToDevice(deviceId, content);
         }
 
         @Override
@@ -91,9 +91,9 @@ public class HappeningService extends Service {
         meshHandler = new MeshHandler(bluetoothLayer.getMacAddress());
         meshHandler.registerLayer(bluetoothLayer);
         meshHandler.registerCallback(new IMeshHandlerCallback() {
+
             @Override
             public void onMessageReceived(byte[] message) {
-                System.out.println("ON MESSAGE RECEIVED!!!");
                 System.out.println("ON MESSAGE RECEIVED!!! " + Arrays.toString(message));
                 int appId = AppPackage.getAppID(message);
                 byte[] content = AppPackage.getContent(message);
@@ -137,7 +137,6 @@ public class HappeningService extends Service {
         Toast.makeText(this, "Happening started", Toast.LENGTH_SHORT).show();
         return START_MODE;
     }
-
 
     /**
      * Called when the service is no longer used and is being destroyed

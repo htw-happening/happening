@@ -36,6 +36,7 @@ public class Happening {
     private IHappeningService service;
     private HappeningCallback appCallback;
     private IHappeningCallback.Stub happeningCallback = new IHappeningCallback.Stub() {
+
         @Override
         public IBinder asBinder() {
             return this;
@@ -57,16 +58,11 @@ public class Happening {
         }
 
         @Override
-        public void onParcelQueued(long parcelId) throws RemoteException {
-            appCallback.onParcelQueued(parcelId);
-        }
-
-        @Override
         public void onMessageReceived(byte[] message, int deviceId) throws RemoteException {
             appCallback.onMessageReceived(message, deviceId);
         }
-
     };
+
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
         public void onServiceConnected(ComponentName name, IBinder boundService) {
@@ -85,6 +81,7 @@ public class Happening {
             Log.i(this.getClass().getSimpleName(), "Service disconnected");
         }
     };
+
     private final Runnable runnable = new Runnable() {
         public void run() {
             if (service == null) {
@@ -169,7 +166,7 @@ public class Happening {
         Log.v(this.getClass().getSimpleName(), "sendToDevice");
         try {
             service.sendToDevice(deviceId, appId, content);
-            Log.d(TAG, "sendDataTo: "+deviceId + " with appId "+appId);
+            Log.d(TAG, "sendDataTo: " + deviceId + " with appId " + appId);
         } catch (RemoteException | NullPointerException e) {
             e.printStackTrace();
         }
