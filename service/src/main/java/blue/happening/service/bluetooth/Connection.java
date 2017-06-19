@@ -85,7 +85,7 @@ public class Connection {
                     }
 
                 } catch (IOException e) {
-                    Log.e(TAG, "Reader disconnected of " + device, e);
+                    Log.e(TAG, "Reader closed of " + device + " cause of IO Error");
                     shutdown();
                     return;
                 }
@@ -113,10 +113,11 @@ public class Connection {
                         Package[] packages = Packetizer.splitPackages(aPackage);
                         for (Package packageToSend : packages) {
                             outputStream.write(packageToSend.getData());
+                            Log.d(TAG, "SEND via layer: " + packageToSend.toString());
                         }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "Writer Closed of " + device + " cause of read -1");
                     shutdown();
                     return;
                 }
@@ -125,7 +126,7 @@ public class Connection {
 
         void write(Package aPackage){
             packageQueue.offer(aPackage);
-            Log.d("SEND", aPackage.toString());
+            Log.d(TAG, "SEND via layer (offerring): " + aPackage.toString());
         }
     }
 
