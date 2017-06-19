@@ -17,35 +17,35 @@ class Router {
      * @throws RoutingException Caused by invalid message header
      */
     Message routeMessage(Message message) throws RoutingException {
-
-
-        RemoteDevice previousDevice = routingTable.get(message.getPreviousHop());
-        if (previousDevice != null) {
-            SlidingWindow window;
-            if (message.getSource().equals(uuid)) {
-                window = previousDevice.getEchoSlidingWindow();
-            } else {
-                window = previousDevice.getReceiveSlidingWindow();
-            }
-            window.slideSequence(message.getSequence());
-            window.addIfIsSequenceInWindow(message);
+        if (!isEchoOGM(message)) {
+            routingTable.ensureConnection(message.getSource(), message.getPreviousHop());
         }
-
-        adjustTq(message);
-
-        if(isMyMessage(message)){
-            System.out.println(uuid + " OGM WAS MINE: " + message);
-            return null;
-        }
-
-        routingTable.ensureConnection(message.getSource(), message.getPreviousHop());
-        if (message.getType() == Message.MESSAGE_TYPE_OGM) {
+        if (message.getType() == MeshHandler.MESSAGE_TYPE_OGM) {
+            slideWindows(message);
             routeOgm(message);
             return null;
-        } else if (message.getType() == Message.MESSAGE_TYPE_UCM) {
+        } else if (message.getType() == MeshHandler.MESSAGE_TYPE_UCM) {
             return routeUcm(message);
         } else {
             throw new RoutingException("Unknown message type");
+        }
+    }
+
+    private void slideWindows(Message message) throws RoutingException {
+        RemoteDevice previousDevice = routingTable.get(message.getPreviousHop());
+        if (previousDevice != null) {
+            SlidingWindow window = null;
+            if (isEchoOGM(message)) {
+                window = previousDevice.getEchoSlidingWindow();
+            } else if (isNeighbourOGM(message)) {
+                window = previousDevice.getReceiveSlidingWindow();
+            }
+            if (window != null) {
+                window.slideSequence(message.getSequence());
+                window.addIfIsSequenceInWindow(message);
+            }
+        } else {
+            throw new RoutingException("Previous hop has left");
         }
     }
 
@@ -53,11 +53,8 @@ class Router {
         RemoteDevice existingDevice = routingTable.get(message.getSource());
         if (existingDevice != null) {
             if (message.getDestination().equals(MeshHandler.BROADCAST_ADDRESS)) {
-                if (shouldMessageBeForwarded(message)) {
-                    System.out.println(uuid + " OGM BROADCAST: " + message);
+                if (shouldOGMBeForwarded(message)) {
                     broadcastMessage(message);
-                } else {
-                    // Message is dropped
                 }
             } else {
                 throw new RoutingException("OGM needs broadcast destination");
@@ -78,8 +75,12 @@ class Router {
         }
     }
 
-    private boolean isMyMessage(Message message) {
+    private boolean isEchoOGM(Message message) {
         return message.getSource().equals(uuid);
+    }
+
+    private boolean isNeighbourOGM(Message message) {
+        return message.getSource().equals(message.getPreviousHop());
     }
 
     private boolean sourceIsNeighbour(Message message) {
@@ -95,49 +96,86 @@ class Router {
         return window.isSequenceOutOfWindow(message.getSequence());
     }
 
-    private boolean shouldMessageBeForwarded(Message message) {
-        if (sourceIsNeighbour(message)) {
+    private boolean shouldOGMBeForwarded(Message message) {
+        if (isEchoOGM(message)) {
+            System.out.println(uuid + " DROP ECHO OGM: " + message);
+            return false;
+        } else if (sourceIsNeighbour(message)) {
+            System.out.println(uuid + " BROADCAST NEIGHBOUR OGM: " + message);
             return true;
+        } else if (!isMessageVital(message)) {
+            System.out.println(uuid + " DROP NOT VITAL OGM: " + message);
+            return false;
+        } else if (!slidingWindowSaysYes(message)) {
+            System.out.println(uuid + " DROP IN WINDOW OGM: " + message);
+            return false;
         } else {
-            if (!isMessageVital(message)) {
-                System.out.println(uuid + " OGM NOT VITAL: " + message);
-                return false;
-            } else if (!slidingWindowSaysYes(message)) {
-                System.out.println(uuid + " OGM IN WINDOW: " + message);
-                return false;
-            }
+            System.out.println(uuid + " BROADCAST VITAL OGM: " + message);
             return true;
         }
     }
 
-    private void prepareMessage(Message message) {
-        message.setPreviousHop(uuid);
-        message.setTtl(message.getTtl() - 1);
+    private boolean shouldOGMBeEchoedTo(Message message, String receiverUuid) {
+        if (!message.getSource().equals(receiverUuid)) {
+            return false;
+        } else if (message.getPreviousHop().equals(receiverUuid)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    private void adjustTq(Message message) {
+    private boolean shouldOGMBeBroadcastTo(Message message, String receiverUuid) {
+        if (message.getSource().equals(receiverUuid)) {
+            return false;
+        } else if (message.getPreviousHop().equals(receiverUuid)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private int calculateTq(Message message) throws RoutingException {
         RemoteDevice previousHop = routingTable.get(message.getPreviousHop());
         float previousTq = 0;
         if (previousHop != null) {
             previousTq = previousHop.getTq();
+        } else {
+            throw new RoutingException("Previous hop has left");
         }
-        System.out.println("TQ MESSAGE: " + message.getTq() + ", PREVIOUS TQ: " + previousTq + ", = " + (float) (message.getTq() * previousTq));
-        message.setTq((int) (message.getTq() * previousTq) - MeshHandler.HOP_PENALTY);
+        return (int) (message.getTq() * previousTq) - MeshHandler.HOP_PENALTY;
     }
 
-    private void forwardMessage(Message message) {
-        prepareMessage(message);
+    private Message prepareMessage(Message message) throws RoutingException {
+        Message preparedMessage = new Message(
+                message.getSource(),
+                message.getDestination(),
+                message.getSequence(),
+                message.getType(),
+                message.getBody()
+        );
+        preparedMessage.setTq(calculateTq(message));
+        preparedMessage.setPreviousHop(uuid);
+        preparedMessage.setTtl(message.getTtl() - 1);
+        return preparedMessage;
+    }
+
+    private void forwardMessage(Message message) throws RoutingException {
+        Message preparedMessage = prepareMessage(message);
         RemoteDevice destination = routingTable.get(message.getDestination());
         RemoteDevice bestNeighbour = routingTable.getBestNeighbourForRemoteDevice(destination);
         if (bestNeighbour != null) {
-            bestNeighbour.sendMessage(message);
+            bestNeighbour.sendMessage(preparedMessage);
         }
     }
 
-    private void broadcastMessage(Message message) {
-        prepareMessage(message);
+    private void broadcastMessage(Message message) throws RoutingException {
+        Message preparedMessage = prepareMessage(message);
         for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
-            remoteDevice.sendMessage(message);
+            if (shouldOGMBeEchoedTo(message, remoteDevice.getUuid()) ||
+                    shouldOGMBeBroadcastTo(message, remoteDevice.getUuid())) {
+                remoteDevice.sendMessage(preparedMessage);
+            }
         }
     }
 

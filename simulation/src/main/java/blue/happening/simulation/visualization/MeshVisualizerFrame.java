@@ -28,7 +28,9 @@ public class MeshVisualizerFrame<V, E> extends JFrame {
         // add buttons panel
         ButtonsPanel<V, E> buttonsPanel = new ButtonsPanel<V, E>(visualizerPanel);
         add(buttonsPanel, BorderLayout.SOUTH);
-        add(new DevicePanel(), BorderLayout.EAST);
+        DevicePanel panel = new DevicePanel();
+        add(panel, BorderLayout.EAST);
+        graph.setDevicePanel(panel);
 
         // pack and view
         pack();

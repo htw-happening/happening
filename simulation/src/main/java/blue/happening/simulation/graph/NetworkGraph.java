@@ -35,6 +35,7 @@ import blue.happening.simulation.graph.internal.VertexProperties;
 import blue.happening.simulation.graph.internal.VerticesDistance;
 import blue.happening.simulation.mobility.MobilityPattern;
 import blue.happening.simulation.mobility.StationaryMobilityPattern;
+import blue.happening.simulation.visualization.DevicePanel;
 import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.util.Graphs;
@@ -231,6 +232,9 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
     private V lastRemovedVertex = null;
     private E lastAddedEdge = null;
     private E lastRemovedEdge = null;
+
+    // UI gewurschtel
+    private DevicePanel devicePanel = null;
 
     /**
      * Constructs a new {@code NetworkGraph} with {@code parent} ModelElement
@@ -988,5 +992,13 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
      */
     public E getLastRemovedEdge() {
         return lastRemovedEdge;
+    }
+
+    public DevicePanel getDevicePanel() {
+        return devicePanel;
+    }
+
+    public void setDevicePanel(DevicePanel devicePanel) {
+        this.devicePanel = devicePanel;
     }
 }

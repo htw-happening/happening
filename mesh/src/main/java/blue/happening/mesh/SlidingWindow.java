@@ -3,17 +3,23 @@ package blue.happening.mesh;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 class SlidingWindow extends HashSet<Integer> {
 
-    public static final int WINDOW_SIZE = 12;
+    private int sequence;
 
-    private int sequence = -1;
+    SlidingWindow() {
+        sequence = ThreadLocalRandom.current().nextInt(MeshHandler.INITIAL_MIN_SEQUENCE, MeshHandler.INITIAL_MAX_SEQUENCE);
+    }
 
     void addIfIsSequenceInWindow(Message message) {
         if (isSequenceInWindow(message.getSequence())) {
             System.out.println("ADD MESSAGE #" + message.getSequence() + " FROM " + message.getSource());
             add(message.getSequence());
+            System.out.println("current size " + size());
+        } else {
+            System.out.println("DROP MESSAGE #" + message.getSequence() + " FROM " + message.getSource());
         }
     }
 
@@ -39,7 +45,7 @@ class SlidingWindow extends HashSet<Integer> {
     }
 
     boolean isSequenceOutOfWindow(int sequence) {
-        return (sequence > this.sequence) || (sequence < this.sequence - WINDOW_SIZE);
+        return (sequence > this.sequence) || (sequence <= this.sequence - MeshHandler.SLIDING_WINDOW_SIZE);
     }
 
     boolean isSequenceInWindow(int sequence) {

@@ -12,11 +12,6 @@ import java.io.Serializable;
 
 public class Message implements Serializable {
 
-    public static final int INITIAL_MESSAGE_TQ = 255;
-    public static final int INITIAL_MESSAGE_TTL = 5;
-    public static final int MESSAGE_TYPE_OGM = 1;
-    public static final int MESSAGE_TYPE_UCM = 2;
-
     private String source;
     private String previousHop;
     private String destination;
@@ -28,8 +23,8 @@ public class Message implements Serializable {
 
     public Message(String source, String destination, int sequence, int type,
                    byte[] body) {
-        this(source, destination, sequence, type, INITIAL_MESSAGE_TQ,
-                INITIAL_MESSAGE_TTL, body);
+        this(source, destination, sequence, type, MeshHandler.INITIAL_MESSAGE_TQ,
+                MeshHandler.INITIAL_MESSAGE_TTL, body);
     }
 
     private Message(String source, String destination, int sequence, int type,

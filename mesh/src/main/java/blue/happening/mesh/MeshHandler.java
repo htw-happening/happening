@@ -11,11 +11,18 @@ import java.util.concurrent.TimeUnit;
 
 public class MeshHandler {
 
-    public static final long DEVICE_EXPIRATION_DURATION = 200;
-    public static final int OGM_INTERVAL = 10;
-    public static final int PURGE_INTERVAL = 2;
     public static final int HOP_PENALTY = 15;
-    public static final String BROADCAST_ADDRESS = "broadcast";
+    public static final int INITIAL_MAX_SEQUENCE = 512;
+    public static final int INITIAL_MESSAGE_TQ = 255;
+    public static final int INITIAL_MESSAGE_TTL = 5;
+    public static final int INITIAL_MIN_SEQUENCE = 0;
+    public static final int MESSAGE_TYPE_OGM = 1;
+    public static final int MESSAGE_TYPE_UCM = 2;
+    public static final int OGM_INTERVAL = 2;
+    public static final int PURGE_INTERVAL = 200;
+    public static final int SLIDING_WINDOW_SIZE = 12;
+    public static final long DEVICE_EXPIRATION_DURATION = 200;
+    public static final String BROADCAST_ADDRESS = "BROADCAST";
 
     private final RoutingTable routingTable;
     private final Router router;
@@ -26,8 +33,7 @@ public class MeshHandler {
 
     public MeshHandler(String uuid) {
         this.uuid = uuid;
-        // sequence = ThreadLocalRandom.current().nextInt(Integer.MIN_VALUE, Integer.MAX_VALUE);
-        sequence = ThreadLocalRandom.current().nextInt(512);
+        sequence = ThreadLocalRandom.current().nextInt(INITIAL_MIN_SEQUENCE, INITIAL_MAX_SEQUENCE);
         routingTable = new RoutingTable();
         router = new Router(routingTable, uuid);
         layerCallback = new LayerCallback();
@@ -50,6 +56,10 @@ public class MeshHandler {
     public void registerCallback(IMeshHandlerCallback callback) {
         meshHandlerCallback = callback;
         routingTable.registerMeshHandlerCallback(callback);
+    }
+
+    public RoutingTable getRoutingTable() {
+        return routingTable;
     }
 
     public List<String> getDevices() {
@@ -76,7 +86,7 @@ public class MeshHandler {
         } else {
             RemoteDevice bestNeighbour = routingTable.getBestNeighbourForRemoteDevice(remoteDevice);
             if (bestNeighbour != null) {
-                Message message = new Message(this.uuid, uuid, ++sequence, Message.MESSAGE_TYPE_UCM, bytes);
+                Message message = new Message(this.uuid, uuid, INITIAL_MIN_SEQUENCE, MESSAGE_TYPE_UCM, bytes);
                 return bestNeighbour.sendMessage(message);
             } else {
                 return false;
@@ -88,8 +98,8 @@ public class MeshHandler {
         @Override
         public void run() {
             try {
+                Message message = new Message(uuid, BROADCAST_ADDRESS, ++sequence, MESSAGE_TYPE_OGM, null);
                 for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
-                    Message message = new Message(uuid, BROADCAST_ADDRESS, ++sequence, Message.MESSAGE_TYPE_OGM, null);
                     System.out.println(uuid + " OGM SENT: " + message);
                     remoteDevice.sendMessage(message);
                 }
