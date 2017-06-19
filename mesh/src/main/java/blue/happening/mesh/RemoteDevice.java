@@ -57,6 +57,10 @@ public abstract class RemoteDevice implements Comparable<RemoteDevice> {
         neighbourUuids.addAll(remoteDevice.getNeighbourUuids());
     }
 
+    private float roundValue(float number) {
+        return (float) Math.round(number * 100) / 100;
+    }
+
     public final float getEq() {
         return ((float) echoSlidingWindow.size()) / MeshHandler.SLIDING_WINDOW_SIZE;
     }
@@ -66,7 +70,11 @@ public abstract class RemoteDevice implements Comparable<RemoteDevice> {
     }
 
     public final float getTq() {
-        return getEq() / getRq();
+        float tolerance = roundValue(getEq() - 1f / MeshHandler.SLIDING_WINDOW_SIZE);
+        if (tolerance > getRq()) {
+            System.out.println("CALCULATE TQ: EQ (" + getEq() + ") SHOULD NEVER BE GREATER THAN RQ (" + getRq() + ")");
+        }
+        return Math.min(getEq() / getRq(), 1);
     }
 
     public abstract boolean sendMessage(Message message);
