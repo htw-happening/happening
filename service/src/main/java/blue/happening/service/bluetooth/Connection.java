@@ -6,6 +6,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Connection {
@@ -70,14 +71,13 @@ public class Connection {
             while (!isInterrupted()){
 
                 try {
-                    byte[] buffer = new byte[Packetizer.CHUNK_NUM + Packetizer.CHUNK_SIZE];
+
+                    byte[] buffer = new byte[Packetizer.CHUNK_SIZE];
                     inputStream.read(buffer);
                     packageHandler.createNewFromMeta(buffer);
-                    for (int i = 0; i < packageHandler.getPayloadNum(); i++) {
-                        buffer = new byte[Packetizer.PAYLOAD_SIZE];
-                        inputStream.read(buffer);
-                        packageHandler.addContent(buffer);
-                    }
+                    buffer = new byte[packageHandler.getPayloadSize()];
+                    inputStream.read(buffer);
+                    packageHandler.addContent(buffer);
                     Package aPackage = packageHandler.getPackage();
                     packageHandler.clear();
                     if (Layer.getInstance().getLayerCallback() != null) {
