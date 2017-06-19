@@ -43,18 +43,18 @@ public class Happening {
         }
 
         @Override
-        public void onClientAdded(String client) throws RemoteException {
-            appCallback.onClientAdded(client);
+        public void onClientAdded(HappeningClient client) throws RemoteException {
+            appCallback.onClientAdded(client.getClientId());
         }
 
         @Override
-        public void onClientUpdated(String client) throws RemoteException {
-            appCallback.onClientUpdated(client);
+        public void onClientUpdated(HappeningClient client) throws RemoteException {
+            appCallback.onClientUpdated(client.getClientId());
         }
 
         @Override
-        public void onClientRemoved(String client) throws RemoteException {
-            appCallback.onClientRemoved(client);
+        public void onClientRemoved(HappeningClient client) throws RemoteException {
+            appCallback.onClientRemoved(client.getClientId());
         }
 
         @Override

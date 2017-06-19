@@ -4,7 +4,9 @@ public interface IMeshHandlerCallback {
 
     void onMessageReceived(byte[] message);
 
-    void onDeviceAdded(String uuid);
+    void onDeviceAdded(MeshDevice meshDevice);
 
-    void onDeviceRemoved(String uuid);
+    void onDeviceUpdated(MeshDevice meshDevice);
+
+    void onDeviceRemoved(MeshDevice meshDevice);
 }

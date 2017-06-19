@@ -17,6 +17,7 @@ import blue.happening.HappeningClient;
 import blue.happening.IHappeningCallback;
 import blue.happening.IHappeningService;
 import blue.happening.mesh.IMeshHandlerCallback;
+import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.MeshHandler;
 import blue.happening.service.bluetooth.AppPackage;
 import blue.happening.service.bluetooth.Layer;
@@ -48,15 +49,15 @@ public class HappeningService extends Service {
         public List<HappeningClient> getDevices() throws RemoteException {
             Log.v(this.getClass().getSimpleName(), "getDevices");
 
-            List<String> deviceKeys = meshHandler.getDevices();
+            List<MeshDevice> meshDevices = meshHandler.getDevices();
 
             System.out.println("getDevices Num of real direct connections " + bluetoothLayer.getNumOfConnectedDevices());
-            System.out.println("getDevices: size " + deviceKeys.size());
+            System.out.println("getDevices: size " + meshDevices.size());
 
             List<HappeningClient> devices = new ArrayList<>();
-            for (String deviceKey : deviceKeys) {
-                devices.add(new HappeningClient(deviceKey, "N/A"));
-                Log.d(TAG, "getDevices: " + deviceKey);
+            for (MeshDevice meshDevice : meshDevices) {
+                devices.add(new HappeningClient(meshDevice.getUuid(), "N/A"));
+                Log.d(TAG, "getDevices: " + meshDevice.getUuid());
             }
 
             return devices;
@@ -111,14 +112,39 @@ public class HappeningService extends Service {
             }
 
             @Override
-            public void onDeviceAdded(String uuid) {
-                System.out.println("DISCO DISCOVERED: " + uuid);
-//                meshMembers.add(uuid);
+            public void onDeviceAdded(MeshDevice meshDevice) {
+                for (IHappeningCallback callback : callbacks.values()) {
+                    try {
+                        HappeningClient client = new HappeningClient(meshDevice.getUuid(), "" + meshDevice.getQuality());
+                        callback.onClientAdded(client);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             @Override
-            public void onDeviceRemoved(String uuid) {
-//                meshMembers.remove(uuid);
+            public void onDeviceUpdated(MeshDevice meshDevice) {
+                for (IHappeningCallback callback : callbacks.values()) {
+                    try {
+                        HappeningClient client = new HappeningClient(meshDevice.getUuid(), "" + meshDevice.getQuality());
+                        callback.onClientUpdated(client);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onDeviceRemoved(MeshDevice meshDevice) {
+                for (IHappeningCallback callback : callbacks.values()) {
+                    try {
+                        HappeningClient client = new HappeningClient(meshDevice.getUuid(), "" + meshDevice.getQuality());
+                        callback.onClientRemoved(client);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
 

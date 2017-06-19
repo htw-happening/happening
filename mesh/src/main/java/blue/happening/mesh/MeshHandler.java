@@ -62,12 +62,12 @@ public class MeshHandler {
         return routingTable;
     }
 
-    public List<String> getDevices() {
-        ArrayList<String> strings = new ArrayList<String>();
-        for (Map.Entry<String, RemoteDevice> stringRemoteDeviceEntry : routingTable.entrySet()) {
-            strings.add(stringRemoteDeviceEntry.getKey());
+    public List<MeshDevice> getDevices() {
+        List<MeshDevice> meshDevices = new ArrayList<>();
+        for (Map.Entry<String, RemoteDevice> entry : routingTable.entrySet()) {
+            meshDevices.add(entry.getValue().getMeshDevice());
         }
-        return strings;
+        return meshDevices;
     }
 
     public boolean sendMessage(String uuid, byte[] bytes) {
@@ -128,7 +128,6 @@ public class MeshHandler {
         public void onDeviceAdded(RemoteDevice remoteDevice) {
             System.out.println(uuid + " DEVICE ADDED: " + remoteDevice);
             routingTable.ensureConnection(remoteDevice, remoteDevice);
-            meshHandlerCallback.onDeviceAdded(remoteDevice.getUuid());
         }
 
         @Override
@@ -139,7 +138,7 @@ public class MeshHandler {
 
         @Override
         public void onMessageReceived(byte[] bytes) {
-            Message message;
+            Message message, propagate;
 
             try {
                 message = Message.fromBytes(bytes);
@@ -150,16 +149,30 @@ public class MeshHandler {
                 System.out.println(uuid + " MESSAGE BROKEN: " + e.getMessage());
                 return;
             }
+
             try {
-                message = router.routeMessage(message);
+                propagate = router.routeMessage(message);
             } catch (Router.RoutingException e) {
                 System.out.println(uuid + " ROUTING FAILED: " + e.getMessage());
                 return;
             }
 
-            if (message != null) {
+            if (propagate != null) {
                 meshHandlerCallback.onMessageReceived(message.getBody());
             }
+
+            RemoteDevice source = routingTable.get(message.getSource());
+            if (source == null) {
+                System.out.println("MeshHandler: Source not yet in routing table " + message.getSource());
+                return;
+            } else {
+                System.out.println("MeshHandler: Source volle kanne in routing table" + message.getSource());
+            }
+
+            // TODO: Move this block to a better location
+            MeshDevice meshDevice = source.getMeshDevice();
+            meshDevice.setReceivedSize(meshDevice.getReceivedSize() + message.toBytes().length);
+            meshHandlerCallback.onDeviceUpdated(meshDevice);
         }
     }
 }

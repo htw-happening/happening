@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Exchanger;
 
 
 public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
@@ -95,7 +94,6 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
             // Device did not previously exist
             put(discoveredDevice.getUuid(), discoveredDevice);
             existingDevice = discoveredDevice;
-            meshHandlerCallback.onDeviceAdded(discoveredDevice.getUuid());
         } else {
             // When discovered and neighbour are the same add neighbour to make sure that
             // discovered device is handled as neighbour
@@ -125,9 +123,11 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
     @Override
     public RemoteDevice put(String key, RemoteDevice value) {
         RemoteDevice existing = super.put(key, value);
-        //if (existing == null) {
-        meshHandlerCallback.onDeviceAdded(value.getUuid());
-        //}
+        if (existing == null) {
+            meshHandlerCallback.onDeviceAdded(value.getMeshDevice());
+        } else {
+            meshHandlerCallback.onDeviceUpdated(value.getMeshDevice());
+        }
         return existing;
     }
 
@@ -137,7 +137,7 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
             device.getNeighbourUuids().remove(uuid);
             if (device.getNeighbourUuids().size() == 0) {
                 super.remove(device.getUuid());
-                meshHandlerCallback.onDeviceRemoved(device.getUuid());
+                meshHandlerCallback.onDeviceRemoved(device.getMeshDevice());
             }
         }
     }
@@ -149,7 +149,7 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
         }
         RemoteDevice deleted = super.remove(key);
         if (deleted != null) {
-            meshHandlerCallback.onDeviceRemoved(deleted.getUuid());
+            meshHandlerCallback.onDeviceRemoved(deleted.getMeshDevice());
         }
         return deleted;
     }

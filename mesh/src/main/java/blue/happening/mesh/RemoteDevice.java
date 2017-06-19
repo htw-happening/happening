@@ -9,11 +9,14 @@ public abstract class RemoteDevice implements Comparable<RemoteDevice> {
     private long lastSeen;
     private SlidingWindow echoSlidingWindow;
     private SlidingWindow receiveSlidingWindow;
+    private MeshDevice meshDevice;
 
     private HashSet<String> neighbourUuids;
 
     public RemoteDevice(String uuid) {
         this.uuid = uuid;
+        meshDevice = new MeshDevice();
+        meshDevice.setUuid(uuid);
         lastSeen = System.currentTimeMillis();
         neighbourUuids = new HashSet<>();
         echoSlidingWindow = new SlidingWindow();
@@ -93,5 +96,10 @@ public abstract class RemoteDevice implements Comparable<RemoteDevice> {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "@" + getUuid();
+    }
+
+    MeshDevice getMeshDevice() {
+        meshDevice.setQuality(getTq());
+        return meshDevice;
     }
 }
