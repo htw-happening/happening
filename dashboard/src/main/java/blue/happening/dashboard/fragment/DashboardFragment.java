@@ -9,13 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import blue.happening.HappeningClient;
-import blue.happening.dashboard.MyApplication;
 import blue.happening.dashboard.R;
 import blue.happening.dashboard.adapter.DashboardAdapter;
 import blue.happening.dashboard.model.DashboardModel;
@@ -69,7 +67,7 @@ public class DashboardFragment extends Fragment {
         @Override
         public void onMessageReceived(byte[] message, int deviceId) {
             Log.d(TAG, "onMessageReceived: " + new String(message));
-            Toast.makeText(MyApplication.getAppContext(), String.valueOf(message), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(MyApplication.getAppContext(), String.valueOf(message), Toast.LENGTH_SHORT).show();
         }
     };
 
