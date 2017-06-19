@@ -73,11 +73,15 @@ public class MeshHandler {
         if (remoteDevice == null) {
             System.out.println("MeshHandler found NO device in routingtabel for uuid " + uuid );
             return false;
+        } else {
+            RemoteDevice bestNeighbour = routingTable.getBestNeighbourForRemoteDevice(remoteDevice);
+            if (bestNeighbour != null) {
+                Message message = new Message(this.uuid, uuid, ++sequence, Message.MESSAGE_TYPE_UCM, bytes);
+                return bestNeighbour.sendMessage(message);
+            } else {
+                return false;
+            }
         }
-        System.out.println("MeshHandler found device in routingtabel " + remoteDevice.getUuid());
-        System.out.printf("JAUUU" + remoteDevice.getUuid());
-        Message message = new Message(this.uuid, uuid, ++sequence, Message.MESSAGE_TYPE_UCM, bytes);
-        return remoteDevice.sendMessage(message);
     }
 
     private class OGMRunner implements Runnable {
