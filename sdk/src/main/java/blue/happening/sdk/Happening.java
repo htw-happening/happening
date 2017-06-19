@@ -11,6 +11,7 @@ import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import blue.happening.HappeningClient;
@@ -28,6 +29,7 @@ import static android.content.ContentValues.TAG;
 public class Happening {
 
     private static final String HAPPENING_APP_ID = "HAPPENING_APP_ID";
+    private static String appId = null;
 
     private Context context;
     private Handler handler = new Handler();
@@ -65,21 +67,12 @@ public class Happening {
         }
 
     };
-    private final Runnable runnable = new Runnable() {
-        public void run() {
-            if (service == null) {
-                boolean success = bindService();
-                Log.i(this.getClass().getSimpleName(), "Restart success " + success);
-                handler.postDelayed(this, 1000);
-            }
-        }
-    };
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
         public void onServiceConnected(ComponentName name, IBinder boundService) {
             service = IHappeningService.Stub.asInterface(boundService);
             try {
-                service.registerHappeningCallback(happeningCallback);
+                service.registerHappeningCallback(happeningCallback, appId);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -92,6 +85,15 @@ public class Happening {
             Log.i(this.getClass().getSimpleName(), "Service disconnected");
         }
     };
+    private final Runnable runnable = new Runnable() {
+        public void run() {
+            if (service == null) {
+                boolean success = bindService();
+                Log.i(this.getClass().getSimpleName(), "Restart success " + success);
+                handler.postDelayed(this, 1000);
+            }
+        }
+    };
 
     /**
      * To be able to send and receive data through the happening network service, you need to
@@ -102,6 +104,10 @@ public class Happening {
     public void register(@NonNull Context context, @NonNull HappeningCallback appCallback) {
         this.context = context;
         this.appCallback = appCallback;
+
+        ApplicationInfo info = context.getApplicationInfo();
+        appId = info.labelRes == 0 ? info.nonLocalizedLabel.toString() : context.getString(info.labelRes);
+
         boolean success = bindService();
         Log.i(this.getClass().getSimpleName(), "Start success " + success);
     }
@@ -136,58 +142,22 @@ public class Happening {
     }
 
     /**
-     * Dummy method to demonstrate how to communicate with the happening service.
-     *
-     * @param message A dummy message
-     * @return error string
-     */
-    public String hello(String message) {
-        Log.v(this.getClass().getSimpleName(), "hello");
-        try {
-            return service.hello(message);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-            return "no reply";
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            return "no service";
-        }
-    }
-
-    /**
-     * Method to get an initial list of all known happening clients in the area.
-     *
-     * @return List of {@link HappeningClient happening clients}
-     */
-    public List<HappeningClient> getClients() {
-        Log.v(this.getClass().getSimpleName(), "hello");
-        try {
-            return service.getClients();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-            return null;
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
      * Method to get List of all connected Devices.
      *
      * @return List of {@link HappeningClient happening clients}
      */
     public List<HappeningClient> getDevices() {
         Log.v(this.getClass().getSimpleName(), "getDevices");
+        List<HappeningClient> devicesList = null;
         try {
-            return service.getDevices();
-        } catch (RemoteException e) {
+            devicesList = service.getDevices();
+        } catch (RemoteException | NullPointerException e) {
             e.printStackTrace();
-            return null;
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            return null;
         }
+        if (devicesList == null) {
+            devicesList = new ArrayList<>();
+        }
+        return devicesList;
     }
 
     /**
@@ -198,26 +168,22 @@ public class Happening {
     public void sendDataTo(String deviceId, byte[] content) {
         Log.v(this.getClass().getSimpleName(), "sendToDevice");
         try {
-            service.sendToDevice(deviceId, content);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
+            service.sendToDevice(deviceId, appId, content);
+            Log.d(TAG, "sendDataTo: "+deviceId + " with appId "+appId);
+        } catch (RemoteException | NullPointerException e) {
             e.printStackTrace();
         }
     }
 
     /**
      * Restart the happening Service.
-     * In case of Emergency - Use this Methdo when nothing works:-)
-     *
+     * In case of Emergency - Use this Method when nothing works :-)
      */
     public void restartHappeningService() {
         Log.v(this.getClass().getSimpleName(), "restartHappeningService");
         try {
             service.restart();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
+        } catch (RemoteException | NullPointerException e) {
             e.printStackTrace();
         }
     }

@@ -96,6 +96,16 @@ public class Device extends RemoteDevice {
         }
     }
 
+    public boolean sendMessage(byte[] data) {
+        byte[] bytes = data;
+        if (this.getState() == STATE.CONNECTED && connection != null) {
+            connection.write(new Package(bytes));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public void connect() {
         if (d) Log.d(TAG, "Connecting to Device " + toString());
         if (getState() == STATE.CONNECTED) return;

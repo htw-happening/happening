@@ -16,7 +16,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
-import blue.happening.service.MainActivity;
+import blue.happening.MyApplication;
 
 /**
  * BL EDR Scanner
@@ -37,7 +37,7 @@ class EdrDeviceFinder implements IDeviceFinder {
 
 
     EdrDeviceFinder(){
-        context = MainActivity.getContext();
+        context = MyApplication.getAppContext();
         try {
             Field f = BluetoothDevice.class.getDeclaredField("ACTION_SDP_RECORD");
             ACTION_SDP_RECORD = ((String)f.get(null));

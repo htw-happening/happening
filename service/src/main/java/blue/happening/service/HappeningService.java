@@ -10,12 +10,14 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 import blue.happening.HappeningClient;
 import blue.happening.IHappeningCallback;
 import blue.happening.IHappeningService;
-import blue.happening.service.bluetooth.Device;
+import blue.happening.mesh.IMeshHandlerCallback;
+import blue.happening.mesh.MeshHandler;
+import blue.happening.service.bluetooth.AppPackage;
 import blue.happening.service.bluetooth.Layer;
 
 
@@ -28,60 +30,43 @@ public class HappeningService extends Service {
     private static final String HAPPENING_APP_ID = "HAPPENING_APP_ID";
     private static final int START_MODE = START_STICKY;
     private static final boolean ALLOW_REBIND = true;
+
+    private static HashMap<String, IHappeningCallback> callbacks = new HashMap<>();
     private final String TAG = getClass().getSimpleName();
-
-    private static List<IHappeningCallback> callbacks = new ArrayList<>();
-    private static HashMap<Integer, String> registeredApps = new HashMap<>();
-
     private final IHappeningService.Stub binder = new IHappeningService.Stub() {
 
-        private List<HappeningClient> clients = new ArrayList<>();
-
         @Override
-        public void registerHappeningCallback(IHappeningCallback happeningCallback) throws RemoteException {
-            Log.d(this.getClass().getSimpleName(), "callback added " + happeningCallback);
-            callbacks.add(happeningCallback);
-        }
-
-        public String hello(String message) throws RemoteException {
-            String clientId = UUID.randomUUID().toString();
-            HappeningClient happeningClient = new HappeningClient(clientId, message);
-            clients.add(happeningClient);
-
-            String reply = "service@" + android.os.Process.myPid();
-            for (IHappeningCallback callback : callbacks) {
-                try {
-                    callback.onClientAdded("async call from service hello");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            return reply;
-        }
-
-        @Override
-        public List<HappeningClient> getClients() throws RemoteException {
-            return clients;
+        public void registerHappeningCallback(IHappeningCallback happeningCallback, String appId) throws RemoteException {
+            Log.d(TAG, "callback added " + happeningCallback);
+            callbacks.put(appId, happeningCallback);
         }
 
         @Override
         public List<HappeningClient> getDevices() throws RemoteException {
             Log.v(this.getClass().getSimpleName(), "getDevices");
-            List<HappeningClient> devices = new ArrayList<>();
 
-            for (Device device : Layer.getInstance().getDevices()) {
-                devices.add(new HappeningClient(device.getAddress(), device.getName()));
-                Log.d(TAG, "getDevices: " + devices.size());
+            List<String> deviceKeys = meshHandler.getDevices();
+
+            System.out.println("getDevices Num of real direct connections " + bluetoothLayer.getNumOfConnectedDevices());
+            System.out.println("getDevices: size "+deviceKeys.size());
+
+            List<HappeningClient> devices = new ArrayList<>();
+            for (String deviceKey : deviceKeys) {
+                devices.add(new HappeningClient(deviceKey, "N/A"));
+                Log.d(TAG, "getDevices: " + deviceKey);
             }
 
             return devices;
         }
 
         @Override
-        public void sendToDevice(String deviceId, byte[] content) throws RemoteException {
-            Log.v(this.getClass().getSimpleName(), "sendToDeice");
-
-            
+        public void sendToDevice(String deviceId, String appId, byte[] content) throws RemoteException {
+            System.out.println(TAG + " " + "sendToDevice: " + new String(content));
+            Log.v(this.getClass().getSimpleName(), "sendToDevice");
+            // TODO: Meshhandler.sendId(deviceId, content)
+            byte[] data = AppPackage.createAppPackage(appId.hashCode(), content);
+            meshHandler.sendMessage(deviceId, data);
+//            Layer.getInstance().sendToDevice(deviceId, content);
         }
 
         @Override
@@ -91,6 +76,9 @@ public class HappeningService extends Service {
         }
     };
 
+    private Layer bluetoothLayer = null;
+    private MeshHandler meshHandler = null;
+
     /**
      * Called when the service is being created.
      */
@@ -98,6 +86,40 @@ public class HappeningService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.v(this.getClass().getSimpleName(), "onCreate");
+
+        bluetoothLayer = Layer.getInstance();
+        meshHandler = new MeshHandler(bluetoothLayer.getMacAddress());
+        meshHandler.registerLayer(bluetoothLayer);
+        meshHandler.registerCallback(new IMeshHandlerCallback() {
+            @Override
+            public void onMessageReceived(byte[] message) {
+                int appId = AppPackage.getAppID(message);
+                byte[] content = AppPackage.getContent(message);
+
+                for (Map.Entry<String, IHappeningCallback> entry : callbacks.entrySet()) {
+                    if (entry.getKey().hashCode() == appId) {
+                        try {
+                            entry.getValue().onMessageReceived(content, appId);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onDeviceAdded(String uuid) {
+                System.out.println("DISCO DISCOVERED: " + uuid);
+//                meshMembers.add(uuid);
+            }
+
+            @Override
+            public void onDeviceRemoved(String uuid) {
+//                meshMembers.remove(uuid);
+            }
+        });
+
+        bluetoothLayer.start();
     }
 
     /**
@@ -131,7 +153,6 @@ public class HappeningService extends Service {
     public IBinder onBind(Intent intent) {
         Log.v(this.getClass().getSimpleName(), "onBind");
         String appId = intent.getStringExtra(HAPPENING_APP_ID);
-        registeredApps.put(appId.hashCode(), appId);
         Toast.makeText(this, (appId == null ? "Something" : appId) + " bound", Toast.LENGTH_LONG).show();
         return binder;
     }
@@ -143,7 +164,6 @@ public class HappeningService extends Service {
     public void onRebind(Intent intent) {
         super.onRebind(intent);
         String appId = intent.getStringExtra(HAPPENING_APP_ID);
-        registeredApps.put(appId.hashCode(), appId);
         Toast.makeText(this, (appId == null ? "Something" : appId) + " rebound", Toast.LENGTH_LONG).show();
         Log.v(this.getClass().getSimpleName(), "onRebind");
     }
@@ -155,7 +175,6 @@ public class HappeningService extends Service {
     public boolean onUnbind(Intent intent) {
         Log.v(this.getClass().getSimpleName(), "onUnbind");
         String appId = intent.getStringExtra(HAPPENING_APP_ID);
-        registeredApps.remove(appId.hashCode());
         Toast.makeText(this, (appId == null ? "Something" : appId) + " unbound", Toast.LENGTH_LONG).show();
         return ALLOW_REBIND;
     }

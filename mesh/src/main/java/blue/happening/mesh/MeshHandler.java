@@ -2,6 +2,7 @@ package blue.happening.mesh;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
@@ -62,16 +63,35 @@ public class MeshHandler {
     }
 
     public List<String> getDevices() {
-        return new ArrayList<String>(routingTable.keySet());
+        ArrayList<String> strings = new ArrayList<String>();
+        for (Map.Entry<String, RemoteDevice> stringRemoteDeviceEntry : routingTable.entrySet()) {
+            strings.add(stringRemoteDeviceEntry.getKey());
+        }
+        return strings;
     }
 
     public boolean sendMessage(String uuid, byte[] bytes) {
+        System.out.println("MeshHandler sendMessage " + new String(bytes) + " to " + uuid);
+        System.out.println("MeshHandler ACHTUNG routingTable.size()" + routingTable.size());
+        String s = "";
+        for (Map.Entry<String, RemoteDevice> stringRemoteDeviceEntry : routingTable.entrySet()) {
+            s += stringRemoteDeviceEntry.getKey() + ", ";
+        }
+        System.out.println("MeshHandler routingTable values " + s);
+
         RemoteDevice remoteDevice = routingTable.get(uuid);
         if (remoteDevice == null) {
+            System.out.println("MeshHandler found NO device in routingtabel for uuid " + uuid );
             return false;
+        } else {
+            RemoteDevice bestNeighbour = routingTable.getBestNeighbourForRemoteDevice(remoteDevice);
+            if (bestNeighbour != null) {
+                Message message = new Message(this.uuid, uuid, INITIAL_MIN_SEQUENCE, MESSAGE_TYPE_UCM, bytes);
+                return bestNeighbour.sendMessage(message);
+            } else {
+                return false;
+            }
         }
-        Message message = new Message(this.uuid, uuid, INITIAL_MIN_SEQUENCE, MESSAGE_TYPE_UCM, bytes);
-        return remoteDevice.sendMessage(message);
     }
 
     private class OGMRunner implements Runnable {
@@ -124,7 +144,9 @@ public class MeshHandler {
 
             try {
                 message = Message.fromBytes(bytes);
-                assert message != null;
+                if (message == null) {
+                    throw new Exception("Could not parse message");
+                }
             } catch (Exception e) {
                 System.out.println(uuid + " MESSAGE BROKEN: " + e.getMessage());
                 return;
