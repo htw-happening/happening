@@ -8,6 +8,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,8 @@ public class HappeningService extends Service {
 
     private static HashMap<String, IHappeningCallback> callbacks = new HashMap<>();
     private final String TAG = getClass().getSimpleName();
+    private Layer bluetoothLayer = null;
+    private MeshHandler meshHandler = null;
     private final IHappeningService.Stub binder = new IHappeningService.Stub() {
 
         @Override
@@ -48,7 +51,7 @@ public class HappeningService extends Service {
             List<String> deviceKeys = meshHandler.getDevices();
 
             System.out.println("getDevices Num of real direct connections " + bluetoothLayer.getNumOfConnectedDevices());
-            System.out.println("getDevices: size "+deviceKeys.size());
+            System.out.println("getDevices: size " + deviceKeys.size());
 
             List<HappeningClient> devices = new ArrayList<>();
             for (String deviceKey : deviceKeys) {
@@ -76,9 +79,6 @@ public class HappeningService extends Service {
         }
     };
 
-    private Layer bluetoothLayer = null;
-    private MeshHandler meshHandler = null;
-
     /**
      * Called when the service is being created.
      */
@@ -93,12 +93,15 @@ public class HappeningService extends Service {
         meshHandler.registerCallback(new IMeshHandlerCallback() {
             @Override
             public void onMessageReceived(byte[] message) {
+                System.out.println("ON MESSAGE RECEIVED!!!");
+                System.out.println("ON MESSAGE RECEIVED!!! " + Arrays.toString(message));
                 int appId = AppPackage.getAppID(message);
                 byte[] content = AppPackage.getContent(message);
 
                 for (Map.Entry<String, IHappeningCallback> entry : callbacks.entrySet()) {
                     if (entry.getKey().hashCode() == appId) {
                         try {
+                            System.out.println("ON MESSAGE RECEIVED!!! " + "delivered " + content + " " + appId);
                             entry.getValue().onMessageReceived(content, appId);
                         } catch (Exception e) {
                             e.printStackTrace();
