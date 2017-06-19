@@ -151,6 +151,7 @@ class LeDeviceFinder implements IDeviceFinder {
             String macAddress = "";
             if (result.getScanRecord() != null) {
                 byte[] resultBytes = result.getScanRecord().getServiceData(ParcelUuid.fromString(Layer.RANDOM_READ_UUID));
+                if (resultBytes == null) return;
                 macAddress = new String(resultBytes, Charset.defaultCharset());
             }
             //if (d) Log.d(TAG, "Scanned mac address is " + macAddress);
