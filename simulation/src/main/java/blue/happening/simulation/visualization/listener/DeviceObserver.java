@@ -7,10 +7,12 @@ import blue.happening.mesh.MeshDevice;
 import blue.happening.simulation.entities.Connection;
 import blue.happening.simulation.entities.Device;
 import blue.happening.simulation.graph.NetworkGraph;
+import blue.happening.simulation.visualization.DevicePanel;
 
 
 public class DeviceObserver implements Observer {
     private NetworkGraph<Device, Connection> graph;
+    private DevicePanel panel;
 
     public DeviceObserver(NetworkGraph graph) {
         this.graph = graph;
@@ -35,8 +37,26 @@ public class DeviceObserver implements Observer {
             }
         }
 
+        if (device.isClicked() && event == Events.NEIGHBOUR_UPDATED) {
+            updateDevicePanel(device);
+        }
+
         if (event == Events.DEVICE_CLICKED) {
             this.graph.setClickedDevice(device);
+            setDevicePanel(device);
+        }
+    }
+
+    private void setDevicePanel(Device device) {
+        panel = device.getNetworkGraph().getDevicePanel();
+        if (panel != null) {
+            panel.setDevice(device);
+        }
+    }
+
+    private void updateDevicePanel(Device device){
+        if (panel != null) {
+            panel.updateDevice(device);
         }
     }
 

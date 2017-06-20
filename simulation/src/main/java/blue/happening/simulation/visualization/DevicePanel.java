@@ -67,13 +67,18 @@ public class DevicePanel extends JPanel {
         DeviceNeighbourTableModel neighbourTableModel = new DeviceNeighbourTableModel(neighbours);
         table.setModel(neighbourTableModel);
         table.getSelectionModel().addListSelectionListener(new SharedListSelectionHandler());
-
         table.updateUI();
     }
 
     public void setDevice(Device device) {
         this.device = device;
         setNeighbourList(device);
+    }
+
+    public void updateDevice(Device device){
+        DeviceNeighbourTableModel model = (DeviceNeighbourTableModel)table.getModel();
+        model.update(device.getDevices());
+        table.updateUI();
     }
 
     private void setSelectedDevicesFromSelectedDeviceNames(List<String> selectedDeviceNames) {
