@@ -1,11 +1,13 @@
 package blue.happening.dashboard;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.widget.TextView;
 
 import blue.happening.dashboard.layout.MyDrawerLayout;
 
@@ -24,6 +26,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        Context context = MyApplication.getAppContext();
+        String macAddress = android.provider.Settings.Secure.getString(context.getContentResolver(), "bluetooth_address");
+        TextView subText = (TextView) findViewById(R.id.drawer_header_sub_text);
+        subText.setText(macAddress);
 
         new MyDrawerLayout(this);
 

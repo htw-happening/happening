@@ -7,8 +7,8 @@ public enum MenuItems {
      * List of Enums
      * Add a new Enum to create a new Menu item
      */
-    DASHBOARD_FRAGMENT("dashboard"),
-    IMPRESSUM_FRAGMENT("impressum");
+    DASHBOARD_FRAGMENT("Dashboard"),
+    IMPRESSUM_FRAGMENT("Impressum");
 
     // fields
     private final String name;
