@@ -8,7 +8,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,16 +92,18 @@ public class HappeningService extends Service {
 
             @Override
             public void onMessageReceived(byte[] message, MeshDevice meshDevice) {
-                System.out.println("ON MESSAGE RECEIVED!!! " + Arrays.toString(message));
                 int appId = AppPackage.getAppID(message);
-                byte[] content = AppPackage.getContent(message);
+                byte[] bytes = AppPackage.getContent(message);
+                String content = new String(bytes);
+
+                System.out.println("ON MESSAGE RECEIVED!!! " + content);
 
                 for (Map.Entry<String, IHappeningCallback> entry : callbacks.entrySet()) {
                     if (entry.getKey().hashCode() == appId) {
                         try {
-                            System.out.println("ON MESSAGE RECEIVED!!! " + "delivered " + Arrays.toString(content) + " " + appId);
+                            System.out.println("ON MESSAGE RECEIVED!!! " + "delivered " + content + " " + appId);
                             HappeningClient client = new HappeningClient(meshDevice.getUuid(), "" + meshDevice.getQuality());
-                            entry.getValue().onMessageReceived(content, client);
+                            entry.getValue().onMessageReceived(bytes, client);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
