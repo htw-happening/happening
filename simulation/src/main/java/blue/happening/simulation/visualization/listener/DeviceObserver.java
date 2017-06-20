@@ -3,6 +3,7 @@ package blue.happening.simulation.visualization.listener;
 import java.util.Observable;
 import java.util.Observer;
 
+import blue.happening.mesh.MeshDevice;
 import blue.happening.simulation.entities.Connection;
 import blue.happening.simulation.entities.Device;
 import blue.happening.simulation.graph.NetworkGraph;
@@ -37,10 +38,17 @@ public class DeviceObserver implements Observer {
             for (Object object : device.getNetworkGraph().getVertices()) {
                 Device graphDevice = (Device) object;
                 graphDevice.setNeighbour(false);
-                if (device.getMeshHandler().getDevices().contains(graphDevice.getName())) {
-                    graphDevice.setNeighbour(true);
+                for(MeshDevice neighbour:device.getDevices()){
+                    if(neighbour.getUuid().equals(graphDevice.getName())){
+                        graphDevice.setNeighbour(true);
+                        break;
+                    }
                 }
             }
+        }
+
+        if(event == Events.DEVICE_CLICKED){
+            this.graph.setClickedDevice(device);
         }
     }
 }
