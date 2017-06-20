@@ -18,12 +18,15 @@ public class MockRemoteDevice extends RemoteDevice {
     }
 
     @Override
-    public void remove() {
-    /*for (Object edge : new ArrayList<>(device.getNetworkGraph().getInEdges(device))) {
-      //device.getNetworkGraph().removeEdge(edge);
-    }
-    VertexProperties device.getNetworkGraph().getVerticesProperties().get(device) */
+    public boolean remove() {
+        /*
+        for (Object edge : new ArrayList<>(device.getNetworkGraph().getInEdges(device))) {
+            device.getNetworkGraph().removeEdge(edge);
+        }
+        VertexProperties device.getNetworkGraph().getVerticesProperties().get(device)
+        */
         // TODO: Handle broken connections and inform bla
+        return false;
     }
 
     public Device getDevice() {

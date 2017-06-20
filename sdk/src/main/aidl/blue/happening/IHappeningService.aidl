@@ -5,8 +5,12 @@ import blue.happening.IHappeningCallback;
 
 
 interface IHappeningService {
+
     void registerHappeningCallback(IHappeningCallback happeningCallback, String appId);
-    List<HappeningClient> getDevices();
-    void sendToDevice(String deviceId, String appId, in byte[] content);
+
+    List<HappeningClient> getClients();
+
+    void sendMessage(in byte[] message, String uuid, String appId);
+
     void restart();
 }

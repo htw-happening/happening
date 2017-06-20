@@ -44,22 +44,22 @@ public class Happening {
 
         @Override
         public void onClientAdded(HappeningClient client) throws RemoteException {
-            appCallback.onClientAdded(client.getClientId());
+            appCallback.onClientAdded(client);
         }
 
         @Override
         public void onClientUpdated(HappeningClient client) throws RemoteException {
-            appCallback.onClientUpdated(client.getClientId());
+            appCallback.onClientUpdated(client);
         }
 
         @Override
         public void onClientRemoved(HappeningClient client) throws RemoteException {
-            appCallback.onClientRemoved(client.getClientId());
+            appCallback.onClientRemoved(client);
         }
 
         @Override
-        public void onMessageReceived(byte[] message, int deviceId) throws RemoteException {
-            appCallback.onMessageReceived(message, deviceId);
+        public void onMessageReceived(byte[] message, HappeningClient source) throws RemoteException {
+            appCallback.onMessageReceived(message, source);
         }
     };
 
@@ -143,11 +143,11 @@ public class Happening {
      *
      * @return List of {@link HappeningClient happening clients}
      */
-    public List<HappeningClient> getDevices() {
-        Log.v(this.getClass().getSimpleName(), "getDevices");
+    public List<HappeningClient> getClients() {
+        Log.v(this.getClass().getSimpleName(), "getClients");
         List<HappeningClient> devicesList = null;
         try {
-            devicesList = service.getDevices();
+            devicesList = service.getClients();
         } catch (RemoteException | NullPointerException e) {
             e.printStackTrace();
         }
@@ -159,14 +159,11 @@ public class Happening {
 
     /**
      * Method to send data to a specific device.
-     *
-     * @param deviceId Device id of recipient device.
      */
-    public void sendDataTo(String deviceId, byte[] content) {
-        Log.v(this.getClass().getSimpleName(), "sendToDevice");
+    public void sendMessage(byte[] message, HappeningClient destination) {
         try {
-            service.sendToDevice(deviceId, appId, content);
-            Log.d(TAG, "sendDataTo: " + deviceId + " with appId " + appId);
+            service.sendMessage(message, destination.getUuid(), appId);
+            Log.d(TAG, "sendMessage: " + destination.getUuid() + " with appId " + appId);
         } catch (RemoteException | NullPointerException e) {
             e.printStackTrace();
         }

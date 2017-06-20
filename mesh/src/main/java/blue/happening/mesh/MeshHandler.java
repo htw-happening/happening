@@ -70,8 +70,8 @@ public class MeshHandler {
         return meshDevices;
     }
 
-    public boolean sendMessage(String uuid, byte[] bytes) {
-        System.out.println("MeshHandler sendMessage " + new String(bytes) + " to " + uuid);
+    public boolean sendMessage(byte[] message, String uuid) {
+        System.out.println("MeshHandler sendMessage " + new String(message) + " to " + uuid);
         String s = "";
         for (Map.Entry<String, RemoteDevice> stringRemoteDeviceEntry : routingTable.entrySet()) {
             s += stringRemoteDeviceEntry.getKey() + ", ";
@@ -85,8 +85,8 @@ public class MeshHandler {
         } else {
             RemoteDevice bestNeighbour = routingTable.getBestNeighbourForRemoteDevice(remoteDevice);
             if (bestNeighbour != null) {
-                Message message = new Message(this.uuid, uuid, INITIAL_MIN_SEQUENCE, MESSAGE_TYPE_UCM, bytes);
-                return bestNeighbour.sendMessage(message);
+                Message ucm = new Message(this.uuid, uuid, INITIAL_MIN_SEQUENCE, MESSAGE_TYPE_UCM, message);
+                return bestNeighbour.sendMessage(ucm);
             } else {
                 return false;
             }
@@ -158,7 +158,8 @@ public class MeshHandler {
             }
 
             if (propagate != null) {
-                meshHandlerCallback.onMessageReceived(message.getBody());
+                MeshDevice source = routingTable.get(message.getSource()).getMeshDevice();
+                meshHandlerCallback.onMessageReceived(message.getBody(), source);
             }
 
             RemoteDevice source = routingTable.get(message.getSource());

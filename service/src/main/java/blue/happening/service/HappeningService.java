@@ -46,7 +46,7 @@ public class HappeningService extends Service {
         }
 
         @Override
-        public List<HappeningClient> getDevices() throws RemoteException {
+        public List<HappeningClient> getClients() throws RemoteException {
             Log.v(this.getClass().getSimpleName(), "getDevices");
 
             List<MeshDevice> meshDevices = meshHandler.getDevices();
@@ -64,12 +64,10 @@ public class HappeningService extends Service {
         }
 
         @Override
-        public void sendToDevice(String deviceId, String appId, byte[] content) throws RemoteException {
-            System.out.println(TAG + " " + "sendToDevice: " + new String(content));
-            Log.v(this.getClass().getSimpleName(), "sendToDevice");
-            // TODO: Meshhandler.sendId(deviceId, content)
-            byte[] data = AppPackage.createAppPackage(appId.hashCode(), content);
-            meshHandler.sendMessage(deviceId, data);
+        public void sendMessage(byte[] message, String uuid, String appId) throws RemoteException {
+            Log.v(TAG, "sendMessage " + new String(message));
+            byte[] data = AppPackage.createAppPackage(appId.hashCode(), message);
+            meshHandler.sendMessage(data, uuid);
             // Layer.getInstance().sendToDevice(deviceId, content);
         }
 
@@ -94,7 +92,7 @@ public class HappeningService extends Service {
         meshHandler.registerCallback(new IMeshHandlerCallback() {
 
             @Override
-            public void onMessageReceived(byte[] message) {
+            public void onMessageReceived(byte[] message, MeshDevice meshDevice) {
                 System.out.println("ON MESSAGE RECEIVED!!! " + Arrays.toString(message));
                 int appId = AppPackage.getAppID(message);
                 byte[] content = AppPackage.getContent(message);
@@ -102,8 +100,9 @@ public class HappeningService extends Service {
                 for (Map.Entry<String, IHappeningCallback> entry : callbacks.entrySet()) {
                     if (entry.getKey().hashCode() == appId) {
                         try {
-                            System.out.println("ON MESSAGE RECEIVED!!! " + "delivered " + content + " " + appId);
-                            entry.getValue().onMessageReceived(content, appId);
+                            System.out.println("ON MESSAGE RECEIVED!!! " + "delivered " + Arrays.toString(content) + " " + appId);
+                            HappeningClient client = new HappeningClient(meshDevice.getUuid(), "" + meshDevice.getQuality());
+                            entry.getValue().onMessageReceived(content, client);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

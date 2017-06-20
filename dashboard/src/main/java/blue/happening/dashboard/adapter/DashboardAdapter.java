@@ -12,14 +12,14 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import blue.happening.HappeningClient;
 import blue.happening.dashboard.R;
 import blue.happening.dashboard.fragment.DashboardFragment;
-import blue.happening.dashboard.model.DashboardModel;
 
 
-public class DashboardAdapter extends ArrayAdapter<DashboardModel> {
+public class DashboardAdapter extends ArrayAdapter<HappeningClient> {
 
-    public DashboardAdapter(Context context, List<DashboardModel> models) {
+    public DashboardAdapter(Context context, List<HappeningClient> models) {
         super(context, 0, models);
     }
 
@@ -27,7 +27,7 @@ public class DashboardAdapter extends ArrayAdapter<DashboardModel> {
     @Override
     public View getView(final int position, View convertView, @NonNull ViewGroup parent) {
 
-        DashboardModel dashboardModel = getItem(position);
+        HappeningClient happeningClient = getItem(position);
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.dashboard_model, parent, false);
@@ -36,9 +36,9 @@ public class DashboardAdapter extends ArrayAdapter<DashboardModel> {
         TextView title = (TextView) convertView.findViewById(R.id.dashboard_model_title);
         TextView message = (TextView) convertView.findViewById(R.id.dashboard_model_message);
 
-        if (dashboardModel != null) {
-            title.setText(dashboardModel.getTitle());
-            message.setText(dashboardModel.getMessage());
+        if (happeningClient != null) {
+            title.setText(happeningClient.getName());
+            message.setText(happeningClient.getUuid());
         }
 
         convertView.findViewById(R.id.dashboard_button_send).setOnClickListener(new View.OnClickListener() {
@@ -46,9 +46,11 @@ public class DashboardAdapter extends ArrayAdapter<DashboardModel> {
             public void onClick(View v) {
                 Toast.makeText(getContext(), "Send", Toast.LENGTH_SHORT).show();
                 String message = "Hey there, i'm using happening!";
-                DashboardModel model = getItem(position);
-                Log.d(getClass().getSimpleName(), "Sending Message to " + model.getMessage());
-                DashboardFragment.getInstance().getHappening().sendDataTo(model.getMessage(), message.getBytes());
+                HappeningClient client = getItem(position);
+                if (client != null) {
+                    Log.d(getClass().getSimpleName(), "Sending Message to " + client.getUuid());
+                    DashboardFragment.getInstance().getHappening().sendMessage(message.getBytes(), client);
+                }
             }
         });
 

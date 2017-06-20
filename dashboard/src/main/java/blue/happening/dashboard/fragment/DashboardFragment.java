@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,19 +17,29 @@ import java.util.List;
 import blue.happening.HappeningClient;
 import blue.happening.dashboard.R;
 import blue.happening.dashboard.adapter.DashboardAdapter;
-import blue.happening.dashboard.model.DashboardModel;
 import blue.happening.sdk.Happening;
 import blue.happening.sdk.HappeningCallback;
 
 public class DashboardFragment extends Fragment {
 
-    private static DashboardFragment instance = null;
     private final String TAG = this.getClass().getSimpleName();
-    private List<DashboardModel> dashboardModels = new ArrayList<>();
-    private DashboardAdapter dashboardAdapter;
-    ListView listView;
 
-    private Happening happening = new Happening();
+    private static DashboardFragment instance = null;
+    private List<HappeningClient> dashboardClients;
+    private DashboardAdapter dashboardAdapter;
+    private ListView listView;
+    private Happening happening;
+
+    public DashboardFragment() {
+        happening = new Happening();
+        dashboardClients = new ArrayList<>();
+    }
+
+    public static DashboardFragment getInstance() {
+        if (instance == null)
+            instance = new DashboardFragment();
+        return instance;
+    }
 
     public Happening getHappening() {
         return happening;
@@ -37,43 +48,39 @@ public class DashboardFragment extends Fragment {
     private HappeningCallback happeningCallback = new HappeningCallback() {
         // TODO: These callback methods don't do anything useful yet.
         @Override
-        public void onClientAdded(String client) {
-            Log.v(this.getClass().getSimpleName(), "onClientAdded " + client);
-            dashboardModels.add(new DashboardModel("add", client));
+        public void onClientAdded(HappeningClient client) {
+            dashboardClients.add(client);
             dashboardAdapter.notifyDataSetChanged();
         }
 
         @Override
-        public void onClientUpdated(String client) {
-            Log.v(this.getClass().getSimpleName(), "onClientUpdated " + client);
-            dashboardModels.add(new DashboardModel("update", client));
+        public void onClientUpdated(HappeningClient client) {
+            onClientRemoved(client);
+            onClientAdded(client);
             dashboardAdapter.notifyDataSetChanged();
         }
 
         @Override
-        public void onClientRemoved(String client) {
-            Log.v(this.getClass().getSimpleName(), "onClientRemoved " + client);
-            dashboardModels.add(new DashboardModel("remove", client));
+        public void onClientRemoved(HappeningClient client) {
+            HappeningClient removeDevice = null;
+            for (HappeningClient candidate : dashboardClients) {
+                if (candidate.getUuid().equals(client.getUuid())) {
+                    removeDevice = candidate;
+                }
+            }
+            if (removeDevice != null) {
+                dashboardClients.remove(removeDevice);
+            }
             dashboardAdapter.notifyDataSetChanged();
         }
 
         @Override
-        public void onMessageReceived(byte[] message, int deviceId) {
-            Log.d(TAG, "onMessageReceived: " + new String(message));
-//            Toast.makeText(MyApplication.getAppContext(), String.valueOf(message), Toast.LENGTH_SHORT).show();
+        public void onMessageReceived(byte[] message, HappeningClient source) {
+            Log.v(TAG, "onMessageReceived: " + new String(message) + " from " + source.getUuid());
+            Context context = getActivity().getApplicationContext();
+            Toast.makeText(context, new String(message), Toast.LENGTH_LONG).show();
         }
     };
-
-    public DashboardFragment() {
-
-    }
-
-    public static DashboardFragment getInstance() {
-        if (instance == null)
-            instance = new DashboardFragment();
-
-        return instance;
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -86,24 +93,22 @@ public class DashboardFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.v(this.getClass().getSimpleName(), "onClick");
-                List<HappeningClient> devices = happening.getDevices();
-
-                dashboardModels.clear();
-                for (HappeningClient device : devices) {
-                    dashboardModels.add(new DashboardModel(device.getClientName(), device.getClientId()));
-                    Log.d(TAG, "onClick: " + device.getClientName());
+                List<HappeningClient> clients = happening.getClients();
+                dashboardClients.clear();
+                for (HappeningClient client : clients) {
+                    dashboardClients.add(client);
+                    Log.d(TAG, "onClick: " + client.getName());
                 }
                 dashboardAdapter.notifyDataSetChanged();
             }
         });
 
-        dashboardAdapter = new DashboardAdapter(container.getContext(), dashboardModels);
+        dashboardAdapter = new DashboardAdapter(container.getContext(), dashboardClients);
         listView = (ListView) rootView.findViewById(R.id.dashboard_model_list);
         listView.setAdapter(dashboardAdapter);
 
         Context context = getActivity().getApplicationContext();
         happening.register(context, happeningCallback);
-
 
         return rootView;
     }
@@ -114,5 +119,4 @@ public class DashboardFragment extends Fragment {
         super.onDestroyView();
         happening.deregister();
     }
-
 }

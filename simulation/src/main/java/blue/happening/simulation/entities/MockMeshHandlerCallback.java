@@ -19,7 +19,7 @@ public class MockMeshHandlerCallback implements IMeshHandlerCallback {
     }
 
     @Override
-    public void onMessageReceived(byte[] message) {
+    public void onMessageReceived(byte[] message, MeshDevice meshDevice) {
         logger.debug("App: Message Received");
     }
 

@@ -1,13 +1,11 @@
 package blue.happening.sdk;
 
+import blue.happening.HappeningClient;
+
 
 public interface HappeningCallback {
-    void onClientAdded(String client);
-
-    void onClientUpdated(String client);
-
-    void onClientRemoved(String client);
-
-    void onMessageReceived(byte[] message, int deviceId);
-
+    void onClientAdded(HappeningClient client);
+    void onClientUpdated(HappeningClient client);
+    void onClientRemoved(HappeningClient client);
+    void onMessageReceived(byte[] message, HappeningClient source);
 }

@@ -63,9 +63,15 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
         RemoteDevice remoteDevice = get(remoteDeviceUuid);
         if (remoteDevice == null) {
             remoteDevice = new RemoteDevice(remoteDeviceUuid) {
+                @Override
                 public boolean sendMessage(Message message) {
                     System.out.println("DEVICE " + this.getUuid() + " DOES NOT HAVE THIS OP");
                     throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public boolean remove() {
+                    return false;
                 }
             };
         }

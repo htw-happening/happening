@@ -8,6 +8,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.RemoteDevice;
 import blue.happening.simulation.entities.Device;
 
@@ -38,8 +39,8 @@ public class DevicePanel extends JPanel {
         btn_sendMessage.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                for(String uuid:device.getMeshHandler().getDevices()){
-                    device.getMeshHandler().sendMessage(uuid, "Hello".getBytes());
+                for (MeshDevice meshDevice : device.getMeshHandler().getDevices()) {
+                    device.getMeshHandler().sendMessage("Hello".getBytes(), meshDevice.getUuid());
                 }
             }
         });
@@ -54,11 +55,11 @@ public class DevicePanel extends JPanel {
             if (remoteDevice.isNeighbour()) {
                 builder.append(remoteDevice.getUuid());
                 builder.append(": ");
-                builder.append(String.format("%.2f",remoteDevice.getEq()));
+                builder.append(String.format("%.2f", remoteDevice.getEq()));
                 builder.append("/");
-                builder.append(String.format("%.2f",remoteDevice.getRq()));
+                builder.append(String.format("%.2f", remoteDevice.getRq()));
                 builder.append("=");
-                builder.append(String.format("%.2f",remoteDevice.getTq()));
+                builder.append(String.format("%.2f", remoteDevice.getTq()));
                 builder.append(", ");
             }
         }
