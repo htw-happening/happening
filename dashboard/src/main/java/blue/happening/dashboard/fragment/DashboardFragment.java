@@ -77,7 +77,6 @@ public class DashboardFragment extends Fragment {
 
         @Override
         public void onClientUpdated(HappeningClient client) {
-            onClientRemoved(client);
             HappeningClient removeDevice = null;
             for (HappeningClient candidate : dashboardClients) {
                 if (candidate.getUuid().equals(client.getUuid())) {
@@ -102,8 +101,8 @@ public class DashboardFragment extends Fragment {
             }
             try {
                 dashboardClients.remove(removeDevice);
-            } catch (Exception ignored) {
-                return;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             notifyDataSetChanged();
         }
