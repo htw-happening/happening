@@ -25,14 +25,12 @@ public class DashboardFragment extends Fragment {
     private final String TAG = this.getClass().getSimpleName();
 
     private static DashboardFragment instance = null;
-    private List<HappeningClient> dashboardClients;
+    private List<HappeningClient> dashboardClients = new ArrayList<>();
     private DashboardAdapter dashboardAdapter;
     private ListView listView;
-    private Happening happening;
+    private Happening happening = new Happening();
 
     public DashboardFragment() {
-        happening = new Happening();
-        dashboardClients = new ArrayList<>();
     }
 
     public static DashboardFragment getInstance() {
@@ -46,18 +44,52 @@ public class DashboardFragment extends Fragment {
     }
 
     private HappeningCallback happeningCallback = new HappeningCallback() {
-        // TODO: These callback methods don't do anything useful yet.
+        // TODO: These callback methods don't do anything useful yet and are ugly af
+
+        private void notifyDataSetChanged() {
+            getActivity().runOnUiThread(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            dashboardAdapter.notifyDataSetChanged();
+                        }
+                    }
+            );
+        }
+
+        private void toast(final String message) {
+            getActivity().runOnUiThread(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            Context context = getActivity().getApplicationContext();
+                            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+                        }
+                    }
+            );
+        }
+
         @Override
         public void onClientAdded(HappeningClient client) {
             dashboardClients.add(client);
-            dashboardAdapter.notifyDataSetChanged();
+            notifyDataSetChanged();
         }
 
         @Override
         public void onClientUpdated(HappeningClient client) {
             onClientRemoved(client);
-            onClientAdded(client);
-            dashboardAdapter.notifyDataSetChanged();
+            HappeningClient removeDevice = null;
+            for (HappeningClient candidate : dashboardClients) {
+                if (candidate.getUuid().equals(client.getUuid())) {
+                    removeDevice = candidate;
+                }
+            }
+            try {
+                dashboardClients.remove(removeDevice);
+            } catch (Exception ignored) {
+                return;
+            }
+            notifyDataSetChanged();
         }
 
         @Override
@@ -68,17 +100,18 @@ public class DashboardFragment extends Fragment {
                     removeDevice = candidate;
                 }
             }
-            if (removeDevice != null) {
+            try {
                 dashboardClients.remove(removeDevice);
+            } catch (Exception ignored) {
+                return;
             }
-            dashboardAdapter.notifyDataSetChanged();
+            notifyDataSetChanged();
         }
 
         @Override
         public void onMessageReceived(byte[] message, HappeningClient source) {
             Log.v(TAG, "onMessageReceived: " + new String(message) + " from " + source.getUuid());
-            Context context = getActivity().getApplicationContext();
-            Toast.makeText(context, new String(message), Toast.LENGTH_LONG).show();
+            toast(new String(message));
         }
     };
 
@@ -99,7 +132,15 @@ public class DashboardFragment extends Fragment {
                     dashboardClients.add(client);
                     Log.d(TAG, "onClick: " + client.getName());
                 }
-                dashboardAdapter.notifyDataSetChanged();
+
+                getActivity().runOnUiThread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                dashboardAdapter.notifyDataSetChanged();
+                            }
+                        }
+                );
             }
         });
 

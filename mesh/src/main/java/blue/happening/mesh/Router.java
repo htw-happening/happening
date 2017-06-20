@@ -45,7 +45,7 @@ class Router {
                 window.addIfIsSequenceInWindow(message);
             }
         } else {
-            throw new RoutingException("Previous hop has left");
+            throw new RoutingException("slideWindows: Previous hop has left " + message.getPreviousHop());
         }
     }
 
@@ -141,7 +141,7 @@ class Router {
         if (previousHop != null) {
             previousTq = previousHop.getTq();
         } else {
-            throw new RoutingException("Previous hop has left");
+            throw new RoutingException("calculateTq: Previous hop has left " + message.getPreviousHop());
         }
         return (int) (message.getTq() * previousTq) - MeshHandler.HOP_PENALTY;
     }
