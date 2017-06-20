@@ -36,40 +36,36 @@ public class Happening {
     private IHappeningService service;
     private HappeningCallback appCallback;
     private IHappeningCallback.Stub happeningCallback = new IHappeningCallback.Stub() {
+
         @Override
         public IBinder asBinder() {
             return this;
         }
 
         @Override
-        public void onClientAdded(String client) throws RemoteException {
+        public void onClientAdded(HappeningClient client) throws RemoteException {
             Log.i(this.getClass().getSimpleName(), "onClientAdded");
             appCallback.onClientAdded(client);
         }
 
         @Override
-        public void onClientUpdated(String client) throws RemoteException {
+        public void onClientUpdated(HappeningClient client) throws RemoteException {
             Log.i(this.getClass().getSimpleName(), "onClientUpdated");
             appCallback.onClientUpdated(client);
         }
 
         @Override
-        public void onClientRemoved(String client) throws RemoteException {
+        public void onClientRemoved(HappeningClient client) throws RemoteException {
             Log.i(this.getClass().getSimpleName(), "onClientRemoved");
             appCallback.onClientRemoved(client);
         }
 
         @Override
-        public void onParcelQueued(long parcelId) throws RemoteException {
-            Log.i(this.getClass().getSimpleName(), "onParcelQueued");
-            appCallback.onParcelQueued(parcelId);
+        public void onMessageReceived(byte[] message, HappeningClient source) throws RemoteException {
+            Log.i(this.getClass().getSimpleName(), "onMessageReceived");
+            appCallback.onMessageReceived(message, source);
         }
 
-        @Override
-        public void onMessageReceived(byte[] message, int deviceId) throws RemoteException {
-            Log.i(this.getClass().getSimpleName(), "onMessageReceived");
-            appCallback.onMessageReceived(message, deviceId);
-        }
     };
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -90,6 +86,7 @@ public class Happening {
             Log.i(this.getClass().getSimpleName(), "Service disconnected");
         }
     };
+
     private final Runnable runnable = new Runnable() {
         public void run() {
             if (service == null) {
@@ -151,11 +148,11 @@ public class Happening {
      *
      * @return List of {@link HappeningClient happening clients}
      */
-    public List<HappeningClient> getDevices() {
-        Log.v(this.getClass().getSimpleName(), "getDevices");
+    public List<HappeningClient> getClients() {
+        Log.v(this.getClass().getSimpleName(), "getClients");
         List<HappeningClient> devicesList = null;
         try {
-            devicesList = service.getDevices();
+            devicesList = service.getClients();
         } catch (RemoteException | NullPointerException e) {
             e.printStackTrace();
         }
@@ -167,14 +164,11 @@ public class Happening {
 
     /**
      * Method to send data to a specific device.
-     *
-     * @param deviceId Device id of recipient device.
      */
-    public void sendDataTo(String deviceId, byte[] content) {
-        Log.v(this.getClass().getSimpleName(), "sendToDevice");
+    public void sendMessage(byte[] message, HappeningClient destination) {
         try {
-            service.sendToDevice(deviceId, appId, content);
-            Log.d(TAG, "sendDataTo: "+deviceId + " with appId "+appId);
+            service.sendMessage(message, destination.getUuid(), appId);
+            Log.d(TAG, "sendMessage: " + destination.getUuid() + " with appId " + appId);
         } catch (RemoteException | NullPointerException e) {
             e.printStackTrace();
         }

@@ -6,8 +6,8 @@ import android.os.Parcelable;
 
 public class HappeningClient implements Parcelable {
 
-    private String clientId;
-    private String clientName;
+    private String uuid;
+    private String name;
 
     public static final Creator<HappeningClient> CREATOR = new Creator<HappeningClient>() {
         @Override
@@ -21,9 +21,9 @@ public class HappeningClient implements Parcelable {
         }
     };
 
-    public HappeningClient(String clientId, String clientName) {
-        this.clientId = clientId;
-        this.clientName = clientName;
+    public HappeningClient(String uuid, String name) {
+        this.uuid = uuid;
+        this.name = name;
     }
 
     private HappeningClient(Parcel in) {
@@ -37,20 +37,20 @@ public class HappeningClient implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeString(clientId);
-        out.writeString(clientName);
+        out.writeString(uuid);
+        out.writeString(name);
     }
 
     public void readFromParcel(Parcel in) {
-        clientId = in.readString();
-        clientName = in.readString();
+        uuid = in.readString();
+        name = in.readString();
     }
 
-    public String getClientId() {
-        return clientId;
+    public String getUuid() {
+        return uuid;
     }
 
-    public String getClientName() {
-        return clientName;
+    public String getName() {
+        return name;
     }
 }

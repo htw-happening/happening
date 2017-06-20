@@ -1,4 +1,4 @@
-package blue.happening.dashboard.click_listener;
+package blue.happening.dashboard.listener;
 
 import android.app.Activity;
 import android.support.v4.view.GravityCompat;

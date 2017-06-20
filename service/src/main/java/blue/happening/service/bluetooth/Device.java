@@ -106,6 +106,11 @@ public class Device extends RemoteDevice {
         }
     }
 
+    @Override
+    public boolean remove() {
+        return false;
+    }
+
     public void connect() {
         if (d) Log.d(TAG, "Connecting to Device " + toString());
         if (getState() == STATE.CONNECTED) return;

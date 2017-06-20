@@ -6,6 +6,5 @@ public interface ILayerCallback {
 
     public void onDeviceRemoved(RemoteDevice remoteDevice);
 
-    public void onMessageReceived(byte[] bytes);
-
+    public void onMessageReceived(byte[] message);
 }

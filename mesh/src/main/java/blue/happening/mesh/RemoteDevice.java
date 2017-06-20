@@ -3,28 +3,30 @@ package blue.happening.mesh;
 import java.util.HashSet;
 
 
-public abstract class RemoteDevice implements Comparable<RemoteDevice> {
+public abstract class RemoteDevice implements IRemoteDevice {
 
     private final String uuid;
     private long lastSeen;
     private SlidingWindow echoSlidingWindow;
     private SlidingWindow receiveSlidingWindow;
-
+    private MeshDevice meshDevice;
     private HashSet<String> neighbourUuids;
 
     public RemoteDevice(String uuid) {
         this.uuid = uuid;
+        meshDevice = new MeshDevice();
+        meshDevice.setUuid(uuid);
         lastSeen = System.currentTimeMillis();
         neighbourUuids = new HashSet<>();
         echoSlidingWindow = new SlidingWindow();
         receiveSlidingWindow = new SlidingWindow();
     }
 
-    public SlidingWindow getEchoSlidingWindow() {
+    SlidingWindow getEchoSlidingWindow() {
         return echoSlidingWindow;
     }
 
-    public SlidingWindow getReceiveSlidingWindow() {
+    SlidingWindow getReceiveSlidingWindow() {
         return receiveSlidingWindow;
     }
 
@@ -32,20 +34,20 @@ public abstract class RemoteDevice implements Comparable<RemoteDevice> {
         return uuid;
     }
 
-    public final long getLastSeen() {
+    long getLastSeen() {
         return lastSeen;
     }
 
-    public final void setLastSeen(long lastSeen) {
+    void setLastSeen(long lastSeen) {
         this.lastSeen = lastSeen;
     }
 
-    public final boolean isExpired() {
+    boolean isExpired() {
         long expirationMillis = MeshHandler.DEVICE_EXPIRATION_DURATION * 1000;
         return System.currentTimeMillis() - lastSeen > expirationMillis;
     }
 
-    public final HashSet<String> getNeighbourUuids() {
+    HashSet<String> getNeighbourUuids() {
         return neighbourUuids;
     }
 
@@ -53,12 +55,8 @@ public abstract class RemoteDevice implements Comparable<RemoteDevice> {
         return neighbourUuids.contains(uuid);
     }
 
-    public void mergeNeighbours(RemoteDevice remoteDevice) {
+    void mergeNeighbours(RemoteDevice remoteDevice) {
         neighbourUuids.addAll(remoteDevice.getNeighbourUuids());
-    }
-
-    private float roundValue(float number) {
-        return (float) Math.round(number * 100) / 100;
     }
 
     public final float getEq() {
@@ -70,7 +68,7 @@ public abstract class RemoteDevice implements Comparable<RemoteDevice> {
     }
 
     public final float getTq() {
-        float tolerance = roundValue(getEq() - 1f / MeshHandler.SLIDING_WINDOW_SIZE);
+        float tolerance = ((float) Math.round(getEq() - 1f / MeshHandler.SLIDING_WINDOW_SIZE * 100) / 100);
         if (tolerance > getRq()) {
             System.out.println("CALCULATE TQ: EQ (" + getEq() + ") SHOULD NEVER BE GREATER THAN RQ (" + getRq() + ")");
         }
@@ -79,17 +77,16 @@ public abstract class RemoteDevice implements Comparable<RemoteDevice> {
 
     public abstract boolean sendMessage(Message message);
 
-    public void remove() {
-    }
+    public abstract boolean remove();
 
     @Override
-    public int compareTo(RemoteDevice other) {
+    public int compareTo(IRemoteDevice other) {
         return Float.compare(
                 this.getTq(),
                 other.getTq());
     }
 
-    public boolean equals(Object object) {
+    public final boolean equals(Object object) {
         if (object == null) {
             return false;
         } else if (!(object instanceof RemoteDevice)) {
@@ -101,5 +98,10 @@ public abstract class RemoteDevice implements Comparable<RemoteDevice> {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "@" + getUuid();
+    }
+
+    MeshDevice getMeshDevice() {
+        meshDevice.setQuality(getTq());
+        return meshDevice;
     }
 }

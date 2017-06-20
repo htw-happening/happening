@@ -1,10 +1,15 @@
 package blue.happening;
 
+import blue.happening.HappeningClient;
+
 
 interface IHappeningCallback {
-    void onClientAdded(String client);
-    void onClientUpdated(String client);
-    void onClientRemoved(String client);
-    void onParcelQueued(long parcelId);
-    void onMessageReceived(in byte[] message, int deviceId);
+
+    void onClientAdded(in HappeningClient client);
+
+    void onClientUpdated(in HappeningClient client);
+
+    void onClientRemoved(in HappeningClient client);
+
+    void onMessageReceived(in byte[] message, in HappeningClient source);
 }

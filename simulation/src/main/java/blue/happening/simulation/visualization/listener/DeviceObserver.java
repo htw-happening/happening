@@ -11,6 +11,7 @@ import blue.happening.simulation.graph.NetworkGraph;
 public class DeviceObserver implements Observer {
     public enum Events {
         NEIGHBOUR_ADDED,
+        NEIGHBOUR_UPDATED,
         NEIGHBOUR_REMOVED,
         BECAME_NEIGHBOUR,
         IS_NOT_NEIGHBOUR_ANYMORE,

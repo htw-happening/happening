@@ -1,10 +1,13 @@
 package blue.happening.mesh;
 
+
 public interface IMeshHandlerCallback {
 
-    void onMessageReceived(byte[] message);
+    void onDeviceAdded(MeshDevice meshDevice);
 
-    void onDeviceAdded(String uuid);
+    void onDeviceUpdated(MeshDevice meshDevice);
 
-    void onDeviceRemoved(String uuid);
+    void onDeviceRemoved(MeshDevice meshDevice);
+
+    void onMessageReceived(byte[] message, MeshDevice source);
 }

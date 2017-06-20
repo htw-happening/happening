@@ -16,6 +16,7 @@ import blue.happening.HappeningClient;
 import blue.happening.IHappeningCallback;
 import blue.happening.IHappeningService;
 import blue.happening.mesh.IMeshHandlerCallback;
+import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.MeshHandler;
 import blue.happening.service.bluetooth.AppPackage;
 import blue.happening.service.bluetooth.Layer;
@@ -44,31 +45,29 @@ public class HappeningService extends Service {
         }
 
         @Override
-        public List<HappeningClient> getDevices() throws RemoteException {
+        public List<HappeningClient> getClients() throws RemoteException {
             Log.v(this.getClass().getSimpleName(), "getDevices");
 
-            List<String> deviceKeys = meshHandler.getDevices();
+            List<MeshDevice> meshDevices = meshHandler.getDevices();
 
             System.out.println("getDevices Num of real direct connections " + bluetoothLayer.getNumOfConnectedDevices());
-            System.out.println("getDevices: size " + deviceKeys.size());
+            System.out.println("getDevices: size " + meshDevices.size());
 
             List<HappeningClient> devices = new ArrayList<>();
-            for (String deviceKey : deviceKeys) {
-                devices.add(new HappeningClient(deviceKey, "N/A"));
-                Log.d(TAG, "getDevices: " + deviceKey);
+            for (MeshDevice meshDevice : meshDevices) {
+                devices.add(new HappeningClient(meshDevice.getUuid(), "N/A"));
+                Log.d(TAG, "getDevices: " + meshDevice.getUuid());
             }
 
             return devices;
         }
 
         @Override
-        public void sendToDevice(String deviceId, String appId, byte[] content) throws RemoteException {
-            System.out.println(TAG + " " + "sendToDevice: " + new String(content));
-            Log.v(this.getClass().getSimpleName(), "sendToDevice");
-            // TODO: Meshhandler.sendId(deviceId, content)
-            byte[] data = AppPackage.createAppPackage(appId.hashCode(), content);
-            meshHandler.sendMessage(deviceId, data);
-//            Layer.getInstance().sendToDevice(deviceId, content);
+        public void sendMessage(byte[] message, String uuid, String appId) throws RemoteException {
+            Log.v(TAG, "sendMessage " + new String(message));
+            byte[] data = AppPackage.createAppPackage(appId.hashCode(), message);
+            meshHandler.sendMessage(data, uuid);
+            // Layer.getInstance().sendToDevice(deviceId, content);
         }
 
         @Override
@@ -90,19 +89,21 @@ public class HappeningService extends Service {
         meshHandler = new MeshHandler(bluetoothLayer.getMacAddress());
         meshHandler.registerLayer(bluetoothLayer);
         meshHandler.registerCallback(new IMeshHandlerCallback() {
+
             @Override
-            public void onMessageReceived(byte[] message) {
+            public void onMessageReceived(byte[] message, MeshDevice meshDevice) {
                 int appId = AppPackage.getAppID(message);
                 byte[] bytes = AppPackage.getContent(message);
                 String content = new String(bytes);
-                System.out.println("ON MESSAGE RECEIVED!!!");
+
                 System.out.println("ON MESSAGE RECEIVED!!! " + content);
 
                 for (Map.Entry<String, IHappeningCallback> entry : callbacks.entrySet()) {
                     if (entry.getKey().hashCode() == appId) {
                         try {
                             System.out.println("ON MESSAGE RECEIVED!!! " + "delivered " + content + " " + appId);
-                            entry.getValue().onMessageReceived(bytes, appId);
+                            HappeningClient client = new HappeningClient(meshDevice.getUuid(), "" + meshDevice.getQuality());
+                            entry.getValue().onMessageReceived(bytes, client);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -111,14 +112,39 @@ public class HappeningService extends Service {
             }
 
             @Override
-            public void onDeviceAdded(String uuid) {
-                System.out.println("DISCO DISCOVERED: " + uuid);
-//                meshMembers.add(uuid);
+            public void onDeviceAdded(MeshDevice meshDevice) {
+                for (IHappeningCallback callback : callbacks.values()) {
+                    try {
+                        HappeningClient client = new HappeningClient(meshDevice.getUuid(), "" + meshDevice.getQuality());
+                        callback.onClientAdded(client);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             @Override
-            public void onDeviceRemoved(String uuid) {
-//                meshMembers.remove(uuid);
+            public void onDeviceUpdated(MeshDevice meshDevice) {
+                for (IHappeningCallback callback : callbacks.values()) {
+                    try {
+                        HappeningClient client = new HappeningClient(meshDevice.getUuid(), "" + meshDevice.getQuality());
+                        callback.onClientUpdated(client);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onDeviceRemoved(MeshDevice meshDevice) {
+                for (IHappeningCallback callback : callbacks.values()) {
+                    try {
+                        HappeningClient client = new HappeningClient(meshDevice.getUuid(), "" + meshDevice.getQuality());
+                        callback.onClientRemoved(client);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
 
@@ -137,7 +163,6 @@ public class HappeningService extends Service {
         Toast.makeText(this, "Happening started", Toast.LENGTH_SHORT).show();
         return START_MODE;
     }
-
 
     /**
      * Called when the service is no longer used and is being destroyed

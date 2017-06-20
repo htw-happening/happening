@@ -10,7 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import blue.happening.dashboard.R;
-import blue.happening.dashboard.click_listener.DrawerItemClickListener;
+import blue.happening.dashboard.listener.DrawerItemClickListener;
 import blue.happening.dashboard.fragment.MenuItems;
 
 public class MyDrawerLayout {
