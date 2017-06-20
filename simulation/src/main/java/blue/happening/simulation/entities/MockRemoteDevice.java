@@ -2,7 +2,6 @@ package blue.happening.simulation.entities;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import blue.happening.mesh.Message;
@@ -11,16 +10,15 @@ import blue.happening.mesh.RemoteDevice;
 
 public class MockRemoteDevice extends RemoteDevice {
 
-    private Device device;
-
     private static ScheduledExecutorService executor;
+    private Device device;
 
     public MockRemoteDevice(String uuid) {
         super(uuid);
         executor = Executors.newSingleThreadScheduledExecutor();
     }
 
-    private void simulateSendDelay(Runnable runnable, int delayInMs){
+    private void simulateSendDelay(Runnable runnable, int delayInMs) {
         executor.schedule(runnable, delayInMs, TimeUnit.MILLISECONDS);
     }
 

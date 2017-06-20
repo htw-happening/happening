@@ -7,7 +7,6 @@ import java.awt.Stroke;
 
 import blue.happening.simulation.entities.Connection;
 import blue.happening.simulation.entities.Device;
-import blue.happening.simulation.graph.NetworkGraph;
 
 
 public class ConnectionStrokeTransformer<I extends Connection, O extends Stroke>
@@ -21,8 +20,8 @@ public class ConnectionStrokeTransformer<I extends Connection, O extends Stroke>
     @Override
     public Stroke transform(Connection connection) {
         Device clickedDevice = connection.getFromDev().getNetworkGraph().getClickedDevice();
-        if(clickedDevice != null){
-            if(connection.getFromDev().isSendingMsgFromOriginator(clickedDevice.getName())){
+        if (clickedDevice != null) {
+            if (connection.getFromDev().isSendingMsgFromOriginator(clickedDevice.getName())) {
                 return edgeStroke2;
             }
         }

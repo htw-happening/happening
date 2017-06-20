@@ -6,7 +6,6 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Connection {
@@ -20,17 +19,17 @@ public class Connection {
     private Device device;
     private BluetoothSocket socket;
 
-    Connection(Device device, BluetoothSocket bluetoothSocket){
+    Connection(Device device, BluetoothSocket bluetoothSocket) {
         this.device = device;
         this.socket = bluetoothSocket;
         start();
     }
 
-    public void write(Package aPackage){
+    public void write(Package aPackage) {
         writer.write(aPackage);
     }
 
-    private void start(){
+    private void start() {
         try {
             this.reader = new Reader(this.socket.getInputStream());
             this.writer = new Writer(this.socket.getOutputStream());
@@ -60,7 +59,7 @@ public class Connection {
         private InputStream inputStream;
         private Packetizer packageHandler;
 
-        Reader(InputStream inputStream){
+        Reader(InputStream inputStream) {
             this.inputStream = inputStream;
             this.packageHandler = new Packetizer();
         }
@@ -68,7 +67,7 @@ public class Connection {
         @Override
         public void run() {
             setName("Reader of " + device);
-            while (!isInterrupted()){
+            while (!isInterrupted()) {
 
                 try {
 
@@ -79,7 +78,7 @@ public class Connection {
                     inputStream.read(buffer);
                     packageHandler.addContent(buffer);
                     Package aPackage = packageHandler.getPackage();
-                    System.out.println(TAG  + " " + getName()+ " package received " + aPackage.getData().length + " bytes");
+                    System.out.println(TAG + " " + getName() + " package received " + aPackage.getData().length + " bytes");
                     packageHandler.clear();
                     if (Layer.getInstance().getLayerCallback() != null) {
                         Layer.getInstance().getLayerCallback().onMessageReceived(aPackage.getData());
@@ -99,14 +98,14 @@ public class Connection {
         private OutputStream outputStream;
         private LinkedBlockingQueue<Package> packageQueue = new LinkedBlockingQueue<>();
 
-        Writer(OutputStream outputStream){
+        Writer(OutputStream outputStream) {
             this.outputStream = outputStream;
         }
 
         @Override
         public void run() {
             setName("Writer of " + device);
-            while (!isInterrupted()){
+            while (!isInterrupted()) {
                 Package aPackage;
                 try {
                     aPackage = packageQueue.take();
@@ -125,7 +124,7 @@ public class Connection {
             }
         }
 
-        void write(Package aPackage){
+        void write(Package aPackage) {
             packageQueue.offer(aPackage);
             Log.d(TAG, "SEND via layer (offerring): " + aPackage.getData().length + " bytes");
         }

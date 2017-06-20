@@ -34,15 +34,49 @@ class EdrDeviceFinder implements IDeviceFinder {
     private Context context;
     private Timer timer;
     private TimerTask timerTask;
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                // Aggregating found devices
+                BluetoothDevice bd = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                tempDevices.add(bd);
+                Log.d(getClass().getSimpleName(), "Devicefinder Found");
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+                Log.d(getClass().getSimpleName(), "Devicefinder Discovery Started");
+                // Prepare for new search
+                tempDevices = new ArrayList<>();
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                Log.d(getClass().getSimpleName(), "Devicefinder Discovery Finished");
 
+                // Do a sdpSearch for all found devices
+                for (BluetoothDevice bd : tempDevices) {
+                    try {
+                        Method m = bd.getClass().getDeclaredMethod("sdpSearch", ParcelUuid.class);
+                        m.invoke(bd, new ParcelUuid(UUID.fromString(Layer.SERVICE_UUID)));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else if (ACTION_SDP_RECORD.equals(action)) {
+                Log.d(getClass().getSimpleName(), "Devicefinder ACTION_SDP_RECORD");
+                // check if the device has the specified uuid
+                BluetoothDevice bd = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if (intent.getIntExtra(EXTRA_SDP_SEARCH_RESULT, 1) == 0) {
+                    layer.addNewScan(bd.getAddress());
+                }
+            }
+        }
+    };
 
-    EdrDeviceFinder(){
+    EdrDeviceFinder() {
         context = MyApplication.getAppContext();
         try {
             Field f = BluetoothDevice.class.getDeclaredField("ACTION_SDP_RECORD");
-            ACTION_SDP_RECORD = ((String)f.get(null));
+            ACTION_SDP_RECORD = ((String) f.get(null));
             f = BluetoothDevice.class.getDeclaredField("EXTRA_SDP_SEARCH_STATUS");
-            EXTRA_SDP_SEARCH_RESULT = ((String)f.get(null));
+            EXTRA_SDP_SEARCH_RESULT = ((String) f.get(null));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -80,7 +114,7 @@ class EdrDeviceFinder implements IDeviceFinder {
         timer.purge();
     }
 
-    private void startScan(){
+    private void startScan() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (!bluetoothAdapter.isDiscovering()) {
             bluetoothAdapter.startDiscovery();
@@ -88,41 +122,4 @@ class EdrDeviceFinder implements IDeviceFinder {
         Log.d(getClass().getSimpleName(), "Devicefinder startScan");
 
     }
-
-
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (BluetoothDevice.ACTION_FOUND.equals(action)){
-                // Aggregating found devices
-                BluetoothDevice bd = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                tempDevices.add(bd);
-                Log.d(getClass().getSimpleName(), "Devicefinder Found");
-            }else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)){
-                Log.d(getClass().getSimpleName(), "Devicefinder Discovery Started");
-                // Prepare for new search
-                tempDevices = new ArrayList<>();
-            }else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
-                Log.d(getClass().getSimpleName(), "Devicefinder Discovery Finished");
-
-                // Do a sdpSearch for all found devices
-                for (BluetoothDevice bd : tempDevices){
-                    try {
-                        Method m = bd.getClass().getDeclaredMethod("sdpSearch", ParcelUuid.class);
-                        m.invoke(bd, new ParcelUuid(UUID.fromString(Layer.SERVICE_UUID)));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }else if( ACTION_SDP_RECORD.equals(action)){
-                Log.d(getClass().getSimpleName(), "Devicefinder ACTION_SDP_RECORD");
-                // check if the device has the specified uuid
-                BluetoothDevice bd = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (intent.getIntExtra(EXTRA_SDP_SEARCH_RESULT, 1) == 0){
-                    layer.addNewScan(bd.getAddress());
-                }
-            }
-        }
-    };
 }

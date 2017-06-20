@@ -38,14 +38,14 @@ public class DeviceListAdapter extends ArrayAdapter<Device> {
 
         if (device.getState() == Device.STATE.OFFLINE ||
                 device.getState() == Device.STATE.UNKNOWN ||
-                device.getState() == Device.STATE.DISCONNECTED){
+                device.getState() == Device.STATE.DISCONNECTED) {
             address.setTextColor(Color.RED);
         }
-        if (device.getState() == Device.STATE.CONNECTED){
+        if (device.getState() == Device.STATE.CONNECTED) {
             address.setTextColor(Color.GREEN);
         }
         if (device.getState() == Device.STATE.SCHEDULED ||
-                device.getState() == Device.STATE.CONNECTING){
+                device.getState() == Device.STATE.CONNECTING) {
             address.setTextColor(Color.YELLOW);
         }
 

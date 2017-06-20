@@ -121,7 +121,7 @@ class LeDeviceFinder implements IDeviceFinder {
     private void addNewLeScanResult(BluetoothDevice device, String macAddress) {
 
         if (!BluetoothAdapter.checkBluetoothAddress(macAddress)) return;
-        if (layer != null){
+        if (layer != null) {
             layer.addNewScan(macAddress);
         }
     }
@@ -173,7 +173,7 @@ class LeDeviceFinder implements IDeviceFinder {
         @Override
         public void onStartFailure(int errorCode) {
             super.onStartFailure(errorCode);
-            if (d) Log.d(TAG, "AdvertiseCallback - onStartFailure (error: " + errorCode+")");
+            if (d) Log.d(TAG, "AdvertiseCallback - onStartFailure (error: " + errorCode + ")");
         }
 
     }

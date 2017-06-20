@@ -1,15 +1,7 @@
 package blue.happening.service.fragment;
 
-import android.bluetooth.BluetoothAdapter;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -18,31 +10,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import blue.happening.MyApplication;
-import blue.happening.mesh.IMeshHandlerCallback;
-import blue.happening.mesh.MeshHandler;
 import blue.happening.service.R;
-import blue.happening.service.adapter.DeviceListAdapter;
-import blue.happening.service.adapter.MeshDevice;
-import blue.happening.service.adapter.MeshDeviceListAdapter;
-import blue.happening.service.bluetooth.Device;
-import blue.happening.service.bluetooth.Layer;
-import blue.happening.service.bluetooth.Package;
 
 public class Bt4Controls extends Fragment {
 
-    private TextView textView;
-
     private static Bt4Controls instance = null;
-//    private Layer bluetoothLayer = null;
+    private TextView textView;
+    //    private Layer bluetoothLayer = null;
 //    private MeshHandler meshHandler = null;
     private View rootView = null;
 //    private DeviceListAdapter deviceListAdapter = null;
@@ -155,7 +131,7 @@ public class Bt4Controls extends Fragment {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        if (v.getId()==R.id.discovered_devices_list) {
+        if (v.getId() == R.id.discovered_devices_list) {
             MenuInflater inflater = getActivity().getMenuInflater();
             inflater.inflate(R.menu.device_context, menu);
         }
@@ -183,7 +159,7 @@ public class Bt4Controls extends Fragment {
 //                Log.i("LONGCLICK", "Clicked on device " + device.toString() + " for Fetching SDP List");
 //                return true;
 //            default:
-                return super.onContextItemSelected(item);
+        return super.onContextItemSelected(item);
 //        }
     }
 
@@ -214,7 +190,7 @@ public class Bt4Controls extends Fragment {
     }
 
 
-//    private Handler guiHandler = new Handler(Looper.getMainLooper()) {
+    //    private Handler guiHandler = new Handler(Looper.getMainLooper()) {
 //
 //        @Override
 //        public void handleMessage(Message msg) {

@@ -1,7 +1,6 @@
 package blue.happening.service.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +10,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import blue.happening.service.R;
-import blue.happening.service.bluetooth.Device;
 
 public class MeshDeviceListAdapter extends ArrayAdapter<MeshDevice> {
 

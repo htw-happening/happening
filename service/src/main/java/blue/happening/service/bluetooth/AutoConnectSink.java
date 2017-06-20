@@ -74,6 +74,6 @@ class AutoConnectSink extends Thread {
 
     @Override
     public String toString() {
-        return "AutoConnectSink has "+ this.sink.size()+" devices";
+        return "AutoConnectSink has " + this.sink.size() + " devices";
     }
 }

@@ -1,31 +1,29 @@
 package blue.happening.simulation.visualization;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
 import blue.happening.mesh.MeshDevice;
-import blue.happening.mesh.RemoteDevice;
 
-public class DeviceNeighbourTableModel extends AbstractTableModel{
+public class DeviceNeighbourTableModel extends AbstractTableModel {
     //Two arrays used for the table data
     private String[] columnNames = {"UUID", "TQ", "Last Seen"};
 
     private Object[][] data = null;
 
-    public DeviceNeighbourTableModel(){
+    public DeviceNeighbourTableModel() {
         super();
     }
 
-    public DeviceNeighbourTableModel(List<MeshDevice> neighbours){
+    public DeviceNeighbourTableModel(List<MeshDevice> neighbours) {
         Object[][] neighbourTableEntries = new Object[neighbours.size()][3];
         int index = 0;
-        for(MeshDevice neighbour: neighbours){
+        for (MeshDevice neighbour : neighbours) {
             Object[] entry = {
-              neighbour.getUuid(),
-              neighbour.getQuality(),
-              neighbour.getLastSeen()
+                    neighbour.getUuid(),
+                    neighbour.getQuality(),
+                    neighbour.getLastSeen()
             };
             neighbourTableEntries[index++] = entry;
         }

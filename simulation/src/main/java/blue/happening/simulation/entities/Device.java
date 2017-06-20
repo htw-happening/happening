@@ -7,7 +7,6 @@ import java.util.Observable;
 import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.MeshHandler;
 import blue.happening.mesh.Message;
-import blue.happening.mesh.RemoteDevice;
 import blue.happening.simulation.graph.NetworkGraph;
 import blue.happening.simulation.visualization.listener.DeviceObserver;
 
@@ -20,6 +19,7 @@ public class Device extends Observable {
     private boolean isNeighbour = false;
     private MockLayer mockLayer;
     private NetworkGraph networkGraph;
+    private List<Message> outBox = new ArrayList<>();
 
     public Device(String name, NetworkGraph networkGraph) {
         addObserver(new DeviceObserver(networkGraph));
@@ -40,7 +40,7 @@ public class Device extends Observable {
         isClicked = clicked;
         if (!wasClicked && isClicked) {
             notifyDeviceObserver(DeviceObserver.Events.DEVICE_CLICKED);
-        } else if(wasClicked && !isClicked){
+        } else if (wasClicked && !isClicked) {
             notifyDeviceObserver(DeviceObserver.Events.DEVICE_UNCLICKED);
         }
     }
@@ -54,7 +54,7 @@ public class Device extends Observable {
         isNeighbour = neighbour;
         if (!wasNeighbour && isNeighbour) {
             notifyDeviceObserver(DeviceObserver.Events.BECAME_NEIGHBOUR);
-        } else if(wasNeighbour && !isNeighbour){
+        } else if (wasNeighbour && !isNeighbour) {
             notifyDeviceObserver(DeviceObserver.Events.IS_NOT_NEIGHBOUR_ANYMORE);
         }
     }
@@ -114,7 +114,6 @@ public class Device extends Observable {
         notifyObservers(arg);
     }
 
-    private List<Message> outBox = new ArrayList<>();
     public void addToOutbox(Message message) {
         outBox.add(message);
     }
@@ -123,14 +122,14 @@ public class Device extends Observable {
         outBox.remove(message);
     }
 
-    public boolean isSending(){
-        return outBox.size()>0;
+    public boolean isSending() {
+        return outBox.size() > 0;
     }
 
-    public boolean isSendingMsgFromOriginator(String uuid){
+    public boolean isSendingMsgFromOriginator(String uuid) {
         boolean isFromOriginator = false;
-        for(Message message:outBox){
-            if(message.getSource().equals(uuid)){
+        for (Message message : outBox) {
+            if (message.getSource().equals(uuid)) {
                 isFromOriginator = true;
                 break;
             }

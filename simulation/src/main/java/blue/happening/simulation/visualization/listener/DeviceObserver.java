@@ -10,18 +10,6 @@ import blue.happening.simulation.graph.NetworkGraph;
 
 
 public class DeviceObserver implements Observer {
-    public enum Events {
-        NEIGHBOUR_ADDED,
-        NEIGHBOUR_UPDATED,
-        NEIGHBOUR_REMOVED,
-        BECAME_NEIGHBOUR,
-        IS_NOT_NEIGHBOUR_ANYMORE,
-        DEVICE_CLICKED,
-        DEVICE_UNCLICKED,
-        SEND_MESSAGE,
-        RECEIVE_MESSAGE
-    }
-
     private NetworkGraph<Device, Connection> graph;
 
     public DeviceObserver(NetworkGraph graph) {
@@ -38,8 +26,8 @@ public class DeviceObserver implements Observer {
             for (Object object : device.getNetworkGraph().getVertices()) {
                 Device graphDevice = (Device) object;
                 graphDevice.setNeighbour(false);
-                for(MeshDevice neighbour:device.getDevices()){
-                    if(neighbour.getUuid().equals(graphDevice.getName())){
+                for (MeshDevice neighbour : device.getDevices()) {
+                    if (neighbour.getUuid().equals(graphDevice.getName())) {
                         graphDevice.setNeighbour(true);
                         break;
                     }
@@ -47,8 +35,20 @@ public class DeviceObserver implements Observer {
             }
         }
 
-        if(event == Events.DEVICE_CLICKED){
+        if (event == Events.DEVICE_CLICKED) {
             this.graph.setClickedDevice(device);
         }
+    }
+
+    public enum Events {
+        NEIGHBOUR_ADDED,
+        NEIGHBOUR_UPDATED,
+        NEIGHBOUR_REMOVED,
+        BECAME_NEIGHBOUR,
+        IS_NOT_NEIGHBOUR_ANYMORE,
+        DEVICE_CLICKED,
+        DEVICE_UNCLICKED,
+        SEND_MESSAGE,
+        RECEIVE_MESSAGE
     }
 }

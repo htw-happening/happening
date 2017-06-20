@@ -15,9 +15,6 @@ import java.io.Serializable;
 
 public class HappeningClient implements Parcelable, Serializable {
 
-    private String uuid;
-    private String name;
-
     public static final Creator<HappeningClient> CREATOR = new Creator<HappeningClient>() {
         @Override
         public HappeningClient createFromParcel(Parcel in) {
@@ -29,6 +26,8 @@ public class HappeningClient implements Parcelable, Serializable {
             return new HappeningClient[size];
         }
     };
+    private String uuid;
+    private String name;
 
     public HappeningClient(String uuid, String name) {
         this.uuid = uuid;
@@ -37,6 +36,15 @@ public class HappeningClient implements Parcelable, Serializable {
 
     private HappeningClient(Parcel in) {
         readFromParcel(in);
+    }
+
+    public static HappeningClient fromBytes(byte[] bytes) {
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+             ObjectInput in = new ObjectInputStream(bis)) {
+            return (HappeningClient) in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            return null;
+        }
     }
 
     @Override
@@ -53,15 +61,6 @@ public class HappeningClient implements Parcelable, Serializable {
     public void readFromParcel(Parcel in) {
         uuid = in.readString();
         name = in.readString();
-    }
-
-    public static HappeningClient fromBytes(byte[] bytes) {
-        try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-             ObjectInput in = new ObjectInputStream(bis)) {
-            return (HappeningClient) in.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            return null;
-        }
     }
 
     public byte[] toBytes() {
