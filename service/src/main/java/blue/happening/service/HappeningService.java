@@ -40,22 +40,21 @@ public class HappeningService extends Service {
 
         @Override
         public void registerHappeningCallback(IHappeningCallback happeningCallback, String appId) throws RemoteException {
-            Log.d(TAG, "callback added " + happeningCallback);
+            Log.v(TAG, "callback added " + happeningCallback);
             callbacks.put(appId, happeningCallback);
         }
 
         @Override
         public List<HappeningClient> getClients() throws RemoteException {
-            Log.v(this.getClass().getSimpleName(), "getDevices");
-
             List<MeshDevice> meshDevices = meshHandler.getDevices();
 
-            System.out.println("getDevices Num of real direct connections " + bluetoothLayer.getNumOfConnectedDevices());
-            System.out.println("getDevices: size " + meshDevices.size());
+            Log.v(TAG, "getClients Num of real direct connections " + bluetoothLayer.getNumOfConnectedDevices());
+            Log.v(TAG, "getDevices: size " + meshDevices.size());
 
             List<HappeningClient> devices = new ArrayList<>();
             for (MeshDevice meshDevice : meshDevices) {
-                devices.add(new HappeningClient(meshDevice.getUuid(), "N/A"));
+                HappeningClient client = new HappeningClient(meshDevice.getUuid(), "" + meshDevice.getQuality());
+                devices.add(client);
                 Log.d(TAG, "getDevices: " + meshDevice.getUuid());
             }
 
@@ -72,7 +71,7 @@ public class HappeningService extends Service {
 
         @Override
         public void restart() throws RemoteException {
-            Log.v(this.getClass().getSimpleName(), "restart");
+            Log.v(TAG, "restart");
             Layer.getInstance().reset();
         }
     };
