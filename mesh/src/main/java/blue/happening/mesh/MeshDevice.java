@@ -6,6 +6,7 @@ public class MeshDevice {
     private String uuid;
     private int receivedSize;
     private int sentSize;
+    private long lastSeen;
 
     public float getQuality() {
         return quality;
@@ -37,5 +38,13 @@ public class MeshDevice {
 
     void setSentSize(int sentSize) {
         this.sentSize = sentSize;
+    }
+
+    public long getLastSeen() {
+        return lastSeen;
+    }
+
+    void setLastSeen(long lastSeen) {
+        this.lastSeen = lastSeen;
     }
 }
