@@ -43,30 +43,35 @@ public class Happening {
 
         @Override
         public void onClientAdded(String client) throws RemoteException {
+            Log.i(this.getClass().getSimpleName(), "onClientAdded");
             appCallback.onClientAdded(client);
         }
 
         @Override
         public void onClientUpdated(String client) throws RemoteException {
+            Log.i(this.getClass().getSimpleName(), "onClientUpdated");
             appCallback.onClientUpdated(client);
         }
 
         @Override
         public void onClientRemoved(String client) throws RemoteException {
+            Log.i(this.getClass().getSimpleName(), "onClientRemoved");
             appCallback.onClientRemoved(client);
         }
 
         @Override
         public void onParcelQueued(long parcelId) throws RemoteException {
+            Log.i(this.getClass().getSimpleName(), "onParcelQueued");
             appCallback.onParcelQueued(parcelId);
         }
 
         @Override
         public void onMessageReceived(byte[] message, int deviceId) throws RemoteException {
+            Log.i(this.getClass().getSimpleName(), "onMessageReceived");
             appCallback.onMessageReceived(message, deviceId);
         }
-
     };
+
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
         public void onServiceConnected(ComponentName name, IBinder boundService) {
