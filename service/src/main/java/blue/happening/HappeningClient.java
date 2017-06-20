@@ -3,8 +3,17 @@ package blue.happening;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
-public class HappeningClient implements Parcelable {
+
+public class HappeningClient implements Parcelable, Serializable {
 
     private String uuid;
     private String name;
@@ -44,6 +53,25 @@ public class HappeningClient implements Parcelable {
     public void readFromParcel(Parcel in) {
         uuid = in.readString();
         name = in.readString();
+    }
+
+    public static HappeningClient fromBytes(byte[] bytes) {
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+             ObjectInput in = new ObjectInputStream(bis)) {
+            return (HappeningClient) in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            return null;
+        }
+    }
+
+    public byte[] toBytes() {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+             ObjectOutput out = new ObjectOutputStream(bos)) {
+            out.writeObject(this);
+            return bos.toByteArray();
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     public String getUuid() {
