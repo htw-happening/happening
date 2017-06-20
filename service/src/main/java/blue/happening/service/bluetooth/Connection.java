@@ -79,7 +79,7 @@ public class Connection {
                     inputStream.read(buffer);
                     packageHandler.addContent(buffer);
                     Package aPackage = packageHandler.getPackage();
-                    System.out.println(TAG  + " " + getName()+ " package received " + aPackage);
+                    System.out.println(TAG  + " " + getName()+ " package received " + aPackage.getData().length + " bytes");
                     packageHandler.clear();
                     if (Layer.getInstance().getLayerCallback() != null) {
                         Layer.getInstance().getLayerCallback().onMessageReceived(aPackage.getData());
@@ -114,7 +114,7 @@ public class Connection {
                         Package[] packages = Packetizer.splitPackages(aPackage);
                         for (Package packageToSend : packages) {
                             outputStream.write(packageToSend.getData());
-                            Log.d(TAG, "SEND via layer: " + packageToSend.toString());
+                            Log.d(TAG, "SEND via layer: " + packageToSend.getData().length + " bytes");
                         }
                     }
                 } catch (Exception e) {
@@ -127,7 +127,7 @@ public class Connection {
 
         void write(Package aPackage){
             packageQueue.offer(aPackage);
-            Log.d(TAG, "SEND via layer (offerring): " + aPackage.toString());
+            Log.d(TAG, "SEND via layer (offerring): " + aPackage.getData().length + " bytes");
         }
     }
 

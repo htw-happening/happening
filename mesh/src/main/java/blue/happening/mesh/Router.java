@@ -98,19 +98,19 @@ class Router {
 
     private boolean shouldOGMBeForwarded(Message message) {
         if (isEchoOGM(message)) {
-            System.out.println(uuid + " DROP ECHO OGM: " + message);
+            System.out.println("DROP ECHO OGM: " + message);
             return false;
         } else if (sourceIsNeighbour(message)) {
-            System.out.println(uuid + " BROADCAST NEIGHBOUR OGM: " + message);
+            System.out.println("BROADCAST NEIGHBOUR OGM: " + message);
             return true;
         } else if (!isMessageVital(message)) {
-            System.out.println(uuid + " DROP NOT VITAL OGM: " + message);
+            System.out.println("DROP NOT VITAL OGM: " + message);
             return false;
         } else if (!slidingWindowSaysYes(message)) {
-            System.out.println(uuid + " DROP IN WINDOW OGM: " + message);
+            System.out.println("DROP IN WINDOW OGM: " + message);
             return false;
         } else {
-            System.out.println(uuid + " BROADCAST VITAL OGM: " + message);
+            System.out.println("BROADCAST VITAL OGM: " + message);
             return true;
         }
     }
