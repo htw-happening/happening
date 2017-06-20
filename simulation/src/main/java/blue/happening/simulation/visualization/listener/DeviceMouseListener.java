@@ -18,10 +18,6 @@ public class DeviceMouseListener<V extends Device> implements GraphMouseListener
                 graphDevice.setClicked(false);
             }
             device.setClicked(true);
-            DevicePanel panel = device.getNetworkGraph().getDevicePanel();
-            if (panel != null) {
-                panel.setDevice(device);
-            }
         }
         me.consume();
     }
