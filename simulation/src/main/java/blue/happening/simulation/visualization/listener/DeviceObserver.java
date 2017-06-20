@@ -37,7 +37,7 @@ public class DeviceObserver implements Observer {
             }
         }
 
-        if (device.isClicked() && event == Events.NEIGHBOUR_UPDATED) {
+        if (device.isClicked() && event == Events.NEIGHBOUR_UPDATED || event == Events.NEIGHBOUR_ADDED || event == Events.NEIGHBOUR_REMOVED) {
             updateDevicePanel(device);
         }
 
