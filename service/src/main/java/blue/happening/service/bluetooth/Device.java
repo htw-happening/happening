@@ -12,26 +12,14 @@ import blue.happening.mesh.RemoteDevice;
 
 public class Device extends RemoteDevice {
 
+    private static final int[] DELAYS = {0, 1, 2, 3, 5, 10, 15, 30, 60, 90};
+    public Connection connection;
     private String TAG = getClass().getSimpleName();
     private boolean d = true;
-
-    private static final int[] DELAYS = {0, 1, 2, 3, 5, 10, 15, 30, 60, 90};
     private BluetoothDevice bluetoothDevice = null;
     private Connector connector;
     private STATE state;
-    public Connection connection;
-
     private int trials = 0;
-
-    public enum STATE {
-        NEW_SCANNED_DEVICE,
-        SCHEDULED,
-        CONNECTING,
-        CONNECTED,
-        DISCONNECTED,
-        OFFLINE,
-        UNKNOWN
-    }
 
     Device(BluetoothDevice bluetoothDevice) {
         super(bluetoothDevice.getAddress());
@@ -54,8 +42,8 @@ public class Device extends RemoteDevice {
     int getDelay() {
         try {
             return DELAYS[trials];
-        }catch (IndexOutOfBoundsException e){
-            return DELAYS[DELAYS.length-1];
+        } catch (IndexOutOfBoundsException e) {
+            return DELAYS[DELAYS.length - 1];
         }
     }
 
@@ -129,7 +117,7 @@ public class Device extends RemoteDevice {
 
     public void disconnect() {
         connection.shutdown();
-        if (this.connector != null){
+        if (this.connector != null) {
             this.connector.cancel();
         }
         this.changeState(STATE.DISCONNECTED);
@@ -144,6 +132,15 @@ public class Device extends RemoteDevice {
         return s;
     }
 
+    public enum STATE {
+        NEW_SCANNED_DEVICE,
+        SCHEDULED,
+        CONNECTING,
+        CONNECTED,
+        DISCONNECTED,
+        OFFLINE,
+        UNKNOWN
+    }
 
     private class Connector extends Thread {
 
@@ -167,12 +164,12 @@ public class Device extends RemoteDevice {
                 if (d) Log.i(TAG, "Connecting to Device (Blocking Call) " + Device.this);
                 socket.connect(); //blocking
             } catch (IOException e) {
-                if (d) Log.d(TAG, "Connecting Failed for Device "+Device.this);
+                if (d) Log.d(TAG, "Connecting Failed for Device " + Device.this);
                 try {
                     socket.close();
                     Device.this.changeState(STATE.OFFLINE);
                 } catch (IOException ee) {
-                    Log.e(TAG, "Something went wrong during Socket Close! " +Device.this, ee);
+                    Log.e(TAG, "Something went wrong during Socket Close! " + Device.this, ee);
                     Device.this.changeState(STATE.UNKNOWN);
                 }
                 return;

@@ -7,14 +7,14 @@ public class MyApplication extends Application {
 
     private static Context context;
 
+    public static Context getAppContext() {
+        return MyApplication.context;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
         MyApplication.context = getApplicationContext();
-    }
-
-    public static Context getAppContext() {
-        return MyApplication.context;
     }
 
 }

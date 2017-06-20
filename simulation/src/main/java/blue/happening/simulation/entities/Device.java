@@ -1,7 +1,10 @@
 package blue.happening.simulation.entities;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 
+import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.MeshHandler;
 import blue.happening.mesh.Message;
 import blue.happening.simulation.graph.NetworkGraph;
@@ -14,10 +17,9 @@ public class Device extends Observable {
     private MeshHandler meshHandler;
     private boolean isClicked = false;
     private boolean isNeighbour = false;
-    private boolean isSending;
-    private boolean isReceiving;
     private MockLayer mockLayer;
     private NetworkGraph networkGraph;
+    private List<Message> outBox = new ArrayList<>();
 
     public Device(String name, NetworkGraph networkGraph) {
         addObserver(new DeviceObserver(networkGraph));
@@ -38,7 +40,7 @@ public class Device extends Observable {
         isClicked = clicked;
         if (!wasClicked && isClicked) {
             notifyDeviceObserver(DeviceObserver.Events.DEVICE_CLICKED);
-        } else if(wasClicked && !isClicked){
+        } else if (wasClicked && !isClicked) {
             notifyDeviceObserver(DeviceObserver.Events.DEVICE_UNCLICKED);
         }
     }
@@ -52,7 +54,7 @@ public class Device extends Observable {
         isNeighbour = neighbour;
         if (!wasNeighbour && isNeighbour) {
             notifyDeviceObserver(DeviceObserver.Events.BECAME_NEIGHBOUR);
-        } else if(wasNeighbour && !isNeighbour){
+        } else if (wasNeighbour && !isNeighbour) {
             notifyDeviceObserver(DeviceObserver.Events.IS_NOT_NEIGHBOUR_ANYMORE);
         }
     }
@@ -65,10 +67,12 @@ public class Device extends Observable {
         return networkGraph;
     }
 
-    public void sendMessageTo(Device toDevice, Message message) {
-        notifyDeviceObserver(DeviceObserver.Events.SEND_MESSAGE);
-        toDevice.notifyDeviceObserver(DeviceObserver.Events.RECEIVE_MESSAGE);
-        mockLayer.sendMessage(message);
+    public List<MeshDevice> getDevices() {
+        return getMeshHandler().getDevices();
+    }
+
+    public void sendMessageTo(String deviceUuid, byte[] bytes) {
+        meshHandler.sendMessage(bytes, deviceUuid);
     }
 
     public void receiveMessage(Message message) {
@@ -108,5 +112,28 @@ public class Device extends Observable {
     public void notifyDeviceObserver(DeviceObserver.Events arg) {
         setChanged();
         notifyObservers(arg);
+    }
+
+    public void addToOutbox(Message message) {
+        outBox.add(message);
+    }
+
+    public void removeFromOutBox(Message message) {
+        outBox.remove(message);
+    }
+
+    public boolean isSending() {
+        return outBox.size() > 0;
+    }
+
+    public boolean isSendingMsgFromOriginator(String uuid) {
+        boolean isFromOriginator = false;
+        for (Message message : outBox) {
+            if (message.getSource().equals(uuid)) {
+                isFromOriginator = true;
+                break;
+            }
+        }
+        return isFromOriginator;
     }
 }

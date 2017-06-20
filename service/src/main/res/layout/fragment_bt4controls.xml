@@ -26,20 +26,20 @@
     <ListView
         android:id="@+id/discovered_devices_list"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:focusable="true"
         android:layout_below="@+id/linearLayout"
-        android:layout_height="wrap_content" >
-    </ListView>
+        android:focusable="true"></ListView>
+
     <ListView
         android:id="@+id/mesh_members_list"
         android:layout_width="match_parent"
-        android:layout_alignParentEnd="true"
-        android:focusable="true"
+        android:layout_height="wrap_content"
         android:layout_above="@+id/button_reset"
+        android:layout_alignParentEnd="true"
         android:layout_below="@+id/discovered_devices_list"
-        android:layout_height="wrap_content" >
-    </ListView>
+        android:focusable="true"></ListView>
+
     <Button
         android:id="@+id/button_reset"
         android:layout_width="match_parent"

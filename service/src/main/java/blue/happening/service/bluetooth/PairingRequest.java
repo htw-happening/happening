@@ -4,11 +4,9 @@ import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.ParcelUuid;
 import android.util.Log;
 
 import java.lang.reflect.Method;
-import java.util.UUID;
 
 /**
  * Created by fabi on 23.05.17.
@@ -26,14 +24,14 @@ public class PairingRequest extends BroadcastReceiver {
 
             try {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                Log.d("PairingRequest", "Device was "+device.getName() + " " + device.getAddress());
+                Log.d("PairingRequest", "Device was " + device.getName() + " " + device.getAddress());
 
-                int type  = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_VARIANT, BluetoothDevice.ERROR);
-                Log.d("PairingRequest", "Tyoe was "+type);
+                int type = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_VARIANT, BluetoothDevice.ERROR);
+                Log.d("PairingRequest", "Tyoe was " + type);
 
-                if (type == BluetoothDevice.PAIRING_VARIANT_PIN){
-                    int pin=intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_KEY, 0);
-                    device.setPin((""+pin).getBytes("UTF-8"));
+                if (type == BluetoothDevice.PAIRING_VARIANT_PIN) {
+                    int pin = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_KEY, 0);
+                    device.setPin(("" + pin).getBytes("UTF-8"));
 
                     Method m = device.getClass().getDeclaredMethod("cancelPairingUserInput");
                     m.invoke(device);

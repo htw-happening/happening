@@ -1,12 +1,19 @@
 package blue.happening.simulation.visualization;
 
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.RemoteDevice;
@@ -17,52 +24,86 @@ public class DevicePanel extends JPanel {
 
     private static final int PANEL_WIDTH = 150;
     private static final int PANEL_HEIGHT = 200;
-    private JLabel deviceInfo;
+    private JTable table;
+    private JButton btn_sendMessage;
     private Device device;
+    private List<RemoteDevice> selectedDevices;
 
     public DevicePanel() {
+        selectedDevices = new ArrayList<>();
         this.setSize(PANEL_WIDTH, PANEL_HEIGHT);
-        this.setLayout(new FlowLayout());
-
+        this.setLayout(new BorderLayout());
         JLabel lab1 = new JLabel("Current Device", JLabel.LEFT);
-        this.add(lab1);
-
         JButton btn_disable = new JButton("Disable Device");
-        this.add(btn_disable);
+        btn_sendMessage = new JButton("Send message");
+        btn_sendMessage.setEnabled(false);
 
-        JButton btn_sendMessage = new JButton("Send message");
-        this.add(btn_sendMessage);
+        JPanel btnPanel = new JPanel(new FlowLayout());
+        btnPanel.add(lab1);
+        btnPanel.add(btn_disable);
+        btnPanel.add((btn_sendMessage));
+        this.add(btnPanel, BorderLayout.NORTH);
 
-        deviceInfo = new JLabel("No Device Selected", JLabel.LEFT);
-        this.add(deviceInfo);
+
+        table = new JTable();
+        table.setAutoCreateRowSorter(true);
+        JScrollPane tableScrollPane = new JScrollPane(table);
+        this.add(tableScrollPane, BorderLayout.CENTER);
+
+        this.setVisible(true);
 
         btn_sendMessage.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                for (MeshDevice meshDevice : device.getMeshHandler().getDevices()) {
-                    device.getMeshHandler().sendMessage("Hello".getBytes(), meshDevice.getUuid());
+                for (RemoteDevice remotedevice : selectedDevices) {
+                    device.sendMessageTo(remotedevice.getUuid(), "Hello".getBytes());
                 }
             }
         });
     }
 
+    public void setNeighbourList(Device device) {
+        List<MeshDevice> neighbours = device.getDevices();
+        DeviceNeighbourTableModel neighbourTableModel = new DeviceNeighbourTableModel(neighbours);
+        table.setModel(neighbourTableModel);
+        table.getSelectionModel().addListSelectionListener(new SharedListSelectionHandler());
+        table.updateUI();
+    }
+
     public void setDevice(Device device) {
         this.device = device;
-        StringBuilder builder = new StringBuilder();
-        builder.append("\n");
-        builder.append(device.getName());
-        for (RemoteDevice remoteDevice : device.getMeshHandler().getRoutingTable().values()) {
-            if (remoteDevice.isNeighbour()) {
-                builder.append(remoteDevice.getUuid());
-                builder.append(": ");
-                builder.append(String.format("%.2f", remoteDevice.getEq()));
-                builder.append("/");
-                builder.append(String.format("%.2f", remoteDevice.getRq()));
-                builder.append("=");
-                builder.append(String.format("%.2f", remoteDevice.getTq()));
-                builder.append(", ");
+        setNeighbourList(device);
+    }
+
+    public void updateDevice(Device device){
+        DeviceNeighbourTableModel model = (DeviceNeighbourTableModel)table.getModel();
+        model.update(device.getDevices());
+        table.updateUI();
+    }
+
+    private void setSelectedDevicesFromSelectedDeviceNames(List<String> selectedDeviceNames) {
+        selectedDevices.clear();
+        for (String name : selectedDeviceNames) {
+            RemoteDevice selectedDevice = device.getMeshHandler().getRoutingTable().get(name);
+            selectedDevices.add(selectedDevice);
+            device.getMeshHandler().sendMessage("ABC".getBytes(), selectedDevice.getUuid());
+        }
+        if (selectedDevices.size() > 0) {
+            btn_sendMessage.setEnabled(true);
+        } else {
+            btn_sendMessage.setEnabled(false);
+        }
+    }
+
+    private class SharedListSelectionHandler implements ListSelectionListener {
+        public void valueChanged(ListSelectionEvent e) {
+            List<String> selectedDevicesNames = new ArrayList<>();
+            if (!e.getValueIsAdjusting()) {
+                for (int selectedRow : table.getSelectedRows()) {
+                    selectedDevicesNames.add((String) table.getValueAt(selectedRow, 0));
+                }
+                setSelectedDevicesFromSelectedDeviceNames(selectedDevicesNames);
             }
         }
-        deviceInfo.setText(builder.toString());
     }
 }

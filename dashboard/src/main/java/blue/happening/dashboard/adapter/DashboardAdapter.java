@@ -27,7 +27,7 @@ public class DashboardAdapter extends ArrayAdapter<HappeningClient> {
     @Override
     public View getView(final int position, View convertView, @NonNull ViewGroup parent) {
 
-        HappeningClient happeningClient = getItem(position);
+        final HappeningClient happeningClient = getItem(position);
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.dashboard_model, parent, false);
@@ -46,11 +46,9 @@ public class DashboardAdapter extends ArrayAdapter<HappeningClient> {
             public void onClick(View v) {
                 Toast.makeText(getContext(), "Send", Toast.LENGTH_SHORT).show();
                 String message = "Hey there, i'm using happening!";
-                HappeningClient client = getItem(position);
-                if (client != null) {
-                    Log.d(getClass().getSimpleName(), "Sending Message to " + client.getUuid());
-                    DashboardFragment.getInstance().getHappening().sendMessage(message.getBytes(), client);
-                }
+                Log.d(getClass().getSimpleName(), "Sending Message to " + happeningClient.getUuid());
+                DashboardFragment.getInstance().getHappening().sendMessage(message.getBytes(), happeningClient);
+
             }
         });
 

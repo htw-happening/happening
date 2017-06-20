@@ -102,6 +102,7 @@ public abstract class RemoteDevice implements IRemoteDevice {
 
     MeshDevice getMeshDevice() {
         meshDevice.setQuality(getTq());
+        meshDevice.setLastSeen(getLastSeen());
         return meshDevice;
     }
 }

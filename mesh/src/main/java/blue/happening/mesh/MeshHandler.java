@@ -99,7 +99,7 @@ public class MeshHandler {
             try {
                 Message message = new Message(uuid, BROADCAST_ADDRESS, ++sequence, MESSAGE_TYPE_OGM, null);
                 for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
-                    System.out.println(uuid + " OGM SENT: " + message);
+                    System.out.println("OGM SENT: " + message);
                     remoteDevice.sendMessage(message);
                 }
             } catch (Exception e) {
@@ -126,13 +126,13 @@ public class MeshHandler {
 
         @Override
         public void onDeviceAdded(RemoteDevice remoteDevice) {
-            System.out.println(uuid + " DEVICE ADDED: " + remoteDevice);
+            System.out.println("DEVICE ADDED: " + remoteDevice);
             routingTable.ensureConnection(remoteDevice, remoteDevice);
         }
 
         @Override
         public void onDeviceRemoved(RemoteDevice remoteDevice) {
-            System.out.println(uuid + " DEVICE REMOVED: " + remoteDevice);
+            System.out.println("DEVICE REMOVED: " + remoteDevice);
             routingTable.removeFromNeighbours(remoteDevice.getUuid());
         }
 
@@ -146,14 +146,14 @@ public class MeshHandler {
                     throw new Exception("Could not parse message");
                 }
             } catch (Exception e) {
-                System.out.println(uuid + " MESSAGE BROKEN: " + e.getMessage());
+                System.out.println("MESSAGE BROKEN: " + e.getMessage());
                 return;
             }
 
             try {
                 propagate = router.routeMessage(message);
             } catch (Router.RoutingException e) {
-                System.out.println(uuid + " ROUTING FAILED: " + e.getMessage());
+                System.out.println("ROUTING FAILED: " + e.getMessage());
                 return;
             }
 
@@ -164,10 +164,10 @@ public class MeshHandler {
 
             RemoteDevice source = routingTable.get(message.getSource());
             if (source == null) {
-                System.out.println("MeshHandler: Source not yet in routing table " + message.getSource());
+                System.out.println("MeshHandler/onMessageReceived: Source not in routing table " + message.getSource());
                 return;
             } else {
-                System.out.println("MeshHandler: Source volle kanne in routing table" + message.getSource());
+                System.out.println("MeshHandler/onMessageReceived: Source is in routing table " + message.getSource());
             }
 
             // TODO: Move this block to a better location

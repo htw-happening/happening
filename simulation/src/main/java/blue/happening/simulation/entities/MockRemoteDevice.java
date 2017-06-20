@@ -1,19 +1,37 @@
 package blue.happening.simulation.entities;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import blue.happening.mesh.Message;
 import blue.happening.mesh.RemoteDevice;
 
 
 public class MockRemoteDevice extends RemoteDevice {
 
+    private static ScheduledExecutorService executor;
     private Device device;
 
     public MockRemoteDevice(String uuid) {
         super(uuid);
+        executor = Executors.newSingleThreadScheduledExecutor();
     }
 
-    public boolean sendMessage(Message message) {
-        device.getMockLayer().sendMessage(message);
+    private void simulateSendDelay(Runnable runnable, int delayInMs) {
+        executor.schedule(runnable, delayInMs, TimeUnit.MILLISECONDS);
+    }
+
+    public boolean sendMessage(final Message message) {
+        device.addToOutbox(message);
+        simulateSendDelay(new Runnable() {
+            @Override
+            public void run() {
+                device.getMockLayer().sendMessage(message);
+                device.removeFromOutBox(message);
+            }
+        }, 100);
+
         return true;
     }
 

@@ -1,7 +1,6 @@
 package blue.happening.service.bluetooth;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 public class Packetizer {
 
@@ -10,39 +9,11 @@ public class Packetizer {
     private byte[] data = new byte[0];
     private int payloadSize = 0;
 
-    public Packetizer(){
+    public Packetizer() {
 
     }
 
-    public Packetizer createNewFromMeta(byte[] metadata) {
-        final ByteBuffer bb2 = ByteBuffer.wrap(metadata);
-        this.payloadSize = bb2.getInt();
-        return this;
-    }
-
-    public void addContent(byte[] data){
-        this.data = new byte[data.length];
-        System.arraycopy(data, 0, this.data, 0, payloadSize);
-    }
-
-    public byte[] getContent() {
-        return this.data;
-    }
-
-    public Package getPackage(){
-        return new Package(this.data);
-    }
-
-    public void clear(){
-        this.data = new byte[0];
-        this.payloadSize = 0;
-    }
-
-    public int getPayloadSize() {
-        return payloadSize;
-    }
-
-    public static Package[] splitPackages(Package aPackage){
+    public static Package[] splitPackages(Package aPackage) {
 
         int sizeOfInputPackageContent = aPackage.getData().length;
         byte[] meta = ByteBuffer.allocate(CHUNK_SIZE).putInt(sizeOfInputPackageContent).array();
@@ -54,8 +25,36 @@ public class Packetizer {
         return packagesToSend;
     }
 
+    public Packetizer createNewFromMeta(byte[] metadata) {
+        final ByteBuffer bb2 = ByteBuffer.wrap(metadata);
+        this.payloadSize = bb2.getInt();
+        return this;
+    }
+
+    public void addContent(byte[] data) {
+        this.data = new byte[data.length];
+        System.arraycopy(data, 0, this.data, 0, payloadSize);
+    }
+
+    public byte[] getContent() {
+        return this.data;
+    }
+
+    public Package getPackage() {
+        return new Package(this.data);
+    }
+
+    public void clear() {
+        this.data = new byte[0];
+        this.payloadSize = 0;
+    }
+
+    public int getPayloadSize() {
+        return payloadSize;
+    }
+
     @Override
     public String toString() {
-        return "payloadSize: "+payloadSize;
+        return "payloadSize: " + payloadSize;
     }
 }

@@ -6,7 +6,7 @@ public class Package {
 
     private byte[] data;
 
-    public Package (byte[] data){
+    public Package(byte[] data) {
         this.data = data;
     }
 

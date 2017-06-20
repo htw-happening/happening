@@ -6,7 +6,6 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.Arrays;
 import java.util.Random;
-import java.util.concurrent.Semaphore;
 
 import blue.happening.service.bluetooth.AppPackage;
 import blue.happening.service.bluetooth.Package;
@@ -20,7 +19,7 @@ public class PackageTest {
 
 
         Random random = new Random(0);
-        byte[] origData  = new byte[300];
+        byte[] origData = new byte[300];
         for (int i = 0; i < origData.length; i++) {
             origData[i] = (byte) random.nextInt(255);
         }
@@ -37,14 +36,13 @@ public class PackageTest {
             System.out.println("Start Splitting");
             Package[] data = Packetizer.splitPackages(aPackage);
             System.out.println("splittin Done");
-            System.out.println("splited: "+ Arrays.toString(data));
-            System.out.println("splited length: "+ data.length);
+            System.out.println("splited: " + Arrays.toString(data));
+            System.out.println("splited length: " + data.length);
             for (Package aData : data) {
                 System.out.println("Write to Stream " + aData);
                 outputStream.write(aData.getData(), 0, aData.getData().length);
                 System.out.println("Wrote to Stream " + aData);
             }
-
 
 
             System.out.println("Read");
@@ -56,8 +54,8 @@ public class PackageTest {
             }
             System.out.println("Read meta " + Arrays.toString(buffer));
             handler.createNewFromMeta(buffer);
-            System.out.println("created meta package "+handler);
-            System.out.println("read payload " );
+            System.out.println("created meta package " + handler);
+            System.out.println("read payload ");
             buffer = new byte[handler.getPayloadSize()];
             try {
                 inputStream.read(buffer);
