@@ -20,6 +20,8 @@ public class MockLayer extends Layer {
 
     void sendMessage(Message message) {
         byte[] bytes = message.toBytes();
-        getLayerCallback().onMessageReceived(bytes);
+        if (Math.random() <= 0.5) {
+            getLayerCallback().onMessageReceived(bytes);
+        }
     }
 }
