@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -52,6 +53,17 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
         return expiredRemoteDevices;
     }
 
+    List<MeshDevice> getReachableMeshDevices() {
+        List<MeshDevice> meshDevices = new ArrayList<>();
+        for (Map.Entry<String, RemoteDevice> entry : entrySet()) {
+            RemoteDevice remoteDevice = entry.getValue();
+            if (remoteDevice.isReachable()) {
+                meshDevices.add(remoteDevice.getMeshDevice());
+            }
+        }
+        return meshDevices;
+    }
+
     /**
      * Overloaded method for {@link RoutingTable#ensureConnection(RemoteDevice, RemoteDevice)}
      * ensureConnection} which retrieves or creates devices from UUIDs.
@@ -95,7 +107,6 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
     RemoteDevice ensureConnection(RemoteDevice discoveredDevice,
                                   RemoteDevice neighbour) {
         RemoteDevice existingDevice = get(discoveredDevice.getUuid());
-
         if (existingDevice == null) {
             // Device did not previously exist
             put(discoveredDevice.getUuid(), discoveredDevice);
@@ -109,8 +120,6 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
             if (discoveredDevice.isNeighbour() && !existingDevice.isNeighbour()) {
                 // Device was a multi hop device and becomes a neighbour
                 discoveredDevice.mergeNeighbours(existingDevice);
-                discoveredDevice.getEchoSlidingWindow().clear();
-                discoveredDevice.getReceiveSlidingWindow().clear();
                 put(discoveredDevice.getUuid(), discoveredDevice);
                 existingDevice = discoveredDevice;
             } else if (!discoveredDevice.isNeighbour() && existingDevice.isNeighbour()) {
@@ -129,7 +138,7 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
     @Override
     public RemoteDevice put(String key, RemoteDevice value) {
         RemoteDevice existing = super.put(key, value);
-        if (existing == null) {
+        if (existing == null || !existing.isReachable()) {
             meshHandlerCallback.onDeviceAdded(value.getMeshDevice());
         } else {
             meshHandlerCallback.onDeviceUpdated(value.getMeshDevice());
@@ -137,12 +146,17 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
         return existing;
     }
 
-    public void removeFromNeighbours(String uuid) {
-        // remove device from neighbour list from all devices where it is listed as neighbour
+    void removeAsNeighbour(String uuid) {
+        // A neighbour device is not directly connected anymore, so we remove it from other devices
+        // neighbour lists, clear its echo window and trigger a remove callback if it is no longer
+        // reachable via another neighbour.
         for (RemoteDevice device : values()) {
             device.getNeighbourUuids().remove(uuid);
-            if (device.getNeighbourUuids().size() == 0) {
-                super.remove(device.getUuid());
+            if (device.getUuid().equals(uuid)) {
+                device.getEchoSlidingWindow().clear();
+            }
+            if (!device.isReachable()) {
+                device.getReceiveSlidingWindow().clear();
                 meshHandlerCallback.onDeviceRemoved(device.getMeshDevice());
             }
         }
@@ -151,7 +165,7 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
     public RemoteDevice remove(Object key) {
         RemoteDevice existing = get(key);
         if (existing != null) {
-            removeFromNeighbours(existing.getUuid());
+            removeAsNeighbour(existing.getUuid());
         }
         RemoteDevice deleted = super.remove(key);
         if (deleted != null) {

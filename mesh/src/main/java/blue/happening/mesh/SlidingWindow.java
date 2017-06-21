@@ -43,6 +43,10 @@ class SlidingWindow extends HashSet<Integer> {
         return outdatedSequences;
     }
 
+    int getSequence() {
+        return sequence;
+    }
+
     boolean isSequenceOutOfWindow(int sequence) {
         return (sequence > this.sequence) || (sequence <= this.sequence - MeshHandler.SLIDING_WINDOW_SIZE);
     }

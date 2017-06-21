@@ -63,11 +63,7 @@ public class MeshHandler {
     }
 
     public List<MeshDevice> getDevices() {
-        List<MeshDevice> meshDevices = new ArrayList<>();
-        for (Map.Entry<String, RemoteDevice> entry : routingTable.entrySet()) {
-            meshDevices.add(entry.getValue().getMeshDevice());
-        }
-        return meshDevices;
+        return routingTable.getReachableMeshDevices();
     }
 
     public boolean sendMessage(byte[] message, String uuid) {
@@ -133,7 +129,7 @@ public class MeshHandler {
         @Override
         public void onDeviceRemoved(RemoteDevice remoteDevice) {
             System.out.println("DEVICE REMOVED: " + remoteDevice);
-            routingTable.removeFromNeighbours(remoteDevice.getUuid());
+            routingTable.removeAsNeighbour(remoteDevice.getUuid());
         }
 
         @Override

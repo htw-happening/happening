@@ -37,7 +37,8 @@ public class DeviceObserver implements Observer {
             }
         }
 
-        if (device.isClicked() && event == Events.NEIGHBOUR_UPDATED || event == Events.NEIGHBOUR_ADDED || event == Events.NEIGHBOUR_REMOVED) {
+        if (device.isClicked() &&
+                (event == Events.DEVICE_CLICKED || event == Events.NEIGHBOUR_UPDATED || event == Events.NEIGHBOUR_ADDED || event == Events.NEIGHBOUR_REMOVED)) {
             updateDevicePanel(device);
         }
 
@@ -54,7 +55,7 @@ public class DeviceObserver implements Observer {
         }
     }
 
-    private void updateDevicePanel(Device device){
+    private void updateDevicePanel(Device device) {
         if (panel != null) {
             panel.updateDevice(device);
         }

@@ -51,6 +51,10 @@ public abstract class RemoteDevice implements IRemoteDevice {
         return neighbourUuids;
     }
 
+    final boolean isReachable() {
+        return neighbourUuids.size() > 0;
+    }
+
     public final boolean isNeighbour() {
         return neighbourUuids.contains(uuid);
     }

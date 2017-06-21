@@ -21,7 +21,7 @@ public class DeviceNeighbourTableModel extends AbstractTableModel {
     }
 
     public void update(List<MeshDevice> neighbours) {
-        Object[][] neighbourTableEntries = new Object[neighbours.size()][3];
+        Object[][] neighbourTableEntries = new Object[neighbours.size()][columnNames.length];
         int index = 0;
         for (MeshDevice neighbour : neighbours) {
             Object[] entry = {

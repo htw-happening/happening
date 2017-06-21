@@ -93,7 +93,7 @@ class Router {
 
     private boolean slidingWindowSaysYes(Message message) {
         SlidingWindow window = routingTable.get(message.getSource()).getReceiveSlidingWindow();
-        return window.isSequenceOutOfWindow(message.getSequence());
+        return window.getSequence() == message.getSequence();
     }
 
     private boolean shouldOGMBeForwarded(Message message) {
