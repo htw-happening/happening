@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.nfc.Tag;
 import android.os.Handler;
 import android.util.Log;
 
@@ -15,6 +16,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import blue.happening.MyApplication;
@@ -36,6 +39,7 @@ public class Layer extends blue.happening.mesh.Layer {
     private List<Handler> handlers;
     private ArrayList<Device> scannedDevices;
     private Server acceptor = null;
+    private ServerManager serverManager = null;
     private AutoConnectSink connectSink = null;
     private String macAddress = "";
     private boolean autoConnect = true;
@@ -82,6 +86,8 @@ public class Layer extends blue.happening.mesh.Layer {
         this.connectSink.start();
         this.acceptor = new Server();
         this.acceptor.start();
+        serverManager = new ServerManager();
+        serverManager.start();
         // TODO: 06.06.17 bl stack aufräumen
 
     }
@@ -94,6 +100,7 @@ public class Layer extends blue.happening.mesh.Layer {
         if (acceptor != null) {
             acceptor.cancel();
         }
+        serverManager.stop();
         for (Device device : scannedDevices) {
             if (device != null && device.getState() == Device.STATE.CONNECTED) {
                 device.connection.shutdown();
@@ -299,6 +306,44 @@ public class Layer extends blue.happening.mesh.Layer {
                     Log.e(TAG, "close of server failed", e);
                 }
             }
+        }
+    }
+
+    private class ServerManager {
+
+        private Timer timer;
+        private TimerTask timerTask;
+        private boolean running;
+        private static final int DELAY = 60000;
+
+        ServerManager(){
+            Log.d(TAG, "ServerManager: created");
+        }
+
+        void start(){
+            Log.d(TAG, "start: started");
+            running = true;
+            timer = new Timer();
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "run: restarting ACCEPTOR");
+                    if (acceptor != null) {
+                        acceptor.cancel();
+                    }
+                    acceptor = new Server();
+                    acceptor.start();
+
+                }
+            };
+            timer.scheduleAtFixedRate(timerTask, DELAY, DELAY);
+        }
+
+        void stop(){
+            Log.d(TAG, "stop: ");
+            running = false;
+            timerTask.cancel();
+            timer.cancel();
         }
     }
 }

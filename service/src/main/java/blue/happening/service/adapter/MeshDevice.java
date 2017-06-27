@@ -1,8 +1,5 @@
 package blue.happening.service.adapter;
 
-/**
- * Created by fabi on 14.06.17.
- */
 
 public class MeshDevice {
 
