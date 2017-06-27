@@ -5,11 +5,11 @@ import org.apache.commons.collections15.Transformer;
 import blue.happening.simulation.entities.Device;
 
 
-public class DeviceLabeller<V extends Device, String>
+public class DeviceLabeler<V extends Device, String>
         implements Transformer<Device, String> {
 
+    @Override
     public String transform(Device device) {
-
-        return (String) device.toString();
+        return (String) device.toString().replaceFirst("^Device_", "");
     }
 }
