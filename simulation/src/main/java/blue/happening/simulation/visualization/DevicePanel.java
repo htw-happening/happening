@@ -1,17 +1,20 @@
 package blue.happening.simulation.visualization;
 
-import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTable;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -28,13 +31,15 @@ public class DevicePanel extends JPanel {
     private JLabel deviceLabel;
     private JButton sendButton;
     private JButton disableButton;
+    private JSlider packageDropSlider;
+    private JSlider packageDelaySlider;
     private Device device;
     private List<RemoteDevice> selectedDevices;
 
     public DevicePanel() {
         selectedDevices = new ArrayList<>();
         setSize(PANEL_WIDTH, PANEL_HEIGHT);
-        setLayout(new BorderLayout());
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         deviceLabel = new JLabel("Current device", JLabel.LEFT);
         disableButton = new JButton("Toggle device");
         sendButton = new JButton("Send message");
@@ -44,14 +49,53 @@ public class DevicePanel extends JPanel {
         btnPanel.add(deviceLabel);
         btnPanel.add(disableButton);
         btnPanel.add(sendButton);
-        add(btnPanel, BorderLayout.NORTH);
+        add(btnPanel);
+
+        JPanel sliderPanel = new JPanel();
+        sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.Y_AXIS));
+
+        packageDropSlider = new JSlider(JSlider.HORIZONTAL,
+                0, 100, 0);
+        packageDropSlider.setMajorTickSpacing(10);
+        packageDropSlider.setMinorTickSpacing(10);
+        packageDropSlider.setPaintTicks(true);
+        packageDropSlider.setPaintLabels(true);
+        sliderPanel.add(new JLabel("Package Drop Rate", JLabel.CENTER));
+        sliderPanel.add(packageDropSlider);
+
+        packageDelaySlider = new JSlider(JSlider.HORIZONTAL,
+                0, 1000, 0);
+        packageDelaySlider.setMajorTickSpacing(100);
+        packageDelaySlider.setMinorTickSpacing(100);
+        packageDelaySlider.setPaintTicks(true);
+        packageDelaySlider.setPaintLabels(true);
+        sliderPanel.add(new JLabel("Package Send Delay", JLabel.CENTER));
+        sliderPanel.add(packageDelaySlider);
+
+        add(sliderPanel);
 
         table = new JTable();
         table.setAutoCreateRowSorter(true);
         JScrollPane tableScrollPane = new JScrollPane(table);
-        add(tableScrollPane, BorderLayout.CENTER);
+        add(tableScrollPane);
 
         setVisible(true);
+
+        packageDropSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                JSlider source = (JSlider) e.getSource();
+                device.getMockLayer().setMessageLoss((float) source.getValue() / 100);
+            }
+        });
+
+        packageDelaySlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                JSlider source = (JSlider) e.getSource();
+                device.setMessageDelay(source.getValue());
+            }
+        });
 
         sendButton.addActionListener(new ActionListener() {
             @Override
@@ -70,7 +114,23 @@ public class DevicePanel extends JPanel {
         });
     }
 
-    private void setNeighbourList(Device device) {
+    public void updateMessageLossSlider(Device device) {
+        int newVal = (int) (device.getMockLayer().getMessageLoss() * 100);
+        if (newVal != packageDropSlider.getValue()) {
+            packageDropSlider.setValue(newVal);
+            packageDropSlider.updateUI();
+        }
+    }
+
+    public void updatePackageDelay(Device device) {
+        int newVal = (int) (device.getMessageDelay());
+        if (newVal != packageDelaySlider.getValue()) {
+            packageDelaySlider.setValue(newVal);
+            packageDelaySlider.updateUI();
+        }
+    }
+
+    public void setNeighbourList(Device device) {
         List<MeshDevice> neighbours = device.getDevices();
         DeviceNeighbourTableModel neighbourTableModel = new DeviceNeighbourTableModel(neighbours);
         table.setModel(neighbourTableModel);
@@ -80,14 +140,16 @@ public class DevicePanel extends JPanel {
 
     public void setDevice(Device device) {
         this.device = device;
+        updateMessageLossSlider(device);
+        updatePackageDelay(device);
         setNeighbourList(device);
         deviceLabel.setText(device.getName());
     }
 
     public void updateDevice(Device device) {
-        DeviceNeighbourTableModel model = (DeviceNeighbourTableModel) table.getModel();
-        model.update(device.getDevices());
-        table.updateUI();
+        setNeighbourList(device);
+        updateMessageLossSlider(device);
+        updatePackageDelay(device);
     }
 
     private void setSelectedDevicesFromSelectedDeviceNames(List<String> selectedDeviceNames) {
