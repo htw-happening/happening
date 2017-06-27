@@ -6,6 +6,8 @@ import blue.happening.mesh.Message;
 
 public class MockLayer extends Layer {
 
+    private float messageLoss = 0;
+
     void addDevice(Device device) {
         MockRemoteDevice remoteDevice = new MockRemoteDevice(device.getName());
         remoteDevice.setDevice(device);
@@ -20,8 +22,12 @@ public class MockLayer extends Layer {
 
     void sendMessage(Message message) {
         byte[] bytes = message.toBytes();
-        if (Math.random() <= 0.5) {
+        if (Math.random() < messageLoss) {
             getLayerCallback().onMessageReceived(bytes);
         }
+    }
+
+    public void setMessageLoss(float messageLoss) {
+        this.messageLoss = messageLoss;
     }
 }
