@@ -13,14 +13,14 @@ public class DeviceFillPaintTransformer<I extends Device, O extends Paint>
 
     @Override
     public Paint transform(Device device) {
-        if (device.isClicked()) {
+        if (!device.isEnabled()) {
+            return Color.RED;
+        } else if (device.isClicked()) {
             return Color.GREEN;
         } else if (device.isNeighbour()) {
-            return Color.YELLOW;
+            return Color.BLUE;
         } else {
-            return Color.RED;
+            return Color.GRAY;
         }
     }
 }
-
-

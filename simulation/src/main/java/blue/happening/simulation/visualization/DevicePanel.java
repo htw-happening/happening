@@ -61,9 +61,16 @@ public class DevicePanel extends JPanel {
                 }
             }
         });
+
+        disableButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                device.toggleEnabled();
+            }
+        });
     }
 
-    void setNeighbourList(Device device) {
+    private void setNeighbourList(Device device) {
         List<MeshDevice> neighbours = device.getDevices();
         DeviceNeighbourTableModel neighbourTableModel = new DeviceNeighbourTableModel(neighbours);
         table.setModel(neighbourTableModel);

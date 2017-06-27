@@ -18,6 +18,7 @@ public class Device extends Observable {
     private int messageDelay;
     private double txRadius;
     private double rxRadius;
+    private boolean isEnabled = true;
     private boolean isClicked = false;
     private boolean isNeighbour = false;
     private MockLayer mockLayer;
@@ -71,7 +72,7 @@ public class Device extends Observable {
     }
 
     public double getTxRadius() {
-        return txRadius;
+        return isEnabled ? txRadius : 0;
     }
 
     public void setTxRadius(double txRadius) {
@@ -79,11 +80,19 @@ public class Device extends Observable {
     }
 
     public double getRxRadius() {
-        return rxRadius;
+        return isEnabled ? rxRadius : 0;
     }
 
     public void setRxRadius(double rxRadius) {
         this.rxRadius = rxRadius;
+    }
+
+    public void toggleEnabled() {
+        isEnabled = !isEnabled;
+    }
+
+    public boolean isEnabled() {
+        return isEnabled;
     }
 
     public String getName() {
