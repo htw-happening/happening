@@ -16,6 +16,8 @@ public class Device extends Observable {
     private String name;
     private MeshHandler meshHandler;
     private int messageDelay;
+    private double txRadius;
+    private double rxRadius;
     private boolean isClicked = false;
     private boolean isNeighbour = false;
     private MockLayer mockLayer;
@@ -66,6 +68,22 @@ public class Device extends Observable {
 
     public void setMessageDelay(int messageDelay) {
         this.messageDelay = messageDelay;
+    }
+
+    public double getTxRadius() {
+        return txRadius;
+    }
+
+    public void setTxRadius(double txRadius) {
+        this.txRadius = txRadius;
+    }
+
+    public double getRxRadius() {
+        return rxRadius;
+    }
+
+    public void setRxRadius(double rxRadius) {
+        this.rxRadius = rxRadius;
     }
 
     public String getName() {
