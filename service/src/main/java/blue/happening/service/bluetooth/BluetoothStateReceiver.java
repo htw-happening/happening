@@ -2,7 +2,6 @@ package blue.happening.service.bluetooth;
 
 
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,16 +16,19 @@ public class BluetoothStateReceiver {
     private boolean d = true;
 
     BluetoothStateReceiver(){
+        Log.d(TAG, "BluetoothStateReceiver: ");
 
     }
 
     void start(){
+        Log.d(TAG, "start: ");
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         MyApplication.getAppContext().registerReceiver(broadcastReceiver, intentFilter);
     }
 
     void stop(){
+        Log.d(TAG, "stop: ");
         MyApplication.getAppContext().unregisterReceiver(broadcastReceiver);
     }
 
@@ -47,7 +49,7 @@ public class BluetoothStateReceiver {
                         break;
                     case BluetoothAdapter.STATE_ON:
                         if (d) Log.d(TAG, "onReceive: STATE_ON");
-
+                        Layer.getInstance().reset();
                         break;
                     case BluetoothAdapter.STATE_TURNING_ON:
                         if (d) Log.d(TAG, "onReceive: STATE_TURNING_ON");
