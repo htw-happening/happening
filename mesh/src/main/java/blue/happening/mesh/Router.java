@@ -83,10 +83,6 @@ class Router {
         return message.getSource().equals(message.getPreviousHop());
     }
 
-    private boolean sourceIsNeighbour(Message message) {
-        return message.getSource().equals(message.getPreviousHop());
-    }
-
     private boolean isMessageVital(Message message) {
         return message.getTq() > MeshHandler.HOP_PENALTY && message.getTtl() > 1;
     }
@@ -100,7 +96,7 @@ class Router {
         if (isEchoOGM(message)) {
             System.out.println("DROP ECHO OGM: " + message);
             return false;
-        } else if (sourceIsNeighbour(message)) {
+        } else if (isNeighbourOGM(message)) {
             System.out.println("BROADCAST NEIGHBOUR OGM: " + message);
             return true;
         } else if (!isMessageVital(message)) {
