@@ -98,14 +98,6 @@ public class Device extends Observable {
         return getMeshHandler().getDevices();
     }
 
-    public void sendMessageTo(String deviceUuid, byte[] bytes) {
-        meshHandler.sendMessage(bytes, deviceUuid);
-    }
-
-    public void receiveMessage(Message message) {
-        mockLayer.getLayerCallback().onMessageReceived(message.toBytes());
-    }
-
     public void connectTo(Device device) {
         mockLayer.addDevice(device);
     }

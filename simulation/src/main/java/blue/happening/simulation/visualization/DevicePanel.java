@@ -26,7 +26,8 @@ public class DevicePanel extends JPanel {
     private static final int PANEL_HEIGHT = 200;
     private JTable table;
     private JLabel deviceLabel;
-    private JButton btn_sendMessage;
+    private JButton sendButton;
+    private JButton disableButton;
     private Device device;
     private List<RemoteDevice> selectedDevices;
 
@@ -34,17 +35,16 @@ public class DevicePanel extends JPanel {
         selectedDevices = new ArrayList<>();
         setSize(PANEL_WIDTH, PANEL_HEIGHT);
         setLayout(new BorderLayout());
-        deviceLabel = new JLabel("Current Device", JLabel.LEFT);
-        JButton btn_disable = new JButton("Disable Device");
-        btn_sendMessage = new JButton("Send message");
-        btn_sendMessage.setEnabled(false);
+        deviceLabel = new JLabel("Current device", JLabel.LEFT);
+        disableButton = new JButton("Toggle device");
+        sendButton = new JButton("Send message");
+        sendButton.setEnabled(false);
 
         JPanel btnPanel = new JPanel(new FlowLayout());
         btnPanel.add(deviceLabel);
-        btnPanel.add(btn_disable);
-        btnPanel.add((btn_sendMessage));
+        btnPanel.add(disableButton);
+        btnPanel.add(sendButton);
         add(btnPanel, BorderLayout.NORTH);
-
 
         table = new JTable();
         table.setAutoCreateRowSorter(true);
@@ -53,17 +53,17 @@ public class DevicePanel extends JPanel {
 
         setVisible(true);
 
-        btn_sendMessage.addActionListener(new ActionListener() {
+        sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 for (RemoteDevice remotedevice : selectedDevices) {
-                    device.sendMessageTo(remotedevice.getUuid(), "Hello".getBytes());
+                    device.getMeshHandler().sendMessage("Hello".getBytes(), remotedevice.getUuid());
                 }
             }
         });
     }
 
-    public void setNeighbourList(Device device) {
+     void setNeighbourList(Device device) {
         List<MeshDevice> neighbours = device.getDevices();
         DeviceNeighbourTableModel neighbourTableModel = new DeviceNeighbourTableModel(neighbours);
         table.setModel(neighbourTableModel);
@@ -77,8 +77,8 @@ public class DevicePanel extends JPanel {
         deviceLabel.setText(device.getName());
     }
 
-    public void updateDevice(Device device){
-        DeviceNeighbourTableModel model = (DeviceNeighbourTableModel)table.getModel();
+    public void updateDevice(Device device) {
+        DeviceNeighbourTableModel model = (DeviceNeighbourTableModel) table.getModel();
         model.update(device.getDevices());
         table.updateUI();
     }
@@ -88,12 +88,11 @@ public class DevicePanel extends JPanel {
         for (String name : selectedDeviceNames) {
             RemoteDevice selectedDevice = device.getMeshHandler().getRoutingTable().get(name);
             selectedDevices.add(selectedDevice);
-            device.getMeshHandler().sendMessage("ABC".getBytes(), selectedDevice.getUuid());
         }
         if (selectedDevices.size() > 0) {
-            btn_sendMessage.setEnabled(true);
+            sendButton.setEnabled(true);
         } else {
-            btn_sendMessage.setEnabled(false);
+            sendButton.setEnabled(false);
         }
     }
 
