@@ -19,13 +19,15 @@ public class HappeningDemo {
         MeshGraph graph = new MeshGraph();
 
         // configuration
-        final int nVertices = 100;
+        final int deviceCount = 7;
+        final int messageDelay = 100;
+        final float messageLoss = 0.3f;
         final double txRadius = 100;
         final double rxRadius = 100;
         final double speedMin = 0;
         final double speedMax = 0.5;
 
-        final double width = 1000; // huge arena, so make sure you zoom out
+        final double width = 1000;
         final double height = 1000;
 
         // construct a bound; boundary of the canvas
@@ -36,11 +38,17 @@ public class HappeningDemo {
         MobilityPattern<Device, Connection> mobilityPattern = new RandomDSMobilityPattern<Device, Connection>(
                 bound, speedMin, speedMax);
 
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                graph.addVertex(new Device("Test_" + i + "_" + j, graph),
-                        100 + (i * 100), 100 + (j * 100), mobilityPattern, txRadius,
-                        rxRadius);
+        int deviceIndex = 1;
+        int dimension = (int)Math.ceil(Math.sqrt(deviceCount));
+        for (int i = 0; i < dimension; i++) {
+            for (int j = 0; j < dimension; j++) {
+                if (deviceIndex <= deviceCount) {
+                    Device device = new Device("Device_" + deviceIndex, graph);
+                    device.setMessageDelay(messageDelay);
+                    device.getMockLayer().setMessageLoss(messageLoss);
+                    graph.addVertex(device, 100 + (i * 100), 100 + (j * 100), mobilityPattern, txRadius, rxRadius);
+                    deviceIndex++;
+                }
             }
         }
 

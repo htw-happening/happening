@@ -15,6 +15,7 @@ public class Device extends Observable {
 
     private String name;
     private MeshHandler meshHandler;
+    private int messageDelay;
     private boolean isClicked = false;
     private boolean isNeighbour = false;
     private MockLayer mockLayer;
@@ -57,6 +58,14 @@ public class Device extends Observable {
         } else if (wasNeighbour && !isNeighbour) {
             notifyDeviceObserver(DeviceObserver.Events.IS_NOT_NEIGHBOUR_ANYMORE);
         }
+    }
+
+    public int getMessageDelay() {
+        return messageDelay;
+    }
+
+    public void setMessageDelay(int messageDelay) {
+        this.messageDelay = messageDelay;
     }
 
     public String getName() {

@@ -30,7 +30,7 @@ public class MockRemoteDevice extends RemoteDevice {
                 device.getMockLayer().sendMessage(message);
                 device.removeFromOutBox(message);
             }
-        }, 100);
+        }, device.getMessageDelay());
 
         return true;
     }
