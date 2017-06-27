@@ -18,6 +18,8 @@ import android.util.Log;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import blue.happening.MyApplication;
 
@@ -35,12 +37,38 @@ class LeDeviceFinder implements IDeviceFinder {
     private AdvertiseCallback advertiseCallback = new AdvertiseCallback();
     private Layer layer;
 
+    private AdvertiseManager advertiseManager;
+    private ScanManager scanManager;
+
+    @Override
+    public void registerCallback(Layer layer) {
+        this.layer = layer;
+    }
+
+    @Override
+    public void start() {
+        startAdvertising();
+        startLeScan();
+        advertiseManager.start();
+        scanManager.start();
+    }
+
+    @Override
+    public void stop() {
+        stopAdvertising();
+        stopLeScan();
+        advertiseManager.stop();
+        scanManager.stop();
+    }
+
     LeDeviceFinder() {
         context = MyApplication.getAppContext();
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.bluetoothAdapter = bluetoothManager.getAdapter();
         this.bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
         this.bluetoothLeAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
+        advertiseManager = new AdvertiseManager();
+        scanManager = new ScanManager();
     }
 
     private boolean isAdvertisingSupported() {
@@ -119,28 +147,10 @@ class LeDeviceFinder implements IDeviceFinder {
     }
 
     private void addNewLeScanResult(BluetoothDevice device, String macAddress) {
-
         if (!BluetoothAdapter.checkBluetoothAddress(macAddress)) return;
         if (layer != null) {
             layer.addNewScan(macAddress);
         }
-    }
-
-    @Override
-    public void registerCallback(Layer layer) {
-        this.layer = layer;
-    }
-
-    @Override
-    public void start() {
-        startAdvertising();
-        startLeScan();
-    }
-
-    @Override
-    public void stop() {
-        stopAdvertising();
-        stopLeScan();
     }
 
 
@@ -176,6 +186,90 @@ class LeDeviceFinder implements IDeviceFinder {
             if (d) Log.d(TAG, "AdvertiseCallback - onStartFailure (error: " + errorCode + ")");
         }
 
+    }
+
+    private class AdvertiseManager {
+        private static final int ACTIVE_TIME = 30000;
+        private static final int INACTIVE_TIME = 10000;
+        private Timer timer;
+        private TimerTask timerTask;
+
+        AdvertiseManager(){
+        }
+
+        void start(){
+            timer = new Timer();
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "run: AdvertiseManager - Timer triggered");
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            startAdvertising();
+                            try {
+                                Thread.sleep(ACTIVE_TIME);
+                            } catch (InterruptedException e) {
+                                Log.e(TAG, "run: " + e.toString());
+                            } finally {
+                                stop();
+                            }
+                            stopAdvertising();
+                        }
+                    });
+                    thread.start();
+
+                }
+            };
+            timer.scheduleAtFixedRate(timerTask, ACTIVE_TIME+INACTIVE_TIME, ACTIVE_TIME+INACTIVE_TIME);
+        }
+
+        void stop(){
+            timerTask.cancel();
+            timer.cancel();
+        }
+    }
+
+    private class ScanManager {
+        private static final int ACTIVE_TIME = 5000;
+        private static final int INACTIVE_TIME = 10000;
+        private Timer timer;
+        private TimerTask timerTask;
+
+        ScanManager(){
+        }
+
+        void start(){
+            timer = new Timer();
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "run: ScanManager - Timer triggered");
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            startLeScan();
+                            try {
+                                Thread.sleep(ACTIVE_TIME);
+                            } catch (InterruptedException e) {
+                                Log.e(TAG, "run: " + e.toString());
+                            } finally {
+                                stop();
+                            }
+                            stopLeScan();
+                        }
+                    });
+                    thread.start();
+
+                }
+            };
+            timer.scheduleAtFixedRate(timerTask, ACTIVE_TIME+INACTIVE_TIME, ACTIVE_TIME+INACTIVE_TIME);
+        }
+
+        void stop(){
+            timerTask.cancel();
+            timer.cancel();
+        }
     }
 
 }

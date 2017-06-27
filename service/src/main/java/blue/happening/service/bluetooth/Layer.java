@@ -8,7 +8,6 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.IntentFilter;
-import android.nfc.Tag;
 import android.os.Handler;
 import android.util.Log;
 
