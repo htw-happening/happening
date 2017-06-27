@@ -8,10 +8,6 @@ import android.util.Log;
 
 import java.lang.reflect.Method;
 
-/**
- * Created by fabi on 23.05.17.
- */
-
 public class PairingRequest extends BroadcastReceiver {
     public PairingRequest() {
         super();
