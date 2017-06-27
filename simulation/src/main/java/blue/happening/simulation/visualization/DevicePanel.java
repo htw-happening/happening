@@ -25,32 +25,33 @@ public class DevicePanel extends JPanel {
     private static final int PANEL_WIDTH = 150;
     private static final int PANEL_HEIGHT = 200;
     private JTable table;
+    private JLabel deviceLabel;
     private JButton btn_sendMessage;
     private Device device;
     private List<RemoteDevice> selectedDevices;
 
     public DevicePanel() {
         selectedDevices = new ArrayList<>();
-        this.setSize(PANEL_WIDTH, PANEL_HEIGHT);
-        this.setLayout(new BorderLayout());
-        JLabel lab1 = new JLabel("Current Device", JLabel.LEFT);
+        setSize(PANEL_WIDTH, PANEL_HEIGHT);
+        setLayout(new BorderLayout());
+        deviceLabel = new JLabel("Current Device", JLabel.LEFT);
         JButton btn_disable = new JButton("Disable Device");
         btn_sendMessage = new JButton("Send message");
         btn_sendMessage.setEnabled(false);
 
         JPanel btnPanel = new JPanel(new FlowLayout());
-        btnPanel.add(lab1);
+        btnPanel.add(deviceLabel);
         btnPanel.add(btn_disable);
         btnPanel.add((btn_sendMessage));
-        this.add(btnPanel, BorderLayout.NORTH);
+        add(btnPanel, BorderLayout.NORTH);
 
 
         table = new JTable();
         table.setAutoCreateRowSorter(true);
         JScrollPane tableScrollPane = new JScrollPane(table);
-        this.add(tableScrollPane, BorderLayout.CENTER);
+        add(tableScrollPane, BorderLayout.CENTER);
 
-        this.setVisible(true);
+        setVisible(true);
 
         btn_sendMessage.addActionListener(new ActionListener() {
             @Override
@@ -73,6 +74,7 @@ public class DevicePanel extends JPanel {
     public void setDevice(Device device) {
         this.device = device;
         setNeighbourList(device);
+        deviceLabel.setText(device.getName());
     }
 
     public void updateDevice(Device device){
