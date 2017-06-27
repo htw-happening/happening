@@ -63,7 +63,7 @@ public class DevicePanel extends JPanel {
         });
     }
 
-     void setNeighbourList(Device device) {
+    void setNeighbourList(Device device) {
         List<MeshDevice> neighbours = device.getDevices();
         DeviceNeighbourTableModel neighbourTableModel = new DeviceNeighbourTableModel(neighbours);
         table.setModel(neighbourTableModel);
