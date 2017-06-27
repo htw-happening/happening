@@ -120,13 +120,11 @@ public class VertexProperties<V, E> extends SchedulingElement {
 
     public double getTxRadius() {
         Device device = (Device) vertex;
-        System.out.println("VERTEXPROP: TX " + device.getTxRadius());
         return device.getTxRadius();
     }
 
     public double getRxRadius() {
         Device device = (Device) vertex;
-        System.out.println("VERTEXPROP: RX " + device.getRxRadius());
         return device.getRxRadius();
     }
 }
