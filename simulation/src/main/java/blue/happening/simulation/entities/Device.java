@@ -16,6 +16,9 @@ public class Device extends Observable {
     private String name;
     private MeshHandler meshHandler;
     private int messageDelay;
+    private double txRadius;
+    private double rxRadius;
+    private boolean isEnabled = true;
     private boolean isClicked = false;
     private boolean isNeighbour = false;
     private MockLayer mockLayer;
@@ -68,6 +71,30 @@ public class Device extends Observable {
         this.messageDelay = messageDelay;
     }
 
+    public double getTxRadius() {
+        return isEnabled ? txRadius : 0;
+    }
+
+    public void setTxRadius(double txRadius) {
+        this.txRadius = txRadius;
+    }
+
+    public double getRxRadius() {
+        return isEnabled ? rxRadius : 0;
+    }
+
+    public void setRxRadius(double rxRadius) {
+        this.rxRadius = rxRadius;
+    }
+
+    public void toggleEnabled() {
+        isEnabled = !isEnabled;
+    }
+
+    public boolean isEnabled() {
+        return isEnabled;
+    }
+
     public String getName() {
         return this.name;
     }
@@ -78,14 +105,6 @@ public class Device extends Observable {
 
     public List<MeshDevice> getDevices() {
         return getMeshHandler().getDevices();
-    }
-
-    public void sendMessageTo(String deviceUuid, byte[] bytes) {
-        meshHandler.sendMessage(bytes, deviceUuid);
-    }
-
-    public void receiveMessage(Message message) {
-        mockLayer.getLayerCallback().onMessageReceived(message.toBytes());
     }
 
     public void connectTo(Device device) {

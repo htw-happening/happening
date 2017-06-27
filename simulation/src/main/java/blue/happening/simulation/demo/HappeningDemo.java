@@ -19,14 +19,11 @@ public class HappeningDemo {
         MeshGraph graph = new MeshGraph();
 
         // configuration
-        final int deviceCount = 7;
+        final int deviceCount = 16;
         final int messageDelay = 100;
         final float messageLoss = 0.3f;
-        final double txRadius = 100;
-        final double rxRadius = 100;
-        final double speedMin = 0;
-        final double speedMax = 0.5;
-
+        final double speedMin = 0.0D;
+        final double speedMax = 0.0D;
         final double width = 1000;
         final double height = 1000;
 
@@ -39,14 +36,16 @@ public class HappeningDemo {
                 bound, speedMin, speedMax);
 
         int deviceIndex = 1;
-        int dimension = (int)Math.ceil(Math.sqrt(deviceCount));
+        int dimension = (int) Math.ceil(Math.sqrt(deviceCount));
         for (int i = 0; i < dimension; i++) {
             for (int j = 0; j < dimension; j++) {
-                if (deviceIndex <= deviceCount) {
+                if (deviceIndex < deviceCount) {
                     Device device = new Device("Device_" + deviceIndex, graph);
                     device.setMessageDelay(messageDelay);
                     device.getMockLayer().setMessageLoss(messageLoss);
-                    graph.addVertex(device, 100 + (i * 100), 100 + (j * 100), mobilityPattern, txRadius, rxRadius);
+                    device.setTxRadius(100);
+                    device.setRxRadius(100);
+                    graph.addVertex(device, 100 + (i * 100), 100 + (j * 100), mobilityPattern, 0, 0);
                     deviceIndex++;
                 }
             }

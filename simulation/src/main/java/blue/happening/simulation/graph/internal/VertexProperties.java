@@ -21,6 +21,7 @@
 
 package blue.happening.simulation.graph.internal;
 
+import blue.happening.simulation.entities.Device;
 import blue.happening.simulation.graph.NetworkGraph;
 import blue.happening.simulation.mobility.MobilityPattern;
 import jsl.modeling.SchedulingElement;
@@ -51,9 +52,6 @@ public class VertexProperties<V, E> extends SchedulingElement {
 
     private final MobilityPattern<V, E> mobilityPattern;
 
-    private final double txRadius;
-    private final double rxRadius;
-
     public VertexProperties(final NetworkGraph<V, E> graph, final String name,
                             final V vertex, final double sx, final double sy,
                             final MobilityPattern<V, E> mobilityPattern, final double txRadius,
@@ -74,9 +72,6 @@ public class VertexProperties<V, E> extends SchedulingElement {
         this.tEnd = new Variable(this);
 
         this.mobilityPattern = mobilityPattern;
-
-        this.txRadius = txRadius;
-        this.rxRadius = rxRadius;
     }
 
     @Override
@@ -124,11 +119,12 @@ public class VertexProperties<V, E> extends SchedulingElement {
     }
 
     public double getTxRadius() {
-        return txRadius;
+        Device device = (Device) vertex;
+        return device.getTxRadius();
     }
 
     public double getRxRadius() {
-        return rxRadius;
+        Device device = (Device) vertex;
+        return device.getRxRadius();
     }
-
 }

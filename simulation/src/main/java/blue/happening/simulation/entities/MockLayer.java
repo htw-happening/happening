@@ -22,12 +22,16 @@ public class MockLayer extends Layer {
 
     void sendMessage(Message message) {
         byte[] bytes = message.toBytes();
-        if (Math.random() < messageLoss) {
+        if (Math.random() > messageLoss) {
             getLayerCallback().onMessageReceived(bytes);
+
         }
     }
 
     public void setMessageLoss(float messageLoss) {
         this.messageLoss = messageLoss;
+    }
+    public float getMessageLoss() {
+        return messageLoss;
     }
 }

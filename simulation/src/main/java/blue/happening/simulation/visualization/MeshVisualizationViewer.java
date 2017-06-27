@@ -5,10 +5,10 @@ import java.awt.Dimension;
 
 import blue.happening.simulation.graph.NetworkGraph;
 import blue.happening.simulation.visualization.listener.DeviceMouseListener;
-import blue.happening.simulation.visualization.transformer.ConnectionLabeller;
 import blue.happening.simulation.visualization.transformer.ConnectionStrokeTransformer;
 import blue.happening.simulation.visualization.transformer.DeviceFillPaintTransformer;
-import blue.happening.simulation.visualization.transformer.DeviceLabeller;
+import blue.happening.simulation.visualization.transformer.DeviceFontTransformer;
+import blue.happening.simulation.visualization.transformer.DeviceLabeler;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -54,15 +54,14 @@ public class MeshVisualizationViewer<Device, Connection>
         // Custom listener --> add Device click listener
         addGraphMouseListener(new DeviceMouseListener());
 
-        // Custom Color --> Event handling for blue.happening.bla.visualization
+        // Custom Colors and Labels
         getRenderContext()
                 .setVertexFillPaintTransformer(new DeviceFillPaintTransformer());
         getRenderContext()
                 .setEdgeStrokeTransformer(new ConnectionStrokeTransformer());
-        // Custom Labels
-        getRenderContext().setVertexLabelTransformer(new DeviceLabeller());
-        getRenderContext().setEdgeLabelTransformer(new ConnectionLabeller());
-
+        getRenderContext()
+                .setVertexLabelTransformer(new DeviceLabeler());
+        getRenderContext()
+                .setVertexFontTransformer(new DeviceFontTransformer());
     }
-
 }

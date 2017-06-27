@@ -1,5 +1,6 @@
 package blue.happening.simulation.visualization;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -8,7 +9,7 @@ import blue.happening.mesh.MeshDevice;
 
 public class DeviceNeighbourTableModel extends AbstractTableModel {
     //Two arrays used for the table data
-    private String[] columnNames = {"UUID", "TQ", "Last Seen"};
+    private String[] columnNames = {"UUID", "TQ", "Last Seen (secs ago)"};
 
     private Object[][] data = null;
 
@@ -27,7 +28,7 @@ public class DeviceNeighbourTableModel extends AbstractTableModel {
             Object[] entry = {
                     neighbour.getUuid(),
                     neighbour.getQuality(),
-                    neighbour.getLastSeen()
+                    ( Math.round((System.currentTimeMillis() - neighbour.getLastSeen())/1000) )
             };
             neighbourTableEntries[index++] = entry;
         }

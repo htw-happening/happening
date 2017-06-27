@@ -32,20 +32,21 @@ class Router {
     }
 
     private void slideWindows(Message message) throws RoutingException {
-        RemoteDevice previousDevice = routingTable.get(message.getPreviousHop());
-        if (previousDevice != null) {
-            SlidingWindow window = null;
-            if (isEchoOGM(message)) {
-                window = previousDevice.getEchoSlidingWindow();
-            } else if (isNeighbourOGM(message)) {
-                window = previousDevice.getReceiveSlidingWindow();
-            }
-            if (window != null) {
-                window.slideSequence(message.getSequence());
-                window.addIfIsSequenceInWindow(message);
-            }
+        SlidingWindow window;
+        if (isEchoOGM(message)) {
+            RemoteDevice previous = routingTable.get(message.getPreviousHop());
+            if (previous == null)
+                throw new RoutingException("slideWindows: Previous hop has left " + message.getPreviousHop());
+            window = previous.getEchoSlidingWindow();
         } else {
-            throw new RoutingException("slideWindows: Previous hop has left " + message.getPreviousHop());
+            RemoteDevice source = routingTable.get(message.getSource());
+            if (source == null)
+                throw new RoutingException("slideWindows: Message source has left " + message.getSource());
+            window = source.getReceiveSlidingWindow();
+        }
+        if (window != null) {
+            window.slideSequence(message.getSequence());
+            window.addIfIsSequenceInWindow(message);
         }
     }
 
@@ -83,24 +84,20 @@ class Router {
         return message.getSource().equals(message.getPreviousHop());
     }
 
-    private boolean sourceIsNeighbour(Message message) {
-        return message.getSource().equals(message.getPreviousHop());
-    }
-
     private boolean isMessageVital(Message message) {
         return message.getTq() > MeshHandler.HOP_PENALTY && message.getTtl() > 1;
     }
 
     private boolean slidingWindowSaysYes(Message message) {
         SlidingWindow window = routingTable.get(message.getSource()).getReceiveSlidingWindow();
-        return window.getSequence() == message.getSequence();
+        return window.getSequence() == null || window.getSequence() == message.getSequence();
     }
 
     private boolean shouldOGMBeForwarded(Message message) {
         if (isEchoOGM(message)) {
             System.out.println("DROP ECHO OGM: " + message);
             return false;
-        } else if (sourceIsNeighbour(message)) {
+        } else if (isNeighbourOGM(message)) {
             System.out.println("BROADCAST NEIGHBOUR OGM: " + message);
             return true;
         } else if (!isMessageVital(message)) {

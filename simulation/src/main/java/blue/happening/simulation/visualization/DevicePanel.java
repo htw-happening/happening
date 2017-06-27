@@ -1,17 +1,20 @@
 package blue.happening.simulation.visualization;
 
-import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTable;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -25,41 +28,106 @@ public class DevicePanel extends JPanel {
     private static final int PANEL_WIDTH = 150;
     private static final int PANEL_HEIGHT = 200;
     private JTable table;
-    private JButton btn_sendMessage;
+    private JLabel deviceLabel;
+    private JButton sendButton;
+    private JButton disableButton;
+    private JSlider packageDropSlider;
+    private JSlider packageDelaySlider;
     private Device device;
     private List<RemoteDevice> selectedDevices;
 
     public DevicePanel() {
         selectedDevices = new ArrayList<>();
-        this.setSize(PANEL_WIDTH, PANEL_HEIGHT);
-        this.setLayout(new BorderLayout());
-        JLabel lab1 = new JLabel("Current Device", JLabel.LEFT);
-        JButton btn_disable = new JButton("Disable Device");
-        btn_sendMessage = new JButton("Send message");
-        btn_sendMessage.setEnabled(false);
+        setSize(PANEL_WIDTH, PANEL_HEIGHT);
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        deviceLabel = new JLabel("Current device", JLabel.LEFT);
+        disableButton = new JButton("Toggle device");
+        sendButton = new JButton("Send message");
+        sendButton.setEnabled(false);
 
         JPanel btnPanel = new JPanel(new FlowLayout());
-        btnPanel.add(lab1);
-        btnPanel.add(btn_disable);
-        btnPanel.add((btn_sendMessage));
-        this.add(btnPanel, BorderLayout.NORTH);
+        btnPanel.add(deviceLabel);
+        btnPanel.add(disableButton);
+        btnPanel.add(sendButton);
+        add(btnPanel);
 
+        JPanel sliderPanel = new JPanel();
+        sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.Y_AXIS));
+
+        packageDropSlider = new JSlider(JSlider.HORIZONTAL,
+                0, 100, 0);
+        packageDropSlider.setMajorTickSpacing(10);
+        packageDropSlider.setMinorTickSpacing(10);
+        packageDropSlider.setPaintTicks(true);
+        packageDropSlider.setPaintLabels(true);
+        sliderPanel.add(new JLabel("Package Drop Rate", JLabel.CENTER));
+        sliderPanel.add(packageDropSlider);
+
+        packageDelaySlider = new JSlider(JSlider.HORIZONTAL,
+                0, 1000, 0);
+        packageDelaySlider.setMajorTickSpacing(100);
+        packageDelaySlider.setMinorTickSpacing(100);
+        packageDelaySlider.setPaintTicks(true);
+        packageDelaySlider.setPaintLabels(true);
+        sliderPanel.add(new JLabel("Package Send Delay", JLabel.CENTER));
+        sliderPanel.add(packageDelaySlider);
+
+        add(sliderPanel);
 
         table = new JTable();
         table.setAutoCreateRowSorter(true);
         JScrollPane tableScrollPane = new JScrollPane(table);
-        this.add(tableScrollPane, BorderLayout.CENTER);
+        add(tableScrollPane);
 
-        this.setVisible(true);
+        setVisible(true);
 
-        btn_sendMessage.addActionListener(new ActionListener() {
+        packageDropSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                JSlider source = (JSlider) e.getSource();
+                device.getMockLayer().setMessageLoss((float) source.getValue() / 100);
+            }
+        });
+
+        packageDelaySlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                JSlider source = (JSlider) e.getSource();
+                device.setMessageDelay(source.getValue());
+            }
+        });
+
+        sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 for (RemoteDevice remotedevice : selectedDevices) {
-                    device.sendMessageTo(remotedevice.getUuid(), "Hello".getBytes());
+                    device.getMeshHandler().sendMessage("Hello".getBytes(), remotedevice.getUuid());
                 }
             }
         });
+
+        disableButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                device.toggleEnabled();
+            }
+        });
+    }
+
+    public void updateMessageLossSlider(Device device) {
+        int newVal = (int) (device.getMockLayer().getMessageLoss() * 100);
+        if (newVal != packageDropSlider.getValue()) {
+            packageDropSlider.setValue(newVal);
+            packageDropSlider.updateUI();
+        }
+    }
+
+    public void updatePackageDelay(Device device) {
+        int newVal = (int) (device.getMessageDelay());
+        if (newVal != packageDelaySlider.getValue()) {
+            packageDelaySlider.setValue(newVal);
+            packageDelaySlider.updateUI();
+        }
     }
 
     public void setNeighbourList(Device device) {
@@ -72,13 +140,16 @@ public class DevicePanel extends JPanel {
 
     public void setDevice(Device device) {
         this.device = device;
+        updateMessageLossSlider(device);
+        updatePackageDelay(device);
         setNeighbourList(device);
+        deviceLabel.setText(device.getName());
     }
 
-    public void updateDevice(Device device){
-        DeviceNeighbourTableModel model = (DeviceNeighbourTableModel)table.getModel();
-        model.update(device.getDevices());
-        table.updateUI();
+    public void updateDevice(Device device) {
+        setNeighbourList(device);
+        updateMessageLossSlider(device);
+        updatePackageDelay(device);
     }
 
     private void setSelectedDevicesFromSelectedDeviceNames(List<String> selectedDeviceNames) {
@@ -86,12 +157,11 @@ public class DevicePanel extends JPanel {
         for (String name : selectedDeviceNames) {
             RemoteDevice selectedDevice = device.getMeshHandler().getRoutingTable().get(name);
             selectedDevices.add(selectedDevice);
-            device.getMeshHandler().sendMessage("ABC".getBytes(), selectedDevice.getUuid());
         }
         if (selectedDevices.size() > 0) {
-            btn_sendMessage.setEnabled(true);
+            sendButton.setEnabled(true);
         } else {
-            btn_sendMessage.setEnabled(false);
+            sendButton.setEnabled(false);
         }
     }
 
