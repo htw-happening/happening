@@ -884,11 +884,9 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
                 .get(fromVertex);
         final VertexProperties<V, E> toProperties = verticesProperties
                 .get(toVertex);
-        final double baseFromTx = fromProperties.getTxRadius();
-        final double baseToRx = toProperties.getRxRadius();
-        Device fromDevice = (Device) fromVertex;
-        Device toDevice = (Device) toVertex;
-        return Math.max(baseFromTx + fromDevice.getTxRadius(), baseToRx + toDevice.getRxRadius());
+        final double fromTx = fromProperties.getTxRadius();
+        final double toRx = toProperties.getRxRadius();
+        return Math.max(fromTx, toRx);
     }
 
     /**
