@@ -8,7 +8,6 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.IntentFilter;
-import android.nfc.Tag;
 import android.os.Handler;
 import android.util.Log;
 
@@ -43,6 +42,7 @@ public class Layer extends blue.happening.mesh.Layer {
     private AutoConnectSink connectSink = null;
     private String macAddress = "";
     private boolean autoConnect = true;
+    private BluetoothStateReceiver bluetoothStateReceiver;
 
     private Layer() {
         this.context = MyApplication.getAppContext();
@@ -51,6 +51,7 @@ public class Layer extends blue.happening.mesh.Layer {
         BluetoothManager bluetoothManager = (BluetoothManager) this.context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.bluetoothAdapter = bluetoothManager.getAdapter();
         this.macAddress = android.provider.Settings.Secure.getString(context.getContentResolver(), "bluetooth_address");
+        bluetoothStateReceiver = new BluetoothStateReceiver();
         Log.i(TAG, "*********************** I am " + bluetoothAdapter.getName() + " | " + macAddress + " ***********************");
 
     }
@@ -86,6 +87,7 @@ public class Layer extends blue.happening.mesh.Layer {
         this.connectSink.start();
         this.acceptor = new Server();
         this.acceptor.start();
+        bluetoothStateReceiver.start();
         serverManager = new ServerManager();
         serverManager.start();
         // TODO: 06.06.17 bl stack aufräumen
@@ -107,6 +109,7 @@ public class Layer extends blue.happening.mesh.Layer {
             }
         }
         context.unregisterReceiver(pairingRequest);
+        bluetoothStateReceiver.stop();
         connectSink.interrupt();
         // TODO: 06.06.17 aufräumen
         this.scannedDevices.clear();
@@ -122,6 +125,7 @@ public class Layer extends blue.happening.mesh.Layer {
     }
 
     public void reset() {
+        Log.d(TAG, "reset");
         shutdown();
         start();
     }

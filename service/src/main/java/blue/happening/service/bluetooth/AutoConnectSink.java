@@ -61,7 +61,7 @@ class AutoConnectSink extends Thread {
                     device.connect();
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Log.e(TAG, "run: " + e.toString());;
             }
         }
     }
