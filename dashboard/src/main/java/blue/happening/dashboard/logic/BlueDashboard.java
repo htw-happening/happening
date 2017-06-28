@@ -27,7 +27,7 @@ public class BlueDashboard {
             public void onClientAdded(HappeningClient happeningClient) {
                 Log.d(TAG, "HappeningCallback - onClientAdded");
                 for (BlueCallback listener : listeners) {
-                    listener.onClientUpdate();
+                    listener.onClientAdded();
                 }
             }
 
