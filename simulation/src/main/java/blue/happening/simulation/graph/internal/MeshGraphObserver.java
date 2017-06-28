@@ -17,17 +17,17 @@ public class MeshGraphObserver
     @Override
     protected void addedEdge(final NetworkGraph<Device, Connection> networkGraph,
                              final Connection edge) {
-        logger.debug("add edge from " + edge.getFromDev() + " to " + edge.getToDev());
-        edge.getFromDev().connectTo(edge.getToDev());
-        edge.getToDev().connectTo(edge.getFromDev());
+        logger.debug("add edge from " + edge.getFromDevice() + " to " + edge.getToDevice());
+        edge.getFromDevice().connectTo(edge.getToDevice());
+        edge.getToDevice().connectTo(edge.getFromDevice());
     }
 
     @Override
     protected void removedEdge(
             final NetworkGraph<Device, Connection> networkGraph,
             final Connection edge) {
-        edge.getFromDev().disconnectFrom(edge.getToDev());
-        edge.getToDev().disconnectFrom(edge.getFromDev());
+        edge.getFromDevice().disconnectFrom(edge.getToDevice());
+        edge.getToDevice().disconnectFrom(edge.getFromDevice());
     }
 
     @Override

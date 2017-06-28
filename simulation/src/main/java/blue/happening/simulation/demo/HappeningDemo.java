@@ -15,7 +15,7 @@ public class HappeningDemo {
 
     public static void main(String[] args) throws InterruptedException {
 
-        // create a custom blue.happening.bla.graph with Vertex: Device and Edge: Connection
+        // create a custom graph with Vertex: Device and Edge: Connection
         MeshGraph graph = new MeshGraph();
 
         // configuration
@@ -28,13 +28,14 @@ public class HappeningDemo {
         final double height = 1000;
 
         // construct a bound; boundary of the canvas
-        final RectangularBoundary<Device, Connection> bound = new RectangularBoundary<Device, Connection>(
+        RectangularBoundary<Device, Connection> bound = new RectangularBoundary<Device, Connection>(
                 0, 0, width, height);
 
         // construct a random mobility pattern that conforms to that bound
         MobilityPattern<Device, Connection> mobilityPattern = new RandomDSMobilityPattern<Device, Connection>(
                 bound, speedMin, speedMax);
 
+        // initialize devices and place them on the in the scene
         int deviceIndex = 0;
         int dimension = (int) Math.ceil(Math.sqrt(deviceCount));
         for (int i = 0; i < dimension; i++) {
@@ -51,11 +52,10 @@ public class HappeningDemo {
             }
         }
 
-        // Enable blue.happening.bla.visualization frame and panel
-        MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<Device, Connection>(
-                graph);
+        // enable visualization frame and panel
+        MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<Device, Connection>(graph);
 
-        // introduce noop events to slow down bla; blue.happening.bla.graph, interval, sleep
+        // introduce noop events to slow down simulation
         new NOOPAction(graph, 1, 50);
 
         // create replication
