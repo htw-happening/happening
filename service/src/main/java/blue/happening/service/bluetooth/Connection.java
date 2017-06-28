@@ -107,6 +107,7 @@ public class Connection {
             setName("Writer of " + device);
             while (!isInterrupted()) {
                 Package aPackage;
+                if (Layer.getInstance().state == Layer.STATE.SCANNING) continue;
                 try {
                     aPackage = packageQueue.take();
                     if (aPackage != null) {

@@ -39,6 +39,7 @@ class LeDeviceFinder implements IDeviceFinder {
 
     private AdvertiseManager advertiseManager;
     private ScanManager scanManager;
+    private CombinedAdvScanManager combinedAdvScanManager;
 
     @Override
     public void registerCallback(Layer layer) {
@@ -49,16 +50,18 @@ class LeDeviceFinder implements IDeviceFinder {
     public void start() {
         startAdvertising();
         startLeScan();
-        advertiseManager.start();
-        scanManager.start();
+//        advertiseManager.start();
+//        scanManager.start();
+        combinedAdvScanManager.start();
     }
 
     @Override
     public void stop() {
         stopAdvertising();
         stopLeScan();
-        advertiseManager.stop();
-        scanManager.stop();
+//        advertiseManager.stop();
+//        scanManager.stop();
+        combinedAdvScanManager.stop();
     }
 
     LeDeviceFinder() {
@@ -67,8 +70,9 @@ class LeDeviceFinder implements IDeviceFinder {
         this.bluetoothAdapter = bluetoothManager.getAdapter();
         this.bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
         this.bluetoothLeAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
-        advertiseManager = new AdvertiseManager();
-        scanManager = new ScanManager();
+//        advertiseManager = new AdvertiseManager();
+//        scanManager = new ScanManager();
+        combinedAdvScanManager = new CombinedAdvScanManager();
     }
 
     private boolean isAdvertisingSupported() {
@@ -186,6 +190,54 @@ class LeDeviceFinder implements IDeviceFinder {
             if (d) Log.d(TAG, "AdvertiseCallback - onStartFailure (error: " + errorCode + ")");
         }
 
+    }
+
+    private class CombinedAdvScanManager {
+        private static final int ACTIVE_TIME = 3000;
+        private static final int INACTIVE_TIME = 2000;
+        private Timer timer;
+        private TimerTask timerTask;
+
+        CombinedAdvScanManager(){
+        }
+
+        void start(){
+            timer = new Timer();
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "run: CombinedAdvScanManager - Timer triggered");
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            layer.state = Layer.STATE.SCANNING;
+                            startAdvertising();
+                            startLeScan();
+                            try {
+                                Thread.sleep(ACTIVE_TIME);
+                            } catch (InterruptedException e) {
+                                Log.e(TAG, "run: " + e.toString());
+                                stop();
+                            } finally {
+                            }
+                            stopAdvertising();
+                            stopLeScan();
+                            layer.state = Layer.STATE.WRITING;
+
+                        }
+                    });
+                    thread.start();
+
+                }
+            };
+            timer.scheduleAtFixedRate(timerTask, ACTIVE_TIME+INACTIVE_TIME, ACTIVE_TIME+INACTIVE_TIME);
+        }
+
+        void stop(){
+            Log.d(TAG, "stop: AdvertiseManager");
+            timerTask.cancel();
+            timer.cancel();
+        }
     }
 
     private class AdvertiseManager {

@@ -40,6 +40,12 @@ public class Layer extends blue.happening.mesh.Layer {
     private String macAddress = "";
     private boolean autoConnect = true;
     private BluetoothStateReceiver bluetoothStateReceiver;
+    public STATE state = STATE.WRITING;
+
+    public enum STATE {
+        SCANNING,
+        WRITING
+    }
 
     private Layer() {
         this.context = MyApplication.getAppContext();
