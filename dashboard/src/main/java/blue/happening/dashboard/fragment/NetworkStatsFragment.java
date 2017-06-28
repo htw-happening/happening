@@ -40,5 +40,5 @@ public class NetworkStatsFragment extends Fragment {
 
         return rootView;
     }
-    
+
 }

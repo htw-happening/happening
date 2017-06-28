@@ -7,7 +7,7 @@ public enum MenuItems {
      * List of Enums
      * Add a new Enum to create a new Menu item
      */
-    DASHBOARD_FRAGMENT("Dashboard"),
+    DEVICE_FRAGMENT("Devices"),
     NETWORK_STATS_FRAGMENT("Network Stats"),
     IMPRESSUM_FRAGMENT("Impressum");
 

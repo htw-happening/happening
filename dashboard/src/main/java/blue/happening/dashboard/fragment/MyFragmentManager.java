@@ -25,7 +25,7 @@ public class MyFragmentManager {
         this.fragmentManager = activity.getFragmentManager();
 
         // inflate default fragment
-        this.dashboardFragment = DashboardFragment.getInstance();
+        this.dashboardFragment = DeviceFragment.getInstance();
         this.currentFragment = this.dashboardFragment;
         this.newFragment = this.dashboardFragment;
 
@@ -50,16 +50,16 @@ public class MyFragmentManager {
     public void swapFragment(MenuItems menuItemId) {
 
         switch (menuItemId) {
-            case DASHBOARD_FRAGMENT: {
+            case DEVICE_FRAGMENT: {
                 Log.d(this.getClass().getSimpleName(), "dashboard");
                 if (this.dashboardFragment == null) {
-                    this.dashboardFragment = fragmentManager.findFragmentByTag(MenuItems.DASHBOARD_FRAGMENT.getName());
+                    this.dashboardFragment = fragmentManager.findFragmentByTag(MenuItems.DEVICE_FRAGMENT.getName());
                     if (this.dashboardFragment == null) {
-                        this.dashboardFragment = DashboardFragment.getInstance();
+                        this.dashboardFragment = DeviceFragment.getInstance();
                     }
                 }
 
-                loadFragment(currentFragment, dashboardFragment, MenuItems.DASHBOARD_FRAGMENT.getName());
+                loadFragment(currentFragment, dashboardFragment, MenuItems.DEVICE_FRAGMENT.getName());
                 this.currentFragment = dashboardFragment;
                 break;
             }
