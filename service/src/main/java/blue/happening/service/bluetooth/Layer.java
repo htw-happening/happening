@@ -35,7 +35,6 @@ public class Layer extends blue.happening.mesh.Layer {
     private PairingRequest pairingRequest;
     private IDeviceFinder deviceFinder;
 
-    private List<Handler> handlers;
     private ArrayList<Device> scannedDevices;
     private Server acceptor = null;
     private ServerManager serverManager = null;
@@ -47,7 +46,6 @@ public class Layer extends blue.happening.mesh.Layer {
     private Layer() {
         this.context = MyApplication.getAppContext();
         this.scannedDevices = new ArrayList<>();
-        this.handlers = new ArrayList<>();
         BluetoothManager bluetoothManager = (BluetoothManager) this.context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.bluetoothAdapter = bluetoothManager.getAdapter();
         this.macAddress = android.provider.Settings.Secure.getString(context.getContentResolver(), "bluetooth_address");
@@ -113,7 +111,6 @@ public class Layer extends blue.happening.mesh.Layer {
         connectSink.interrupt();
         // TODO: 06.06.17 aufräumen
         this.scannedDevices.clear();
-        notifyHandlers(1);
     }
 
     public void connectTo(Device device) {
@@ -143,24 +140,6 @@ public class Layer extends blue.happening.mesh.Layer {
         if (device == null) return;
         if (device.getState() != Device.STATE.CONNECTED) return;
         device.sendMessage(content);
-    }
-
-    void notifyHandlers(int code) {
-        for (Handler handler : handlers) {
-            handler.obtainMessage(code).sendToTarget();
-        }
-    }
-
-    public void addHandler(Handler handler) {
-        if (!handlers.contains(handler)) {
-            handlers.add(handler);
-        }
-    }
-
-    public void removeHandler(Handler handler) {
-        if (handlers.contains(handler)) {
-            handlers.remove(handler);
-        }
     }
 
     public boolean isBluetoothEnabled() {
@@ -199,7 +178,6 @@ public class Layer extends blue.happening.mesh.Layer {
             if (d) Log.d(TAG, "addNewScan - Yes added to list (" + scannedDevice.toString() + ")");
             scannedDevices.add(scannedDevice);
         }
-        notifyHandlers(1);
     }
 
     private boolean isMacAddressAlreadyInList(Device device, Collection<Device> collection) {

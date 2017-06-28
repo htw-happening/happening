@@ -58,7 +58,6 @@ public class Device extends RemoteDevice {
     void changeState(STATE state) {
         if (d) Log.d(TAG, "Change State from " + this.state + " to " + state + " of " + this);
         this.state = state;
-        Layer.getInstance().notifyHandlers(1);
     }
 
     public String getStateAsString() {

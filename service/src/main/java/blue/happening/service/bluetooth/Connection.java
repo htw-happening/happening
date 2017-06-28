@@ -68,9 +68,7 @@ public class Connection {
         public void run() {
             setName("Reader of " + device);
             while (!isInterrupted()) {
-
                 try {
-
                     byte[] buffer = new byte[Packetizer.CHUNK_SIZE];
                     inputStream.read(buffer);
                     packageHandler.createNewFromMeta(buffer);
@@ -90,7 +88,6 @@ public class Connection {
                     return;
                 } catch (Exception e) {
                     Log.e(TAG, "Reader closed of " + device + " cause of unreadable package");
-
                 }
             }
         }
