@@ -44,7 +44,7 @@ public class DeviceAdapter extends ArrayAdapter<HappeningClient> {
         convertView.findViewById(R.id.device_button_send).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(), "Send", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Ping", Toast.LENGTH_SHORT).show();
                 String message = "Hey there, i'm using happening!";
                 Log.d(getClass().getSimpleName(), "Sending Message to " + happeningClient.getUuid());
                 BlueDashboard.getInstance().getHappening().sendMessage(message.getBytes(), happeningClient);

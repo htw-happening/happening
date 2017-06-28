@@ -1,6 +1,7 @@
 package blue.happening.dashboard.logic;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,8 @@ public class BlueDashboard {
             @Override
             public void onMessageReceived(byte[] bytes, HappeningClient happeningClient) {
                 Log.d(TAG, "HappeningCallback - onMessageReceived");
+                Message message = Message.fromBytes(bytes);
+                Toast.makeText(MyApplication.getAppContext(), "Ping received " + message, Toast.LENGTH_SHORT).show();
             }
         });
 
