@@ -211,8 +211,8 @@ class LeDeviceFinder implements IDeviceFinder {
                                 Thread.sleep(ACTIVE_TIME);
                             } catch (InterruptedException e) {
                                 Log.e(TAG, "run: " + e.toString());
-                            } finally {
                                 stop();
+                            } finally {
                             }
                             stopAdvertising();
                         }
@@ -225,6 +225,7 @@ class LeDeviceFinder implements IDeviceFinder {
         }
 
         void stop(){
+            Log.d(TAG, "stop: AdvertiseManager");
             timerTask.cancel();
             timer.cancel();
         }
@@ -253,8 +254,8 @@ class LeDeviceFinder implements IDeviceFinder {
                                 Thread.sleep(ACTIVE_TIME);
                             } catch (InterruptedException e) {
                                 Log.e(TAG, "run: " + e.toString());
-                            } finally {
                                 stop();
+                            } finally {
                             }
                             stopLeScan();
                         }
@@ -267,6 +268,7 @@ class LeDeviceFinder implements IDeviceFinder {
         }
 
         void stop(){
+            Log.d(TAG, "stop: ScanManager");
             timerTask.cancel();
             timer.cancel();
         }
