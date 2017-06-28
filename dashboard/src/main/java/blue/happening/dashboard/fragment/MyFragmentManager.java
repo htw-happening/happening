@@ -17,6 +17,7 @@ public class MyFragmentManager {
     private Fragment newFragment;
 
     private Fragment dashboardFragment = null;
+    private Fragment netWorkStatsFragment = null;
     private Fragment impressumFragment = null;
 
     private MyFragmentManager(Activity activity) {
@@ -60,6 +61,19 @@ public class MyFragmentManager {
 
                 loadFragment(currentFragment, dashboardFragment, MenuItems.DASHBOARD_FRAGMENT.getName());
                 this.currentFragment = dashboardFragment;
+                break;
+            }
+            case NETWORK_STATS_FRAGMENT: {
+                Log.d(this.getClass().getSimpleName(), "network stats");
+                if (this.netWorkStatsFragment == null) {
+                    this.netWorkStatsFragment = fragmentManager.findFragmentByTag(MenuItems.NETWORK_STATS_FRAGMENT.getName());
+                    if (this.netWorkStatsFragment == null) {
+                        this.netWorkStatsFragment = NetworkStatsFragment.getInstance();
+                    }
+                }
+
+                loadFragment(currentFragment, netWorkStatsFragment, MenuItems.NETWORK_STATS_FRAGMENT.getName());
+                this.currentFragment = netWorkStatsFragment;
                 break;
             }
             case IMPRESSUM_FRAGMENT: {

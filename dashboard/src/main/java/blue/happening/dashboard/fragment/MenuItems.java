@@ -8,6 +8,7 @@ public enum MenuItems {
      * Add a new Enum to create a new Menu item
      */
     DASHBOARD_FRAGMENT("Dashboard"),
+    NETWORK_STATS_FRAGMENT("Network Stats"),
     IMPRESSUM_FRAGMENT("Impressum");
 
     // fields
