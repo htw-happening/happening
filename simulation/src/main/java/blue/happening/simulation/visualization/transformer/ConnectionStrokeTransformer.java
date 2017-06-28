@@ -19,9 +19,9 @@ public class ConnectionStrokeTransformer<I extends Connection, O extends Stroke>
 
     @Override
     public Stroke transform(Connection connection) {
-        Device clickedDevice = connection.getFromDev().getNetworkGraph().getClickedDevice();
+        Device clickedDevice = connection.getFromDevice().getNetworkGraph().getClickedDevice();
         if (clickedDevice != null) {
-            if (connection.getFromDev().isSendingMsgFromOriginator(clickedDevice.getName())) {
+            if (connection.getFromDevice().isSendingMsgFromOriginator(clickedDevice.getName())) {
                 return edgeStroke2;
             }
         }
