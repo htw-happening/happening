@@ -35,7 +35,7 @@ public class HappeningDemo {
         MobilityPattern<Device, Connection> mobilityPattern = new RandomDSMobilityPattern<Device, Connection>(
                 bound, speedMin, speedMax);
 
-        int deviceIndex = 1;
+        int deviceIndex = 0;
         int dimension = (int) Math.ceil(Math.sqrt(deviceCount));
         for (int i = 0; i < dimension; i++) {
             for (int j = 0; j < dimension; j++) {
