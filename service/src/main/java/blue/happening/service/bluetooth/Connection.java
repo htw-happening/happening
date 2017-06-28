@@ -88,6 +88,9 @@ public class Connection {
                     Log.e(TAG, "Reader closed of " + device + " cause of IO Error");
                     shutdown();
                     return;
+                } catch (Exception e) {
+                    Log.e(TAG, "Reader closed of " + device + " cause of unreadable package");
+
                 }
             }
         }
