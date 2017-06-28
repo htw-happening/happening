@@ -8,13 +8,11 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.IntentFilter;
-import android.os.Handler;
 import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -113,14 +111,6 @@ public class Layer extends blue.happening.mesh.Layer {
         this.scannedDevices.clear();
     }
 
-    public void connectTo(Device device) {
-        connectSink.addDevice(device);
-    }
-
-    public void disconnectFrom(Device device) {
-        device.disconnect();
-    }
-
     public void reset() {
         Log.d(TAG, "reset");
         shutdown();
@@ -129,29 +119,6 @@ public class Layer extends blue.happening.mesh.Layer {
 
     public String getMacAddress() {
         return macAddress;
-    }
-
-    public ArrayList<Device> getDevices() {
-        return scannedDevices;
-    }
-
-    public void sendToDevice(String identifier, byte[] content) {
-        Device device = getDeviceByMacOrNull(identifier);
-        if (device == null) return;
-        if (device.getState() != Device.STATE.CONNECTED) return;
-        device.sendMessage(content);
-    }
-
-    public boolean isBluetoothEnabled() {
-        return bluetoothAdapter.isEnabled();
-    }
-
-    public void enableBluetooth() {
-        bluetoothAdapter.enable();
-    }
-
-    public void disableBluetooth() {
-        bluetoothAdapter.disable();
     }
 
     public int getNumOfConnectedDevices() {
@@ -194,14 +161,6 @@ public class Layer extends blue.happening.mesh.Layer {
                 return aDevice;
         }
         return new Device(device);
-    }
-
-    public Device getDeviceByMacOrNull(String id) {
-        for (Device aDevice : scannedDevices) {
-            if (id.equals(aDevice.getAddress()))
-                return aDevice;
-        }
-        return null;
     }
 
     void connectionLost(Device device) {
@@ -298,11 +257,11 @@ public class Layer extends blue.happening.mesh.Layer {
         private boolean running;
         private static final int DELAY = 60000;
 
-        ServerManager(){
+        ServerManager() {
             Log.d(TAG, "ServerManager: created");
         }
 
-        void start(){
+        void start() {
             Log.d(TAG, "start: started");
             running = true;
             timer = new Timer();
@@ -321,7 +280,7 @@ public class Layer extends blue.happening.mesh.Layer {
             timer.scheduleAtFixedRate(timerTask, DELAY, DELAY);
         }
 
-        void stop(){
+        void stop() {
             Log.d(TAG, "stop: ");
             running = false;
             timerTask.cancel();
