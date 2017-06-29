@@ -23,6 +23,10 @@ import blue.happening.mesh.RemoteDevice;
 import blue.happening.simulation.entities.Device;
 import blue.happening.simulation.visualization.listener.DeviceObserver;
 
+import static blue.happening.simulation.visualization.listener.DeviceObserver.Events.NEIGHBOUR_ADDED;
+import static blue.happening.simulation.visualization.listener.DeviceObserver.Events.NEIGHBOUR_REMOVED;
+import static blue.happening.simulation.visualization.listener.DeviceObserver.Events.NEIGHBOUR_UPDATED;
+
 
 public class DevicePanel extends JPanel {
 
@@ -168,16 +172,20 @@ public class DevicePanel extends JPanel {
     }
 
     public void updateDevice(Device device, Device.DeviceChangedEvent event) {
-        if(event == null){
-            setNeighbourList(device);
-            updateMessageLossSlider(device);
-            updatePackageDelay(device);
-        } else if(event.getType() == DeviceObserver.Events.NEIGHBOUR_ADDED){
-            addNeighbour((MeshDevice) event.getOptions());
-        } else if(event.getType() == DeviceObserver.Events.NEIGHBOUR_UPDATED){
-            updateNeighbour((MeshDevice) event.getOptions());
-        } else if(event.getType() == DeviceObserver.Events.NEIGHBOUR_REMOVED){
-            removeNeighbour((MeshDevice) event.getOptions());
+        if (event != null) {
+            switch (event.getType()) {
+                case NEIGHBOUR_ADDED:
+                    addNeighbour((MeshDevice) event.getOptions());
+                    break;
+                case NEIGHBOUR_UPDATED:
+                    updateNeighbour((MeshDevice) event.getOptions());
+                    break;
+                case NEIGHBOUR_REMOVED:
+                    removeNeighbour((MeshDevice) event.getOptions());
+                    break;
+            }
+        } else {
+            setDevice(device);
         }
     }
 
