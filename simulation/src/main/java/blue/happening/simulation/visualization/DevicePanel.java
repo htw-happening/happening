@@ -21,6 +21,7 @@ import javax.swing.event.ListSelectionListener;
 import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.RemoteDevice;
 import blue.happening.simulation.entities.Device;
+import blue.happening.simulation.visualization.listener.DeviceObserver;
 
 
 public class DevicePanel extends JPanel {
@@ -138,6 +139,26 @@ public class DevicePanel extends JPanel {
         table.updateUI();
     }
 
+    public void addNeighbour(MeshDevice neighbour){
+        DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel)table.getModel();
+        neighbourTableModel.getNeighbours().add(neighbour);
+        table.updateUI();
+    }
+
+    public void updateNeighbour(MeshDevice neighbour){
+        DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel)table.getModel();
+        List<MeshDevice> neighbours = neighbourTableModel.getNeighbours();
+        int indexOfExisting = neighbours.indexOf(neighbour);
+        neighbours.set(indexOfExisting, neighbour);
+        table.updateUI();
+    }
+
+    public void removeNeighbour(MeshDevice neighbour){
+        DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel)table.getModel();
+        neighbourTableModel.getNeighbours().remove(neighbour);
+        table.updateUI();
+    }
+
     public void setDevice(Device device) {
         this.device = device;
         updateMessageLossSlider(device);
@@ -146,10 +167,18 @@ public class DevicePanel extends JPanel {
         deviceLabel.setText(device.getName());
     }
 
-    public void updateDevice(Device device) {
-        setNeighbourList(device);
-        updateMessageLossSlider(device);
-        updatePackageDelay(device);
+    public void updateDevice(Device device, Device.DeviceChangedEvent event) {
+        if(event == null){
+            setNeighbourList(device);
+            updateMessageLossSlider(device);
+            updatePackageDelay(device);
+        } else if(event.getType() == DeviceObserver.Events.NEIGHBOUR_ADDED){
+            addNeighbour((MeshDevice) event.getOptions());
+        } else if(event.getType() == DeviceObserver.Events.NEIGHBOUR_UPDATED){
+            updateNeighbour((MeshDevice) event.getOptions());
+        } else if(event.getType() == DeviceObserver.Events.NEIGHBOUR_REMOVED){
+            removeNeighbour((MeshDevice) event.getOptions());
+        }
     }
 
     private void setSelectedDevicesFromSelectedDeviceNames(List<String> selectedDeviceNames) {
