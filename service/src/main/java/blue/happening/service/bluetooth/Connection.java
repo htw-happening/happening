@@ -68,9 +68,7 @@ public class Connection {
         public void run() {
             setName("Reader of " + device);
             while (!isInterrupted()) {
-
                 try {
-
                     byte[] buffer = new byte[Packetizer.CHUNK_SIZE];
                     inputStream.read(buffer);
                     packageHandler.createNewFromMeta(buffer);
@@ -88,6 +86,8 @@ public class Connection {
                     Log.e(TAG, "Reader closed of " + device + " cause of IO Error");
                     shutdown();
                     return;
+                } catch (Exception e) {
+                    Log.e(TAG, "Reader closed of " + device + " cause of unreadable package");
                 }
             }
         }
@@ -107,6 +107,7 @@ public class Connection {
             setName("Writer of " + device);
             while (!isInterrupted()) {
                 Package aPackage;
+                if (Layer.getInstance().state == Layer.STATE.SCANNING) continue;
                 try {
                     aPackage = packageQueue.take();
                     if (aPackage != null) {

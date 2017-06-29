@@ -32,6 +32,8 @@ public class HappeningService extends Service {
     private static final int START_MODE = START_STICKY;
     private static final boolean ALLOW_REBIND = true;
 
+    private StatsLogTimer statsLogTimer;
+
     private static HashMap<String, IHappeningCallback> callbacks = new HashMap<>();
     private final String TAG = getClass().getSimpleName();
     private Layer bluetoothLayer = null;
@@ -148,6 +150,10 @@ public class HappeningService extends Service {
         });
 
         bluetoothLayer.start();
+
+        statsLogTimer = new StatsLogTimer(meshHandler, bluetoothLayer);
+        statsLogTimer.start();
+
     }
 
     /**
@@ -170,6 +176,7 @@ public class HappeningService extends Service {
     public void onDestroy() {
         Log.v(this.getClass().getSimpleName(), "onDestroy");
         Toast.makeText(this, "Happening stopped", Toast.LENGTH_SHORT).show();
+        statsLogTimer.stop();
         super.onDestroy();
     }
 

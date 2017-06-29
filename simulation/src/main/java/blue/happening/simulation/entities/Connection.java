@@ -2,36 +2,26 @@ package blue.happening.simulation.entities;
 
 public class Connection {
 
-    private String name;
-    private Device fromDev;
-    private Device toDev;
+    private Device fromDevice;
+    private Device toDevice;
 
-    public Connection(Device fromDev, Device toDev) {
-        this.name = fromDev.getName() + " => " + toDev.getName();
-        this.fromDev = fromDev;
-        this.toDev = toDev;
+    public Connection(Device fromDevice, Device toDevice) {
+
+        this.fromDevice = fromDevice;
+        this.toDevice = toDevice;
     }
 
-    String getName() {
-        return name;
+    public Device getFromDevice() {
+        return fromDevice;
     }
 
-    public Device getFromDev() {
-        return fromDev;
-    }
-
-    public Device getToDev() {
-        return toDev;
-    }
-
-    @Override
-    public int hashCode() {
-        return 31 * 17 + getName().hashCode();
+    public Device getToDevice() {
+        return toDevice;
     }
 
     @Override
     public String toString() {
-        return this.name;
+        return fromDevice.getName() + " > " + toDevice.getName();
     }
 
     @Override
@@ -40,6 +30,7 @@ public class Connection {
             return false;
         else if (o == this)
             return true;
-        return this.getName().equals(((Connection) o).getName());
+        return this.getFromDevice().equals(((Connection) o).getFromDevice()) &&
+                this.getToDevice().equals(((Connection) o).getToDevice());
     }
 }
