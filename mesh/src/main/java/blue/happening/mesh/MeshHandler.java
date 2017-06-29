@@ -159,18 +159,22 @@ public class MeshHandler {
                 meshHandlerCallback.onMessageReceived(message.getBody(), source);
             }
 
-            RemoteDevice source = routingTable.get(message.getSource());
-            if (source == null) {
-                System.out.println("MeshHandler/onMessageReceived: Source not in routing table " + message.getSource());
-                return;
+            // Check whether message is an echo OGM
+            if (!message.getSource().equals(uuid)) {
+                RemoteDevice source = routingTable.get(message.getSource());
+                if (source == null) {
+                    System.out.println("MeshHandler/onMessageReceived: Source not in routing table " + uuid + ": " + message.getSource());
+                    return;
+                } else {
+                    System.out.println("MeshHandler/onMessageReceived: Source is in routing table " + message.getSource());
+                }
+                // TODO: Move this block to a better location
+                MeshDevice meshDevice = source.getMeshDevice();
+                meshDevice.setReceivedSize(meshDevice.getReceivedSize() + message.toBytes().length);
+                meshHandlerCallback.onDeviceUpdated(meshDevice);
             } else {
-                System.out.println("MeshHandler/onMessageReceived: Source is in routing table " + message.getSource());
+                System.out.println("MeshHandler/onMessageReceived: Message is an echo " + message.getSource());
             }
-
-            // TODO: Move this block to a better location
-            MeshDevice meshDevice = source.getMeshDevice();
-            meshDevice.setReceivedSize(meshDevice.getReceivedSize() + message.toBytes().length);
-            meshHandlerCallback.onDeviceUpdated(meshDevice);
         }
     }
 }
