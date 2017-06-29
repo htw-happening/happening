@@ -92,11 +92,13 @@ public class MeshHandler {
         @Override
         public void run() {
             try {
-                Message message = new Message(uuid, BROADCAST_ADDRESS, ++sequence, MESSAGE_TYPE_OGM, null);
+                Message message = new Message(uuid, BROADCAST_ADDRESS, sequence, MESSAGE_TYPE_OGM, null);
                 for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
                     System.out.println("OGM SENT: " + message);
                     remoteDevice.sendMessage(message);
+                    remoteDevice.getEchoSlidingWindow().slideSequence(sequence);
                 }
+                sequence++;
             } catch (Exception e) {
                 e.printStackTrace();
             }
