@@ -21,7 +21,6 @@ class Router {
             routingTable.ensureConnection(message.getSource(), message.getPreviousHop());
         }
         if (message.getType() == MeshHandler.MESSAGE_TYPE_OGM) {
-            slideWindows(message);
             routeOgm(message);
             return null;
         } else if (message.getType() == MeshHandler.MESSAGE_TYPE_UCM) {
@@ -61,6 +60,7 @@ class Router {
                 throw new RoutingException("OGM needs broadcast destination");
             }
         }
+        slideWindows(message);
     }
 
     private Message routeUcm(Message message) throws RoutingException {
@@ -90,7 +90,7 @@ class Router {
 
     private boolean slidingWindowSaysYes(Message message) {
         SlidingWindow window = routingTable.get(message.getSource()).getReceiveSlidingWindow();
-        return window.getSequence() == null || window.getSequence() == message.getSequence();
+        return window.isSequenceOutOfWindow(message.getSequence());
     }
 
     private boolean shouldOGMBeForwarded(Message message) {
