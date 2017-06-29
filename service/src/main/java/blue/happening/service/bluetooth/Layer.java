@@ -68,6 +68,10 @@ public class Layer extends blue.happening.mesh.Layer {
         return context;
     }
 
+    public ArrayList<Device> getScannedDevices() {
+        return scannedDevices;
+    }
+
     public void setAutoConnect(boolean value) {
         this.autoConnect = value;
     }
