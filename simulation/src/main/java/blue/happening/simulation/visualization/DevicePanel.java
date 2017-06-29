@@ -41,7 +41,7 @@ public class DevicePanel extends JPanel {
     private Device device;
     private List<RemoteDevice> selectedDevices;
 
-    public DevicePanel() {
+    DevicePanel() {
         selectedDevices = new ArrayList<>();
         setSize(PANEL_WIDTH, PANEL_HEIGHT);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -119,7 +119,7 @@ public class DevicePanel extends JPanel {
         });
     }
 
-    public void updateMessageLossSlider(Device device) {
+    private void updateMessageLossSlider(Device device) {
         int newVal = (int) (device.getMockLayer().getMessageLoss() * 100);
         if (newVal != packageDropSlider.getValue()) {
             packageDropSlider.setValue(newVal);
@@ -127,7 +127,7 @@ public class DevicePanel extends JPanel {
         }
     }
 
-    public void updatePackageDelay(Device device) {
+    private void updatePackageDelay(Device device) {
         int newVal = (int) (device.getMessageDelay());
         if (newVal != packageDelaySlider.getValue()) {
             packageDelaySlider.setValue(newVal);
@@ -135,7 +135,7 @@ public class DevicePanel extends JPanel {
         }
     }
 
-    public void setNeighbourList(Device device) {
+    private void setNeighbourList(Device device) {
         List<MeshDevice> neighbours = device.getDevices();
         DeviceNeighbourTableModel neighbourTableModel = new DeviceNeighbourTableModel(neighbours);
         table.setModel(neighbourTableModel);
@@ -143,22 +143,22 @@ public class DevicePanel extends JPanel {
         table.updateUI();
     }
 
-    public void addNeighbour(MeshDevice neighbour){
-        DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel)table.getModel();
+    private void addNeighbour(MeshDevice neighbour) {
+        DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel) table.getModel();
         neighbourTableModel.getNeighbours().add(neighbour);
         table.updateUI();
     }
 
-    public void updateNeighbour(MeshDevice neighbour){
-        DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel)table.getModel();
+    private void updateNeighbour(MeshDevice neighbour) {
+        DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel) table.getModel();
         List<MeshDevice> neighbours = neighbourTableModel.getNeighbours();
         int indexOfExisting = neighbours.indexOf(neighbour);
         neighbours.set(indexOfExisting, neighbour);
         table.updateUI();
     }
 
-    public void removeNeighbour(MeshDevice neighbour){
-        DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel)table.getModel();
+    private void removeNeighbour(MeshDevice neighbour) {
+        DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel) table.getModel();
         neighbourTableModel.getNeighbours().remove(neighbour);
         table.updateUI();
     }
