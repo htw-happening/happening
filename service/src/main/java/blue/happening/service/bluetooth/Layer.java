@@ -79,12 +79,6 @@ public class Layer extends blue.happening.mesh.Layer {
 
     public void start() {
 
-
-        Intent makeMeVisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        makeMeVisible.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0); //infinity
-        context.startActivity(makeMeVisible);
-
-
         // TODO: 06.06.17 check autoconnect bool
         if (isAdvertisingSupported()) {
             Log.d(TAG, "start: isAdvertisingSupported TRUE");
