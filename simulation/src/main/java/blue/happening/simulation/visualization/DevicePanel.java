@@ -21,6 +21,11 @@ import javax.swing.event.ListSelectionListener;
 import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.RemoteDevice;
 import blue.happening.simulation.entities.Device;
+import blue.happening.simulation.visualization.listener.DeviceObserver;
+
+import static blue.happening.simulation.visualization.listener.DeviceObserver.Events.NEIGHBOUR_ADDED;
+import static blue.happening.simulation.visualization.listener.DeviceObserver.Events.NEIGHBOUR_REMOVED;
+import static blue.happening.simulation.visualization.listener.DeviceObserver.Events.NEIGHBOUR_UPDATED;
 
 
 public class DevicePanel extends JPanel {
@@ -36,7 +41,7 @@ public class DevicePanel extends JPanel {
     private Device device;
     private List<RemoteDevice> selectedDevices;
 
-    public DevicePanel() {
+    DevicePanel() {
         selectedDevices = new ArrayList<>();
         setSize(PANEL_WIDTH, PANEL_HEIGHT);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -114,7 +119,7 @@ public class DevicePanel extends JPanel {
         });
     }
 
-    public void updateMessageLossSlider(Device device) {
+    private void updateMessageLossSlider(Device device) {
         int newVal = (int) (device.getMockLayer().getMessageLoss() * 100);
         if (newVal != packageDropSlider.getValue()) {
             packageDropSlider.setValue(newVal);
@@ -122,7 +127,7 @@ public class DevicePanel extends JPanel {
         }
     }
 
-    public void updatePackageDelay(Device device) {
+    private void updatePackageDelay(Device device) {
         int newVal = (int) (device.getMessageDelay());
         if (newVal != packageDelaySlider.getValue()) {
             packageDelaySlider.setValue(newVal);
@@ -130,11 +135,31 @@ public class DevicePanel extends JPanel {
         }
     }
 
-    public void setNeighbourList(Device device) {
+    private void setNeighbourList(Device device) {
         List<MeshDevice> neighbours = device.getDevices();
         DeviceNeighbourTableModel neighbourTableModel = new DeviceNeighbourTableModel(neighbours);
         table.setModel(neighbourTableModel);
         table.getSelectionModel().addListSelectionListener(new SharedListSelectionHandler());
+        table.updateUI();
+    }
+
+    private void addNeighbour(MeshDevice neighbour) {
+        DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel) table.getModel();
+        neighbourTableModel.getNeighbours().add(neighbour);
+        table.updateUI();
+    }
+
+    private void updateNeighbour(MeshDevice neighbour) {
+        DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel) table.getModel();
+        List<MeshDevice> neighbours = neighbourTableModel.getNeighbours();
+        int indexOfExisting = neighbours.indexOf(neighbour);
+        neighbours.set(indexOfExisting, neighbour);
+        table.updateUI();
+    }
+
+    private void removeNeighbour(MeshDevice neighbour) {
+        DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel) table.getModel();
+        neighbourTableModel.getNeighbours().remove(neighbour);
         table.updateUI();
     }
 
@@ -146,10 +171,22 @@ public class DevicePanel extends JPanel {
         deviceLabel.setText(device.getName());
     }
 
-    public void updateDevice(Device device) {
-        setNeighbourList(device);
-        updateMessageLossSlider(device);
-        updatePackageDelay(device);
+    public void updateDevice(Device device, Device.DeviceChangedEvent event) {
+        if (event != null) {
+            switch (event.getType()) {
+                case NEIGHBOUR_ADDED:
+                    addNeighbour((MeshDevice) event.getOptions());
+                    break;
+                case NEIGHBOUR_UPDATED:
+                    updateNeighbour((MeshDevice) event.getOptions());
+                    break;
+                case NEIGHBOUR_REMOVED:
+                    removeNeighbour((MeshDevice) event.getOptions());
+                    break;
+            }
+        } else {
+            setDevice(device);
+        }
     }
 
     private void setSelectedDevicesFromSelectedDeviceNames(List<String> selectedDeviceNames) {

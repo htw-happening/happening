@@ -42,7 +42,7 @@ class SlidingWindow extends HashSet<Integer> {
         return sequence;
     }
 
-    private boolean isSequenceOutOfWindow(int sequence) {
+    public boolean isSequenceOutOfWindow(int sequence) {
         if (this.sequence == null) {
             return true;
         } else {

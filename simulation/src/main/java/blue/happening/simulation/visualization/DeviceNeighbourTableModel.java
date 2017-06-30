@@ -1,43 +1,32 @@
 package blue.happening.simulation.visualization;
 
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
 import blue.happening.mesh.MeshDevice;
+import blue.happening.mesh.RemoteDevice;
 
 public class DeviceNeighbourTableModel extends AbstractTableModel {
     //Two arrays used for the table data
     private String[] columnNames = {"UUID", "TQ", "Last Seen (secs ago)"};
 
-    private Object[][] data = null;
-
-    public DeviceNeighbourTableModel() {
-        super();
-    }
+    private List<MeshDevice> neighbours = new ArrayList<>();
 
     public DeviceNeighbourTableModel(List<MeshDevice> neighbours) {
-        this.update(neighbours);
+        this.neighbours.addAll(neighbours);
     }
 
-    public void update(List<MeshDevice> neighbours) {
-        Object[][] neighbourTableEntries = new Object[neighbours.size()][columnNames.length];
-        int index = 0;
-        for (MeshDevice neighbour : neighbours) {
-            Object[] entry = {
-                    neighbour.getUuid(),
-                    neighbour.getQuality(),
-                    ( Math.round((System.currentTimeMillis() - neighbour.getLastSeen())/1000) )
-            };
-            neighbourTableEntries[index++] = entry;
-        }
-        this.data = neighbourTableEntries;
+    public List<MeshDevice> getNeighbours() {
+        return neighbours;
     }
 
     @Override
     public int getRowCount() {
-        return data.length;
+        return neighbours.size();
     }
 
     @Override
@@ -47,7 +36,17 @@ public class DeviceNeighbourTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int row, int column) {
-        return data[row][column];
+        MeshDevice neighbour = neighbours.get(row);
+        switch (column) {
+            case 0:
+                return neighbour.getUuid();
+            case 1:
+                return neighbour.getQuality();
+            case 2:
+                return (Math.round((System.currentTimeMillis() - neighbour.getLastSeen()) / 1000));
+            default:
+                return null;
+        }
     }
 
     //Used by the JTable object to set the column names

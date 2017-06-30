@@ -47,4 +47,13 @@ public class MeshDevice {
     void setLastSeen(long lastSeen) {
         this.lastSeen = lastSeen;
     }
+
+    public final boolean equals(Object object) {
+        if (object == null) {
+            return false;
+        } else if (!(object instanceof MeshDevice)) {
+            return false;
+        }
+        return ((MeshDevice) object).getUuid().equals(getUuid());
+    }
 }
