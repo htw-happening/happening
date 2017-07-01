@@ -172,6 +172,9 @@ public class Device extends RemoteDevice {
                     Device.this.changeState(STATE.UNKNOWN);
                 }
                 return;
+            } catch (Exception e){
+                Log.e(TAG, "run: Some went wrong - " + e.toString());
+                return;
             }
             if (d) Log.i(TAG, "Connecting successfully for Device: " + Device.this);
             connector = null;
