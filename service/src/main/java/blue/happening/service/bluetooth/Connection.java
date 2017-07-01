@@ -72,7 +72,10 @@ public class Connection {
                     byte[] buffer = new byte[Packetizer.CHUNK_SIZE];
                     inputStream.read(buffer);
                     packageHandler.createNewFromMeta(buffer);
+                    System.out.println(TAG + " " + getName() + " package meta received - payloadSize was " + packageHandler.getPayloadSize());
+
                     buffer = new byte[packageHandler.getPayloadSize()];
+
                     inputStream.read(buffer);
                     packageHandler.addContent(buffer);
                     Package aPackage = packageHandler.getPackage();
@@ -86,8 +89,10 @@ public class Connection {
                     Log.e(TAG, "Reader closed of " + device + " cause of IO Error");
                     shutdown();
                     return;
-                } catch (Exception e) {
-                    Log.e(TAG, "Reader closed of " + device + " cause of unreadable package");
+                }
+                catch (OutOfMemoryError outOfMemoryErrore){
+                    Log.e(TAG, "Writer Closed of " + device + " casue of OutOfMemoryError");
+                    shutdown();
                 }
             }
         }
