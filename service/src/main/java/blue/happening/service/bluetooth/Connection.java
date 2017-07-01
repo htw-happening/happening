@@ -59,6 +59,8 @@ public class Connection {
         private InputStream inputStream;
         private Packetizer packageHandler;
 
+        private static final int MAXBYTESIZE = 1024 * 1020;
+
         Reader(InputStream inputStream) {
             this.inputStream = inputStream;
             this.packageHandler = new Packetizer();
@@ -73,7 +75,10 @@ public class Connection {
                     inputStream.read(buffer);
                     packageHandler.createNewFromMeta(buffer);
                     System.out.println(TAG + " " + getName() + " package meta received - payloadSize was " + packageHandler.getPayloadSize());
-
+                    if (packageHandler.getPayloadSize() > MAXBYTESIZE || packageHandler.getPayloadSize() < 0){
+                        Log.e(TAG, "Closing Reader cause PayloadSize was too big or negative ("+packageHandler.getPayloadSize()+") -> Connection seems to be broken");
+                        shutdown();
+                    }
                     buffer = new byte[packageHandler.getPayloadSize()];
 
                     inputStream.read(buffer);
