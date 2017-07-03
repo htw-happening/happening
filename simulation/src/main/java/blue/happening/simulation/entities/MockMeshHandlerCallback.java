@@ -26,18 +26,18 @@ public class MockMeshHandlerCallback implements IMeshHandlerCallback {
     @Override
     public void onDeviceAdded(MeshDevice meshDevice) {
         logger.debug("App: Device added");
-        device.notifyDeviceObserver(DeviceObserver.Events.NEIGHBOUR_ADDED);
+        device.notifyDeviceObserver(DeviceObserver.Events.NEIGHBOUR_ADDED, meshDevice);
     }
 
     @Override
     public void onDeviceUpdated(MeshDevice meshDevice) {
         logger.debug("App: Device added");
-        device.notifyDeviceObserver(DeviceObserver.Events.NEIGHBOUR_UPDATED);
+        device.notifyDeviceObserver(DeviceObserver.Events.NEIGHBOUR_UPDATED, meshDevice);
     }
 
     @Override
     public void onDeviceRemoved(MeshDevice meshDevice) {
         logger.debug("App: Device removed");
-        device.notifyDeviceObserver(DeviceObserver.Events.NEIGHBOUR_REMOVED);
+        device.notifyDeviceObserver(DeviceObserver.Events.NEIGHBOUR_REMOVED, meshDevice);
     }
 }

@@ -7,14 +7,13 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Handler;
 import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -35,7 +34,6 @@ public class Layer extends blue.happening.mesh.Layer {
     private PairingRequest pairingRequest;
     private IDeviceFinder deviceFinder;
 
-    private List<Handler> handlers;
     private ArrayList<Device> scannedDevices;
     private Server acceptor = null;
     private ServerManager serverManager = null;
@@ -43,11 +41,16 @@ public class Layer extends blue.happening.mesh.Layer {
     private String macAddress = "";
     private boolean autoConnect = true;
     private BluetoothStateReceiver bluetoothStateReceiver;
+    public STATE state = STATE.WRITING;
+
+    public enum STATE {
+        SCANNING,
+        WRITING
+    }
 
     private Layer() {
         this.context = MyApplication.getAppContext();
         this.scannedDevices = new ArrayList<>();
-        this.handlers = new ArrayList<>();
         BluetoothManager bluetoothManager = (BluetoothManager) this.context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.bluetoothAdapter = bluetoothManager.getAdapter();
         this.macAddress = android.provider.Settings.Secure.getString(context.getContentResolver(), "bluetooth_address");
@@ -66,11 +69,24 @@ public class Layer extends blue.happening.mesh.Layer {
         return context;
     }
 
+    public ArrayList<Device> getScannedDevices() {
+        return scannedDevices;
+    }
+
     public void setAutoConnect(boolean value) {
         this.autoConnect = value;
     }
 
     public void start() {
+
+        if(bluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+            Log.d(TAG, "start: NOT SCAN_MODE_CONNECTABLE_DISCOVERABLE --> Switch on Discoverable!");
+            Intent makeMeVisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+            makeMeVisible.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            makeMeVisible.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0); //infinity
+            context.startActivity(makeMeVisible);
+        }
+
         // TODO: 06.06.17 check autoconnect bool
         if (isAdvertisingSupported()) {
             Log.d(TAG, "start: isAdvertisingSupported TRUE");
@@ -90,8 +106,6 @@ public class Layer extends blue.happening.mesh.Layer {
         bluetoothStateReceiver.start();
         serverManager = new ServerManager();
         serverManager.start();
-        // TODO: 06.06.17 bl stack aufräumen
-
     }
 
 
@@ -111,17 +125,7 @@ public class Layer extends blue.happening.mesh.Layer {
         context.unregisterReceiver(pairingRequest);
         bluetoothStateReceiver.stop();
         connectSink.interrupt();
-        // TODO: 06.06.17 aufräumen
         this.scannedDevices.clear();
-        notifyHandlers(1);
-    }
-
-    public void connectTo(Device device) {
-        connectSink.addDevice(device);
-    }
-
-    public void disconnectFrom(Device device) {
-        device.disconnect();
     }
 
     public void reset() {
@@ -132,47 +136,6 @@ public class Layer extends blue.happening.mesh.Layer {
 
     public String getMacAddress() {
         return macAddress;
-    }
-
-    public ArrayList<Device> getDevices() {
-        return scannedDevices;
-    }
-
-    public void sendToDevice(String identifier, byte[] content) {
-        Device device = getDeviceByMacOrNull(identifier);
-        if (device == null) return;
-        if (device.getState() != Device.STATE.CONNECTED) return;
-        device.sendMessage(content);
-    }
-
-    void notifyHandlers(int code) {
-        for (Handler handler : handlers) {
-            handler.obtainMessage(code).sendToTarget();
-        }
-    }
-
-    public void addHandler(Handler handler) {
-        if (!handlers.contains(handler)) {
-            handlers.add(handler);
-        }
-    }
-
-    public void removeHandler(Handler handler) {
-        if (handlers.contains(handler)) {
-            handlers.remove(handler);
-        }
-    }
-
-    public boolean isBluetoothEnabled() {
-        return bluetoothAdapter.isEnabled();
-    }
-
-    public void enableBluetooth() {
-        bluetoothAdapter.enable();
-    }
-
-    public void disableBluetooth() {
-        bluetoothAdapter.disable();
     }
 
     public int getNumOfConnectedDevices() {
@@ -199,7 +162,6 @@ public class Layer extends blue.happening.mesh.Layer {
             if (d) Log.d(TAG, "addNewScan - Yes added to list (" + scannedDevice.toString() + ")");
             scannedDevices.add(scannedDevice);
         }
-        notifyHandlers(1);
     }
 
     private boolean isMacAddressAlreadyInList(Device device, Collection<Device> collection) {
@@ -216,14 +178,6 @@ public class Layer extends blue.happening.mesh.Layer {
                 return aDevice;
         }
         return new Device(device);
-    }
-
-    public Device getDeviceByMacOrNull(String id) {
-        for (Device aDevice : scannedDevices) {
-            if (id.equals(aDevice.getAddress()))
-                return aDevice;
-        }
-        return null;
     }
 
     void connectionLost(Device device) {
@@ -320,11 +274,11 @@ public class Layer extends blue.happening.mesh.Layer {
         private boolean running;
         private static final int DELAY = 60000;
 
-        ServerManager(){
+        ServerManager() {
             Log.d(TAG, "ServerManager: created");
         }
 
-        void start(){
+        void start() {
             Log.d(TAG, "start: started");
             running = true;
             timer = new Timer();
@@ -343,7 +297,7 @@ public class Layer extends blue.happening.mesh.Layer {
             timer.scheduleAtFixedRate(timerTask, DELAY, DELAY);
         }
 
-        void stop(){
+        void stop() {
             Log.d(TAG, "stop: ");
             running = false;
             timerTask.cancel();

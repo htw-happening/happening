@@ -43,9 +43,9 @@ public class Device extends Observable {
         boolean wasClicked = isClicked;
         isClicked = clicked;
         if (!wasClicked && isClicked) {
-            notifyDeviceObserver(DeviceObserver.Events.DEVICE_CLICKED);
+            notifyDeviceObserver(DeviceObserver.Events.DEVICE_CLICKED, null);
         } else if (wasClicked && !isClicked) {
-            notifyDeviceObserver(DeviceObserver.Events.DEVICE_UNCLICKED);
+            notifyDeviceObserver(DeviceObserver.Events.DEVICE_UNCLICKED, null);
         }
     }
 
@@ -57,9 +57,9 @@ public class Device extends Observable {
         boolean wasNeighbour = isNeighbour;
         isNeighbour = neighbour;
         if (!wasNeighbour && isNeighbour) {
-            notifyDeviceObserver(DeviceObserver.Events.BECAME_NEIGHBOUR);
+            notifyDeviceObserver(DeviceObserver.Events.BECAME_NEIGHBOUR, null);
         } else if (wasNeighbour && !isNeighbour) {
-            notifyDeviceObserver(DeviceObserver.Events.IS_NOT_NEIGHBOUR_ANYMORE);
+            notifyDeviceObserver(DeviceObserver.Events.IS_NOT_NEIGHBOUR_ANYMORE, null);
         }
     }
 
@@ -127,6 +127,29 @@ public class Device extends Observable {
         return mockLayer;
     }
 
+    void notifyDeviceObserver(DeviceObserver.Events arg, Object options) {
+        setChanged();
+        notifyObservers(new DeviceChangedEvent(arg, options));
+    }
+
+    public class DeviceChangedEvent {
+        private DeviceObserver.Events type;
+        private Object options;
+
+        DeviceChangedEvent(DeviceObserver.Events type, Object options) {
+            this.type = type;
+            this.options = options;
+        }
+
+        public DeviceObserver.Events getType() {
+            return type;
+        }
+
+        public Object getOptions() {
+            return options;
+        }
+    }
+
     @Override
     public String toString() {
         return this.name;
@@ -139,10 +162,5 @@ public class Device extends Observable {
         else if (o == this)
             return true;
         return this.name.equals(((Device) o).name);
-    }
-
-    void notifyDeviceObserver(DeviceObserver.Events arg) {
-        setChanged();
-        notifyObservers(arg);
     }
 }
