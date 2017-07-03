@@ -22,7 +22,7 @@ import blue.happening.MyApplication;
 
 class SimpleEdrDeviceFinder implements IDeviceFinder {
 
-    private static final int SCANINTERVALL = 30000;
+    private static final int SCANINTERVALL = 50000;
     private static final int SCANDELAY = 1000;
 
     private String TAG = getClass().getSimpleName();
@@ -40,11 +40,14 @@ class SimpleEdrDeviceFinder implements IDeviceFinder {
 
             switch (action){
                 case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
+                    Log.d(TAG, "onReceive: ACTION_DISCOVERY_STARTED");
                     tempDevices = new ArrayList<>();
                     break;
 
                 case BluetoothAdapter.ACTION_DISCOVERY_FINISHED :
+                    Log.d(TAG, "onReceive: ACTION_DISCOVERY_FINISHED");
                     for (BluetoothDevice tempDevice : tempDevices) {
+                        Log.d(TAG, "onReceive: fetchUuidsWithSdp for "+tempDevice.getName());
                         tempDevice.fetchUuidsWithSdp();
                     }
                     break;

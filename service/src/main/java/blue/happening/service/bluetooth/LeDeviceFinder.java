@@ -50,18 +50,18 @@ class LeDeviceFinder implements IDeviceFinder {
     public void start() {
         startAdvertising();
         startLeScan();
-//        advertiseManager.start();
-//        scanManager.start();
-        combinedAdvScanManager.start();
+        advertiseManager.start();
+        scanManager.start();
+//        combinedAdvScanManager.start();
     }
 
     @Override
     public void stop() {
         stopAdvertising();
         stopLeScan();
-//        advertiseManager.stop();
-//        scanManager.stop();
-        combinedAdvScanManager.stop();
+        advertiseManager.stop();
+        scanManager.stop();
+//        combinedAdvScanManager.stop();
     }
 
     LeDeviceFinder() {
@@ -70,9 +70,9 @@ class LeDeviceFinder implements IDeviceFinder {
         this.bluetoothAdapter = bluetoothManager.getAdapter();
         this.bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
         this.bluetoothLeAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
-//        advertiseManager = new AdvertiseManager();
-//        scanManager = new ScanManager();
-        combinedAdvScanManager = new CombinedAdvScanManager();
+        advertiseManager = new AdvertiseManager();
+        scanManager = new ScanManager();
+//        combinedAdvScanManager = new CombinedAdvScanManager();
     }
 
     private boolean isAdvertisingSupported() {
@@ -148,7 +148,7 @@ class LeDeviceFinder implements IDeviceFinder {
     }
 
     private void stopAdvertising() {
-        if (bluetoothLeAdvertiser != null) {
+        if (bluetoothLeAdvertiser != null && isAdvertisingSupported()) {
             bluetoothLeAdvertiser.stopAdvertising(advertiseCallback);
             if (d) Log.d(TAG, "Stopped Advertising");
         }
