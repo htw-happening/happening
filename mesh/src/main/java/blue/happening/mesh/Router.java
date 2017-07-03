@@ -151,9 +151,11 @@ class Router {
                 message.getType(),
                 message.getBody()
         );
-        preparedMessage.setTq(calculateTq(message));
+        if (message.getType() == MeshHandler.MESSAGE_TYPE_OGM) {
+            preparedMessage.setTq(calculateTq(message));
+            preparedMessage.setTtl(message.getTtl() - 1);
+        }
         preparedMessage.setPreviousHop(uuid);
-        preparedMessage.setTtl(message.getTtl() - 1);
         return preparedMessage;
     }
 
