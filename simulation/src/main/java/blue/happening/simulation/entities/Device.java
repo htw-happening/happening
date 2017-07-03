@@ -157,7 +157,7 @@ public class Device extends Observable {
     public boolean isSendingMsgFromOriginator(String uuid) {
         boolean isFromOriginator = false;
         for (Message message : outBox) {
-            if (message.getSource().equals(uuid)) {
+            if (message != null && message.getSource().equals(uuid)) {
                 isFromOriginator = true;
                 break;
             }
