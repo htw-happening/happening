@@ -39,7 +39,7 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
                 bestNeighboursForRemoteDevice.add(neighbour);
             }
         }
-        Collections.sort(bestNeighboursForRemoteDevice);
+        Collections.sort(bestNeighboursForRemoteDevice, Collections.<RemoteDevice>reverseOrder());
         return bestNeighboursForRemoteDevice.get(0);
     }
 

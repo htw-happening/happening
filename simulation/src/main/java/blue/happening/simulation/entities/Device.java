@@ -1,12 +1,11 @@
 package blue.happening.simulation.entities;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
+import java.util.concurrent.ScheduledExecutorService;
 
 import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.MeshHandler;
-import blue.happening.mesh.Message;
 import blue.happening.simulation.graph.NetworkGraph;
 import blue.happening.simulation.visualization.listener.DeviceObserver;
 
@@ -23,12 +22,13 @@ public class Device extends Observable {
     private boolean isNeighbour = false;
     private MockLayer mockLayer;
     private NetworkGraph networkGraph;
-    private List<Message> outBox = new ArrayList<>();
+    private ScheduledExecutorService postman;
 
-    public Device(String name, NetworkGraph networkGraph) {
+    public Device(String name, NetworkGraph networkGraph, ScheduledExecutorService postman) {
         addObserver(new DeviceObserver(networkGraph));
         this.name = name;
         this.networkGraph = networkGraph;
+        this.postman = postman;
         mockLayer = new MockLayer();
         meshHandler = new MeshHandler(this.name);
         meshHandler.registerLayer(mockLayer);
@@ -103,6 +103,10 @@ public class Device extends Observable {
         return networkGraph;
     }
 
+    public ScheduledExecutorService getPostman() {
+        return postman;
+    }
+
     public List<MeshDevice> getDevices() {
         return getMeshHandler().getDevices();
     }
@@ -123,6 +127,11 @@ public class Device extends Observable {
         return mockLayer;
     }
 
+    void notifyDeviceObserver(DeviceObserver.Events arg, Object options) {
+        setChanged();
+        notifyObservers(new DeviceChangedEvent(arg, options));
+    }
+
     @Override
     public String toString() {
         return this.name;
@@ -137,41 +146,15 @@ public class Device extends Observable {
         return this.name.equals(((Device) o).name);
     }
 
-    public void notifyDeviceObserver(DeviceObserver.Events arg, Object options) {
-        setChanged();
-        notifyObservers(new DeviceChangedEvent(arg, options));
-    }
-
-    public void addToOutbox(Message message) {
-        outBox.add(message);
-    }
-
-    public void removeFromOutBox(Message message) {
-        outBox.remove(message);
-    }
-
-    public boolean isSending() {
-        return outBox.size() > 0;
-    }
-
-    public boolean isSendingMsgFromOriginator(String uuid) {
-        boolean isFromOriginator = false;
-        for (Message message : outBox) {
-            if (message.getSource().equals(uuid)) {
-                isFromOriginator = true;
-                break;
-            }
-        }
-        return isFromOriginator;
-    }
-
     public class DeviceChangedEvent {
         private DeviceObserver.Events type;
         private Object options;
-        public DeviceChangedEvent(DeviceObserver.Events type, Object options) {
+
+        DeviceChangedEvent(DeviceObserver.Events type, Object options) {
             this.type = type;
             this.options = options;
         }
+
         public DeviceObserver.Events getType() {
             return type;
         }

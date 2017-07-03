@@ -1,7 +1,6 @@
 package blue.happening.simulation.entities;
 
 import blue.happening.mesh.Layer;
-import blue.happening.mesh.Message;
 
 
 public class MockLayer extends Layer {
@@ -20,18 +19,11 @@ public class MockLayer extends Layer {
         getLayerCallback().onDeviceRemoved(remoteDevice);
     }
 
-    void sendMessage(Message message) {
-        byte[] bytes = message.toBytes();
-        if (Math.random() > messageLoss) {
-            getLayerCallback().onMessageReceived(bytes);
-
-        }
+    public float getMessageLoss() {
+        return messageLoss;
     }
 
     public void setMessageLoss(float messageLoss) {
         this.messageLoss = messageLoss;
-    }
-    public float getMessageLoss() {
-        return messageLoss;
     }
 }

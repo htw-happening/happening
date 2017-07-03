@@ -2,6 +2,8 @@ package blue.happening.simulation.demo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import blue.happening.simulation.entities.Connection;
 import blue.happening.simulation.entities.Device;
@@ -19,9 +21,6 @@ public class HappeningPredefinedMobilityDemo {
 
     public static void main(String[] args) throws InterruptedException {
 
-        // create a custom blue.happening.bla.graph with Vertex: Device and Edge: Connection
-        MeshGraph graph = new MeshGraph();
-
         // configuration
         final int nVertices = 100;
         final double txRadius = 100;
@@ -29,8 +28,14 @@ public class HappeningPredefinedMobilityDemo {
         final double speedMin = 0;
         final double speedMax = 0;
 
-        final double width = 1000; // huge arena, so make sure you zoom out
+        final double width = 1000;
         final double height = 1000;
+
+        // create a custom graph with Vertex: Device and Edge: Connection
+        MeshGraph graph = new MeshGraph();
+
+        // create message delivery executor service
+        ScheduledExecutorService postman = Executors.newSingleThreadScheduledExecutor();
 
         // construct a bound; boundary of the canvas
         final RectangularBoundary<Device, Connection> bound = new RectangularBoundary<Device, Connection>(
@@ -69,7 +74,7 @@ public class HappeningPredefinedMobilityDemo {
         mobilityPatterns.add(predefinedMobilityPattern3);
 
         for (int i = 0; i < mobilityPatterns.size(); i++) {
-            graph.addVertex(new Device("Test_" + i + "_" + i, graph),
+            graph.addVertex(new Device("Test_" + i + "_" + i, graph, postman),
                     100 + (i * 100), 100 + (i * 100), mobilityPatterns.get(i), txRadius,
                     rxRadius);
         }

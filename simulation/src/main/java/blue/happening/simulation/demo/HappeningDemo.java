@@ -1,5 +1,8 @@
 package blue.happening.simulation.demo;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
 import blue.happening.simulation.entities.Connection;
 import blue.happening.simulation.entities.Device;
 import blue.happening.simulation.graph.internal.MeshGraph;
@@ -15,17 +18,20 @@ public class HappeningDemo {
 
     public static void main(String[] args) throws InterruptedException {
 
-        // create a custom graph with Vertex: Device and Edge: Connection
-        MeshGraph graph = new MeshGraph();
-
         // configuration
-        final int deviceCount = 16;
+        final int deviceCount = 49;
         final int messageDelay = 100;
         final float messageLoss = 0.3f;
         final double speedMin = 0.0D;
         final double speedMax = 0.0D;
         final double width = 1000;
         final double height = 1000;
+
+        // create a custom graph with Vertex: Device and Edge: Connection
+        MeshGraph graph = new MeshGraph();
+
+        // create message delivery executor service
+        ScheduledExecutorService postman = Executors.newSingleThreadScheduledExecutor();
 
         // construct a bound; boundary of the canvas
         RectangularBoundary<Device, Connection> bound = new RectangularBoundary<Device, Connection>(
@@ -41,7 +47,7 @@ public class HappeningDemo {
         for (int i = 0; i < dimension; i++) {
             for (int j = 0; j < dimension; j++) {
                 if (deviceIndex < deviceCount) {
-                    Device device = new Device("Device_" + deviceIndex, graph);
+                    Device device = new Device("Device_" + deviceIndex, graph, postman);
                     device.setMessageDelay(messageDelay);
                     device.getMockLayer().setMessageLoss(messageLoss);
                     device.setTxRadius(100);
