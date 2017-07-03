@@ -132,6 +132,20 @@ public class Device extends Observable {
         notifyObservers(new DeviceChangedEvent(arg, options));
     }
 
+    @Override
+    public String toString() {
+        return this.name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Device))
+            return false;
+        else if (o == this)
+            return true;
+        return this.name.equals(((Device) o).name);
+    }
+
     public class DeviceChangedEvent {
         private DeviceObserver.Events type;
         private Object options;
@@ -148,19 +162,5 @@ public class Device extends Observable {
         public Object getOptions() {
             return options;
         }
-    }
-
-    @Override
-    public String toString() {
-        return this.name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof Device))
-            return false;
-        else if (o == this)
-            return true;
-        return this.name.equals(((Device) o).name);
     }
 }

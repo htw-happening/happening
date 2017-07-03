@@ -21,11 +21,6 @@ import javax.swing.event.ListSelectionListener;
 import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.RemoteDevice;
 import blue.happening.simulation.entities.Device;
-import blue.happening.simulation.visualization.listener.DeviceObserver;
-
-import static blue.happening.simulation.visualization.listener.DeviceObserver.Events.NEIGHBOUR_ADDED;
-import static blue.happening.simulation.visualization.listener.DeviceObserver.Events.NEIGHBOUR_REMOVED;
-import static blue.happening.simulation.visualization.listener.DeviceObserver.Events.NEIGHBOUR_UPDATED;
 
 
 public class DevicePanel extends JPanel {

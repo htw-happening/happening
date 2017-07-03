@@ -1,14 +1,11 @@
 package blue.happening.simulation.visualization;
 
-import java.lang.reflect.Array;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
 import blue.happening.mesh.MeshDevice;
-import blue.happening.mesh.RemoteDevice;
 
 public class DeviceNeighbourTableModel extends AbstractTableModel {
     //Two arrays used for the table data

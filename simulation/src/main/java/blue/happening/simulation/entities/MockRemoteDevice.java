@@ -6,11 +6,11 @@ import blue.happening.mesh.RemoteDevice;
 
 public class MockRemoteDevice extends RemoteDevice {
 
+    private Device device;
+
     public MockRemoteDevice(String uuid) {
         super(uuid);
     }
-
-    private Device device;
 
     public Device getDevice() {
         return device;

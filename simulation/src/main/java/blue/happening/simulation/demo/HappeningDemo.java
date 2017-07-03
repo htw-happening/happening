@@ -19,7 +19,7 @@ public class HappeningDemo {
     public static void main(String[] args) throws InterruptedException {
 
         // configuration
-        final int deviceCount = 16;
+        final int deviceCount = 49;
         final int messageDelay = 100;
         final float messageLoss = 0.3f;
         final double speedMin = 0.0D;
