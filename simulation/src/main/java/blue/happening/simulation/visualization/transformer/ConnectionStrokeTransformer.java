@@ -28,5 +28,3 @@ public class ConnectionStrokeTransformer<I extends Connection, O extends Stroke>
         return edgeStroke;
     }
 }
-
-

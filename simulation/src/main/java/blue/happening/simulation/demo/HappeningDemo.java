@@ -15,9 +15,6 @@ public class HappeningDemo {
 
     public static void main(String[] args) throws InterruptedException {
 
-        // create a custom graph with Vertex: Device and Edge: Connection
-        MeshGraph graph = new MeshGraph();
-
         // configuration
         final int deviceCount = 16;
         final int messageDelay = 100;
@@ -26,6 +23,9 @@ public class HappeningDemo {
         final double speedMax = 0.0D;
         final double width = 1000;
         final double height = 1000;
+
+        // create a custom graph with Vertex: Device and Edge: Connection
+        MeshGraph graph = new MeshGraph();
 
         // construct a bound; boundary of the canvas
         RectangularBoundary<Device, Connection> bound = new RectangularBoundary<Device, Connection>(

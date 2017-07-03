@@ -19,9 +19,6 @@ public class HappeningPredefinedMobilityDemo {
 
     public static void main(String[] args) throws InterruptedException {
 
-        // create a custom blue.happening.bla.graph with Vertex: Device and Edge: Connection
-        MeshGraph graph = new MeshGraph();
-
         // configuration
         final int nVertices = 100;
         final double txRadius = 100;
@@ -29,8 +26,11 @@ public class HappeningPredefinedMobilityDemo {
         final double speedMin = 0;
         final double speedMax = 0;
 
-        final double width = 1000; // huge arena, so make sure you zoom out
+        final double width = 1000;
         final double height = 1000;
+
+        // create a custom graph with Vertex: Device and Edge: Connection
+        MeshGraph graph = new MeshGraph();
 
         // construct a bound; boundary of the canvas
         final RectangularBoundary<Device, Connection> bound = new RectangularBoundary<Device, Connection>(

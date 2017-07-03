@@ -6,7 +6,6 @@ public class Connection {
     private Device toDevice;
 
     public Connection(Device fromDevice, Device toDevice) {
-
         this.fromDevice = fromDevice;
         this.toDevice = toDevice;
     }
@@ -26,7 +25,7 @@ public class Connection {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Connection) || o == null)
+        if (!(o instanceof Connection))
             return false;
         else if (o == this)
             return true;

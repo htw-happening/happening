@@ -79,6 +79,12 @@ public abstract class RemoteDevice implements IRemoteDevice {
         return Math.min(getEq() / getRq(), 1);
     }
 
+    MeshDevice getMeshDevice() {
+        meshDevice.setQuality(getTq());
+        meshDevice.setLastSeen(getLastSeen());
+        return meshDevice;
+    }
+
     public abstract boolean sendMessage(Message message);
 
     public abstract boolean remove();
@@ -90,6 +96,7 @@ public abstract class RemoteDevice implements IRemoteDevice {
                 other.getTq());
     }
 
+    @Override
     public final boolean equals(Object object) {
         if (object == null) {
             return false;
@@ -102,11 +109,5 @@ public abstract class RemoteDevice implements IRemoteDevice {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "@" + getUuid();
-    }
-
-    MeshDevice getMeshDevice() {
-        meshDevice.setQuality(getTq());
-        meshDevice.setLastSeen(getLastSeen());
-        return meshDevice;
     }
 }

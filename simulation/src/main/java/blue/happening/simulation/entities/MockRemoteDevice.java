@@ -20,6 +20,13 @@ public class MockRemoteDevice extends RemoteDevice {
 
     private void simulateSendDelay(Runnable runnable, int delayInMs) {
         executor.schedule(runnable, delayInMs, TimeUnit.MILLISECONDS);
+
+    public Device getDevice() {
+        return device;
+    }
+
+    public void setDevice(Device device) {
+        this.device = device;
     }
 
     public boolean sendMessage(final Message message) {
@@ -43,15 +50,7 @@ public class MockRemoteDevice extends RemoteDevice {
         }
         VertexProperties device.getNetworkGraph().getVerticesProperties().get(device)
         */
-        // TODO: Handle broken connections and inform bla
+        // TODO: Handle broken connections and inform simulation
         return false;
-    }
-
-    public Device getDevice() {
-        return device;
-    }
-
-    public void setDevice(Device device) {
-        this.device = device;
     }
 }
