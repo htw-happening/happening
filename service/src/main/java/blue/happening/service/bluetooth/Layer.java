@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 
@@ -77,6 +78,15 @@ public class Layer extends blue.happening.mesh.Layer {
     }
 
     public void start() {
+
+        if(bluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+            Log.d(TAG, "start: NOT SCAN_MODE_CONNECTABLE_DISCOVERABLE --> Switch on Discoverable!");
+            Intent makeMeVisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+            makeMeVisible.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            makeMeVisible.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0); //infinity
+            context.startActivity(makeMeVisible);
+        }
+
         // TODO: 06.06.17 check autoconnect bool
         if (isAdvertisingSupported()) {
             Log.d(TAG, "start: isAdvertisingSupported TRUE");
@@ -96,8 +106,6 @@ public class Layer extends blue.happening.mesh.Layer {
         bluetoothStateReceiver.start();
         serverManager = new ServerManager();
         serverManager.start();
-        // TODO: 06.06.17 bl stack aufräumen
-
     }
 
 
@@ -117,7 +125,6 @@ public class Layer extends blue.happening.mesh.Layer {
         context.unregisterReceiver(pairingRequest);
         bluetoothStateReceiver.stop();
         connectSink.interrupt();
-        // TODO: 06.06.17 aufräumen
         this.scannedDevices.clear();
     }
 

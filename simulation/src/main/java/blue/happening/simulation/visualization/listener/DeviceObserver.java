@@ -1,7 +1,5 @@
 package blue.happening.simulation.visualization.listener;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -16,7 +14,7 @@ public class DeviceObserver implements Observer {
     private NetworkGraph<Device, Connection> graph;
     private DevicePanel panel;
 
-    public DeviceObserver(NetworkGraph graph) {
+    public DeviceObserver(NetworkGraph<Device, Connection> graph) {
         this.graph = graph;
     }
 
@@ -35,34 +33,34 @@ public class DeviceObserver implements Observer {
             }
 
             // Set devices that are neighbour of selected device
-            for(MeshDevice neighbour: device.getDevices()){
+            for (MeshDevice neighbour : device.getDevices()) {
                 Device foundDevice = findGraphDevice(neighbour);
-                if(foundDevice != null){
+                if (foundDevice != null) {
                     foundDevice.setNeighbour(true);
                 }
             }
         } else if (device.isClicked()) {
             updateDevicePanel(device, event);
 
-            if(event.getType() == Events.NEIGHBOUR_ADDED){
+            if (event.getType() == Events.NEIGHBOUR_ADDED) {
                 Device foundDevice = findGraphDevice((MeshDevice) event.getOptions());
-                if(foundDevice != null){
+                if (foundDevice != null) {
                     foundDevice.setNeighbour(true);
                 }
-            } else if(event.getType() == Events.NEIGHBOUR_REMOVED){
+            } else if (event.getType() == Events.NEIGHBOUR_REMOVED) {
                 Device foundDevice = findGraphDevice((MeshDevice) event.getOptions());
-                if(foundDevice != null){
+                if (foundDevice != null) {
                     foundDevice.setNeighbour(false);
                 }
             }
         }
     }
 
-    private Device findGraphDevice(MeshDevice meshDevice){
+    private Device findGraphDevice(MeshDevice meshDevice) {
         Device foundGraphDevice = null;
-        for (Object object : this.graph.getVertices()){
+        for (Object object : this.graph.getVertices()) {
             Device graphDevice = (Device) object;
-            if(graphDevice.getName().equals(meshDevice.getUuid())){
+            if (graphDevice.getName().equals(meshDevice.getUuid())) {
                 foundGraphDevice = graphDevice;
                 break;
             }

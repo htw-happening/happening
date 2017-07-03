@@ -82,6 +82,10 @@ class LeDeviceFinder implements IDeviceFinder {
     }
 
     private void startLeScan() {
+        if (!bluetoothAdapter.isEnabled()){
+            Log.d(TAG, "startLeScan: Dismissed, cause BT is not enabled");
+            return;
+        }
         if (d) Log.d(TAG, "Starting Scanner");
         ScanSettings.Builder scanSettingsBuilder = new ScanSettings.Builder();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
