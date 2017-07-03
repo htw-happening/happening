@@ -20,14 +20,6 @@ public class MockLayer extends Layer {
         getLayerCallback().onDeviceRemoved(remoteDevice);
     }
 
-    void sendMessage(Message message) {
-        byte[] bytes = message.toBytes();
-        if (Math.random() > messageLoss) {
-            getLayerCallback().onMessageReceived(bytes);
-
-        }
-    }
-
     public void setMessageLoss(float messageLoss) {
         this.messageLoss = messageLoss;
     }

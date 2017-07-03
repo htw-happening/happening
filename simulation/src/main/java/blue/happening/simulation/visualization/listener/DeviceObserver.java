@@ -14,7 +14,7 @@ public class DeviceObserver implements Observer {
     private NetworkGraph<Device, Connection> graph;
     private DevicePanel panel;
 
-    public DeviceObserver(NetworkGraph graph) {
+    public DeviceObserver(NetworkGraph<Device, Connection> graph) {
         this.graph = graph;
     }
 
