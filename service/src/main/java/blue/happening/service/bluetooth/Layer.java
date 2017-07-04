@@ -88,13 +88,14 @@ public class Layer extends blue.happening.mesh.Layer {
         }
 
         // TODO: 06.06.17 check autoconnect bool
-        if (isAdvertisingSupported()) {
-            Log.d(TAG, "start: isAdvertisingSupported TRUE");
+//        if (isAdvertisingSupported()) {
+//            Log.d(TAG, "start: isAdvertisingSupported TRUE");
             this.deviceFinder = new LeDeviceFinder();
-        } else {
-            Log.d(TAG, "start: isAdvertisingSupported FALSE");
-            this.deviceFinder = new EdrDeviceFinder();
-        }
+//        } else {
+//            Log.d(TAG, "start: isAdvertisingSupported FALSE");
+//            this.deviceFinder = new EdrDeviceFinder();
+//        this.deviceFinder = new SimpleEdrDeviceFinder();
+
         this.deviceFinder.registerCallback(this);
         this.deviceFinder.start();
         this.pairingRequest = new PairingRequest();

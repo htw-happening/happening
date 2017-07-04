@@ -78,13 +78,13 @@ public class MeshHandler {
             System.out.println("MeshHandler found NO device in routingTable for uuid " + uuid);
             return false;
         } else {
-            RemoteDevice bestNeighbour = routingTable.getBestNeighbourForRemoteDevice(remoteDevice);
-            if (bestNeighbour != null) {
-                Message ucm = new Message(this.uuid, uuid, INITIAL_MIN_SEQUENCE, MESSAGE_TYPE_UCM, message);
-                return bestNeighbour.sendMessage(ucm);
-            } else {
-                return false;
+            Message ucm = new Message(this.uuid, uuid, INITIAL_MIN_SEQUENCE, MESSAGE_TYPE_UCM, message);
+            try {
+                ucm = router.routeMessage(ucm);
+            } catch (Router.RoutingException e) {
+                e.printStackTrace();
             }
+            return ucm != null;
         }
     }
 

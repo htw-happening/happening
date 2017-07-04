@@ -17,10 +17,10 @@ class Router {
      * @throws RoutingException Caused by invalid message header
      */
     Message routeMessage(Message message) throws RoutingException {
-        if (!isEchoOGM(message)) {
-            routingTable.ensureConnection(message.getSource(), message.getPreviousHop());
-        }
         if (message.getType() == MeshHandler.MESSAGE_TYPE_OGM) {
+            if (!isEchoOGM(message)) {
+                routingTable.ensureConnection(message.getSource(), message.getPreviousHop());
+            }
             routeOgm(message);
             return null;
         } else if (message.getType() == MeshHandler.MESSAGE_TYPE_UCM) {
@@ -151,9 +151,11 @@ class Router {
                 message.getType(),
                 message.getBody()
         );
-        preparedMessage.setTq(calculateTq(message));
+        if (message.getType() == MeshHandler.MESSAGE_TYPE_OGM) {
+            preparedMessage.setTq(calculateTq(message));
+            preparedMessage.setTtl(message.getTtl() - 1);
+        }
         preparedMessage.setPreviousHop(uuid);
-        preparedMessage.setTtl(message.getTtl() - 1);
         return preparedMessage;
     }
 
