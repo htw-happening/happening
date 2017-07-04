@@ -8,15 +8,6 @@ class SlidingWindow extends HashSet<Integer> {
 
     private Integer sequence;
 
-    void addIfIsSequenceInWindow(Message message) {
-        if (isSequenceInWindow(message.getSequence())) {
-            System.out.println("ADD MESSAGE #" + message.getSequence() + " FROM " + message.getSource());
-            add(message.getSequence());
-        } else {
-            System.out.println("DROP MESSAGE #" + message.getSequence() + " FROM " + message.getSource());
-        }
-    }
-
     void slideSequence(int sequence) {
         if (isSequenceOutOfWindow(sequence)) {
             this.sequence = sequence;
@@ -38,11 +29,7 @@ class SlidingWindow extends HashSet<Integer> {
         return outdatedSequences;
     }
 
-    Integer getSequence() {
-        return sequence;
-    }
-
-    public boolean isSequenceOutOfWindow(int sequence) {
+    boolean isSequenceOutOfWindow(int sequence) {
         if (this.sequence == null) {
             return true;
         } else {
@@ -50,7 +37,7 @@ class SlidingWindow extends HashSet<Integer> {
         }
     }
 
-    private boolean isSequenceInWindow(int sequence) {
+    boolean isSequenceInWindow(int sequence) {
         return !isSequenceOutOfWindow(sequence);
     }
 }
