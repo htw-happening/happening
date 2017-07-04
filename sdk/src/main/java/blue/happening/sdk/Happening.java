@@ -175,13 +175,39 @@ public class Happening {
     }
 
     /**
+     * Start the happening Service.
+     * In case of Emergency - Use this Method when nothing works :-)
+     */
+    public void startHappeningService() {
+        Log.v(this.getClass().getSimpleName(), "startHappeningService");
+        try {
+            service.startService();
+        } catch (RemoteException | NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Restart the happening Service.
      * In case of Emergency - Use this Method when nothing works :-)
      */
     public void restartHappeningService() {
         Log.v(this.getClass().getSimpleName(), "restartHappeningService");
         try {
-            service.restart();
+            service.restartService();
+        } catch (RemoteException | NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Stop the happening Service.
+     * In case of Emergency - Use this Method when nothing works :-)
+     */
+    public void stopHappeningService() {
+        Log.v(this.getClass().getSimpleName(), "stopHappeningService");
+        try {
+            service.stopService();
         } catch (RemoteException | NullPointerException e) {
             e.printStackTrace();
         }

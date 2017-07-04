@@ -72,9 +72,21 @@ public class HappeningService extends Service {
         }
 
         @Override
-        public void restart() throws RemoteException {
-            Log.v(TAG, "restart");
+        public void startService() throws RemoteException {
+            Log.v(TAG, "startService");
+            Layer.getInstance().start();
+        }
+
+        @Override
+        public void restartService() throws RemoteException {
+            Log.v(TAG, "restartService");
             Layer.getInstance().reset();
+        }
+
+        @Override
+        public void stopService() throws RemoteException {
+            Log.v(TAG, "stopService");
+            Layer.getInstance().shutdown();
         }
     };
 

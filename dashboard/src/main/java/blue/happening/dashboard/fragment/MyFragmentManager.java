@@ -18,6 +18,7 @@ public class MyFragmentManager {
 
     private Fragment dashboardFragment = null;
     private Fragment netWorkStatsFragment = null;
+    private Fragment serviceManagerFragment = null;
     private Fragment impressumFragment = null;
 
     private MyFragmentManager(Activity activity) {
@@ -74,6 +75,19 @@ public class MyFragmentManager {
 
                 loadFragment(currentFragment, netWorkStatsFragment, MenuItems.NETWORK_STATS_FRAGMENT.getName());
                 this.currentFragment = netWorkStatsFragment;
+                break;
+            }
+            case SERVICE_MANAGER_FRAGMENT: {
+                Log.d(this.getClass().getSimpleName(), "service manager");
+                if (this.serviceManagerFragment == null) {
+                    this.serviceManagerFragment = fragmentManager.findFragmentByTag(MenuItems.SERVICE_MANAGER_FRAGMENT.getName());
+                    if (this.serviceManagerFragment == null) {
+                        this.serviceManagerFragment = ServiceManagerFragment.getInstance();
+                    }
+                }
+
+                loadFragment(currentFragment, serviceManagerFragment, MenuItems.SERVICE_MANAGER_FRAGMENT.getName());
+                this.currentFragment = serviceManagerFragment;
                 break;
             }
             case IMPRESSUM_FRAGMENT: {
