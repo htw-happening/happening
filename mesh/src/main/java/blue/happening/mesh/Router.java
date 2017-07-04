@@ -204,10 +204,12 @@ class Router extends Observable {
     class Event {
         private Events type;
         private Object options;
+
         Event(Events type, Object options) {
             this.type = type;
             this.options = options;
         }
+
         public Events getType() {
             return type;
         }

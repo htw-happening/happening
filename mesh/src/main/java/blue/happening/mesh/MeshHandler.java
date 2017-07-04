@@ -139,13 +139,11 @@ public class MeshHandler {
 
         @Override
         public void onDeviceAdded(RemoteDevice remoteDevice) {
-            System.out.println("DEVICE ADDED: " + remoteDevice);
             routingTable.ensureConnection(remoteDevice, remoteDevice);
         }
 
         @Override
         public void onDeviceRemoved(RemoteDevice remoteDevice) {
-            System.out.println("DEVICE REMOVED: " + remoteDevice);
             routingTable.removeAsNeighbour(remoteDevice.getUuid());
         }
 
