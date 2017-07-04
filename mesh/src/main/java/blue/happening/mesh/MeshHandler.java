@@ -1,7 +1,6 @@
 package blue.happening.mesh;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
@@ -74,16 +73,9 @@ public class MeshHandler {
     }
 
     public boolean sendMessage(byte[] message, String uuid) {
-        System.out.println("MeshHandler sendMessage " + new String(message) + " to " + uuid);
-        String s = "";
-        for (Map.Entry<String, RemoteDevice> stringRemoteDeviceEntry : routingTable.entrySet()) {
-            s += stringRemoteDeviceEntry.getKey() + ", ";
-        }
-        System.out.println("MeshHandler routingTable values " + s);
-
         RemoteDevice remoteDevice = routingTable.get(uuid);
         if (remoteDevice == null) {
-            System.out.println("MeshHandler found NO device in routingTable for uuid " + uuid);
+            System.out.println("Mesh handler couldn't find " + uuid + " in routing table");
             return false;
         } else {
             Message ucm = new Message(this.uuid, uuid, INITIAL_MIN_SEQUENCE, MESSAGE_TYPE_UCM, message);
@@ -110,7 +102,6 @@ public class MeshHandler {
             try {
                 Message message = new Message(uuid, BROADCAST_ADDRESS, sequence, MESSAGE_TYPE_OGM, null);
                 for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
-                    System.out.println("OGM SENT: " + message);
                     remoteDevice.sendMessage(message);
                     remoteDevice.getEchoSlidingWindow().slideSequence(sequence);
                 }
@@ -154,10 +145,10 @@ public class MeshHandler {
             try {
                 message = Message.fromBytes(bytes);
                 if (message == null) {
-                    throw new Exception("Could not parse message");
+                    throw new Exception("Could'nt parse message");
                 }
             } catch (Exception e) {
-                System.out.println("MESSAGE BROKEN: " + e.getMessage());
+                System.out.println("Message broken: " + e.getMessage());
                 return;
             }
 
@@ -170,7 +161,7 @@ public class MeshHandler {
             try {
                 propagate = router.routeMessage(message);
             } catch (Router.RoutingException e) {
-                System.out.println("ROUTING FAILED: " + e.getMessage());
+                System.out.println("Routing failed: " + e.getMessage());
                 return;
             }
 
