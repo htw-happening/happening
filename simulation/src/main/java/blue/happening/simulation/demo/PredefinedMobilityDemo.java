@@ -1,106 +1,90 @@
-/*
- * ManetSim - http://www.pages.drexel.edu/~sf69/sim.html
- * 
- * Copyright (C) 2010  Semyon Fishman
- * 
- * This file is part of ManetSim.
- * 
- * ManetSim is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ManetSim is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ManetSim.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package blue.happening.simulation.demo;
 
-import blue.happening.simulation.mobility.DSWaypoint;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
+import blue.happening.simulation.entities.Connection;
+import blue.happening.simulation.entities.Device;
+import blue.happening.simulation.graph.internal.MeshGraph;
 import blue.happening.simulation.mobility.DTWaypoint;
 import blue.happening.simulation.mobility.MobilityPattern;
 import blue.happening.simulation.mobility.PredefinedMobilityPattern;
-import blue.happening.simulation.mobility.VTWaypoint;
-import blue.happening.simulation.mobility.Waypoint;
+import blue.happening.simulation.mobility.RectangularBoundary;
+import blue.happening.simulation.visualization.MeshVisualizerFrame;
 import blue.happening.simulation.visualization.NOOPAction;
-import blue.happening.simulation.visualization.SimpleVisualizerFrame;
-import blue.happening.simulation.visualization.SimpleVisualizerPanel;
 import jsl.modeling.Replication;
 
 
-/**
- * This blue.happening.simulation.demo demonstrates how to code predefined mobility patterns using
- * different {@link Waypoint} implementations: {@link DSWaypoint},
- * {@link DTWaypoint}, and {@link VTWaypoint}.
- * <p>
- * This is a GUI blue.happening.simulation.demo.
- *
- * @author Semyon Fishman (sf69@drexel.edu)
- */
 public class PredefinedMobilityDemo {
 
-    @SuppressWarnings("unchecked")
-    public static void main(String[] args)
-            throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
 
-        // create a blue.happening.simulation.graph
-        StringStringNetworkGraph graph = new StringStringNetworkGraph();
+        // configuration
+        final int nVertices = 100;
+        final double txRadius = 100;
+        final double rxRadius = 100;
+        final double speedMin = 0;
+        final double speedMax = 0;
 
-        // radii configurations
-        final double tx = 100;
-        final double rx = 0;
+        final double width = 1000;
+        final double height = 1000;
 
-		/*
-         * Below are three examples of how to code the same exact predefine
-		 * mobility pattern but using different waypoint implementations
-		 */
+        // create a custom graph with Vertex: Device and Edge: Connection
+        MeshGraph graph = new MeshGraph();
 
-        // predefined mobility pattern using displacement/dime waypoints
+        // create message delivery executor service
+        ScheduledExecutorService postman = Executors.newSingleThreadScheduledExecutor();
+
+        // construct a bound; boundary of the canvas
+        final RectangularBoundary<Device, Connection> bound = new RectangularBoundary<Device, Connection>(
+                0, 0, width, height);
+
+        // construct a random mobility pattern that conforms to that bound
         @SuppressWarnings("rawtypes") DTWaypoint[] dtwaypoints = {
-                new DTWaypoint<String, String>(300, 100, 100),
-                new DTWaypoint<String, String>(300, 300, 100),
-                new DTWaypoint<String, String>(100, 300, 100),
-                new DTWaypoint<String, String>(100, 100, 100)};
-
-        MobilityPattern<String, String> dtmp = new PredefinedMobilityPattern<String, String>(
+                new DTWaypoint<String, String>(200, 100, 1),
+                new DTWaypoint<String, String>(200, 100, 1)};
+        MobilityPattern<Device, Connection> predefinedMobilityPattern = new PredefinedMobilityPattern<Device, Connection>(
                 true, dtwaypoints);
-        graph.addVertex("DT", 100, 100, dtmp, tx, rx);
 
-        // predefined mobility pattern using displacement/speed waypoints
-        @SuppressWarnings("rawtypes") Waypoint[] dswaypoints = {
-                new DSWaypoint<String, String>(300, 400 + 100, 2),
-                new DSWaypoint<String, String>(300, 400 + 300, 2),
-                new DSWaypoint<String, String>(100, 400 + 300, 2),
-                new DSWaypoint<String, String>(100, 400 + 100, 2)};
+        @SuppressWarnings("rawtypes") DTWaypoint[] dtwaypoints1 = {
+                new DTWaypoint<String, String>(300, 100, 20),
+                new DTWaypoint<String, String>(200, 100, 20),
+                new DTWaypoint<String, String>(300, 100, 20)};
+        MobilityPattern<Device, Connection> predefinedMobilityPattern1 = new PredefinedMobilityPattern<Device, Connection>(
+                true, dtwaypoints1);
 
-        MobilityPattern<String, String> dsmp = new PredefinedMobilityPattern<String, String>(
-                true, dswaypoints);
-        graph.addVertex("DS", 100, 500, dsmp, tx, rx);
+        @SuppressWarnings("rawtypes") DTWaypoint[] dtwaypoints2 = {
+                new DTWaypoint<String, String>(400, 100, 80),
+                new DTWaypoint<String, String>(200, 100, 80)};
+        MobilityPattern<Device, Connection> predefinedMobilityPattern2 = new PredefinedMobilityPattern<Device, Connection>(
+                true, dtwaypoints2);
 
-        // predefined mobility pattern using velocity/time waypoints
-        @SuppressWarnings("rawtypes") Waypoint[] vtwaypoints = {
-                new VTWaypoint<String, String>(2, 0, 100),
-                new VTWaypoint<String, String>(0, 2, 100),
-                new VTWaypoint<String, String>(-2, 0, 100),
-                new VTWaypoint<String, String>(0, -2, 100)};
+        @SuppressWarnings("rawtypes") DTWaypoint[] dtwaypoints3 = {
+                new DTWaypoint<String, String>(500, 100, 1),
+                new DTWaypoint<String, String>(500, 100, 1)};
+        MobilityPattern<Device, Connection> predefinedMobilityPattern3 = new PredefinedMobilityPattern<Device, Connection>(
+                true, dtwaypoints3);
 
-        MobilityPattern<String, String> vtmp = new PredefinedMobilityPattern<String, String>(
-                true, vtwaypoints);
-        graph.addVertex("VT", 100, 900, vtmp, tx, rx);
+        List<MobilityPattern<Device, Connection>> mobilityPatterns = new ArrayList();
+        mobilityPatterns.add(predefinedMobilityPattern);
+        mobilityPatterns.add(predefinedMobilityPattern1);
+        mobilityPatterns.add(predefinedMobilityPattern2);
+        mobilityPatterns.add(predefinedMobilityPattern3);
 
-        // Enable blue.happening.simulation.visualization
-        SimpleVisualizerFrame<String, String> frame = new SimpleVisualizerFrame<String, String>(
+        for (int i = 0; i < mobilityPatterns.size(); i++) {
+            graph.addVertex(new Device("Test_" + i + "_" + i, graph, postman),
+                    100 + (i * 100), 100 + (i * 100), mobilityPatterns.get(i), txRadius,
+                    rxRadius);
+        }
+
+        // Enable blue.happening.simulation.visualization frame and panel
+        MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<Device, Connection>(
                 graph);
-        @SuppressWarnings("unused")
-        SimpleVisualizerPanel<String, String> panel = frame.getVisualizerPanel();
 
-        // introduce noop events to slow down simulation
-        new NOOPAction(graph, 1, 10);
+        // introduce noop events to slow down simulation; blue.happening.simulation.graph, interval, sleep
+        new NOOPAction(graph, 1, 50);
 
         // create replication
         Replication replication = new Replication(graph.getModel());
