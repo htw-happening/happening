@@ -134,7 +134,7 @@ public class DevicePanel extends JPanel {
         };
 
         Thread thread = new Thread(run);
-        thread.start();
+        // thread.start();
 
         final JPanel statsPanel = new JPanel();
         statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.Y_AXIS));
