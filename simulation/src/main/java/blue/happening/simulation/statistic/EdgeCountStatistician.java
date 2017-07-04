@@ -30,11 +30,11 @@ import jsl.utilities.statistic.StatisticAccessorIfc;
 /**
  * An {@code edgeCountStatistician} is used to collect statistical information
  * about the <em>number of edges</em> in a {@link NetworkGraph networkGraph} as
- * it is mutating throughout a bla.
+ * it is mutating throughout a simulation.
  * <p>
  * To use this class, construct an instance of it using your
  * {@code networkGraph} as the argument, <em>before</em> the start of the
- * bla. After the bla, use the
+ * simulation. After the simulation, use the
  * {@code getAcrossReplicationStatistic()} method to get a
  * {@link StatisticAccessorIfc}.
  *
@@ -48,9 +48,9 @@ public class EdgeCountStatistician<V, E> {
 
     /**
      * Constructors a new {@code edgeCountStatistician} that will collect
-     * statistics on {@code blue.happening.bla.graph}.
+     * statistics on {@code blue.happening.simulation.graph}.
      *
-     * @param graph blue.happening.bla.graph to collect statistics about
+     * @param graph blue.happening.simulation.graph to collect statistics about
      */
     public EdgeCountStatistician(final NetworkGraph<V, E> graph) {
         counter = new TimeWeighted(graph, 0, 0);
@@ -61,7 +61,7 @@ public class EdgeCountStatistician<V, E> {
      * Returns a {@code statisticAccessorIfc} for the across replication
      * statistics for the edge count.
      * <p>
-     * Call this <em>after</em> the bla is over.
+     * Call this <em>after</em> the simulation is over.
      *
      * @return a {@code statisticAccessorIfc} for the across replication
      * statistics that have been collected
@@ -74,7 +74,7 @@ public class EdgeCountStatistician<V, E> {
      * Returns the average edge count. For other statistics use
      * {@code getAcrossReplicationStatistic()}.
      * <p>
-     * Call this <em>after</em> the bla is over.
+     * Call this <em>after</em> the simulation is over.
      *
      * @return the average edge count
      */
