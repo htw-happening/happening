@@ -4,12 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <Button
-        android:id="@+id/dashboard_button_get_devices"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="get Devices" />
-
     <ListView
         android:id="@+id/dashboard_model_list"
         android:layout_width="match_parent"

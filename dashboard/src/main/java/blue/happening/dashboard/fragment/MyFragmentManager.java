@@ -17,6 +17,7 @@ public class MyFragmentManager {
     private Fragment newFragment;
 
     private Fragment dashboardFragment = null;
+    private Fragment netWorkStatsFragment = null;
     private Fragment impressumFragment = null;
 
     private MyFragmentManager(Activity activity) {
@@ -24,7 +25,7 @@ public class MyFragmentManager {
         this.fragmentManager = activity.getFragmentManager();
 
         // inflate default fragment
-        this.dashboardFragment = DashboardFragment.getInstance();
+        this.dashboardFragment = DeviceFragment.getInstance();
         this.currentFragment = this.dashboardFragment;
         this.newFragment = this.dashboardFragment;
 
@@ -49,17 +50,30 @@ public class MyFragmentManager {
     public void swapFragment(MenuItems menuItemId) {
 
         switch (menuItemId) {
-            case DASHBOARD_FRAGMENT: {
+            case DEVICE_FRAGMENT: {
                 Log.d(this.getClass().getSimpleName(), "dashboard");
                 if (this.dashboardFragment == null) {
-                    this.dashboardFragment = fragmentManager.findFragmentByTag(MenuItems.DASHBOARD_FRAGMENT.getName());
+                    this.dashboardFragment = fragmentManager.findFragmentByTag(MenuItems.DEVICE_FRAGMENT.getName());
                     if (this.dashboardFragment == null) {
-                        this.dashboardFragment = DashboardFragment.getInstance();
+                        this.dashboardFragment = DeviceFragment.getInstance();
                     }
                 }
 
-                loadFragment(currentFragment, dashboardFragment, MenuItems.DASHBOARD_FRAGMENT.getName());
+                loadFragment(currentFragment, dashboardFragment, MenuItems.DEVICE_FRAGMENT.getName());
                 this.currentFragment = dashboardFragment;
+                break;
+            }
+            case NETWORK_STATS_FRAGMENT: {
+                Log.d(this.getClass().getSimpleName(), "network stats");
+                if (this.netWorkStatsFragment == null) {
+                    this.netWorkStatsFragment = fragmentManager.findFragmentByTag(MenuItems.NETWORK_STATS_FRAGMENT.getName());
+                    if (this.netWorkStatsFragment == null) {
+                        this.netWorkStatsFragment = NetworkStatsFragment.getInstance();
+                    }
+                }
+
+                loadFragment(currentFragment, netWorkStatsFragment, MenuItems.NETWORK_STATS_FRAGMENT.getName());
+                this.currentFragment = netWorkStatsFragment;
                 break;
             }
             case IMPRESSUM_FRAGMENT: {
@@ -87,10 +101,12 @@ public class MyFragmentManager {
             this.fragmentManager = this.activity.getFragmentManager();
         }
 
-        this.fragmentManager.beginTransaction()
-                .replace(current.getId(), fragment, tag)
-                .addToBackStack(null)
-                .commit();
+        if (current.getId() != 0) {
+            this.fragmentManager.beginTransaction()
+                    .replace(current.getId(), fragment, tag)
+                    .addToBackStack(null)
+                    .commit();
+        }
     }
 
 }
