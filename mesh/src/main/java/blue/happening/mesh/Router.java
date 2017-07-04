@@ -63,14 +63,17 @@ class Router {
         slideWindows(message);
     }
 
+    /**
+     * @param message Unicast message to be routed
+     * @return Returns UCM if current device is destination
+     * @throws RoutingException If someone tried to broadcast a UCM
+     */
     private Message routeUcm(Message message) throws RoutingException {
         if (message.getDestination().equals(MeshHandler.BROADCAST_ADDRESS)) {
             throw new RoutingException("Cannot broadcast UPC");
         } else if (message.getDestination().equals(uuid)) {
-            System.out.println("MESSAGE RECEIVED: " + message);
             return message;
         } else {
-            System.out.println("MESSAGE FORWARDED: " + message);
             forwardMessage(message);
             return null;
         }
@@ -95,19 +98,19 @@ class Router {
 
     private boolean shouldOGMBeForwarded(Message message) {
         if (isEchoOGM(message)) {
-            System.out.println("DROP ECHO OGM: " + message);
+            // Drop echo OGM
             return false;
         } else if (isNeighbourOGM(message)) {
-            System.out.println("BROADCAST NEIGHBOUR OGM: " + message);
+            // Broadcast neighbour OGM
             return true;
         } else if (!isMessageVital(message)) {
-            System.out.println("DROP NOT VITAL OGM: " + message);
+            // Drop not vital OGM
             return false;
         } else if (!slidingWindowSaysYes(message)) {
-            System.out.println("DROP IN WINDOW OGM: " + message);
+            // Drop in window OGM
             return false;
         } else {
-            System.out.println("BROADCAST VITAL OGM: " + message);
+            // Broadcast vital OGM
             return true;
         }
     }
