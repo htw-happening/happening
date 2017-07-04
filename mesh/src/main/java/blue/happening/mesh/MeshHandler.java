@@ -29,6 +29,8 @@ public class MeshHandler {
     private final String uuid;
     private IMeshHandlerCallback meshHandlerCallback; // TODO: should be list
     private int sequence;
+    private NetworkStats ucmStats;
+    private NetworkStats ogmStats;
 
     public MeshHandler(String uuid) {
         this.uuid = uuid;
@@ -36,6 +38,10 @@ public class MeshHandler {
         routingTable = new RoutingTable();
         router = new Router(routingTable, uuid);
         layerCallback = new LayerCallback();
+        ucmStats = new NetworkStats();
+        ogmStats = new NetworkStats();
+
+        router.addObserver(new RouterObserver(ogmStats, ucmStats));
 
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(
@@ -86,6 +92,14 @@ public class MeshHandler {
             }
             return ucm != null;
         }
+    }
+
+    public NetworkStats getOgmStats(){
+        return ogmStats;
+    }
+
+    public NetworkStats getUcmStats(){
+        return ucmStats;
     }
 
     private class OGMRunner implements Runnable {
