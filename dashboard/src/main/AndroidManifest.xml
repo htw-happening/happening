@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="blue.happening.dashboard">
 
+    <!--FOR ACRA-->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:name=".MyApplication"
         android:allowBackup="true"

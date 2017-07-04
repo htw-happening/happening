@@ -4,14 +4,13 @@ import android.app.Activity;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import blue.happening.dashboard.R;
-import blue.happening.dashboard.listener.DrawerItemClickListener;
 import blue.happening.dashboard.fragment.MenuItems;
+import blue.happening.dashboard.listener.DrawerItemClickListener;
 
 public class MyDrawerLayout {
 
@@ -27,27 +26,27 @@ public class MyDrawerLayout {
             public void onDrawerClosed(View drawerView) {
                 // Code here will be triggered once the drawer closes as we dont want anything to happen so we leave this blank
                 super.onDrawerClosed(drawerView);
-                Log.d("Drawer", "OnDrawerClosed");
+//                Log.d("Drawer", "OnDrawerClosed");
             }
 
             @Override
             public void onDrawerOpened(View drawerView) {
                 // Code here will be triggered once the drawer open as we dont want anything to happen so we leave this blank
                 super.onDrawerOpened(drawerView);
-                Log.d("Drawer", "OnDrawerOpened");
+//                Log.d("Drawer", "OnDrawerOpened");
 
             }
 
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
                 super.onDrawerSlide(drawerView, slideOffset);
-                Log.d("Drawer", "OnDrawerSlide " + slideOffset);
+//                Log.d("Drawer", "OnDrawerSlide " + slideOffset);
             }
 
             @Override
             public void onDrawerStateChanged(int newState) {
                 super.onDrawerStateChanged(newState);
-                Log.d("Drawer", "OnDrawerStateChanged " + newState);
+//                Log.d("Drawer", "OnDrawerStateChanged " + newState);
 //                if (newState == DrawerLayout.STATE_SETTLING) {
 //                    InputMethodManager inputMethodManager = (InputMethodManager)
 //                            getSystemService(Context.INPUT_METHOD_SERVICE);
