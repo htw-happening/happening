@@ -29,7 +29,7 @@ public class MeshHandler {
     private final Router router;
     private final ILayerCallback layerCallback;
     private final String uuid;
-    private IMeshHandlerCallback meshHandlerCallback; // TODO: should be list
+    private IMeshHandlerCallback meshHandlerCallback;
     private int sequence;
     private NetworkStats ucmStats;
     private NetworkStats ogmStats;
