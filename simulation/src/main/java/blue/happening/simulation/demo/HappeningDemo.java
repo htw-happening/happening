@@ -36,12 +36,10 @@ public class HappeningDemo {
         ScheduledExecutorService postman = Executors.newSingleThreadScheduledExecutor();
 
         // construct a bound; boundary of the canvas
-        RectangularBoundary<Device, Connection> bound = new RectangularBoundary<Device, Connection>(
-                0, 0, width, height);
+        RectangularBoundary<Device, Connection> bound = new RectangularBoundary<>(0, 0, width, height);
 
         // construct a random mobility pattern that conforms to that bound
-        MobilityPattern<Device, Connection> mobilityPattern = new RandomDSMobilityPattern<Device, Connection>(
-                bound, speedMin, speedMax);
+        MobilityPattern<Device, Connection> pattern = new RandomDSMobilityPattern<>(bound, speedMin, speedMax);
 
         // initialize devices and place them on the in the scene
         int deviceIndex = 0;
@@ -57,14 +55,14 @@ public class HappeningDemo {
                     device.getMockLayer().setMessageLoss(messageLoss);
                     device.setTxRadius(100);
                     device.setRxRadius(100);
-                    graph.addVertex(device, 100 + (i * 100), 100 + (j * 100), mobilityPattern, 0, 0);
+                    graph.addVertex(device, 100 + (i * 100), 100 + (j * 100), pattern, 0, 0);
                     deviceIndex++;
                 }
             }
         }
 
         // enable visualization frame and panel
-        MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<Device, Connection>(graph);
+        MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<>(graph);
 
         // introduce noop events to slow down simulation
         new NOOPAction(graph, 1, 50);
