@@ -21,6 +21,7 @@
 
 package blue.happening.simulation.demo;
 
+import blue.happening.simulation.graph.internal.StringStringNetworkGraph;
 import blue.happening.simulation.mobility.MobilityPattern;
 import blue.happening.simulation.mobility.RandomVTMobilityPattern;
 import blue.happening.simulation.visualization.NOOPAction;

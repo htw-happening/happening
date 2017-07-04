@@ -23,6 +23,7 @@ package blue.happening.simulation.demo;
 
 import java.util.Random;
 
+import blue.happening.simulation.graph.internal.StringStringNetworkGraph;
 import blue.happening.simulation.mobility.MobilityPattern;
 import blue.happening.simulation.mobility.RandomDSMobilityPattern;
 import blue.happening.simulation.mobility.RectangularBoundary;
