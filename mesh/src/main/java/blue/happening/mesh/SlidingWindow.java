@@ -1,8 +1,7 @@
 package blue.happening.mesh;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Iterator;
 
 class SlidingWindow extends HashSet<Integer> {
 
@@ -11,22 +10,19 @@ class SlidingWindow extends HashSet<Integer> {
     void slideSequence(int sequence) {
         if (isSequenceOutOfWindow(sequence)) {
             this.sequence = sequence;
-            for (int outdatedSequence : getOutdatedSequences()) {
-                remove(outdatedSequence);
-            }
-        } else {
-            System.out.println("This shouldn't happen");
+            add(sequence);
         }
+        removeOutedated();
     }
 
-    private List<Integer> getOutdatedSequences() {
-        List<Integer> outdatedSequences = new ArrayList<>();
-        for (Integer sequence : this) {
-            if (isSequenceOutOfWindow(sequence)) {
-                outdatedSequences.add(sequence);
+    private void removeOutedated() {
+        Iterator<Integer> i = iterator();
+        while (i.hasNext()) {
+            Integer s = i.next();
+            if (isSequenceOutOfWindow(s)) {
+                i.remove();
             }
         }
-        return outdatedSequences;
     }
 
     boolean isSequenceOutOfWindow(int sequence) {
@@ -35,9 +31,5 @@ class SlidingWindow extends HashSet<Integer> {
         } else {
             return (sequence > this.sequence) || (sequence <= this.sequence - MeshHandler.SLIDING_WINDOW_SIZE);
         }
-    }
-
-    boolean isSequenceInWindow(int sequence) {
-        return !isSequenceOutOfWindow(sequence);
     }
 }

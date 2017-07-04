@@ -47,9 +47,6 @@ class Router extends Observable {
         }
         if (window != null) {
             window.slideSequence(message.getSequence());
-            if (window.isSequenceInWindow(message.getSequence())) {
-                window.add(message.getSequence());
-            }
         }
     }
 
