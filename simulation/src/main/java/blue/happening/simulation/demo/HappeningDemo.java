@@ -2,6 +2,7 @@ package blue.happening.simulation.demo;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
 
 import blue.happening.simulation.entities.Connection;
 import blue.happening.simulation.entities.Device;
@@ -19,9 +20,10 @@ public class HappeningDemo {
     public static void main(String[] args) throws InterruptedException {
 
         // configuration
-        final int deviceCount = 49;
-        final int messageDelay = 100;
-        final float messageLoss = 0.3f;
+        final int deviceCount = 9;
+        final int messageDelay = 1000;
+        final float delayVariance = 0.1f;
+        final float messageLoss = 0.0f;
         final double speedMin = 0.0D;
         final double speedMax = 0.0D;
         final double width = 1000;
@@ -48,7 +50,10 @@ public class HappeningDemo {
             for (int j = 0; j < dimension; j++) {
                 if (deviceIndex < deviceCount) {
                     Device device = new Device("Device_" + deviceIndex, graph, postman);
-                    device.setMessageDelay(messageDelay);
+                    int min = Math.round(messageDelay * (1 - delayVariance));
+                    int max = Math.round(messageDelay * (1 + delayVariance));
+                    int delay = ThreadLocalRandom.current().nextInt(min, max);
+                    device.setMessageDelay(delay);
                     device.getMockLayer().setMessageLoss(messageLoss);
                     device.setTxRadius(100);
                     device.setRxRadius(100);
