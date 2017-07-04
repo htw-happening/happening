@@ -13,7 +13,7 @@ public class MeshHandler {
     public static final int HOP_PENALTY = 15;
     public static final int INITIAL_MAX_SEQUENCE = 512;
     public static final int INITIAL_MESSAGE_TQ = 255;
-    public static final int INITIAL_MESSAGE_TTL = 15;
+    public static final int INITIAL_MESSAGE_TTL = 5;
     public static final int INITIAL_MIN_SEQUENCE = 0;
     public static final int MESSAGE_TYPE_OGM = 1;
     public static final int MESSAGE_TYPE_UCM = 2;
@@ -29,6 +29,8 @@ public class MeshHandler {
     private final String uuid;
     private IMeshHandlerCallback meshHandlerCallback; // TODO: should be list
     private int sequence;
+    private NetworkStats ucmStats;
+    private NetworkStats ogmStats;
 
     public MeshHandler(String uuid) {
         this.uuid = uuid;
@@ -36,6 +38,10 @@ public class MeshHandler {
         routingTable = new RoutingTable();
         router = new Router(routingTable, uuid);
         layerCallback = new LayerCallback();
+        ucmStats = new NetworkStats();
+        ogmStats = new NetworkStats();
+
+        router.addObserver(new RouterObserver(ogmStats, ucmStats));
 
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(
@@ -86,6 +92,14 @@ public class MeshHandler {
             }
             return ucm != null;
         }
+    }
+
+    public NetworkStats getOgmStats(){
+        return ogmStats;
+    }
+
+    public NetworkStats getUcmStats(){
+        return ucmStats;
     }
 
     private class OGMRunner implements Runnable {
@@ -145,6 +159,12 @@ public class MeshHandler {
             } catch (Exception e) {
                 System.out.println("MESSAGE BROKEN: " + e.getMessage());
                 return;
+            }
+
+            if(message.getType() == MESSAGE_TYPE_OGM){
+                ogmStats.addInComingMessage(message);
+            } else if(message.getType() == MESSAGE_TYPE_UCM){
+                ucmStats.addInComingMessage(message);
             }
 
             try {

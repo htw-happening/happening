@@ -23,7 +23,7 @@ public class DrawerItemClickListener
         this.activity = activity;
         menuItemList = MenuItems.toArray();
         myFragmentManager = MyFragmentManager.getInstance(activity);
-        myFragmentManager.swapFragment(MenuItems.DASHBOARD_FRAGMENT);
+        myFragmentManager.swapFragment(MenuItems.DEVICE_FRAGMENT);
     }
 
     @Override

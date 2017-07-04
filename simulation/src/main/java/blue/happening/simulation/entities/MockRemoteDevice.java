@@ -25,7 +25,7 @@ public class MockRemoteDevice extends RemoteDevice {
             Connection connection = (Connection) object;
             if (connection.getToDevice().getName().equals(getUuid()) &&
                     connection.getFromDevice().getName().equals(message.getPreviousHop())) {
-                connection.queueBytes(message.toBytes());
+                connection.queueMessage(message);
                 return true;
             }
         }

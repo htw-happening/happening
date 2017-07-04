@@ -1,21 +1,26 @@
 package blue.happening.simulation.entities;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import blue.happening.mesh.Message;
+
 public class Connection {
 
-    private Device fromDevice;
-    private Device toDevice;
-    private List<ScheduledFuture> queue;
+    public static final int IDLE = 0;
+    public static final int SEND = 1;
+    public static final int LOSS = 2;
+    private final Device fromDevice;
+    private final Device toDevice;
+    private final Queue<MessageDelivery> deliverance;
 
     public Connection(Device fromDevice, Device toDevice) {
         this.fromDevice = fromDevice;
         this.toDevice = toDevice;
-        this.queue = new ArrayList<>();
+        this.deliverance = new LinkedBlockingQueue<>();
     }
 
     public Device getFromDevice() {
@@ -26,34 +31,57 @@ public class Connection {
         return toDevice;
     }
 
-    public boolean isTransmitting() {
-        Iterator<ScheduledFuture> i = queue.iterator();
+    private void purge() {
+        Iterator<MessageDelivery> i = deliverance.iterator();
         while (i.hasNext()) {
-            ScheduledFuture future = i.next();
-            if (future.isDone() || future.isCancelled()) {
+            MessageDelivery delivery = i.next();
+            if (delivery.isComplete()) {
                 i.remove();
-            } else {
-                return true;
             }
         }
-        return false;
     }
 
-    void queueBytes(final byte[] bytes) {
-        if (Math.random() < fromDevice.getMockLayer().getMessageLoss()) {
-            return;
+    public int getStatus() {
+        purge();
+        Device clickedDevice = fromDevice.getNetworkGraph().getClickedDevice();
+        MessageDelivery delivery = deliverance.peek();
+        if (delivery == null) {
+            return IDLE;
+        } else if (clickedDevice == null) {
+            if (delivery.isLost()) {
+                return LOSS;
+            } else {
+                return SEND;
+            }
+        } else if (clickedDevice.getName().equals(delivery.getMessage().getSource())) {
+            if (delivery.isLost()) {
+                return LOSS;
+            } else {
+                return SEND;
+            }
         }
-        int delay = getFromDevice().getMessageDelay();
-        for (ScheduledFuture future : queue) {
-            delay += future.getDelay(TimeUnit.MILLISECONDS);
-        }
+        return IDLE;
+    }
 
-        queue.add(getToDevice().getPostman().schedule(new Runnable() {
+    void queueMessage(Message message) {
+        final byte[] bytes = message.toBytes();
+        final boolean lost = Math.random() < fromDevice.getMockLayer().getMessageLoss();
+
+        final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                toDevice.getMockLayer().getLayerCallback().onMessageReceived(bytes);
+                if (!lost) {
+                    toDevice.getMockLayer().getLayerCallback().onMessageReceived(bytes);
+                }
             }
-        }, delay, TimeUnit.MILLISECONDS));
+        };
+
+        int delay = getFromDevice().getMessageDelay();
+        for (MessageDelivery delivery : deliverance) {
+            delay += delivery.getDelay();
+        }
+        ScheduledFuture future = getToDevice().getPostman().schedule(runnable, delay, TimeUnit.MILLISECONDS);
+        deliverance.offer(new MessageDelivery(future, message, lost));
     }
 
     @Override
@@ -69,5 +97,38 @@ public class Connection {
             return true;
         return this.getFromDevice().equals(((Connection) o).getFromDevice()) &&
                 this.getToDevice().equals(((Connection) o).getToDevice());
+    }
+
+    private class MessageDelivery implements Comparable<MessageDelivery> {
+        private ScheduledFuture future;
+        private Message message;
+        private boolean lost;
+
+        MessageDelivery(ScheduledFuture future, Message message, boolean lost) {
+            this.future = future;
+            this.message = message;
+            this.lost = lost;
+        }
+
+        boolean isComplete() {
+            return (future.isDone() || future.isCancelled());
+        }
+
+        long getDelay() {
+            return future.getDelay(TimeUnit.MILLISECONDS);
+        }
+
+        Message getMessage() {
+            return message;
+        }
+
+        boolean isLost() {
+            return lost;
+        }
+
+        @Override
+        public int compareTo(MessageDelivery other) {
+            return Long.compare(getDelay(), other.getDelay());
+        }
     }
 }

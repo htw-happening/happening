@@ -1,6 +1,8 @@
 package blue.happening.mesh;
 
-class Router {
+import java.util.Observable;
+
+class Router extends Observable {
 
     private RoutingTable routingTable;
     private String uuid;
@@ -67,10 +69,10 @@ class Router {
         if (message.getDestination().equals(MeshHandler.BROADCAST_ADDRESS)) {
             throw new RoutingException("Cannot broadcast UPC");
         } else if (message.getDestination().equals(uuid)) {
-            System.out.println("MESSAGE RECEIVED: " + message);
+            System.out.println(uuid + " HAS MESSAGE RECEIVED: " + message);
             return message;
         } else {
-            System.out.println("MESSAGE FORWARDED: " + message);
+            System.out.println(uuid + " HAS MESSAGE FORWARDED: " + message);
             forwardMessage(message);
             return null;
         }
@@ -165,6 +167,7 @@ class Router {
         RemoteDevice bestNeighbour = routingTable.getBestNeighbourForRemoteDevice(destination);
         if (bestNeighbour != null) {
             bestNeighbour.sendMessage(preparedMessage);
+            trigger(Events.UCM_SENT, preparedMessage);
         }
     }
 
@@ -174,6 +177,7 @@ class Router {
             if (shouldOGMBeEchoedTo(message, remoteDevice.getUuid()) ||
                     shouldOGMBeBroadcastTo(message, remoteDevice.getUuid())) {
                 remoteDevice.sendMessage(preparedMessage);
+                trigger(Events.OGM_SENT, preparedMessage);
             }
         }
     }
@@ -181,6 +185,32 @@ class Router {
     class RoutingException extends Exception {
         RoutingException(String message) {
             super(message);
+        }
+    }
+
+    void trigger(Events arg, Object options) {
+        setChanged();
+        notifyObservers(new Event(arg, options));
+    }
+
+    enum Events {
+        OGM_SENT,
+        UCM_SENT
+    }
+
+    class Event {
+        private Events type;
+        private Object options;
+        Event(Events type, Object options) {
+            this.type = type;
+            this.options = options;
+        }
+        public Events getType() {
+            return type;
+        }
+
+        public Object getOptions() {
+            return options;
         }
     }
 }

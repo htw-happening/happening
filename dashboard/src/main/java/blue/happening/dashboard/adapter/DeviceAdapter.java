@@ -13,13 +13,13 @@ import android.widget.Toast;
 import java.util.List;
 
 import blue.happening.HappeningClient;
+import blue.happening.dashboard.logic.BlueDashboard;
 import blue.happening.dashboard.R;
-import blue.happening.dashboard.fragment.DashboardFragment;
 
 
-public class DashboardAdapter extends ArrayAdapter<HappeningClient> {
+public class DeviceAdapter extends ArrayAdapter<HappeningClient> {
 
-    public DashboardAdapter(Context context, List<HappeningClient> models) {
+    public DeviceAdapter(Context context, List<HappeningClient> models) {
         super(context, 0, models);
     }
 
@@ -30,24 +30,24 @@ public class DashboardAdapter extends ArrayAdapter<HappeningClient> {
         final HappeningClient happeningClient = getItem(position);
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.dashboard_model, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.device_model, parent, false);
         }
 
-        TextView title = (TextView) convertView.findViewById(R.id.dashboard_model_title);
-        TextView message = (TextView) convertView.findViewById(R.id.dashboard_model_message);
+        TextView title = (TextView) convertView.findViewById(R.id.device_model_title);
+        TextView message = (TextView) convertView.findViewById(R.id.device_model_message);
 
         if (happeningClient != null) {
             title.setText(happeningClient.getName());
             message.setText(happeningClient.getUuid());
         }
 
-        convertView.findViewById(R.id.dashboard_button_send).setOnClickListener(new View.OnClickListener() {
+        convertView.findViewById(R.id.device_button_send).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(), "Send", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Ping", Toast.LENGTH_SHORT).show();
                 String message = "Hey there, i'm using happening!";
                 Log.d(getClass().getSimpleName(), "Sending Message to " + happeningClient.getUuid());
-                DashboardFragment.getInstance().getHappening().sendMessage(message.getBytes(), happeningClient);
+                BlueDashboard.getInstance().getHappening().sendMessage(message.getBytes(), happeningClient);
 
             }
         });
