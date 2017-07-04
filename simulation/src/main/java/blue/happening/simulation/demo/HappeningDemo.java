@@ -21,10 +21,10 @@ public class HappeningDemo {
     public static void main(String[] args) throws InterruptedException {
 
         // configuration
-        final int deviceCount = 9;
-        final int messageDelay = 1000;
+        final int deviceCount = 16;
+        final int messageDelay = 500;
         final float delayVariance = 0.1f;
-        final float messageLoss = 0.0f;
+        final float messageLoss = 0.3f;
         final double speedMin = 0.0D;
         final double speedMax = 0.0D;
         final double width = 1000;
@@ -32,7 +32,7 @@ public class HappeningDemo {
         MeshHandler.INITIAL_MESSAGE_TQ = 255;
         MeshHandler.INITIAL_MESSAGE_TTL = 5;
         MeshHandler.HOP_PENALTY = 15;
-        MeshHandler.OGM_INTERVAL = 10;
+        MeshHandler.OGM_INTERVAL = 5;
         MeshHandler.PURGE_INTERVAL = 200;
         MeshHandler.SLIDING_WINDOW_SIZE = 12;
         MeshHandler.DEVICE_EXPIRATION = 200;
