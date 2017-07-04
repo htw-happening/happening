@@ -13,7 +13,7 @@ public class MeshHandler {
     public static final int HOP_PENALTY = 15;
     public static final int INITIAL_MAX_SEQUENCE = 512;
     public static final int INITIAL_MESSAGE_TQ = 255;
-    public static final int INITIAL_MESSAGE_TTL = 15;
+    public static final int INITIAL_MESSAGE_TTL = 5;
     public static final int INITIAL_MIN_SEQUENCE = 0;
     public static final int MESSAGE_TYPE_OGM = 1;
     public static final int MESSAGE_TYPE_UCM = 2;
