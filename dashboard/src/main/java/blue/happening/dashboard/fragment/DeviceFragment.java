@@ -22,11 +22,10 @@ public class DeviceFragment extends Fragment implements BlueCallback {
     private static DeviceFragment instance = null;
     private final String TAG = this.getClass().getSimpleName();
     private List<HappeningClient> dashboardClients = new ArrayList<>();
-    private DeviceAdapter dashboardAdapter;
+    private DeviceAdapter deviceAdapter;
     private ListView listView;
 
     private BlueDashboard blueDashboard = null;
-//    private Happening happening = new Happening();
 
     public DeviceFragment() {
 
@@ -38,81 +37,6 @@ public class DeviceFragment extends Fragment implements BlueCallback {
         return instance;
     }
 
-//    public Happening getHappening() {
-//        return happening;
-//    }
-
-//    private HappeningCallback happeningCallback = new HappeningCallback() {
-//        // TODO: These callback methods don't do anything useful yet and are ugly af
-//
-//        private void notifyDataSetChanged() {
-//            getActivity().runOnUiThread(
-//                    new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            dashboardAdapter.notifyDataSetChanged();
-//                        }
-//                    }
-//            );
-//        }
-//
-//        private void toast(final String message) {
-//            getActivity().runOnUiThread(
-//                    new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            Context context = getActivity().getApplicationContext();
-//                            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-//                        }
-//                    }
-//            );
-//        }
-//
-//        @Override
-//        public void onClientAdded(HappeningClient client) {
-//            dashboardClients.add(client);
-//            notifyDataSetChanged();
-//        }
-//
-//        @Override
-//        public void onClientUpdated(HappeningClient client) {
-//            HappeningClient removeDevice = null;
-//            for (HappeningClient candidate : dashboardClients) {
-//                if (candidate.getUuid().equals(client.getUuid())) {
-//                    removeDevice = candidate;
-//                }
-//            }
-//            try {
-//                dashboardClients.remove(removeDevice);
-//            } catch (Exception ignored) {
-//                return;
-//            }
-//            notifyDataSetChanged();
-//        }
-//
-//        @Override
-//        public void onClientRemoved(HappeningClient client) {
-//            HappeningClient removeDevice = null;
-//            for (HappeningClient candidate : dashboardClients) {
-//                if (candidate.getUuid().equals(client.getUuid())) {
-//                    removeDevice = candidate;
-//                }
-//            }
-//            try {
-//                dashboardClients.remove(removeDevice);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//            notifyDataSetChanged();
-//        }
-//
-//        @Override
-//        public void onMessageReceived(byte[] message, HappeningClient source) {
-//            Log.v(TAG, "onMessageReceived: " + new String(message) + " from " + source.getUuid());
-//            toast(new String(message));
-//        }
-//    };
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
@@ -122,35 +46,9 @@ public class DeviceFragment extends Fragment implements BlueCallback {
         blueDashboard = BlueDashboard.getInstance();
         blueDashboard.register(this);
 
-//        Button button = (Button) rootView.findViewById(R.id.dashboard_button_get_devices);
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Log.v(this.getClass().getSimpleName(), "onClick");
-//                List<HappeningClient> clients = happening.getClients();
-//                dashboardClients.clear();
-//                for (HappeningClient client : clients) {
-//                    dashboardClients.add(client);
-//                    Log.d(TAG, "onClick: " + client.getName());
-//                }
-//
-//                getActivity().runOnUiThread(
-//                        new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                dashboardAdapter.notifyDataSetChanged();
-//                            }
-//                        }
-//                );
-//            }
-//        });
-
-        dashboardAdapter = new DeviceAdapter(container.getContext(), dashboardClients);
+        deviceAdapter = new DeviceAdapter(container.getContext(), dashboardClients);
         listView = (ListView) rootView.findViewById(R.id.dashboard_model_list);
-        listView.setAdapter(dashboardAdapter);
-
-//        Context context = getActivity().getApplicationContext();
-//        happening.register(context, happeningCallback);
+        listView.setAdapter(deviceAdapter);
 
         return rootView;
     }
@@ -170,8 +68,6 @@ public class DeviceFragment extends Fragment implements BlueCallback {
 
     @Override
     public void onClientAdded() {
-        System.out.println("onClientAdded");
-
         dashboardClients.clear();
         dashboardClients.addAll(BlueDashboard.getInstance().getDevices());
         Log.d(TAG, "dashboard client " + dashboardClients.size());
@@ -181,8 +77,6 @@ public class DeviceFragment extends Fragment implements BlueCallback {
 
     @Override
     public void onClientUpdate() {
-        System.out.println("onClientUpdate");
-
         dashboardClients.clear();
         dashboardClients.addAll(BlueDashboard.getInstance().getDevices());
         Log.d(TAG, "dashboard client " + dashboardClients.size());
@@ -195,7 +89,7 @@ public class DeviceFragment extends Fragment implements BlueCallback {
                 new Runnable() {
                     @Override
                     public void run() {
-                        dashboardAdapter.notifyDataSetChanged();
+                        deviceAdapter.notifyDataSetChanged();
                     }
                 }
         );

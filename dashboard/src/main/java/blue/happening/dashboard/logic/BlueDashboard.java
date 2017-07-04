@@ -80,14 +80,12 @@ public class BlueDashboard {
 
     public void register(BlueCallback blueCallback) {
         if (!listeners.contains(blueCallback)) {
-            Log.d(TAG, "register: True");
             listeners.add(blueCallback);
         }
     }
 
     public void deregister(BlueCallback blueCallback) {
         if (listeners.contains(blueCallback)) {
-            Log.d(TAG, "deregister: True");
             listeners.remove(blueCallback);
         }
     }
@@ -117,7 +115,6 @@ public class BlueDashboard {
                 return;
             }
         }
-        Log.d(TAG, "remove client " + devices.size());
         Log.d(TAG, "removeClient: couldnt find that client - NOT GOOD");
     }
 
