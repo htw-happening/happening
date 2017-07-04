@@ -95,6 +95,7 @@ public class Device extends RemoteDevice {
 
     @Override
     public boolean remove() {
+        Layer.getInstance().connectionLost(this);
         return false;
     }
 
