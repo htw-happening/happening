@@ -79,7 +79,11 @@ public class MeshHandler {
             return false;
         } else {
             Message ucm = new Message(this.uuid, uuid, INITIAL_MIN_SEQUENCE, MESSAGE_TYPE_UCM, message);
-            ucm = router.routeMessage(ucm);
+            try {
+                ucm = router.routeMessage(ucm);
+            } catch (Router.RoutingException e) {
+                e.printStackTrace();
+            }
             return ucm != null;
         }
     }
