@@ -65,7 +65,7 @@ public class MeshHandler {
         return routingTable.getReachableMeshDevices();
     }
 
-    public boolean sendMessage(byte[] message, String uuid) throws Router.RoutingException {
+    public boolean sendMessage(byte[] message, String uuid) {
         System.out.println("MeshHandler sendMessage " + new String(message) + " to " + uuid);
         String s = "";
         for (Map.Entry<String, RemoteDevice> stringRemoteDeviceEntry : routingTable.entrySet()) {
