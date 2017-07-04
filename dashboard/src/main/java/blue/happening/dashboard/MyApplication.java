@@ -8,20 +8,20 @@ import org.acra.annotation.ReportsCrashes;
 
 @ReportsCrashes(
         formUri = "http://collector.tracepot.com/6ed46252",
-        logcatArguments = { "-t", "100", "-v", "long", "ActivityManager:I", "MyApp:D", "*:S" }
+        logcatArguments = {"-t", "100", "-v", "long", "ActivityManager:I", "MyApp:D", "*:S"}
 )
 public class MyApplication extends Application {
 
     private static Context context;
 
+    public static Context getAppContext() {
+        return MyApplication.context;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
         MyApplication.context = getApplicationContext();
-    }
-
-    public static Context getAppContext() {
-        return MyApplication.context;
     }
 
     @Override

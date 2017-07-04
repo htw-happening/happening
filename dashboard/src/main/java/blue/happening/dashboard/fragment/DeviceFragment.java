@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import blue.happening.HappeningClient;
-import blue.happening.dashboard.logic.BlueCallback;
-import blue.happening.dashboard.logic.BlueDashboard;
 import blue.happening.dashboard.R;
 import blue.happening.dashboard.adapter.DeviceAdapter;
+import blue.happening.dashboard.logic.BlueCallback;
+import blue.happening.dashboard.logic.BlueDashboard;
 
 public class DeviceFragment extends Fragment implements BlueCallback {
 
@@ -29,8 +29,7 @@ public class DeviceFragment extends Fragment implements BlueCallback {
 //    private Happening happening = new Happening();
 
     public DeviceFragment() {
-        blueDashboard = BlueDashboard.getInstance();
-        blueDashboard.register(this);
+
     }
 
     public static DeviceFragment getInstance() {
@@ -120,6 +119,9 @@ public class DeviceFragment extends Fragment implements BlueCallback {
         Log.v(this.getClass().getSimpleName(), "onCreateView");
         final View rootView = inflater.inflate(R.layout.fragment_device, container, false);
 
+        blueDashboard = BlueDashboard.getInstance();
+        blueDashboard.register(this);
+
 //        Button button = (Button) rootView.findViewById(R.id.dashboard_button_get_devices);
 //        button.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -161,33 +163,34 @@ public class DeviceFragment extends Fragment implements BlueCallback {
     }
 
     @Override
-    public void onClientAdded() {
-        List<HappeningClient> clients = blueDashboard.getHappening().getClients();
-        dashboardClients.clear();
-        for (HappeningClient client : clients) {
-            dashboardClients.add(client);
-            Log.d(TAG, "onClick: " + client.getName());
-        }
+    public void onResume() {
+        super.onResume();
+        blueDashboard.register(this);
+    }
 
-        getActivity().runOnUiThread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        dashboardAdapter.notifyDataSetChanged();
-                    }
-                }
-        );
+    @Override
+    public void onClientAdded() {
+        System.out.println("onClientAdded");
+
+        dashboardClients.clear();
+        dashboardClients.addAll(BlueDashboard.getInstance().getDevices());
+        Log.d(TAG, "dashboard client " + dashboardClients.size());
+        notifyDataSetChanged();
+
     }
 
     @Override
     public void onClientUpdate() {
-        List<HappeningClient> clients = blueDashboard.getHappening().getClients();
-        dashboardClients.clear();
-        for (HappeningClient client : clients) {
-            dashboardClients.add(client);
-            Log.d(TAG, "onClick: " + client.getName());
-        }
+        System.out.println("onClientUpdate");
 
+        dashboardClients.clear();
+        dashboardClients.addAll(BlueDashboard.getInstance().getDevices());
+        Log.d(TAG, "dashboard client " + dashboardClients.size());
+        notifyDataSetChanged();
+
+    }
+
+    private void notifyDataSetChanged() {
         getActivity().runOnUiThread(
                 new Runnable() {
                     @Override

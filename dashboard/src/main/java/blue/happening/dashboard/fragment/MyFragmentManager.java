@@ -101,10 +101,12 @@ public class MyFragmentManager {
             this.fragmentManager = this.activity.getFragmentManager();
         }
 
-        this.fragmentManager.beginTransaction()
-                .replace(current.getId(), fragment, tag)
-                .addToBackStack(null)
-                .commit();
+        if (current.getId() != 0) {
+            this.fragmentManager.beginTransaction()
+                    .replace(current.getId(), fragment, tag)
+                    .addToBackStack(null)
+                    .commit();
+        }
     }
 
 }
