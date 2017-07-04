@@ -101,11 +101,7 @@ public class DevicePanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 for (RemoteDevice remotedevice : selectedDevices) {
-                    try {
-                        device.getMeshHandler().sendMessage("Hello".getBytes(), remotedevice.getUuid());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    device.getMeshHandler().sendMessage("Hello".getBytes(), remotedevice.getUuid());
                 }
             }
         });
