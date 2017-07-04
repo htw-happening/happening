@@ -1,5 +1,6 @@
 package blue.happening.simulation.visualization;
 
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,6 +14,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTable;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -20,6 +25,7 @@ import javax.swing.event.ListSelectionListener;
 
 import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.RemoteDevice;
+import blue.happening.mesh.statistics.StatsItem;
 import blue.happening.simulation.entities.Device;
 
 
@@ -40,6 +46,11 @@ public class DevicePanel extends JPanel {
         selectedDevices = new ArrayList<>();
         setSize(PANEL_WIDTH, PANEL_HEIGHT);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
+        JButton sliderPanelToggle = createToggleButton("Sliders");
+        JButton tablePanelToggle = createToggleButton("Devices");
+        JButton statsPanelToggle = createToggleButton("Stats");
+
         deviceLabel = new JLabel("Current device", JLabel.LEFT);
         disableButton = new JButton("Toggle device");
         sendButton = new JButton("Send message");
@@ -51,7 +62,9 @@ public class DevicePanel extends JPanel {
         btnPanel.add(sendButton);
         add(btnPanel);
 
-        JPanel sliderPanel = new JPanel();
+        add(sliderPanelToggle);
+
+        final JPanel sliderPanel = new JPanel();
         sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.Y_AXIS));
 
         packageDropSlider = new JSlider(JSlider.HORIZONTAL,
@@ -74,10 +87,62 @@ public class DevicePanel extends JPanel {
 
         add(sliderPanel);
 
+        add(tablePanelToggle);
+
         table = new JTable();
         table.setAutoCreateRowSorter(true);
-        JScrollPane tableScrollPane = new JScrollPane(table);
+        final JScrollPane tableScrollPane = new JScrollPane(table);
+        tableScrollPane.setVisible(false);
+
         add(tableScrollPane);
+
+        add(statsPanelToggle, JButton.LEFT_ALIGNMENT);
+
+        final List<Double> stats1 = new ArrayList<>();
+        final List<Double> stats2 = new ArrayList<>();
+        final NetworkStatsPanel networkStats = new NetworkStatsPanel(stats1, stats2);
+
+        Runnable run = new Runnable() {
+            @Override
+            public void run() {
+
+                while (true) {
+                    System.out.println("RUNNABLE1!");
+                    if (device == null) continue;
+                    System.out.println("RUNNABLE2!");
+
+                    List<StatsItem> ogmStats = device.getMeshHandler().getOgmStats().getInComingStats().getStats();
+                    for (StatsItem stat : ogmStats) {
+                        stats1.add((double) stat.getMessageCount());
+                    }
+
+                    List<StatsItem> ucmStats = device.getMeshHandler().getUcmStats().getInComingStats().getStats();
+                    for (StatsItem stat : ucmStats) {
+                        stats2.add((double) stat.getMessageCount());
+                    }
+
+                    networkStats.setValues(stats1, stats2);
+
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        break;
+                    }
+                }
+            }
+        };
+
+        Thread thread = new Thread(run);
+        thread.start();
+
+        final JPanel statsPanel = new JPanel();
+        statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.Y_AXIS));
+        statsPanel.add(new JLabel("Network Stats"), JLabel.CENTER);
+        statsPanel.add(networkStats);
+        statsPanel.setVisible(false);
+
+        add(statsPanel);
 
         setVisible(true);
 
@@ -112,6 +177,42 @@ public class DevicePanel extends JPanel {
                 device.toggleEnabled();
             }
         });
+
+        sliderPanelToggle.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                sliderPanel.setVisible(!sliderPanel.isVisible());
+            }
+        });
+
+        tablePanelToggle.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                tableScrollPane.setVisible(!tableScrollPane.isVisible());
+            }
+        });
+
+        statsPanelToggle.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                statsPanel.setVisible(!statsPanel.isVisible());
+            }
+        });
+    }
+
+    private static JButton createToggleButton(String text) {
+        JButton button = new JButton(text);
+        button.setForeground(Color.BLACK);
+        button.setBackground(Color.GREEN);
+        Border line = new LineBorder(Color.BLACK);
+        Border margin = new EmptyBorder(5, 50, 5, 50);
+        Border compound = new CompoundBorder(line, margin);
+        button.setBorder(compound);
+        //button.setBorderPainted(false);
+        //button.setContentAreaFilled(false);
+        //button.setFocusPainted(false);
+        //button.setHorizontalAlignment(SwingConstants.LEFT);
+        return button;
     }
 
     private void updateMessageLossSlider(Device device) {
