@@ -161,6 +161,12 @@ public class MeshHandler {
                 return;
             }
 
+            if(message.getType() == MESSAGE_TYPE_OGM){
+                ogmStats.addInComingMessage(message);
+            } else if(message.getType() == MESSAGE_TYPE_UCM){
+                ucmStats.addInComingMessage(message);
+            }
+
             try {
                 propagate = router.routeMessage(message);
             } catch (Router.RoutingException e) {
