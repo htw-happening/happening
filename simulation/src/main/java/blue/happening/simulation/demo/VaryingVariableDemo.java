@@ -58,7 +58,7 @@ public class VaryingVariableDemo {
 
     public static void varyingVertices() {
 
-        // fixed bla parameters
+        // fixed simulation parameters
         final double speed = 10;
         final double radius = 100;
         final double width = 10000;
@@ -66,7 +66,7 @@ public class VaryingVariableDemo {
         final double replicationLength = 1000;
         final int nReplications = 10;
 
-        // write bla parameters to file
+        // write simulation parameters to file
         System.out.println("# speed \t= " + speed);
         System.out.println("# radius \t= " + radius);
         System.out.println("# width \t= " + width);
@@ -96,7 +96,7 @@ public class VaryingVariableDemo {
 
     public static void varyingSpeed() {
 
-        // fixed bla parameters
+        // fixed simulation parameters
         final int vertices = 10;
         final double radius = 100;
         final double width = 10000;
@@ -104,7 +104,7 @@ public class VaryingVariableDemo {
         final double replicationLength = 1000;
         final int nReplications = 10;
 
-        // write bla parameters to file
+        // write simulation parameters to file
         System.out.println("# vertices \t= " + vertices);
         System.out.println("# radius \t= " + radius);
         System.out.println("# width \t= " + width);
@@ -135,7 +135,7 @@ public class VaryingVariableDemo {
 
     public static void varyingRadius() {
 
-        // fixed bla parameters
+        // fixed simulation parameters
         final int vertices = 10;
         final double speed = 100;
         final double width = 10000;
@@ -143,7 +143,7 @@ public class VaryingVariableDemo {
         final double replicationLength = 1000;
         final int nReplications = 10;
 
-        // write bla parameters to file
+        // write simulation parameters to file
         System.out.println("# vertices \t= " + vertices);
         System.out.println("# speed \t= " + speed);
         System.out.println("# width \t= " + width);
@@ -173,14 +173,14 @@ public class VaryingVariableDemo {
 
     public static void varyingArena() {
 
-        // fixed bla parameters
+        // fixed simulation parameters
         final int vertices = 10;
         final double speed = 10;
         final double radius = 10;
         final double replicationLength = 1000;
         final int nReplications = 10;
 
-        // write bla parameters to file
+        // write simulation parameters to file
         System.out.println("# vertices \t= " + vertices);
         System.out.println("# speed \t= " + speed);
         System.out.println("# radius \t= " + radius);
@@ -210,7 +210,7 @@ public class VaryingVariableDemo {
 
     public static void varyingEverything() {
 
-        // fixed bla parameters
+        // fixed simulation parameters
         // final int vertices = 10;
         // final double speed = 100;
         // final double width = 10000;
@@ -218,7 +218,7 @@ public class VaryingVariableDemo {
         final double replicationLength = 1000;
         final int nReplications = 10;
 
-        // write bla parameters to file
+        // write simulation parameters to file
 
         final long startTime = System.currentTimeMillis();
         System.out.println("#");

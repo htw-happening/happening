@@ -47,42 +47,42 @@ import jsl.utilities.reporting.JSL;
 
 
 /**
- * {@code NetworkGraph} represents a MANET and is the main class in a bla
+ * {@code NetworkGraph} represents a MANET and is the main class in a simulation
  * - <b>start here</b>. It extends JSL's {@link ModelElement} and implements
- * JUNG's {@link DirectedGraph}, thus it functions as both a bla element
- * under JSL, and a fully functional blue.happening.bla.graph under JUNG. Understanding of JSL and
+ * JUNG's {@link DirectedGraph}, thus it functions as both a simulation element
+ * under JSL, and a fully functional blue.happening.simulation.graph under JUNG. Understanding of JSL and
  * JUNG is not necessary, but highly recommended.
  * <p>
- * The general idea of every bla is this: you first construct a
+ * The general idea of every simulation is this: you first construct a
  * {@code networkGraph}, populate it with vertices, hand it over to JSL (see
- * below), and run it through a bla. Throughout the bla the edges
+ * below), and run it through a simulation. Throughout the simulation the edges
  * of the {@code networkGraph} get added and removed based on the mobility and
  * communication radii of the vertices. {@link NetworkGraphObserver}s are used
- * to detect these (and other) actions throughout the bla. This data can
+ * to detect these (and other) actions throughout the simulation. This data can
  * then be used for collecting statistics, logging how the MANET behaves, et
  * cetera. Examples of such observers are found in ManetSim's {@code statistic}
  * package.
  * <p>
- * While the bla is running you can still interact with your
+ * While the simulation is running you can still interact with your
  * {@code networkGraph} by executing the various mutator and inspector methods.
  * In fact, you may even add or remove edges that are not "possible", for
  * example adding an edge between two vertices that are outside each other's
- * communication radii. This will not break the bla. Of course, you can
- * also interact with your {@code networkGraph} before and after the bla
+ * communication radii. This will not break the simulation. Of course, you can
+ * also interact with your {@code networkGraph} before and after the simulation
  * as well.
  * <p>
  * <b>{@code NetworkGraph} is not synchronized.</b> As a result if another
- * thread, besides the one executing the bla, access your
+ * thread, besides the one executing the simulation, access your
  * {@code networkGraph}, you must synchronize those actions externally. This can
  * be achieved by either
  * <ul>
- * <li>pausing the bla while the other thread is accessing the
+ * <li>pausing the simulation while the other thread is accessing the
  * {@code networkGraph}, or
- * <li>wrapping the target blue.happening.bla.graph you pass to the {@code NetworkGraph}
+ * <li>wrapping the target blue.happening.simulation.graph you pass to the {@code NetworkGraph}
  * constructor with {@link Graphs#synchronizedDirectedGraph(DirectedGraph)}.
  * </ul>
  * <p>
- * Executing blue.happening.bla.graph operations from within JSL events is always safe.
+ * Executing blue.happening.simulation.graph operations from within JSL events is always safe.
  * <p>
  * {@code NetworkGraph}, just like the rest of ManetSim, uses generics. This
  * allows you the programmer to define the class type of vertices and edges,
@@ -103,7 +103,7 @@ import jsl.utilities.reporting.JSL;
  * Every {@code networkGraph} needs an {@link EdgePool} implementation. The
  * {@code edgePool} is passed into the constructor.
  * <p>
- * As the bla runs, edges are added to the {@code networkGraph}. Thus an
+ * As the simulation runs, edges are added to the {@code networkGraph}. Thus an
  * edge pool from which the simulator draws edges is necessary. For example,
  * every time the simulator needs to add a new edge to the {@code networkGraph}
  * from vertex <i>A</i> to vertex <i>B</i>, it asks the {@code edgePool} for
@@ -162,12 +162,12 @@ import jsl.utilities.reporting.JSL;
  * <p>
  * <h3>Java HappeningDemo Library (JSL)</h3>
  * <p>
- * If you are interested in the mechanics of discrete-event bla, you
+ * If you are interested in the mechanics of discrete-event simulation, you
  * should check out JSL. This will explain you how a generic discrete-event
  * simulator works. If you are interested in how this package simulates MANET's
  * in a discrete-event fashion, you should first read <a
  * href="http://www.pages.drexel.edu/~sf69/sim_whitepaper.pdf">my whitepaper</a>
- * on the subject, and then explore the code in {@code blue.happening.bla.graph.internal}.
+ * on the subject, and then explore the code in {@code blue.happening.simulation.graph.internal}.
  * <p>
  * From the prospective of JSL, all you need to know to start simulating MANET's
  * is the following. After you have created your {@code networkGraph}, construct
@@ -186,7 +186,7 @@ import jsl.utilities.reporting.JSL;
  * experiment.runAll();							&#47&#47 run it
  * </pre>
  * <p>
- * To keep track of all the bla elements, JSL builds a tree of objects
+ * To keep track of all the simulation elements, JSL builds a tree of objects
  * extending {@code ModelElement}s, with a {@code Model} as it's root. As a
  * result, a parent object must be passed to {@code NetworkGraph} the
  * constructor. However convenience constructors that do not require a parent
@@ -194,22 +194,22 @@ import jsl.utilities.reporting.JSL;
  * <p>
  * JSL web site: <a href=
  * "http://www.uark.edu/~rossetti/research/research_interests/simulation/java_simulation_library_jsl/"
- * target="_blank">http://www.uark.edu/~rossetti/research/research_interests/
- * bla/java_simulation_library_jsl </a>
+ * target="_simulationnk">http://www.uark.edu/~rossetti/research/research_interests/
+ * simulation/java_simulation_library_jsl </a>
  * <p>
  * <h3>Java Universal Network/Graph Framework (JUNG)</h3>
  * <p>
  * From the perspective of JUNG, you can treat your {@code networkGraph} object
  * as any other {@code Graph} object: run algorithms on it, inspect it, mutate
- * it, et cetra. However you must keep in mind that while a bla is
+ * it, et cetra. However you must keep in mind that while a simulation is
  * running the {@code networkGraph} is mutating itself and concurrency issues
- * must be taken into account. Generally speaking, if your blue.happening.bla.graph operation is
+ * must be taken into account. Generally speaking, if your blue.happening.simulation.graph operation is
  * executed from within a JSL event it is safe. If it is executed from an
- * external thread, (one that isn't executing the bla), it will probably
+ * external thread, (one that isn't executing the simulation), it will probably
  * cause a race condition.
  * <p>
  * JUNG web site: <a href="http://jung.sourceforge.net/"
- * target="_blank">http://jung.sourceforge.net/</a>
+ * target="_simulationnk">http://jung.sourceforge.net/</a>
  *
  * @param <V> the type of vertex
  * @param <E> the type of edge
@@ -433,7 +433,7 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
     ;
 
     /**
-     * Adds {@code vertex} to this blue.happening.bla.graph at coordinates (0,0),
+     * Adds {@code vertex} to this blue.happening.simulation.graph at coordinates (0,0),
      * {@link StationaryMobilityPattern}, and TX and RX radii of
      * {@link Double#MIN_VALUE}.
      *
@@ -454,7 +454,7 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
     ;
 
     /**
-     * Adds {@code vertex} to this blue.happening.bla.graph at coordinates ({@code sx},{@code sy}),
+     * Adds {@code vertex} to this blue.happening.simulation.graph at coordinates ({@code sx},{@code sy}),
      * {@code mobilityPattern}, {@code txRadius}, and {@code rxRadius}.
      *
      * @param vertex          the vertex to add
@@ -478,12 +478,12 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
             notifyAddedVertexObservers(vertex);
 
             logger.debug(
-                    "Added vertex '" + vertex + "' to blue.happening.bla.graph: sx=" + sx + ", sy=" + sy
+                    "Added vertex '" + vertex + "' to blue.happening.simulation.graph: sx=" + sx + ", sy=" + sy
                             + ", mobilityPattern='" + mobilityPattern + "', txRadius="
                             + txRadius + ", rxRadius=" + rxRadius + ".");
         } else {
             logger.warn(
-                    "Failed to add vertex '" + vertex + "' to blue.happening.bla.graph: sx=" + sx + ", sy="
+                    "Failed to add vertex '" + vertex + "' to blue.happening.simulation.graph: sx=" + sx + ", sy="
                             + sy + ", mobilityPattern='" + mobilityPattern + "', txRadius="
                             + txRadius + ", rxRadius=" + rxRadius + ".");
         }
@@ -503,9 +503,9 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
             properties.removeFromModel();
             notifyRemovedVertexObservers(vertex);
 
-            logger.debug("Removed vertex '" + vertex + "' from blue.happening.bla.graph.");
+            logger.debug("Removed vertex '" + vertex + "' from blue.happening.simulation.graph.");
         } else {
-            logger.warn("Failed to remove vertex '" + vertex + "' from blue.happening.bla.graph.");
+            logger.warn("Failed to remove vertex '" + vertex + "' from blue.happening.simulation.graph.");
         }
         return wasRemoved;
     }
@@ -582,7 +582,7 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
 
     /**
      * Return {@code true} if an edge incident from {@code fromVertex} and
-     * incident to {@code toVertex} exists in blue.happening.bla.graph, {@code false } otherwise.
+     * incident to {@code toVertex} exists in blue.happening.simulation.graph, {@code false } otherwise.
      *
      * @param fromVertex the vertex that the edge is incident from
      * @param toVertex   the vertex that the edge is incident to
@@ -910,7 +910,7 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
 
     /**
      * This method is used to notify observers that {@code vertex} has been
-     * added to this blue.happening.bla.graph.
+     * added to this blue.happening.simulation.graph.
      *
      * @param vertex the vertex that was added
      */
@@ -921,7 +921,7 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
 
     /**
      * This method is used to notify observers that {@code vertex} has been
-     * removed from this blue.happening.bla.graph.
+     * removed from this blue.happening.simulation.graph.
      *
      * @param vertex the vertex that was removed
      */
@@ -932,7 +932,7 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
 
     /**
      * This method is used to notify observers that {@code edge} has been added
-     * to this blue.happening.bla.graph.
+     * to this blue.happening.simulation.graph.
      *
      * @param edge the edge that was added
      */
@@ -943,7 +943,7 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
 
     /**
      * This method is used to notify observers that {@code edge} has been
-     * removed to this blue.happening.bla.graph.
+     * removed to this blue.happening.simulation.graph.
      *
      * @param edge the edge that was removed
      */
@@ -953,10 +953,10 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
     }
 
     /**
-     * Returns the {@code vertex} that was last added to this blue.happening.bla.graph. If no
+     * Returns the {@code vertex} that was last added to this blue.happening.simulation.graph. If no
      * vertex has yet been added, {@code null} is returned.
      *
-     * @return the {@code vertex} that was last added to this blue.happening.bla.graph. If no
+     * @return the {@code vertex} that was last added to this blue.happening.simulation.graph. If no
      * vertex has yet been added, {@code null} is returned
      */
     public V getLastAddedVertex() {
@@ -964,10 +964,10 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
     }
 
     /**
-     * Returns the {@code vertex} that was last removed from this blue.happening.bla.graph. If no
+     * Returns the {@code vertex} that was last removed from this blue.happening.simulation.graph. If no
      * vertex has yet been removed, {@code null} is returned.
      *
-     * @return the {@code vertex} that was last removed from this blue.happening.bla.graph. If no
+     * @return the {@code vertex} that was last removed from this blue.happening.simulation.graph. If no
      * vertex has yet been removed, {@code null} is returned
      */
     public V getLastRemovedVertex() {
@@ -975,10 +975,10 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
     }
 
     /**
-     * Returns the {@code edge} that was last added to this blue.happening.bla.graph. If no edge
+     * Returns the {@code edge} that was last added to this blue.happening.simulation.graph. If no edge
      * has yet been added, {@code null} is returned.
      *
-     * @return the {@code edge} that was last added to this blue.happening.bla.graph. If no edge
+     * @return the {@code edge} that was last added to this blue.happening.simulation.graph. If no edge
      * has yet been added, {@code null} is returned
      */
     public E getLastAddedEdge() {
@@ -986,10 +986,10 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
     }
 
     /**
-     * Returns the {@code edge} that was last removed from this blue.happening.bla.graph. If no
+     * Returns the {@code edge} that was last removed from this blue.happening.simulation.graph. If no
      * edge has yet been removed, {@code null} is returned.
      *
-     * @return the {@code edge} that was last removed from this blue.happening.bla.graph. If no
+     * @return the {@code edge} that was last removed from this blue.happening.simulation.graph. If no
      * edge has yet been removed, {@code null} is returned
      */
     public E getLastRemovedEdge() {

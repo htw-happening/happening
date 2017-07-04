@@ -30,12 +30,12 @@ import jsl.modeling.Replication;
 
 
 /**
- * This blue.happening.bla.demo demonstrates an <em>unbounded</em> arena bla. It creates a
+ * This blue.happening.simulation.demo demonstrates an <em>unbounded</em> arena simulation. It creates a
  * bunch of vertices with a {@link RandomVTMobilityPattern
  * randomVTMobilityPattern}. These vertices have no arena bound and will
  * eventually travel to 'infinity'.
  * <p>
- * This is a GUI blue.happening.bla.demo.
+ * This is a GUI blue.happening.simulation.demo.
  *
  * @author Semyon Fishman (sf69@drexel.edu)
  */
@@ -43,7 +43,7 @@ public class RandomUnboundedDemo {
 
     public static void main(String[] args) throws InterruptedException {
 
-        // create a blue.happening.bla.graph
+        // create a blue.happening.simulation.graph
         StringStringNetworkGraph graph = new StringStringNetworkGraph();
 
         // configuration
@@ -63,18 +63,18 @@ public class RandomUnboundedDemo {
         MobilityPattern<String, String> pattern = new RandomVTMobilityPattern<String, String>(
                 vxMin, vxMax, vyMin, vyMax, travelTimeMin, travelTimeMax);
 
-        // add vertices to blue.happening.bla.graph at random coordinates
+        // add vertices to blue.happening.simulation.graph at random coordinates
         for (int i = 0; i < nVertices; i++) {
             graph.addVertex(i + "", initialX, initialY, pattern, txRadius, rxRadius);
         }
 
-        // Enable blue.happening.bla.visualization
+        // Enable blue.happening.simulation.visualization
         SimpleVisualizerFrame<String, String> frame = new SimpleVisualizerFrame<String, String>(
                 graph);
         @SuppressWarnings("unused")
         SimpleVisualizerPanel<String, String> panel = frame.getVisualizerPanel();
 
-        // introduce noop events to slow down bla
+        // introduce noop events to slow down simulation
         new NOOPAction(graph, 1, 10);
 
         // create replication

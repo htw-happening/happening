@@ -58,7 +58,7 @@ public class SimpleVisualizerPanel<V, E> extends VisualizationViewer<V, E> {
         setForeground(Color.WHITE);
 
         // add time counter
-        // addPostRenderPaintable(new TimeTextPaintable(this, blue.happening.bla.graph));
+        // addPostRenderPaintable(new TimeTextPaintable(this, blue.happening.simulation.graph));
         addPostRenderPaintable(new TimeTextPaintable<V, E>(this));
 
         // add mouse zoom

@@ -79,11 +79,11 @@ public class HappeningPredefinedMobilityDemo {
                     rxRadius);
         }
 
-        // Enable blue.happening.bla.visualization frame and panel
+        // Enable blue.happening.simulation.visualization frame and panel
         MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<Device, Connection>(
                 graph);
 
-        // introduce noop events to slow down bla; blue.happening.bla.graph, interval, sleep
+        // introduce noop events to slow down simulation; blue.happening.simulation.graph, interval, sleep
         new NOOPAction(graph, 1, 50);
 
         // create replication

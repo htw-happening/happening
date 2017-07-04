@@ -34,11 +34,11 @@ import jsl.modeling.Replication;
 
 
 /**
- * This blue.happening.bla.demo demonstrates how to code predefined mobility patterns using
+ * This blue.happening.simulation.demo demonstrates how to code predefined mobility patterns using
  * different {@link Waypoint} implementations: {@link DSWaypoint},
  * {@link DTWaypoint}, and {@link VTWaypoint}.
  * <p>
- * This is a GUI blue.happening.bla.demo.
+ * This is a GUI blue.happening.simulation.demo.
  *
  * @author Semyon Fishman (sf69@drexel.edu)
  */
@@ -48,7 +48,7 @@ public class PredefinedMobilityDemo {
     public static void main(String[] args)
             throws InterruptedException {
 
-        // create a blue.happening.bla.graph
+        // create a blue.happening.simulation.graph
         StringStringNetworkGraph graph = new StringStringNetworkGraph();
 
         // radii configurations
@@ -93,13 +93,13 @@ public class PredefinedMobilityDemo {
                 true, vtwaypoints);
         graph.addVertex("VT", 100, 900, vtmp, tx, rx);
 
-        // Enable blue.happening.bla.visualization
+        // Enable blue.happening.simulation.visualization
         SimpleVisualizerFrame<String, String> frame = new SimpleVisualizerFrame<String, String>(
                 graph);
         @SuppressWarnings("unused")
         SimpleVisualizerPanel<String, String> panel = frame.getVisualizerPanel();
 
-        // introduce noop events to slow down bla
+        // introduce noop events to slow down simulation
         new NOOPAction(graph, 1, 10);
 
         // create replication
