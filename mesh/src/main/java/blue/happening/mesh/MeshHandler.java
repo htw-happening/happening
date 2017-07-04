@@ -11,18 +11,20 @@ import blue.happening.mesh.statistics.NetworkStats;
 
 public class MeshHandler {
 
-    public static final int HOP_PENALTY = 15;
-    public static final int INITIAL_MAX_SEQUENCE = 512;
-    public static final int INITIAL_MESSAGE_TQ = 255;
-    public static final int INITIAL_MESSAGE_TTL = 5;
-    public static final int INITIAL_MIN_SEQUENCE = 0;
-    public static final int MESSAGE_TYPE_OGM = 1;
-    public static final int MESSAGE_TYPE_UCM = 2;
-    public static final int OGM_INTERVAL = 2;
-    public static final int PURGE_INTERVAL = 200;
-    public static final int SLIDING_WINDOW_SIZE = 12;
-    public static final long DEVICE_EXPIRATION_DURATION = 200;
-    public static final String BROADCAST_ADDRESS = "BROADCAST";
+    public static int INITIAL_MESSAGE_TQ = 255;
+    public static int INITIAL_MESSAGE_TTL = 5;
+    public static int HOP_PENALTY = 15;
+    public static int OGM_INTERVAL = 2;
+    public static int PURGE_INTERVAL = 200;
+    public static int SLIDING_WINDOW_SIZE = 12;
+    public static int DEVICE_EXPIRATION = 200;
+
+    private static final int INITIAL_MIN_SEQUENCE = 0;
+    private static final int INITIAL_MAX_SEQUENCE = 1024;
+
+    static final int MESSAGE_TYPE_OGM = 1;
+    static final int MESSAGE_TYPE_UCM = 2;
+    static final String BROADCAST_ADDRESS = "BROADCAST";
 
     private final RoutingTable routingTable;
     private final Router router;
