@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
+public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
 
     private IMeshHandlerCallback meshHandlerCallback;
 
