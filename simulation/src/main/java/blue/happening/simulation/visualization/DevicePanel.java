@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTable;
+import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -102,17 +103,20 @@ public class DevicePanel extends JPanel {
         final List<Double> stats2 = new ArrayList<>();
         final NetworkStatsPanel networkStats = new NetworkStatsPanel(stats1, stats2);
 
-        Runnable run = new Runnable() {
-            @Override
-            public void run() {
+        javax.swing.Timer timer = new Timer(1000, new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                if (device == null) {
+                    System.out.println("DevicePanel - device == null");
+                    return;
+                }
+                System.out.println("DevicePanel - device != null");
 
-                while (true) {
-                    System.out.println("RUNNABLE1!");
-                    if (device == null) continue;
-                    System.out.println("RUNNABLE2!");
-
+                try {
+                    System.out.println("DevicePanel -  get List");
                     List<StatsItem> ogmStats = device.getMeshHandler().getOgmStats().getInComingStats().getStats();
+                    System.out.println("DevicePanel - " + ogmStats);
                     for (StatsItem stat : ogmStats) {
+                        System.out.println("DevicePanel - MessageCount " + stat.getMessageCount());
                         stats1.add((double) stat.getMessageCount());
                     }
 
@@ -122,19 +126,17 @@ public class DevicePanel extends JPanel {
                     }
 
                     networkStats.setValues(stats1, stats2);
+                    System.out.println("DevicePanel - set Values");
 
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        break;
-                    }
+                }catch (Exception e){
+                    System.out.println(e.toString());
                 }
-            }
-        };
 
-        Thread thread = new Thread(run);
-        thread.start();
+
+            }
+        });
+        timer.start();
+
 
         final JPanel statsPanel = new JPanel();
         statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.Y_AXIS));

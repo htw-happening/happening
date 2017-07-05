@@ -1,1 +1,1 @@
-include ':dashboard', ':service', ':sdk', ':mesh', ':simulation'
+include ':dashboard', ':service', ':sdk', ':mesh', ':simulation', ':colorswipe'
