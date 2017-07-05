@@ -3,35 +3,32 @@ package blue.happening.mesh.statistics;
 import blue.happening.mesh.Message;
 
 public class NetworkStats {
-    private StatsHolder in;
-    private StatsHolder out;
+    private Stat in;
+    private Stat out;
 
     public NetworkStats() {
-        in = new StatsHolder();
-        out = new StatsHolder();
+        in = new Stat();
+        out = new Stat();
     }
 
     public void addInComingMessage(Message message) {
         in.addMessage(message);
     }
 
-    public StatsResult getInComingStats() {
-        return new StatsResult(in.getTotalMessageCount(), in.getTotalMessageSize(), in.getStatsFromNow());
-    }
-
-    public StatsItem getIncomingStatForTs(double ts) {
-        return in.getStatItemForTs(ts);
+    public Stat getIncomingStat() {
+        return in.copy();
     }
 
     public void addOutGoingMessage(Message message) {
         out.addMessage(message);
     }
 
-    public StatsResult getOutGoingStats() {
-        return new StatsResult(out.getTotalMessageCount(), out.getTotalMessageSize(), out.getStatsFromNow());
+    public Stat getOutgoingStat(){
+        return out.copy();
     }
 
-    public StatsItem getOutgoingStatForTs(double ts) {
-        return out.getStatItemForTs(ts);
+    public void updateTs(double ts){
+        in.updateTs(ts);
+        out.updateTs(ts);
     }
 }

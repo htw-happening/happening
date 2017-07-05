@@ -7,6 +7,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
+import blue.happening.mesh.statistics.NetworkStats;
+import blue.happening.mesh.statistics.StatsResult;
 
 public class MeshHandler {
 
@@ -17,11 +19,12 @@ public class MeshHandler {
     public static final int INITIAL_MIN_SEQUENCE = 0;
     public static final int MESSAGE_TYPE_OGM = 1;
     public static final int MESSAGE_TYPE_UCM = 2;
-    public static final int OGM_INTERVAL = 2;
-    public static final int PURGE_INTERVAL = 200;
+    public static final int OGM_INTERVAL = 4;
+    public static final int PURGE_INTERVAL = 10;
     public static final int SLIDING_WINDOW_SIZE = 12;
-    public static final long DEVICE_EXPIRATION_DURATION = 200;
+    public static final long DEVICE_EXPIRATION_DURATION = 40;
     public static final String BROADCAST_ADDRESS = "BROADCAST";
+    public static final int NETWORK_STAT_UPDATE_INTERVAL = 1;
 
     private final RoutingTable routingTable;
     private final Router router;
@@ -41,6 +44,10 @@ public class MeshHandler {
         ucmStats = new NetworkStats();
         ogmStats = new NetworkStats();
 
+        double currentTime = System.currentTimeMillis();
+        ucmStats.updateTs(currentTime);
+        ogmStats.updateTs(currentTime);
+
         router.addObserver(new RouterObserver(ogmStats, ucmStats));
 
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -52,6 +59,10 @@ public class MeshHandler {
                 new PurgeRunner(),
                 ThreadLocalRandom.current().nextInt(PURGE_INTERVAL),
                 PURGE_INTERVAL, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(
+                new NetworkStatsUpdateRunner(),
+                NETWORK_STAT_UPDATE_INTERVAL,
+                NETWORK_STAT_UPDATE_INTERVAL, TimeUnit.SECONDS);
     }
 
     public void registerLayer(Layer layer) {
@@ -94,14 +105,6 @@ public class MeshHandler {
         }
     }
 
-    public NetworkStats getOgmStats(){
-        return ogmStats;
-    }
-
-    public NetworkStats getUcmStats(){
-        return ucmStats;
-    }
-
     private class OGMRunner implements Runnable {
         @Override
         public void run() {
@@ -125,8 +128,32 @@ public class MeshHandler {
             try {
                 for (RemoteDevice remoteDevice : routingTable.getExpiredRemoteDevices()) {
                     routingTable.remove(remoteDevice.getUuid());
+                    System.out.println("REMOVE REMOTE DEVICE " + remoteDevice + " BECAUSE IT IS EXPIRED!");
                     remoteDevice.remove();
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private class NetworkStatsUpdateRunner implements Runnable {
+        @Override
+        public void run() {
+            try {
+                double currentTime = System.currentTimeMillis();
+                StatsResult networkStat = new StatsResult();
+
+                networkStat.setOgmIncoming(ogmStats.getIncomingStat());
+                networkStat.setOgmOutgoing(ogmStats.getOutgoingStat());
+                networkStat.setUcmIncoming(ucmStats.getIncomingStat());
+                networkStat.setUcmOutgoing(ucmStats.getOutgoingStat());
+
+                meshHandlerCallback.onNetworkStatsUpdated(networkStat);
+
+                ucmStats.updateTs(currentTime);
+                ogmStats.updateTs(currentTime);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -159,6 +186,10 @@ public class MeshHandler {
             } catch (Exception e) {
                 System.out.println("MESSAGE BROKEN: " + e.getMessage());
                 return;
+            }
+
+            if(uuid.equals("Device_0")){
+                System.out.println("MESSAGE RECEIVED");
             }
 
             if(message.getType() == MESSAGE_TYPE_OGM){

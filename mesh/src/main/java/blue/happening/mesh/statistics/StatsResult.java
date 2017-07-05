@@ -1,27 +1,40 @@
 package blue.happening.mesh.statistics;
 
-import java.util.List;
-
 public class StatsResult {
-    private double totalMessageCount;
-    private double totalMessageSize;
-    private List<StatsItem> stats;
+    private Stat ucmIncoming;
+    private Stat ucmOutgoing;
+    private Stat ogmIncoming;
+    private Stat ogmOutgoing;
 
-    public StatsResult(double totalMessageCount, double totalMessageSize, List<StatsItem> stats) {
-        this.totalMessageCount = totalMessageCount;
-        this.totalMessageSize = totalMessageSize;
-        this.stats = stats;
+    public Stat getUcmIncoming() {
+        return ucmIncoming;
     }
 
-    public double getTotalMessageCount() {
-        return totalMessageCount;
+    public void setUcmIncoming(Stat ucmIncoming) {
+        this.ucmIncoming = ucmIncoming;
     }
 
-    public double getTotalMessageSize() {
-        return totalMessageSize;
+    public Stat getUcmOutgoing() {
+        return ucmOutgoing;
     }
 
-    public List<StatsItem> getStats() {
-        return stats;
+    public void setUcmOutgoing(Stat ucmOutgoing) {
+        this.ucmOutgoing = ucmOutgoing;
+    }
+
+    public Stat getOgmIncoming() {
+        return ogmIncoming;
+    }
+
+    public void setOgmIncoming(Stat ogmIncoming) {
+        this.ogmIncoming = ogmIncoming;
+    }
+
+    public Stat getOgmOutgoing() {
+        return ogmOutgoing;
+    }
+
+    public void setOgmOutgoing(Stat ogmOutgoing) {
+        this.ogmOutgoing = ogmOutgoing;
     }
 }

@@ -20,6 +20,9 @@ import javax.swing.event.ListSelectionListener;
 
 import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.RemoteDevice;
+import blue.happening.mesh.statistics.NetworkStats;
+import blue.happening.mesh.statistics.Stat;
+import blue.happening.mesh.statistics.StatsResult;
 import blue.happening.simulation.entities.Device;
 
 
@@ -114,6 +117,19 @@ public class DevicePanel extends JPanel {
         });
     }
 
+    private void updateNetworkStats(StatsResult stats) {
+        Stat ogmIncoming = stats.getOgmIncoming();
+        Stat ogmOutgoing = stats.getOgmOutgoing();
+        String ogmIncomingTxt = "OGM Incoming Traffic: " +
+                ogmIncoming.getMessageCountForTs() + "/" + ogmIncoming.getTotalMessageCount() +
+                " (" + Math.round(ogmIncoming.getTotalMessageSize() / 1024) + "kb)";
+        String ogmOutgoingTxt = "OGM Outgoing Traffic: " +
+                ogmOutgoing.getMessageCountForTs() + "/" + ogmOutgoing.getTotalMessageCount() +
+                " (" + Math.round(ogmOutgoing.getTotalMessageSize() / 1024) + "kb)";
+        System.out.println(ogmIncomingTxt);
+        System.out.println(ogmOutgoingTxt);
+    }
+
     private void updateMessageLossSlider(Device device) {
         int newVal = (int) (device.getMockLayer().getMessageLoss() * 100);
         if (newVal != packageDropSlider.getValue()) {
@@ -178,6 +194,8 @@ public class DevicePanel extends JPanel {
                 case NEIGHBOUR_REMOVED:
                     removeNeighbour((MeshDevice) event.getOptions());
                     break;
+                case NETWORK_STATS_UPDATED:
+                    updateNetworkStats((StatsResult) event.getOptions());
             }
         } else {
             setDevice(device);

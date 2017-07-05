@@ -90,6 +90,7 @@ public class DeviceObserver implements Observer {
         DEVICE_CLICKED,
         DEVICE_UNCLICKED,
         SEND_MESSAGE,
-        RECEIVE_MESSAGE
+        RECEIVE_MESSAGE,
+        NETWORK_STATS_UPDATED
     }
 }

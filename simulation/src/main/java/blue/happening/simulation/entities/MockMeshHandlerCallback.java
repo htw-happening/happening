@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 
 import blue.happening.mesh.IMeshHandlerCallback;
 import blue.happening.mesh.MeshDevice;
+import blue.happening.mesh.statistics.StatsResult;
 import blue.happening.simulation.visualization.listener.DeviceObserver;
 
 
@@ -39,5 +40,10 @@ public class MockMeshHandlerCallback implements IMeshHandlerCallback {
     public void onDeviceRemoved(MeshDevice meshDevice) {
         logger.debug("App: Device removed");
         device.notifyDeviceObserver(DeviceObserver.Events.NEIGHBOUR_REMOVED, meshDevice);
+    }
+
+    @Override
+    public void onNetworkStatsUpdated(StatsResult networkStats) {
+        device.notifyDeviceObserver(DeviceObserver.Events.NETWORK_STATS_UPDATED, networkStats);
     }
 }
