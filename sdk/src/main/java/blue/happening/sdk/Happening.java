@@ -175,6 +175,18 @@ public class Happening {
     }
 
     /**
+     * Method to broadcast data to all devices.
+     */
+    public void sendMessage(byte[] message) {
+        try {
+            service.broadcastMessage(message, appId);
+            Log.d(TAG, "broadcast Message ");
+        } catch (RemoteException | NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Start the happening Service.
      * In case of Emergency - Use this Method when nothing works :-)
      */

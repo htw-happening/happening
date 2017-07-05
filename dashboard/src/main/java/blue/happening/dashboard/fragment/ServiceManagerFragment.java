@@ -36,6 +36,10 @@ public class ServiceManagerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 BlueDashboard.getInstance().getHappening().startHappeningService();
+
+                // TODO TEST Boradcast Message
+                BlueDashboard.getInstance().getHappening().sendMessage("jojo".getBytes());
+
             }
         });
 
