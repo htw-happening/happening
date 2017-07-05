@@ -60,7 +60,7 @@ public class Message implements Serializable {
         return previousHop;
     }
 
-    public void setPreviousHop(String lastSender) {
+    void setPreviousHop(String lastSender) {
         this.previousHop = lastSender;
     }
 
@@ -72,7 +72,7 @@ public class Message implements Serializable {
         return tq;
     }
 
-    public void setTq(int tq) {
+    void setTq(int tq) {
         this.tq = tq;
     }
 
@@ -88,7 +88,7 @@ public class Message implements Serializable {
         return ttl;
     }
 
-    public void setTtl(int ttl) {
+    void setTtl(int ttl) {
         this.ttl = ttl;
     }
 
