@@ -580,6 +580,41 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
         return wasRemoved;
     }
 
+    public boolean removeEdges(V toVertex) {
+        boolean allRemoved = true;
+        for (E edge : getIncidentEdges(toVertex)) {
+            final boolean wasRemoved = removeEdge(edge);
+            if (wasRemoved) {
+                notifyRemovedEdgeObservers(edge);
+                logger.debug("Removed edge '" + edge + "' to '" + toVertex + "'.");
+            } else {
+                allRemoved = false;
+                logger.warn("Failed to remove edge '" + edge + "' to '" + toVertex + "'.");
+            }
+        }
+        return allRemoved;
+    }
+
+    public boolean addEdges(V fromVertex) {
+        boolean allAdded = true;
+        for (VertexProperties<V, E> to : verticesProperties.values()) {
+            if (fromVertex == to.getVertex()) {
+                continue;
+            }
+            final VerticesDistance<V, E> distance = new VerticesDistance<>(this,
+                    fromVertex, to.getVertex());
+            final double fromTxRadius = getRadiusTx(fromVertex, to.getVertex());
+            final double toTxRadius = getRadiusTx(to.getVertex(), fromVertex);
+            if (distance.getDistance() <= fromTxRadius) {
+                allAdded &= addEdge(fromVertex, to.getVertex());
+            }
+            if (distance.getDistance() <= toTxRadius) {
+                allAdded &= addEdge(to.getVertex(), fromVertex);
+            }
+        }
+        return allAdded;
+    }
+
     /**
      * Return {@code true} if an edge incident from {@code fromVertex} and
      * incident to {@code toVertex} exists in blue.happening.simulation.graph, {@code false } otherwise.
