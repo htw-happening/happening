@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 import blue.happening.mesh.statistics.NetworkStats;
 
-import blue.happening.mesh.statistics.NetworkStats;
 import blue.happening.mesh.statistics.StatsResult;
 
 public class MeshHandler {
@@ -18,7 +17,7 @@ public class MeshHandler {
     public static int HOP_PENALTY = 15;
     public static int OGM_INTERVAL = 2;
     public static int PURGE_INTERVAL = 200;
-    public static int NETWORK_STAT_UPDATE_INTERVAL = 1;
+    public static int NETWORK_STAT_INTERVAL = 1;
     public static int SLIDING_WINDOW_SIZE = 12;
     public static int DEVICE_EXPIRATION = 200;
 
@@ -65,8 +64,8 @@ public class MeshHandler {
                 PURGE_INTERVAL, TimeUnit.SECONDS);
         executor.scheduleAtFixedRate(
                 new NetworkStatsUpdateRunner(),
-                NETWORK_STAT_UPDATE_INTERVAL,
-                NETWORK_STAT_UPDATE_INTERVAL, TimeUnit.SECONDS);
+                NETWORK_STAT_INTERVAL,
+                NETWORK_STAT_INTERVAL, TimeUnit.SECONDS);
     }
 
     public void registerLayer(Layer layer) {

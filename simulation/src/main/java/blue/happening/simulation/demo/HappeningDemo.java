@@ -34,6 +34,7 @@ public class HappeningDemo {
         MeshHandler.HOP_PENALTY = 15;
         MeshHandler.OGM_INTERVAL = 5;
         MeshHandler.PURGE_INTERVAL = 200;
+        MeshHandler.NETWORK_STAT_INTERVAL = 1;
         MeshHandler.SLIDING_WINDOW_SIZE = 12;
         MeshHandler.DEVICE_EXPIRATION = 200;
 
