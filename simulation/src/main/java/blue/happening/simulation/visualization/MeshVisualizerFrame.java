@@ -25,9 +25,7 @@ public class MeshVisualizerFrame<V, E> extends JFrame {
         // new JComponentRepaintAction(blue.happening.simulation.graph, "test", visualizerPanel, 0.01);
         new TimedJComponenetRepainter(visualizerPanel, 15);
 
-        // add buttons panel
-        ButtonsPanel<V, E> buttonsPanel = new ButtonsPanel<V, E>(visualizerPanel);
-        add(buttonsPanel, BorderLayout.SOUTH);
+        // add device panel
         DevicePanel panel = new DevicePanel();
         add(panel, BorderLayout.EAST);
         graph.setDevicePanel(panel);
