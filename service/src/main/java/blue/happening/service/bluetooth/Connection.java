@@ -122,9 +122,12 @@ public class Connection {
                     aPackage = packageQueue.take();
                     if (aPackage != null) {
                         Package[] packages = Packetizer.splitPackages(aPackage);
-                        for (Package packageToSend : packages) {
-                            outputStream.write(packageToSend.getData());
-                            Log.d(TAG, "SEND via layer: " + packageToSend.getData().length + " bytes");
+                        WriteLocker locker = WriteLocker.getInstance();
+                        synchronized (locker) {
+                            for (Package packageToSend : packages) {
+                                outputStream.write(packageToSend.getData());
+                                Log.d(TAG, "SEND via layer: " + packageToSend.getData().length + " bytes");
+                            }
                         }
                     }
                 } catch (Exception e) {

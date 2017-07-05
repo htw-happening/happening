@@ -43,7 +43,7 @@ public abstract class RemoteDevice implements IRemoteDevice {
     }
 
     boolean isExpired() {
-        long expirationMillis = MeshHandler.DEVICE_EXPIRATION_DURATION * 1000;
+        long expirationMillis = MeshHandler.DEVICE_EXPIRATION * 1000L;
         return System.currentTimeMillis() - lastSeen > expirationMillis;
     }
 

@@ -34,11 +34,11 @@ import jsl.utilities.statistic.StatisticAccessorIfc;
 /**
  * An {@code edgeDurationStatistician} is used to collect statistical
  * information about the <em>edge durations</em> in a {@link NetworkGraph
- * networkGraph} as it is mutating throughout a bla.
+ * networkGraph} as it is mutating throughout a simulation.
  * <p>
  * To use this class, construct an instance of it using your
  * {@code networkGraph} as the argument, <em>before</em> the start of the
- * bla. After the bla, use the
+ * simulation. After the simulation, use the
  * {@code getAcrossReplicationStatistic()} method to get a
  * {@link StatisticAccessorIfc}.
  *
@@ -61,7 +61,7 @@ public class EdgeDurationStatistician<V, E> {
      * Returns a {@code statisticAccessorIfc} for the across replication
      * statistics for the edge duration.
      * <p>
-     * Call this <em>after</em> the bla is over.
+     * Call this <em>after</em> the simulation is over.
      *
      * @return a {@code statisticAccessorIfc} for the across replication
      * statistics that have been collected
@@ -74,7 +74,7 @@ public class EdgeDurationStatistician<V, E> {
      * Returns the average edge duration. For other statistics use
      * {@code getAcrossReplicationStatistic()}.
      * <p>
-     * Call this <em>after</em> the bla is over.
+     * Call this <em>after</em> the simulation is over.
      *
      * @return the average edge duration
      */

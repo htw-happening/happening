@@ -23,6 +23,7 @@ package blue.happening.simulation.demo;
 
 import java.util.Random;
 
+import blue.happening.simulation.graph.internal.StringStringNetworkGraph;
 import blue.happening.simulation.mobility.MobilityPattern;
 import blue.happening.simulation.mobility.RandomDSMobilityPattern;
 import blue.happening.simulation.mobility.RectangularBoundary;
@@ -33,11 +34,11 @@ import jsl.modeling.Replication;
 
 
 /**
- * This blue.happening.bla.demo demonstrates a <em>bounded</em> arena bla. It creates a
+ * This blue.happening.simulation.demo demonstrates a <em>bounded</em> arena simulation. It creates a
  * bunch of vertices with a {@link RandomDSMobilityPattern
  * randomDSMobilityPattern} that bounds them in a fixed rectangular arena.
  * <p>
- * This is a GUI blue.happening.bla.demo.
+ * This is a GUI blue.happening.simulation.demo.
  * <p>
  * Note, when the GUI first appears you won't see the vertices because they will
  * be in the lower right corner. You should zoom out till you see them and then
@@ -49,7 +50,7 @@ public class RandomBoundedDemo {
 
     public static void main(String[] args) throws InterruptedException {
 
-        // create a blue.happening.bla.graph
+        // create a blue.happening.simulation.graph
         StringStringNetworkGraph graph = new StringStringNetworkGraph();
 
         // configuration
@@ -69,7 +70,7 @@ public class RandomBoundedDemo {
         MobilityPattern<String, String> pattern = new RandomDSMobilityPattern<String, String>(
                 bound, speedMin, speedMax);
 
-        // add vertices to blue.happening.bla.graph at random coordinates
+        // add vertices to blue.happening.simulation.graph at random coordinates
         final Random random = new Random();
         for (int i = 0; i < nVertices; i++) {
             final double initialX =
@@ -79,13 +80,13 @@ public class RandomBoundedDemo {
             graph.addVertex("" + i, initialX, initialY, pattern, txRadius, rxRadius);
         }
 
-        // Enable blue.happening.bla.visualization
+        // Enable blue.happening.simulation.visualization
         SimpleVisualizerFrame<String, String> frame = new SimpleVisualizerFrame<String, String>(
                 graph);
         @SuppressWarnings("unused")
         SimpleVisualizerPanel<String, String> panel = frame.getVisualizerPanel();
 
-        // introduce noop events to slow down bla
+        // introduce noop events to slow down simulation
         new NOOPAction(graph, 1, 10);
 
         // create replication

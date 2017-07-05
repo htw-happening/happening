@@ -19,7 +19,7 @@
  * along with ManetSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package blue.happening.simulation.demo;
+package blue.happening.simulation.graph.internal;
 
 import blue.happening.simulation.graph.EdgePool;
 import blue.happening.simulation.graph.NetworkGraph;
