@@ -31,11 +31,9 @@ public class HappeningService extends Service {
     private static final String HAPPENING_APP_ID = "HAPPENING_APP_ID";
     private static final int START_MODE = START_STICKY;
     private static final boolean ALLOW_REBIND = true;
-
-    private StatsLogTimer statsLogTimer;
-
     private static HashMap<String, IHappeningCallback> callbacks = new HashMap<>();
     private final String TAG = getClass().getSimpleName();
+    private StatsLogTimer statsLogTimer;
     private Layer bluetoothLayer = null;
     private MeshHandler meshHandler = null;
     private final IHappeningService.Stub binder = new IHappeningService.Stub() {
@@ -72,9 +70,35 @@ public class HappeningService extends Service {
         }
 
         @Override
-        public void restart() throws RemoteException {
-            Log.v(TAG, "restart");
-            Layer.getInstance().reset();
+        public void broadcastMessage(byte[] message, String appId) throws RemoteException {
+            Log.v(TAG, "sendMessage " + new String(message));
+            byte[] data = AppPackage.createAppPackage(appId.hashCode(), message);
+            List<HappeningClient> devices = getClients();
+            for (HappeningClient device : devices) {
+                meshHandler.sendMessage(data, device.getUuid());
+            }
+//             Layer.getInstance().sendToDevice(deviceId, content);
+        }
+
+        @Override
+        public void startService() throws RemoteException {
+            Log.v(TAG, "startService");
+            Intent happening = new Intent(getApplicationContext(), HappeningService.class);
+            getApplication().startService(happening);
+        }
+
+        @Override
+        public void restartService() throws RemoteException {
+            Log.v(TAG, "restartService");
+            stopService();
+            startService();
+        }
+
+        @Override
+        public void stopService() throws RemoteException {
+            Log.v(TAG, "stopService");
+            Intent happening = new Intent(getApplicationContext(), HappeningService.class);
+            getApplication().stopService(happening);
         }
     };
 

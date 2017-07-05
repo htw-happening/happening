@@ -9,6 +9,7 @@ public enum MenuItems {
      */
     DEVICE_FRAGMENT("Devices"),
     NETWORK_STATS_FRAGMENT("Network Stats"),
+    SERVICE_MANAGER_FRAGMENT("Service Manager"),
     IMPRESSUM_FRAGMENT("Impressum");
 
     // fields

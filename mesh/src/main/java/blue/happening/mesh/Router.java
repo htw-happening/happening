@@ -138,9 +138,19 @@ class Router extends Observable {
         }
     }
 
+    private boolean shouldUCMBeForwardedTo(Message message, String receiverUuid) {
+        if (message.getSource().equals(receiverUuid)) {
+            return false;
+        } else if (message.getPreviousHop().equals(receiverUuid)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     private int calculateTq(Message message) throws RoutingException {
         RemoteDevice previousHop = routingTable.get(message.getPreviousHop());
-        float previousTq = 0;
+        float previousTq;
         if (previousHop != null) {
             previousTq = previousHop.getTq();
         } else {
@@ -168,21 +178,29 @@ class Router extends Observable {
     private void forwardMessage(Message message) throws RoutingException {
         Message preparedMessage = prepareMessage(message);
         RemoteDevice destination = routingTable.get(message.getDestination());
-        RemoteDevice bestNeighbour = routingTable.getBestNeighbourForRemoteDevice(destination);
-        if (bestNeighbour != null) {
-            bestNeighbour.sendMessage(preparedMessage);
-            trigger(Events.UCM_SENT, preparedMessage);
+        for (RemoteDevice bestNeighbour : routingTable.getBestNeighboursForRemoteDevice(destination)) {
+            if (shouldUCMBeForwardedTo(message, bestNeighbour.getUuid())) {
+                bestNeighbour.sendMessage(preparedMessage);
+                trigger(Events.UCM_SENT, preparedMessage);
+                return;
+            }
         }
+        trigger(Events.UCM_DROPPED, preparedMessage);
     }
 
     private void broadcastMessage(Message message) throws RoutingException {
         Message preparedMessage = prepareMessage(message);
+        boolean ogmSent = false;
         for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
             if (shouldOGMBeEchoedTo(message, remoteDevice.getUuid()) ||
                     shouldOGMBeBroadcastTo(message, remoteDevice.getUuid())) {
                 remoteDevice.sendMessage(preparedMessage);
                 trigger(Events.OGM_SENT, preparedMessage);
+                ogmSent = true;
             }
+        }
+        if (!ogmSent) {
+            trigger(Events.OGM_DROPPED, preparedMessage);
         }
     }
 
@@ -192,7 +210,7 @@ class Router extends Observable {
         }
     }
 
-    void trigger(Events arg, Object options) {
+    private void trigger(Events arg, Object options) {
         setChanged();
         notifyObservers(new Event(arg, options));
     }

@@ -85,6 +85,11 @@ public class Connection {
     }
 
     @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
+    @Override
     public String toString() {
         return fromDevice.getName() + " → " + toDevice.getName();
     }

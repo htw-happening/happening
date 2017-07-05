@@ -26,7 +26,7 @@ public class HappeningDemo {
         final float delayVariance = 0.1f;
         final float messageLoss = 0.3f;
         final double speedMin = 0.0D;
-        final double speedMax = 0.0D;
+        final double speedMax = 2.0D;
         final double width = 1000;
         final double height = 1000;
         MeshHandler.INITIAL_MESSAGE_TQ = 255;
@@ -34,6 +34,7 @@ public class HappeningDemo {
         MeshHandler.HOP_PENALTY = 15;
         MeshHandler.OGM_INTERVAL = 5;
         MeshHandler.PURGE_INTERVAL = 200;
+        MeshHandler.NETWORK_STAT_INTERVAL = 1;
         MeshHandler.SLIDING_WINDOW_SIZE = 12;
         MeshHandler.DEVICE_EXPIRATION = 200;
 
