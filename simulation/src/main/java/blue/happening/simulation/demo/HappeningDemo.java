@@ -4,6 +4,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 
+import blue.happening.mesh.MeshHandler;
 import blue.happening.simulation.entities.Connection;
 import blue.happening.simulation.entities.Device;
 import blue.happening.simulation.graph.internal.MeshGraph;
@@ -20,14 +21,22 @@ public class HappeningDemo {
     public static void main(String[] args) throws InterruptedException {
 
         // configuration
-        final int deviceCount = 9;
-        final int messageDelay = 1000;
+        final int deviceCount = 16;
+        final int messageDelay = 500;
         final float delayVariance = 0.1f;
-        final float messageLoss = 0.0f;
+        final float messageLoss = 0.3f;
         final double speedMin = 0.0D;
         final double speedMax = 0.0D;
         final double width = 1000;
         final double height = 1000;
+        MeshHandler.INITIAL_MESSAGE_TQ = 255;
+        MeshHandler.INITIAL_MESSAGE_TTL = 5;
+        MeshHandler.HOP_PENALTY = 15;
+        MeshHandler.OGM_INTERVAL = 5;
+        MeshHandler.PURGE_INTERVAL = 200;
+        MeshHandler.NETWORK_STAT_INTERVAL = 1;
+        MeshHandler.SLIDING_WINDOW_SIZE = 12;
+        MeshHandler.DEVICE_EXPIRATION = 200;
 
         // create a custom graph with Vertex: Device and Edge: Connection
         MeshGraph graph = new MeshGraph();

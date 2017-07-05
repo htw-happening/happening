@@ -14,7 +14,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTable;
-import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -26,7 +25,9 @@ import javax.swing.event.ListSelectionListener;
 
 import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.RemoteDevice;
-import blue.happening.mesh.statistics.StatsItem;
+import blue.happening.mesh.statistics.NetworkStats;
+import blue.happening.mesh.statistics.Stat;
+import blue.happening.mesh.statistics.StatsResult;
 import blue.happening.simulation.entities.Device;
 
 
@@ -102,41 +103,6 @@ public class DevicePanel extends JPanel {
         final List<Double> stats1 = new ArrayList<>();
         final List<Double> stats2 = new ArrayList<>();
         final NetworkStatsPanel networkStats = new NetworkStatsPanel(stats1, stats2);
-
-        javax.swing.Timer timer = new Timer(1000, new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                if (device == null) {
-                    System.out.println("DevicePanel - device == null");
-                    return;
-                }
-                System.out.println("DevicePanel - device != null");
-
-                try {
-                    System.out.println("DevicePanel -  get List");
-                    List<StatsItem> ogmStats = device.getMeshHandler().getOgmStats().getInComingStats().getStats();
-                    System.out.println("DevicePanel - " + ogmStats);
-                    for (StatsItem stat : ogmStats) {
-                        System.out.println("DevicePanel - MessageCount " + stat.getMessageCount());
-                        stats1.add((double) stat.getMessageCount());
-                    }
-
-                    List<StatsItem> ucmStats = device.getMeshHandler().getUcmStats().getInComingStats().getStats();
-                    for (StatsItem stat : ucmStats) {
-                        stats2.add((double) stat.getMessageCount());
-                    }
-
-                    networkStats.setValues(stats1, stats2);
-                    System.out.println("DevicePanel - set Values");
-
-                }catch (Exception e){
-                    System.out.println(e.toString());
-                }
-
-
-            }
-        });
-        timer.start();
-
 
         final JPanel statsPanel = new JPanel();
         statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.Y_AXIS));
@@ -217,6 +183,19 @@ public class DevicePanel extends JPanel {
         return button;
     }
 
+    private void updateNetworkStats(StatsResult stats) {
+        Stat ogmIncoming = stats.getOgmIncoming();
+        Stat ogmOutgoing = stats.getOgmOutgoing();
+        String ogmIncomingTxt = "OGM Incoming Traffic: " +
+                ogmIncoming.getMessageCountForTs() + "/" + ogmIncoming.getTotalMessageCount() +
+                " (" + Math.round(ogmIncoming.getTotalMessageSize() / 1024) + "kb)";
+        String ogmOutgoingTxt = "OGM Outgoing Traffic: " +
+                ogmOutgoing.getMessageCountForTs() + "/" + ogmOutgoing.getTotalMessageCount() +
+                " (" + Math.round(ogmOutgoing.getTotalMessageSize() / 1024) + "kb)";
+        System.out.println(ogmIncomingTxt);
+        System.out.println(ogmOutgoingTxt);
+    }
+
     private void updateMessageLossSlider(Device device) {
         int newVal = (int) (device.getMockLayer().getMessageLoss() * 100);
         if (newVal != packageDropSlider.getValue()) {
@@ -281,6 +260,8 @@ public class DevicePanel extends JPanel {
                 case NEIGHBOUR_REMOVED:
                     removeNeighbour((MeshDevice) event.getOptions());
                     break;
+                case NETWORK_STATS_UPDATED:
+                    updateNetworkStats((StatsResult) event.getOptions());
             }
         } else {
             setDevice(device);
