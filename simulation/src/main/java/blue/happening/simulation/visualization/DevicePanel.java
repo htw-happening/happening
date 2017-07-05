@@ -1,23 +1,23 @@
 package blue.happening.simulation.visualization;
 
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -25,7 +25,6 @@ import javax.swing.event.ListSelectionListener;
 
 import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.RemoteDevice;
-import blue.happening.mesh.statistics.NetworkStats;
 import blue.happening.mesh.statistics.Stat;
 import blue.happening.mesh.statistics.StatsResult;
 import blue.happening.simulation.entities.Device;
@@ -44,14 +43,24 @@ public class DevicePanel extends JPanel {
     private Device device;
     private List<RemoteDevice> selectedDevices;
 
+    private JPanel tablePanel;
+    private NetworkStatsPanel ogmNetworkStats;
+    private NetworkStatsPanel ucmNetworkStats;
+    private List<Double> ogmIn = new LinkedList<>();
+    private List<Double> ogmOut = new LinkedList<>();
+    private List<Double> ucmIn = new LinkedList<>();
+    private List<Double> ucmOut = new LinkedList<>();
+    private boolean packageSize = true;
+    private boolean packageCount;
+
     DevicePanel() {
         selectedDevices = new ArrayList<>();
         setSize(PANEL_WIDTH, PANEL_HEIGHT);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        JButton sliderPanelToggle = createToggleButton("Sliders");
-        JButton tablePanelToggle = createToggleButton("Devices");
-        JButton statsPanelToggle = createToggleButton("Stats");
+        final JTabbedPane tabbedPane = new JTabbedPane();
+
+        // Button Panel
 
         deviceLabel = new JLabel("Current device", JLabel.LEFT);
         disableButton = new JButton("Toggle device");
@@ -62,9 +71,8 @@ public class DevicePanel extends JPanel {
         btnPanel.add(deviceLabel);
         btnPanel.add(disableButton);
         btnPanel.add(sendButton);
-        add(btnPanel);
 
-        add(sliderPanelToggle);
+        // Slider Panel
 
         final JPanel sliderPanel = new JPanel();
         sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.Y_AXIS));
@@ -87,30 +95,68 @@ public class DevicePanel extends JPanel {
         sliderPanel.add(new JLabel("Package Send Delay", JLabel.CENTER));
         sliderPanel.add(packageDelaySlider);
 
-        add(sliderPanel);
-
-        add(tablePanelToggle);
+        // Devices Panel
 
         table = new JTable();
         table.setAutoCreateRowSorter(true);
-        final JScrollPane tableScrollPane = new JScrollPane(table);
-        tableScrollPane.setVisible(false);
 
-        add(tableScrollPane);
+        tablePanel = new JPanel();
+        tablePanel.setLayout(new BoxLayout(tablePanel, BoxLayout.Y_AXIS));
+        tablePanel.add(new JLabel("Devices"));
+        tablePanel.add(new JScrollPane(table));
+        tablePanel.setVisible(false);
 
-        add(statsPanelToggle, JButton.LEFT_ALIGNMENT);
+        JPanel devicesPanel = new JPanel();
+        devicesPanel.setLayout(new BoxLayout(devicesPanel, BoxLayout.Y_AXIS));
+        devicesPanel.add(btnPanel);
+        devicesPanel.add(tablePanel);
 
-        final List<Double> stats1 = new ArrayList<>();
-        final List<Double> stats2 = new ArrayList<>();
-        final NetworkStatsPanel networkStats = new NetworkStatsPanel(stats1, stats2);
+        // Network Stats
+
+        String[] settings = {"Data", "Packages"};
+
+        JComboBox<String> selectStats = new JComboBox<>(settings);
+        selectStats.setSelectedIndex(0);
+        selectStats.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                packageCount = !packageCount;
+                packageSize = !packageSize;
+            }
+        });
+
+        ogmNetworkStats = new NetworkStatsPanel(ogmIn, ogmOut);
+        ucmNetworkStats = new NetworkStatsPanel(ucmIn, ucmOut);
 
         final JPanel statsPanel = new JPanel();
         statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.Y_AXIS));
         statsPanel.add(new JLabel("Network Stats"), JLabel.CENTER);
-        statsPanel.add(networkStats);
+        statsPanel.add(selectStats);
+        statsPanel.add(ogmNetworkStats);
+        //statsPanel.add(ucmNetworkStats);
         statsPanel.setVisible(false);
 
-        add(statsPanel);
+        // Message Logging
+
+        JPanel logPanel = new JPanel();
+        logPanel.setOpaque(true);
+        logPanel.setBackground(null);
+
+        // Tabs
+
+        tabbedPane.addTab("Settings", sliderPanel);
+        tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
+
+        tabbedPane.addTab("Devices", devicesPanel);
+        tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
+
+        tabbedPane.addTab("Stats", statsPanel);
+        tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
+
+        tabbedPane.addTab("Logs", logPanel);
+        tabbedPane.setMnemonicAt(3, KeyEvent.VK_4);
+
+        add(tabbedPane);
 
         setVisible(true);
 
@@ -133,8 +179,9 @@ public class DevicePanel extends JPanel {
         sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
+                String s = (String) JOptionPane.showInputDialog(tabbedPane, "Your Message:", "Send Message", JOptionPane.PLAIN_MESSAGE, null, null, "Hallo");
                 for (RemoteDevice remotedevice : selectedDevices) {
-                    device.getMeshHandler().sendMessage("Hello".getBytes(), remotedevice.getUuid());
+                    device.getMeshHandler().sendMessage(s.getBytes(), remotedevice.getUuid());
                 }
             }
         });
@@ -145,47 +192,19 @@ public class DevicePanel extends JPanel {
                 device.toggleEnabled();
             }
         });
-
-        sliderPanelToggle.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                sliderPanel.setVisible(!sliderPanel.isVisible());
-            }
-        });
-
-        tablePanelToggle.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                tableScrollPane.setVisible(!tableScrollPane.isVisible());
-            }
-        });
-
-        statsPanelToggle.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                statsPanel.setVisible(!statsPanel.isVisible());
-            }
-        });
-    }
-
-    private static JButton createToggleButton(String text) {
-        JButton button = new JButton(text);
-        button.setForeground(Color.BLACK);
-        button.setBackground(Color.GREEN);
-        Border line = new LineBorder(Color.BLACK);
-        Border margin = new EmptyBorder(5, 50, 5, 50);
-        Border compound = new CompoundBorder(line, margin);
-        button.setBorder(compound);
-        //button.setBorderPainted(false);
-        //button.setContentAreaFilled(false);
-        //button.setFocusPainted(false);
-        //button.setHorizontalAlignment(SwingConstants.LEFT);
-        return button;
     }
 
     private void updateNetworkStats(StatsResult stats) {
         Stat ogmIncoming = stats.getOgmIncoming();
         Stat ogmOutgoing = stats.getOgmOutgoing();
+
+        Stat ucmIncoming = stats.getUcmIncoming();
+        Stat ucmOutgoing = stats.getUcmOutgoing();
+
+        updateNetworkStats(ogmIncoming, ogmOutgoing, ogmIn, ogmOut, ogmNetworkStats, 20);
+        updateNetworkStats(ucmIncoming, ucmOutgoing, ucmIn, ucmOut, ucmNetworkStats, 20);
+
+        /*
         String ogmIncomingTxt = "OGM Incoming Traffic: " +
                 ogmIncoming.getMessageCountForTs() + "/" + ogmIncoming.getTotalMessageCount() +
                 " (" + Math.round(ogmIncoming.getTotalMessageSize() / 1024) + "kb)";
@@ -194,6 +213,23 @@ public class DevicePanel extends JPanel {
                 " (" + Math.round(ogmOutgoing.getTotalMessageSize() / 1024) + "kb)";
         System.out.println(ogmIncomingTxt);
         System.out.println(ogmOutgoingTxt);
+        */
+    }
+
+    private void updateNetworkStats(Stat in, Stat out, List<Double> inList, List<Double> outList,
+                                    NetworkStatsPanel statsPanel, int windowSize) {
+        if (inList.size() > windowSize)
+            inList.remove(0);
+        if (outList.size() > windowSize)
+            outList.remove(0);
+        if (packageCount) {
+            inList.add((double) in.getMessageCountForTs());
+            outList.add((double) out.getMessageCountForTs());
+        } else if (packageSize) {
+            inList.add((double) in.getMessageSizeForTs());
+            outList.add((double) out.getMessageSizeForTs());
+        }
+        statsPanel.setValues(inList, outList);
     }
 
     private void updateMessageLossSlider(Device device) {
@@ -205,7 +241,7 @@ public class DevicePanel extends JPanel {
     }
 
     private void updatePackageDelay(Device device) {
-        int newVal = (int) (device.getMessageDelay());
+        int newVal = device.getMessageDelay();
         if (newVal != packageDelaySlider.getValue()) {
             packageDelaySlider.setValue(newVal);
             packageDelaySlider.updateUI();
@@ -218,6 +254,7 @@ public class DevicePanel extends JPanel {
         table.setModel(neighbourTableModel);
         table.getSelectionModel().addListSelectionListener(new SharedListSelectionHandler());
         table.updateUI();
+        tablePanel.setVisible(true);
     }
 
     private void addNeighbour(MeshDevice neighbour) {
@@ -245,7 +282,15 @@ public class DevicePanel extends JPanel {
         updateMessageLossSlider(device);
         updatePackageDelay(device);
         setNeighbourList(device);
+        clearNetworkStats();
         deviceLabel.setText(device.getName());
+    }
+
+    private void clearNetworkStats() {
+        ogmIn.clear();
+        ogmOut.clear();
+        ucmIn.clear();
+        ucmOut.clear();
     }
 
     public void updateDevice(Device device, Device.DeviceChangedEvent event) {

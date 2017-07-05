@@ -18,6 +18,7 @@ import blue.happening.IHappeningService;
 import blue.happening.mesh.IMeshHandlerCallback;
 import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.MeshHandler;
+import blue.happening.mesh.statistics.StatsResult;
 import blue.happening.service.bluetooth.AppPackage;
 import blue.happening.service.bluetooth.Layer;
 
@@ -134,6 +135,11 @@ public class HappeningService extends Service {
                         }
                     }
                 }
+            }
+
+            @Override
+            public void onNetworkStatsUpdated(StatsResult networkStats) {
+
             }
 
             @Override
