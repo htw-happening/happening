@@ -11,11 +11,11 @@ import blue.happening.simulation.entities.Connection;
 public class ConnectionStrokeTransformer<I extends Connection, O extends Stroke>
         implements Transformer<Connection, Stroke> {
 
-    private final Stroke noStroke = new BasicStroke(0.25f, BasicStroke.CAP_BUTT,
+    private final Stroke noStroke = new BasicStroke(0.5f, BasicStroke.CAP_BUTT,
             BasicStroke.JOIN_MITER, 10.0f);
-    private final Stroke thinStroke = new BasicStroke(1.75f, BasicStroke.CAP_BUTT,
+    private final Stroke thinStroke = new BasicStroke(1.5f, BasicStroke.CAP_BUTT,
             BasicStroke.JOIN_MITER, 10.0f);
-    private final Stroke thickStroke = new BasicStroke(5.25f, BasicStroke.CAP_BUTT,
+    private final Stroke thickStroke = new BasicStroke(4.5f, BasicStroke.CAP_BUTT,
             BasicStroke.JOIN_MITER, 10.0f);
 
     @Override

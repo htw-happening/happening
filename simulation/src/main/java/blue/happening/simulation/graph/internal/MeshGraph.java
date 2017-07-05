@@ -11,16 +11,13 @@ public class MeshGraph extends NetworkGraph<Device, Connection> {
     public MeshGraph() {
         super(new DeviceEdgePool());
         addObserver(new MeshGraphObserver());
-
     }
 
     private static class DeviceEdgePool implements EdgePool<Device, Connection> {
 
         @Override
         public Connection getEdge(Device fromDev, Device toDev) {
-
             return new Connection(fromDev, toDev);
         }
-
     }
 }

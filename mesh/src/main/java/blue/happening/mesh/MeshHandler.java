@@ -1,34 +1,42 @@
 package blue.happening.mesh;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
+import blue.happening.mesh.statistics.NetworkStats;
+
+import blue.happening.mesh.statistics.StatsResult;
 
 public class MeshHandler {
 
-    public static final int HOP_PENALTY = 15;
-    public static final int INITIAL_MAX_SEQUENCE = 512;
-    public static final int INITIAL_MESSAGE_TQ = 255;
-    public static final int INITIAL_MESSAGE_TTL = 5;
-    public static final int INITIAL_MIN_SEQUENCE = 0;
-    public static final int MESSAGE_TYPE_OGM = 1;
-    public static final int MESSAGE_TYPE_UCM = 2;
-    public static final int OGM_INTERVAL = 2;
-    public static final int PURGE_INTERVAL = 200;
-    public static final int SLIDING_WINDOW_SIZE = 12;
-    public static final long DEVICE_EXPIRATION_DURATION = 200;
-    public static final String BROADCAST_ADDRESS = "BROADCAST";
+    public static int INITIAL_MESSAGE_TQ = 255;
+    public static int INITIAL_MESSAGE_TTL = 5;
+    public static int HOP_PENALTY = 15;
+    public static int OGM_INTERVAL = 2;
+    public static int PURGE_INTERVAL = 200;
+    public static int NETWORK_STAT_INTERVAL = 1;
+    public static int SLIDING_WINDOW_SIZE = 12;
+    public static int DEVICE_EXPIRATION = 200;
+
+    private static final int INITIAL_MIN_SEQUENCE = 0;
+    private static final int INITIAL_MAX_SEQUENCE = 1024;
+
+    static final int MESSAGE_TYPE_OGM = 1;
+    static final int MESSAGE_TYPE_UCM = 2;
+    static final String BROADCAST_ADDRESS = "BROADCAST";
+
 
     private final RoutingTable routingTable;
     private final Router router;
     private final ILayerCallback layerCallback;
     private final String uuid;
-    private IMeshHandlerCallback meshHandlerCallback; // TODO: should be list
+    private IMeshHandlerCallback meshHandlerCallback;
     private int sequence;
+    private NetworkStats ucmStats;
+    private NetworkStats ogmStats;
 
     public MeshHandler(String uuid) {
         this.uuid = uuid;
@@ -36,6 +44,14 @@ public class MeshHandler {
         routingTable = new RoutingTable();
         router = new Router(routingTable, uuid);
         layerCallback = new LayerCallback();
+        ucmStats = new NetworkStats();
+        ogmStats = new NetworkStats();
+
+        double currentTime = System.currentTimeMillis();
+        ucmStats.updateTs(currentTime);
+        ogmStats.updateTs(currentTime);
+
+        router.addObserver(new RouterObserver(ogmStats, ucmStats));
 
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(
@@ -46,6 +62,10 @@ public class MeshHandler {
                 new PurgeRunner(),
                 ThreadLocalRandom.current().nextInt(PURGE_INTERVAL),
                 PURGE_INTERVAL, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(
+                new NetworkStatsUpdateRunner(),
+                NETWORK_STAT_INTERVAL,
+                NETWORK_STAT_INTERVAL, TimeUnit.SECONDS);
     }
 
     public void registerLayer(Layer layer) {
@@ -66,16 +86,9 @@ public class MeshHandler {
     }
 
     public boolean sendMessage(byte[] message, String uuid) {
-        System.out.println("MeshHandler sendMessage " + new String(message) + " to " + uuid);
-        String s = "";
-        for (Map.Entry<String, RemoteDevice> stringRemoteDeviceEntry : routingTable.entrySet()) {
-            s += stringRemoteDeviceEntry.getKey() + ", ";
-        }
-        System.out.println("MeshHandler routingTable values " + s);
-
         RemoteDevice remoteDevice = routingTable.get(uuid);
         if (remoteDevice == null) {
-            System.out.println("MeshHandler found NO device in routingTable for uuid " + uuid);
+            System.out.println("Mesh handler couldn't find " + uuid + " in routing table");
             return false;
         } else {
             Message ucm = new Message(this.uuid, uuid, INITIAL_MIN_SEQUENCE, MESSAGE_TYPE_UCM, message);
@@ -94,7 +107,6 @@ public class MeshHandler {
             try {
                 Message message = new Message(uuid, BROADCAST_ADDRESS, sequence, MESSAGE_TYPE_OGM, null);
                 for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
-                    System.out.println("OGM SENT: " + message);
                     remoteDevice.sendMessage(message);
                     remoteDevice.getEchoSlidingWindow().slideSequence(sequence);
                 }
@@ -111,8 +123,32 @@ public class MeshHandler {
             try {
                 for (RemoteDevice remoteDevice : routingTable.getExpiredRemoteDevices()) {
                     routingTable.remove(remoteDevice.getUuid());
+                    System.out.println("REMOVE REMOTE DEVICE " + remoteDevice + " BECAUSE IT IS EXPIRED!");
                     remoteDevice.remove();
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private class NetworkStatsUpdateRunner implements Runnable {
+        @Override
+        public void run() {
+            try {
+                double currentTime = System.currentTimeMillis();
+                StatsResult networkStat = new StatsResult();
+
+                networkStat.setOgmIncoming(ogmStats.getIncomingStat());
+                networkStat.setOgmOutgoing(ogmStats.getOutgoingStat());
+                networkStat.setUcmIncoming(ucmStats.getIncomingStat());
+                networkStat.setUcmOutgoing(ucmStats.getOutgoingStat());
+
+                meshHandlerCallback.onNetworkStatsUpdated(networkStat);
+
+                ucmStats.updateTs(currentTime);
+                ogmStats.updateTs(currentTime);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -123,13 +159,11 @@ public class MeshHandler {
 
         @Override
         public void onDeviceAdded(RemoteDevice remoteDevice) {
-            System.out.println("DEVICE ADDED: " + remoteDevice);
             routingTable.ensureConnection(remoteDevice, remoteDevice);
         }
 
         @Override
         public void onDeviceRemoved(RemoteDevice remoteDevice) {
-            System.out.println("DEVICE REMOVED: " + remoteDevice);
             routingTable.removeAsNeighbour(remoteDevice.getUuid());
         }
 
@@ -140,17 +174,23 @@ public class MeshHandler {
             try {
                 message = Message.fromBytes(bytes);
                 if (message == null) {
-                    throw new Exception("Could not parse message");
+                    throw new Exception("Could'nt parse message");
                 }
             } catch (Exception e) {
-                System.out.println("MESSAGE BROKEN: " + e.getMessage());
+                System.out.println("Message broken: " + e.getMessage());
                 return;
+            }
+
+            if (message.getType() == MESSAGE_TYPE_OGM) {
+                ogmStats.addInComingMessage(message);
+            } else if (message.getType() == MESSAGE_TYPE_UCM) {
+                ucmStats.addInComingMessage(message);
             }
 
             try {
                 propagate = router.routeMessage(message);
             } catch (Router.RoutingException e) {
-                System.out.println("ROUTING FAILED: " + e.getMessage());
+                System.out.println("Routing failed: " + e.getMessage());
                 return;
             }
 
@@ -162,18 +202,12 @@ public class MeshHandler {
             // Check whether message is an echo OGM
             if (!message.getSource().equals(uuid)) {
                 RemoteDevice source = routingTable.get(message.getSource());
-                if (source == null) {
-                    System.out.println("MeshHandler/onMessageReceived: Source not in routing table " + uuid + ": " + message.getSource());
-                    return;
-                } else {
-                    System.out.println("MeshHandler/onMessageReceived: Source is in routing table " + message.getSource());
+                if (source != null) {
+                    // TODO: Move this block to a better location
+                    MeshDevice meshDevice = source.getMeshDevice();
+                    meshDevice.setReceivedSize(meshDevice.getReceivedSize() + message.toBytes().length);
+                    meshHandlerCallback.onDeviceUpdated(meshDevice);
                 }
-                // TODO: Move this block to a better location
-                MeshDevice meshDevice = source.getMeshDevice();
-                meshDevice.setReceivedSize(meshDevice.getReceivedSize() + message.toBytes().length);
-                meshHandlerCallback.onDeviceUpdated(meshDevice);
-            } else {
-                System.out.println("MeshHandler/onMessageReceived: Message is an echo " + message.getSource());
             }
         }
     }

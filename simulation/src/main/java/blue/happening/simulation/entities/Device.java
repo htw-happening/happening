@@ -21,10 +21,10 @@ public class Device extends Observable {
     private boolean isClicked = false;
     private boolean isNeighbour = false;
     private MockLayer mockLayer;
-    private NetworkGraph networkGraph;
+    private NetworkGraph<Device, Connection> networkGraph;
     private ScheduledExecutorService postman;
 
-    public Device(String name, NetworkGraph networkGraph, ScheduledExecutorService postman) {
+    public Device(String name, NetworkGraph<Device, Connection> networkGraph, ScheduledExecutorService postman) {
         addObserver(new DeviceObserver(networkGraph));
         this.name = name;
         this.networkGraph = networkGraph;
@@ -99,7 +99,7 @@ public class Device extends Observable {
         return this.name;
     }
 
-    public NetworkGraph getNetworkGraph() {
+    public NetworkGraph<Device, Connection> getNetworkGraph() {
         return networkGraph;
     }
 

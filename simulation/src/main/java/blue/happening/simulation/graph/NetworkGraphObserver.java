@@ -34,13 +34,13 @@ import jsl.observers.ModelElementObserver;
  * Graph changes are relayed through overriding any of four methods:
  * <ul>
  * <li>{@code addedVertex()} - called when a vertex is added to the observed
- * blue.happening.bla.graph,
+ * blue.happening.simulation.graph,
  * <li>{@code removedVertex()} - called when a vertex is removed from the
- * observed blue.happening.bla.graph,
- * <li>{@code addedEdge()} - called when an edge is added to the observed blue.happening.bla.graph,
+ * observed blue.happening.simulation.graph,
+ * <li>{@code addedEdge()} - called when an edge is added to the observed blue.happening.simulation.graph,
  * or
  * <li>{@code removedEdge()} - called when an edge is removed to the observed
- * blue.happening.bla.graph.
+ * blue.happening.simulation.graph.
  * </ul>
  * With each method, an instance of the added/removed vertex/edge is passed
  * along with the {@code networkGraph} on which the operation occurred. Bear in

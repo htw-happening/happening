@@ -11,12 +11,14 @@ public class DeviceMouseListener<V extends Device> implements GraphMouseListener
     @Override
     public void graphClicked(Device device, MouseEvent me) {
         if (me.getButton() == MouseEvent.BUTTON1 && me.getClickCount() == 1) {
-            /* Remove previous selected device */
+            // Remove previous selected device
+            boolean wasClicked = device.isClicked();
             for (Object object : device.getNetworkGraph().getVertices()) {
                 Device graphDevice = (Device) object;
                 graphDevice.setClicked(false);
+                graphDevice.setNeighbour(false);
             }
-            device.setClicked(true);
+            device.setClicked(!wasClicked);
         }
         me.consume();
     }
