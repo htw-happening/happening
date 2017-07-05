@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
+class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
 
     private IMeshHandlerCallback meshHandlerCallback;
 
@@ -27,11 +27,10 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
     }
 
     /**
-     * @param remoteDevice
      * @return returns the neighbour with the best transmission quality or null
      * when no neighbour exist
      */
-    RemoteDevice getBestNeighbourForRemoteDevice(RemoteDevice remoteDevice) {
+    List<RemoteDevice> getBestNeighboursForRemoteDevice(RemoteDevice remoteDevice) {
         List<RemoteDevice> bestNeighboursForRemoteDevice = new ArrayList<>();
 
         for (RemoteDevice neighbour : getNeighbours()) {
@@ -40,7 +39,7 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
             }
         }
         Collections.sort(bestNeighboursForRemoteDevice, Collections.<RemoteDevice>reverseOrder());
-        return bestNeighboursForRemoteDevice.get(0);
+        return bestNeighboursForRemoteDevice;
     }
 
     List<RemoteDevice> getExpiredRemoteDevices() {
