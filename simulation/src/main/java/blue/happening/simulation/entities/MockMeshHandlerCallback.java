@@ -2,6 +2,8 @@ package blue.happening.simulation.entities;
 
 import blue.happening.mesh.IMeshHandlerCallback;
 import blue.happening.mesh.MeshDevice;
+import blue.happening.mesh.MeshHandler;
+import blue.happening.mesh.Message;
 import blue.happening.mesh.statistics.StatsResult;
 import blue.happening.simulation.visualization.listener.DeviceObserver;
 
@@ -37,5 +39,15 @@ class MockMeshHandlerCallback implements IMeshHandlerCallback {
     @Override
     public void onNetworkStatsUpdated(StatsResult networkStats) {
         device.notifyDeviceObserver(DeviceObserver.Events.NETWORK_STATS_UPDATED, networkStats);
+    }
+
+    @Override
+    public void logMessage(Message message, int status) {
+        switch (message.getType()) {
+            case MeshHandler.MESSAGE_TYPE_OGM:
+                device.getOgmLog().push(message, status);
+            case MeshHandler.MESSAGE_TYPE_UCM:
+                device.getUcmLog().push(message, status);
+        }
     }
 }

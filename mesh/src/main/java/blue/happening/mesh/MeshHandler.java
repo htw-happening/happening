@@ -1,6 +1,8 @@
 package blue.happening.mesh;
 
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
@@ -21,11 +23,16 @@ public class MeshHandler {
     public static int SLIDING_WINDOW_SIZE = 12;
     public static int DEVICE_EXPIRATION = 200;
 
+    public static final int MESSAGE_ACTION_ARRIVED = 0;
+    public static final int MESSAGE_ACTION_RECEIVED = 1;
+    public static final int MESSAGE_ACTION_DROPPED = 2;
+    public static final int MESSAGE_ACTION_FORWARDED = 3;
+
     private static final int INITIAL_MIN_SEQUENCE = 0;
     private static final int INITIAL_MAX_SEQUENCE = 1024;
 
-    static final int MESSAGE_TYPE_OGM = 1;
-    static final int MESSAGE_TYPE_UCM = 2;
+    public static final int MESSAGE_TYPE_OGM = 1;
+    public static final int MESSAGE_TYPE_UCM = 2;
     static final String BROADCAST_ADDRESS = "BROADCAST";
 
 
@@ -51,7 +58,7 @@ public class MeshHandler {
         ucmStats.updateTs(currentTime);
         ogmStats.updateTs(currentTime);
 
-        router.addObserver(new RouterObserver(ogmStats, ucmStats));
+        router.addObserver(new RouterObserver());
 
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(
@@ -155,6 +162,30 @@ public class MeshHandler {
         }
     }
 
+    private class RouterObserver implements Observer {
+        @Override
+        public void update(Observable observable, Object o) {
+            Router.Event event = (Router.Event) o;
+            switch (event.getType()) {
+                case OGM_SENT:
+                    ogmStats.addOutGoingMessage((Message) event.getOptions());
+                    meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_FORWARDED);
+                    break;
+                case UCM_SENT:
+                    ucmStats.addOutGoingMessage((Message) event.getOptions());
+                    meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_FORWARDED);
+                    break;
+                case OGM_DROPPED:
+                    meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_DROPPED);
+                    break;
+                case UCM_DROPPED:
+                    meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_DROPPED);
+                    break;
+
+            }
+        }
+    }
+
     private class LayerCallback implements ILayerCallback {
 
         @Override
@@ -187,6 +218,8 @@ public class MeshHandler {
                 ucmStats.addInComingMessage(message);
             }
 
+            meshHandlerCallback.logMessage(message, MESSAGE_ACTION_ARRIVED);
+
             try {
                 propagate = router.routeMessage(message);
             } catch (Router.RoutingException e) {
@@ -197,6 +230,7 @@ public class MeshHandler {
             if (propagate != null) {
                 MeshDevice source = routingTable.get(message.getSource()).getMeshDevice();
                 meshHandlerCallback.onMessageReceived(message.getBody(), source);
+                meshHandlerCallback.logMessage(message, MESSAGE_ACTION_RECEIVED);
             }
 
             // Check whether message is an echo OGM

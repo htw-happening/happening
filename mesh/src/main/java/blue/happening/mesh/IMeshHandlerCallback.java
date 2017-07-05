@@ -15,4 +15,6 @@ public interface IMeshHandlerCallback {
     void onMessageReceived(byte[] message, MeshDevice source);
 
     void onNetworkStatsUpdated(StatsResult networkStats);
+
+    void logMessage(Message msg, int action);
 }

@@ -23,6 +23,8 @@ public class Device extends Observable {
     private MockLayer mockLayer;
     private NetworkGraph<Device, Connection> networkGraph;
     private ScheduledExecutorService postman;
+    private LogQueue ucmLog;
+    private LogQueue ogmLog;
 
     public Device(String name, NetworkGraph<Device, Connection> networkGraph, ScheduledExecutorService postman) {
         addObserver(new DeviceObserver(networkGraph));
@@ -33,6 +35,8 @@ public class Device extends Observable {
         meshHandler = new MeshHandler(this.name);
         meshHandler.registerLayer(mockLayer);
         meshHandler.registerCallback(new MockMeshHandlerCallback(this));
+        ucmLog = new LogQueue(16);
+        ogmLog = new LogQueue(64);
     }
 
     public boolean isClicked() {
@@ -88,6 +92,11 @@ public class Device extends Observable {
     }
 
     public void toggleEnabled() {
+        if (isEnabled) {
+            networkGraph.removeEdges(this);
+        } else {
+            networkGraph.addEdges(this);
+        }
         isEnabled = !isEnabled;
     }
 
@@ -109,6 +118,14 @@ public class Device extends Observable {
 
     public List<MeshDevice> getDevices() {
         return getMeshHandler().getDevices();
+    }
+
+    public LogQueue getUcmLog() {
+        return ucmLog;
+    }
+
+    public LogQueue getOgmLog() {
+        return ogmLog;
     }
 
     public void connectTo(Device device) {

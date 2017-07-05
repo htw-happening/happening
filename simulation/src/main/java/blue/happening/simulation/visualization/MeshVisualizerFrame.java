@@ -12,7 +12,7 @@ import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 public class MeshVisualizerFrame<V, E> extends JFrame {
 
     private final NetworkGraph<V, E> graph;
-    private final MeshVisualizationViewer visualizerPanel;
+    private final MeshVisualizationViewer<V, E> visualizerPanel;
 
     public MeshVisualizerFrame(NetworkGraph<V, E> graph) {
         super("Graph " + graph.getName());
@@ -20,14 +20,12 @@ public class MeshVisualizerFrame<V, E> extends JFrame {
 
         // add blue.happening.simulation.visualization panel
         Dimension preferredSize = new Dimension(10000, 10000);
-        this.visualizerPanel = new MeshVisualizationViewer(graph, preferredSize);
+        this.visualizerPanel = new MeshVisualizationViewer<>(graph, preferredSize);
         getContentPane().add(new GraphZoomScrollPane(visualizerPanel));
         // new JComponentRepaintAction(blue.happening.simulation.graph, "test", visualizerPanel, 0.01);
         new TimedJComponenetRepainter(visualizerPanel, 15);
 
-        // add buttons panel
-        ButtonsPanel<V, E> buttonsPanel = new ButtonsPanel<V, E>(visualizerPanel);
-        add(buttonsPanel, BorderLayout.SOUTH);
+        // add device panel
         DevicePanel panel = new DevicePanel();
         add(panel, BorderLayout.EAST);
         graph.setDevicePanel(panel);
@@ -42,7 +40,7 @@ public class MeshVisualizerFrame<V, E> extends JFrame {
         return graph;
     }
 
-    public MeshVisualizationViewer getVisualizerPanel() {
+    public MeshVisualizationViewer<V, E> getVisualizerPanel() {
         return visualizerPanel;
     }
 

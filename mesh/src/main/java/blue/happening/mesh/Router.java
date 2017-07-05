@@ -56,6 +56,8 @@ class Router extends Observable {
             if (message.getDestination().equals(MeshHandler.BROADCAST_ADDRESS)) {
                 if (shouldOGMBeForwarded(message)) {
                     broadcastMessage(message);
+                } else {
+                    trigger(Events.OGM_DROPPED, message);
                 }
             } else {
                 throw new RoutingException("OGM needs broadcast destination");
@@ -167,8 +169,8 @@ class Router extends Observable {
         );
         if (message.getType() == MeshHandler.MESSAGE_TYPE_OGM) {
             preparedMessage.setTq(calculateTq(message));
-            preparedMessage.setTtl(message.getTtl() - 1);
         }
+        preparedMessage.setTtl(message.getTtl() - 1);
         preparedMessage.setPreviousHop(uuid);
         return preparedMessage;
     }
