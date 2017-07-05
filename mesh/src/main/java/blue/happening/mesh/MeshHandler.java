@@ -52,7 +52,7 @@ public class MeshHandler {
         ucmStats.updateTs(currentTime);
         ogmStats.updateTs(currentTime);
 
-        router.addObserver(new RouterObserver(ogmStats, ucmStats));
+        router.addObserver(new RouterObserver());
 
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(
@@ -152,6 +152,30 @@ public class MeshHandler {
 
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+        }
+    }
+
+    private class RouterObserver implements Observer {
+        @Override
+        public void update(Observable observable, Object o) {
+            Router.Event event = (Router.Event) o;
+            switch (event.getType()) {
+                case OGM_SENT:
+                    ogmStats.addOutGoingMessage((Message) event.getOptions());
+                    meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_FORWARDED);
+                    break;
+                case UCM_SENT:
+                    ucmStats.addOutGoingMessage((Message) event.getOptions());
+                    meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_FORWARDED);
+                    break;
+                case OGM_DROPPED:
+                    meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_DROPPED);
+                    break;
+                case UCM_DROPPED:
+                    meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_DROPPED);
+                    break;
+
             }
         }
     }
