@@ -178,9 +178,9 @@ class Router extends Observable {
     private void forwardMessage(Message message) throws RoutingException {
         Message preparedMessage = prepareMessage(message);
         RemoteDevice destination = routingTable.get(message.getDestination());
-        for (RemoteDevice bestNeighbour : routingTable.getBestNeighboursForRemoteDevice(destination)) {
-            if (shouldUCMBeForwardedTo(message, bestNeighbour.getUuid())) {
-                bestNeighbour.sendMessage(preparedMessage);
+        for (Route route: routingTable.getBestRoutesToDestination(destination)) {
+            if (shouldUCMBeForwardedTo(message, route.getViaDevice().getUuid())) {
+                route.getViaDevice().sendMessage(preparedMessage);
                 trigger(Events.UCM_SENT, preparedMessage);
                 return;
             }

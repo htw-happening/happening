@@ -21,12 +21,13 @@ public class MockRemoteDevice extends RemoteDevice {
     }
 
     public boolean sendMessage(Message message) {
-        for (Object object : device.getNetworkGraph().getEdges()) {
-            Connection connection = (Connection) object;
-            if (connection.getToDevice().getName().equals(getUuid()) &&
-                    connection.getFromDevice().getName().equals(message.getPreviousHop())) {
-                connection.queueMessage(message);
-                return true;
+        synchronized (device.getNetworkGraph().getEdges()) {
+            for (Connection connection : device.getNetworkGraph().getEdges()) {
+                if (connection.getToDevice().getName().equals(getUuid()) &&
+                        connection.getFromDevice().getName().equals(message.getPreviousHop())) {
+                    connection.queueMessage(message);
+                    return true;
+                }
             }
         }
         return false;

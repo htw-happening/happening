@@ -33,7 +33,15 @@ public class DeviceNeighbourTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int row, int column) {
-        MeshDevice neighbour = neighbours.get(row);
+        MeshDevice neighbour;
+        try {
+            neighbour = neighbours.get(row);
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
+        if (neighbour == null) {
+            return null;
+        }
         switch (column) {
             case 0:
                 return neighbour.getUuid();

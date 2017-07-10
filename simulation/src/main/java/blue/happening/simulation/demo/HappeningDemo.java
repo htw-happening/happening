@@ -21,12 +21,12 @@ public class HappeningDemo {
     public static void main(String[] args) throws InterruptedException {
 
         // configuration
-        final int deviceCount = 16;
+        final int deviceCount = 160;
         final int messageDelay = 500;
         final float delayVariance = 0.1f;
         final float messageLoss = 0.3f;
         final double speedMin = 0.0D;
-        final double speedMax = 2.0D;
+        final double speedMax = 1.0D;
         final double width = 1000;
         final double height = 1000;
         MeshHandler.INITIAL_MESSAGE_TQ = 255;
