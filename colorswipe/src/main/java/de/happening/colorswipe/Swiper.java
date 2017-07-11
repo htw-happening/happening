@@ -58,7 +58,9 @@ public class Swiper {
                 final ColorPackage colorPackage = ColorPackage.fromBytes(bytes);
                 if (colorPackage.getTo() == getMyIndex()){
                     Log.d(TAG, "onMessageReceived: CHANGE MY COLOR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                    setMyColor(colorPackage.getColor());
+//                    setMyColor(colorPackage.getColor());
+                    MainActivity.getInstance().startAnimation(R.id.animateObject, colorPackage.getDirection(), colorPackage.getColor());
+
                     Timer timer = new Timer();
                     TimerTask timerTask = new TimerTask() {
                         @Override
@@ -88,7 +90,7 @@ public class Swiper {
 
     public void setMyColor(int myColor) {
         this.myColor = myColor;
-        MainActivity.getInstance().updateColor();
+//        MainActivity.getInstance().updateColor();
     }
 
     public void broadCastMyColor(Direction direction) {

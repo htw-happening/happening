@@ -1,6 +1,5 @@
 package de.happening.colorswipe;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -37,8 +36,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
 
-        textView = (TextView) findViewById(R.id.textView);
-        textView.setBackgroundColor(Swiper.getInstance().getMyColor());
+//        textView = (TextView) findViewById(R.id.textView);
+//        textView.setBackgroundColor(Swiper.getInstance().getMyColor());
 
         gDetector = new GestureDetector(this);
     }
@@ -107,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 //right
                 swiper.broadCastMyColor(Swiper.Direction.RIGHT);
                 Log.d(TAG, "onFling: right");
-                startAnimation(R.id.animateObject, Swiper.Direction.RIGHT, "#FF00FF");
+                startAnimation(R.id.animateObject, Swiper.Direction.RIGHT, Swiper.getInstance().getMyColor());
 
 
             } else {
@@ -115,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 swiper.broadCastMyColor(Swiper.Direction.LEFT);
                 Log.d(TAG, "onFling: left");
 
-                startAnimation(R.id.animateObject, Swiper.Direction.LEFT, "#FF00FF");
+                startAnimation(R.id.animateObject, Swiper.Direction.LEFT, Swiper.getInstance().getMyColor());
 
             }
         }
@@ -141,23 +140,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return gDetector.onTouchEvent(me);
     }
 
-    private void startAnimation(int objectId, Swiper.Direction direction, String color) {
-        TextView view = (TextView) findViewById(objectId);
-        view.setBackgroundColor(Color.parseColor(color));
+    void startAnimation(final int objectId, final Swiper.Direction direction, final int color) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TextView view = (TextView) findViewById(objectId);
+                view.setBackgroundColor(color);
 
-        Animation animate = null;
-        switch (direction) {
-            case LEFT:
-                animate = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_right_left);
-                view.startAnimation(animate);
-                break;
-            case RIGHT:
-                animate = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_left_right);
-                view.startAnimation(animate);
-                break;
-            default:
-                break;
-        }
+                Animation animate = null;
+                switch (direction) {
+                    case LEFT:
+                        animate = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_right_left);
+                        view.startAnimation(animate);
+                        break;
+                    case RIGHT:
+                        animate = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_left_right);
+                        view.startAnimation(animate);
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+        });
 
     }
 
