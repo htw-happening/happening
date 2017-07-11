@@ -61,8 +61,13 @@ public class Swiper {
             @Override
             public void logMessage(int packageType, int action) {
                 Log.d(TAG, "logMessage: " + action);
-                switch (action){
+                switch (packageType){
                     case 1:
+                        MainActivity.getInstance().startAnimation(Direction.RIGHT, generateColor(), Packet.OGM_OBJECT);
+                        break;
+                    default:
+                        MainActivity.getInstance().startAnimation(Direction.RIGHT, 0xFF000000, Packet.OGM_OBJECT);
+                        break;
                 }
             }
 

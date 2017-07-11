@@ -20,7 +20,6 @@ import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.MeshHandler;
 import blue.happening.mesh.Message;
 import blue.happening.mesh.statistics.StatsResult;
-import blue.happening.mesh.statistics.StatsResult;
 import blue.happening.service.bluetooth.AppPackage;
 import blue.happening.service.bluetooth.Layer;
 

@@ -111,14 +111,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Log.d(TAG, "onFling: right");
 
                 startAnimation(Swiper.Direction.RIGHT, Swiper.getInstance().getMyColor(), Swiper.Packet.SWIPE_OBJECT);
-                startAnimation(Swiper.Direction.RIGHT, Swiper.getInstance().getMyColor(), Swiper.Packet.OGM_OBJECT);
+//                startAnimation(Swiper.Direction.RIGHT, Swiper.getInstance().getMyColor(), Swiper.Packet.OGM_OBJECT);
             } else {
                 //left
                 swiper.broadCastColor(Swiper.Direction.LEFT, swiper.getMyColor());
                 Log.d(TAG, "onFling: left");
 
                 startAnimation(Swiper.Direction.LEFT, Swiper.getInstance().getMyColor(), Swiper.Packet.SWIPE_OBJECT);
-                startAnimation(Swiper.Direction.LEFT, Swiper.getInstance().getMyColor(), Swiper.Packet.OGM_OBJECT);
+//                startAnimation(Swiper.Direction.LEFT, Swiper.getInstance().getMyColor(), Swiper.Packet.OGM_OBJECT);
             }
         } else {
             //vertical
