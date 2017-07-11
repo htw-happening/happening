@@ -4,6 +4,8 @@ package de.happening.colorswipe;
 import android.util.Log;
 
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import blue.happening.HappeningClient;
 import blue.happening.sdk.Happening;
@@ -15,7 +17,20 @@ public class Swiper {
     private Happening happening;
     private int myIndex = 0;
     private int myColor = 0;
+    private int receivedColor = 0;
+
     private String TAG = getClass().getSimpleName();
+
+    public static final int MIN_INDEX = 1;
+    public static final int MAX_INDEX = 4;
+
+    public enum Direction{
+        LEFT, RIGHT
+    }
+
+    public enum Packet{
+        OGM_OBJECT, SWIPE_OBJECT
+    }
 
     public static Swiper getInstance() {
         if (instance == null) instance = new Swiper();
@@ -44,29 +59,66 @@ public class Swiper {
             }
 
             @Override
+            public void logMessage(int packageType, int action) {
+                Log.d(TAG, "logMessage: " + action);
+                switch (packageType){
+                    case 1:
+                        MainActivity.getInstance().startAnimation(Direction.RIGHT, generateColor(), Packet.OGM_OBJECT);
+                        break;
+                    default:
+                        MainActivity.getInstance().startAnimation(Direction.RIGHT, 0xFF000000, Packet.OGM_OBJECT);
+                        break;
+                }
+            }
+
+            @Override
             public void onMessageReceived(byte[] bytes, HappeningClient happeningClient) {
                 Log.d(getClass().getSimpleName(), "HappeningCallback - onMessageReceived");
+                final ColorPackage colorPackage = ColorPackage.fromBytes(bytes);
+                if (colorPackage.getTo() == getMyIndex()){
+                    Log.d(TAG, "onMessageReceived: CHANGE MY COLOR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                    receivedColor = colorPackage.getColor();
+                    Timer timer = new Timer();
+                    TimerTask timerTask = new TimerTask() {
+                        @Override
+                        public void run() {
+                            MainActivity.getInstance().startAnimation(colorPackage.getDirection(), receivedColor, Packet.SWIPE_OBJECT);
+                            Log.d(TAG, "run: REBROADCAST COLOR");
+                            broadCastColor(colorPackage.getDirection(), receivedColor);
+                        }
+                    };
+                    timer.schedule(timerTask, 900);
+                }
             }
         });
-
     }
+
+
 
     public void setMyIndex(int myIndex) {
         Log.d(getClass().getSimpleName(), "setMyIndex: " + myIndex);
         this.myIndex = myIndex;
     }
 
+    public int getMyIndex() {
+        return myIndex;
+    }
+
     public int getMyColor() {
         return myColor;
     }
 
-    public void setMyColor(int myColor) {
-        this.myColor = myColor;
-        MainActivity.getInstance().updateColor();
-    }
+    public void broadCastColor(Direction direction, int color) {
+        Log.d(TAG, "broadCastColor()");
+        ColorPackage colorPackage = null;
+        if (direction == Direction.LEFT){
+            colorPackage = new ColorPackage(getMyIndex(), getMyIndex() - 1, direction, color);
+        }
+        if (direction == Direction.RIGHT){
+            colorPackage = new ColorPackage(getMyIndex(), getMyIndex() + 1, direction, color);
+        }
 
-    public void broadCastMyColor() {
-        Log.d(TAG, "broadCastMyColor()");
+        happening.sendMessage(colorPackage.toBytes());
     }
 
 

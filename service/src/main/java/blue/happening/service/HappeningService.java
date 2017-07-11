@@ -20,7 +20,6 @@ import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.MeshHandler;
 import blue.happening.mesh.Message;
 import blue.happening.mesh.statistics.StatsResult;
-import blue.happening.mesh.statistics.StatsResult;
 import blue.happening.service.bluetooth.AppPackage;
 import blue.happening.service.bluetooth.Layer;
 
@@ -146,7 +145,13 @@ public class HappeningService extends Service {
 
             @Override
             public void logMessage(Message msg, int action) {
-
+                for (IHappeningCallback callback : callbacks.values()) {
+                    try {
+                        callback.logMessage(msg.getType(), action);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             @Override
