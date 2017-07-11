@@ -61,6 +61,11 @@ public class Happening {
         }
 
         @Override
+        public void logMessage(int packageType, int action){
+
+        }
+
+        @Override
         public void onMessageReceived(byte[] message, HappeningClient source) throws RemoteException {
             Log.i(this.getClass().getSimpleName(), "onMessageReceived");
             appCallback.onMessageReceived(message, source);

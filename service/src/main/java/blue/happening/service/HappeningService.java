@@ -146,7 +146,13 @@ public class HappeningService extends Service {
 
             @Override
             public void logMessage(Message msg, int action) {
-
+                for (IHappeningCallback callback : callbacks.values()) {
+                    try {
+                        callback.logMessage(msg.getType(), action);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             @Override
