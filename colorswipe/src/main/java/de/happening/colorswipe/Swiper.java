@@ -65,7 +65,7 @@ public class Swiper {
                     TimerTask timerTask = new TimerTask() {
                         @Override
                         public void run() {
-                            MainActivity.getInstance().startAnimation(R.id.animateObject, colorPackage.getDirection(), receivedColor);
+                            MainActivity.getInstance().startAnimation(colorPackage.getDirection(), receivedColor);
                             Log.d(TAG, "run: REBROADCAST COLOR");
                             broadCastColor(colorPackage.getDirection(), receivedColor);
                         }

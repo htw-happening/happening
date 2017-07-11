@@ -10,6 +10,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -106,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 //right
                 swiper.broadCastColor(Swiper.Direction.RIGHT, swiper.getMyColor());
                 Log.d(TAG, "onFling: right");
-                startAnimation(R.id.animateObject, Swiper.Direction.RIGHT, Swiper.getInstance().getMyColor());
+                startAnimation(Swiper.Direction.RIGHT, Swiper.getInstance().getMyColor());
 
 
             } else {
@@ -114,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 swiper.broadCastColor(Swiper.Direction.LEFT, swiper.getMyColor());
                 Log.d(TAG, "onFling: left");
 
-                startAnimation(R.id.animateObject, Swiper.Direction.LEFT, Swiper.getInstance().getMyColor());
+                startAnimation(Swiper.Direction.LEFT, Swiper.getInstance().getMyColor());
 
             }
         }
@@ -140,22 +141,33 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return gDetector.onTouchEvent(me);
     }
 
-    void startAnimation(final int objectId, final Swiper.Direction direction, final int color) {
+    void startAnimation(final Swiper.Direction direction, final int color) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                TextView view = (TextView) findViewById(objectId);
-                view.setBackgroundColor(color);
+                RelativeLayout layout = (RelativeLayout) findViewById(R.id.layout);
+                TextView obj = new TextView(MyApplication.getAppContext());
+
+                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(70, 70);
+                params.height = getResources().getDimensionPixelSize(R.dimen.animation_obj_size);
+                params.width = getResources().getDimensionPixelSize(R.dimen.animation_obj_size);
+
+                params.setMargins(0, getResources().getDimensionPixelSize(R.dimen.animation_obj_margin), 0, 0);
+                params.setMarginStart(getResources().getDimensionPixelSize(R.dimen.animation_obj_margin_start));
+                layout.addView(obj, params);
+
+//                TextView view = (TextView) findViewById(objectId);
+                obj.setBackgroundColor(color);
 
                 Animation animate = null;
                 switch (direction) {
                     case LEFT:
                         animate = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_right_left);
-                        view.startAnimation(animate);
+                        obj.startAnimation(animate);
                         break;
                     case RIGHT:
                         animate = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_left_right);
-                        view.startAnimation(animate);
+                        obj.startAnimation(animate);
                         break;
                     default:
                         break;

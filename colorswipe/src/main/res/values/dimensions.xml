@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="animation_obj_size">70sp</dimen>
+    <dimen name="animation_obj_margin">130sp</dimen>
+    <dimen name="animation_obj_margin_start">-70sp</dimen>
+</resources>
