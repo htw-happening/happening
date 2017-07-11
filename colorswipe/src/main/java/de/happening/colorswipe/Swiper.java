@@ -59,7 +59,6 @@ public class Swiper {
                 if (colorPackage.getTo() == getMyIndex()){
                     Log.d(TAG, "onMessageReceived: CHANGE MY COLOR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 //                    setMyColor(colorPackage.getColor());
-                    MainActivity.getInstance().startAnimation(R.id.animateObject, colorPackage.getDirection(), colorPackage.getColor());
 
                     Timer timer = new Timer();
                     TimerTask timerTask = new TimerTask() {
@@ -67,9 +66,10 @@ public class Swiper {
                         public void run() {
                             Log.d(TAG, "run: REBROADCAST COLOR");
                             broadCastMyColor(colorPackage.getDirection());
+                            MainActivity.getInstance().startAnimation(R.id.animateObject, colorPackage.getDirection(), colorPackage.getColor());
                         }
                     };
-                    timer.schedule(timerTask, 1000);
+                    timer.schedule(timerTask, 900);
                 }
             }
         });
