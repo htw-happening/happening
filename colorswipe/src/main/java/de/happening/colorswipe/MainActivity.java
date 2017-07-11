@@ -36,14 +36,24 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
 
-        textView = (TextView) findViewById(R.id.textView);
-        textView.setBackgroundColor(Swiper.getInstance().getMyColor());
+//        textView = (TextView) findViewById(R.id.textView);
+//        textView.setBackgroundColor(Swiper.getInstance().getMyColor());
 
         gDetector = new GestureDetector(this);
     }
 
     public static MainActivity getInstance() {
         return instance;
+    }
+
+    public void updateColor(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                textView.setBackgroundColor(Swiper.getInstance().getMyColor());
+
+            }
+        });
     }
 
     public void onItemSelected(AdapterView<?> parent, View view,

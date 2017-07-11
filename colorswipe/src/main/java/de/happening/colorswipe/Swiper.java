@@ -70,7 +70,7 @@ public class Swiper {
                             broadCastColor(colorPackage.getDirection(), receivedColor);
                         }
                     };
-                    timer.schedule(timerTask, 1000);
+                    timer.schedule(timerTask, 900);
                 }
             }
         });
