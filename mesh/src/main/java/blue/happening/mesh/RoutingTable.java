@@ -2,21 +2,20 @@ package blue.happening.mesh;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 
 public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
 
     private IMeshHandlerCallback meshHandlerCallback;
-    private HashSet<Route> routes;
+    private Set<Route> routes;
 
     public RoutingTable() {
-        this.routes = new HashSet<>();
+        this.routes = Collections.newSetFromMap(new ConcurrentHashMap<Route, Boolean>());
     }
 
     void registerMeshHandlerCallback(IMeshHandlerCallback meshHandlerCallback) {
@@ -33,10 +32,11 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
         return neighbourList;
     }
 
-    List<Route> getBestRoutesToDestination(RemoteDevice destination) {
+    List<Route> getBestRoutesTo(RemoteDevice remoteDevice) {
         List<Route> bestRoutes = new ArrayList<>();
         for (Route route : routes) {
-            if (route.getToDevice().equals(destination)) {
+            RemoteDevice toDevice = get(route.getToDevice());
+            if (toDevice.equals(remoteDevice)) {
                 bestRoutes.add(route);
             }
         }
@@ -66,20 +66,19 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
     }
 
     /**
-     * Overloaded method for {@link RoutingTable#ensureConnection(RemoteDevice, RemoteDevice)}
-     * ensureConnection} which retrieves or creates devices from UUIDs.
+     * Overloaded method for {@link RoutingTable#putRoute(RemoteDevice, RemoteDevice)}
+     * putRoute} which retrieves or creates devices from UUIDs.
      *
      * @param remoteDeviceUuid UUID of newly discovered device
-     * @param neighbourUuid    UUID of direct neighbour via which remoteDevice is reachable
+     * @param viaDeviceUuid    UUID of direct neighbour via which remoteDevice is reachable
      */
-    void ensureConnection(String remoteDeviceUuid, String neighbourUuid) {
+    void putRoute(String remoteDeviceUuid, String viaDeviceUuid) {
         RemoteDevice remoteDevice = get(remoteDeviceUuid);
         if (remoteDevice == null) {
             remoteDevice = new RemoteDevice(remoteDeviceUuid) {
                 @Override
                 public boolean sendMessage(Message message) {
-                    System.out.println("DEVICE " + this.getUuid() + " DOES NOT HAVE THIS OP");
-                    throw new UnsupportedOperationException();
+                    throw new UnsupportedOperationException("Device " + getUuid() + " cannot send");
                 }
 
                 @Override
@@ -88,10 +87,7 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
                 }
             };
         }
-        RemoteDevice neighbour = get(neighbourUuid);
-        if (neighbour != null) {
-            ensureConnection(remoteDevice, neighbour);
-        }
+        putRoute(remoteDevice, get(viaDeviceUuid));
     }
 
     /**
@@ -100,49 +96,33 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
      * and directly reachable via a connected layer.
      *
      * @param discoveredDevice Newly discovered device
-     * @param neighbour        Direct neighbour via which remoteDevice is reachable
-     * @return If a device already existed with the same Uuid
-     * it is returned, if a new entry in the routing table is created,
-     * we return null. Behaves like {@link HashMap#put put}
+     * @param viaDevice        Direct neighbour via which remoteDevice is reachable
      */
-    RemoteDevice ensureConnection(RemoteDevice discoveredDevice,
-                                  RemoteDevice neighbour) {
+    void putRoute(RemoteDevice discoveredDevice, RemoteDevice viaDevice) {
         RemoteDevice existingDevice = get(discoveredDevice.getUuid());
+
         if (existingDevice == null) {
-            // Device did not previously exist
+            // discovered new device
             put(discoveredDevice.getUuid(), discoveredDevice);
-            existingDevice = discoveredDevice;
+        } else if (viaDevice.equals(discoveredDevice) && !isNeighbour(existingDevice)) {
+            // multi hop now also neighbour
+            put(discoveredDevice.getUuid(), discoveredDevice);
         } else {
-            // When discovered and neighbour are the same add neighbour to make sure that
-            // discovered device is handled as neighbour
-            if (discoveredDevice.equals(neighbour)) {
-                routes.add(new Route(neighbour, discoveredDevice));
-            }
-            if (isNeighbour(discoveredDevice) && !isNeighbour(existingDevice)) {
-                // Device was a multi hop device and becomes a neighbour
-                discoveredDevice.mergeRoutes(existingDevice);
-                put(discoveredDevice.getUuid(), discoveredDevice);
-                existingDevice = discoveredDevice;
-            } else if (!isNeighbour(discoveredDevice) && isNeighbour(existingDevice)) {
-                // Device was neighbour and also becomes reachable as multi hop
-                existingDevice.mergeRoutes(discoveredDevice);
-            } else {
-                // Device remains multi hop
-            }
+            // routes to device do not change
+            discoveredDevice = existingDevice;
         }
 
-        existingDevice.setLastSeen(System.currentTimeMillis());
-        routes.add(new Route(neighbour, existingDevice));
-        return existingDevice;
+        discoveredDevice.setLastSeen(System.currentTimeMillis());
+        routes.add(new Route(viaDevice.getUuid(), discoveredDevice.getUuid()));
     }
 
     @Override
-    public RemoteDevice put(String key, RemoteDevice value) {
-        RemoteDevice existing = super.put(key, value);
+    public RemoteDevice put(String uuid, RemoteDevice remoteDevice) {
+        RemoteDevice existing = super.put(uuid, remoteDevice);
         if (existing == null || !isReachable(existing)) {
-            meshHandlerCallback.onDeviceAdded(value.getMeshDevice());
+            meshHandlerCallback.onDeviceAdded(remoteDevice.getMeshDevice());
         } else {
-            meshHandlerCallback.onDeviceUpdated(value.getMeshDevice());
+            meshHandlerCallback.onDeviceUpdated(remoteDevice.getMeshDevice());
         }
         return existing;
     }
@@ -151,14 +131,15 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
         Iterator<Route> i = routes.iterator();
         while (i.hasNext()) {
             Route route = i.next();
-            if (route.getViaDevice().equals(remoteDevice)) {
+            if (route.getViaDevice().equals(remoteDevice.getUuid())) {
                 // Remove any route via remoteDevice
                 i.remove();
                 remoteDevice.getEchoSlidingWindow().clear();
-                if (!isReachable(route.getToDevice())) {
+                RemoteDevice toDevice = get(route.getToDevice());
+                if (!isReachable(toDevice)) {
                     // Also remove any device that has no routes any more
                     // after routeDevice is gone
-                    remove(route.getToDevice().getUuid());
+                    remove(route.getToDevice());
                 }
             }
         }
@@ -168,32 +149,36 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
         Iterator<Route> i = routes.iterator();
         while (i.hasNext()) {
             Route route = i.next();
-            if (route.getToDevice().equals(remoteDevice)) {
+            if (route.getToDevice().equals(remoteDevice.getUuid())) {
                 // Remove any route to remoteDevice
                 i.remove();
             }
         }
     }
 
-    boolean isReachable(RemoteDevice remoteDevice) {
+    private boolean isReachable(RemoteDevice remoteDevice) {
         for (Route route : routes) {
-            if (route.getToDevice().equals(remoteDevice)) {
+            RemoteDevice toDevice = get(route.getToDevice());
+            if (toDevice.equals(remoteDevice)) {
                 return true;
             }
         }
         return false;
     }
 
-    boolean isNeighbour(RemoteDevice remoteDevice) {
+    private boolean isNeighbour(RemoteDevice remoteDevice) {
         for (Route route : routes) {
-            if (route.getViaDevice().equals(remoteDevice) && route.getToDevice().equals(remoteDevice)) {
-                return true;
+            RemoteDevice viaDevice = get(route.getViaDevice());
+            RemoteDevice toDevice = get(route.getToDevice());
+            if (viaDevice != null && toDevice != null) {
+                if (viaDevice.equals(remoteDevice) &&
+                        toDevice.equals(remoteDevice)) {
+                    return true;
+                }
             }
         }
         return false;
     }
-
-    void
 
     @Override
     public RemoteDevice remove(Object key) {

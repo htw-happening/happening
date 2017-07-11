@@ -190,7 +190,7 @@ public class MeshHandler {
 
         @Override
         public void onDeviceAdded(RemoteDevice remoteDevice) {
-            routingTable.ensureConnection(remoteDevice, remoteDevice);
+            routingTable.putRoute(remoteDevice, remoteDevice);
         }
 
         @Override

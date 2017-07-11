@@ -21,7 +21,7 @@ class Router extends Observable {
     Message routeMessage(Message message) throws RoutingException {
         if (message.getType() == MeshHandler.MESSAGE_TYPE_OGM) {
             if (!isEchoOGM(message)) {
-                routingTable.ensureConnection(message.getSource(), message.getPreviousHop());
+                routingTable.putRoute(message.getSource(), message.getPreviousHop());
             }
             routeOgm(message);
             return null;
@@ -178,9 +178,10 @@ class Router extends Observable {
     private void forwardMessage(Message message) throws RoutingException {
         Message preparedMessage = prepareMessage(message);
         RemoteDevice destination = routingTable.get(message.getDestination());
-        for (Route route: routingTable.getBestRoutesToDestination(destination)) {
-            if (shouldUCMBeForwardedTo(message, route.getViaDevice().getUuid())) {
-                route.getViaDevice().sendMessage(preparedMessage);
+        for (Route route : routingTable.getBestRoutesTo(destination)) {
+            if (shouldUCMBeForwardedTo(message, route.getViaDevice())) {
+                RemoteDevice viaDevice = routingTable.get(route.getViaDevice());
+                viaDevice.sendMessage(preparedMessage);
                 trigger(Events.UCM_SENT, preparedMessage);
                 return;
             }

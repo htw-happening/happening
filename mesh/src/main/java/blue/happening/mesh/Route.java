@@ -1,12 +1,13 @@
 package blue.happening.mesh;
 
+
 class Route implements Comparable<Route> {
 
-    private RemoteDevice viaDevice;
-    private RemoteDevice toDevice;
+    private String viaDevice;
+    private String toDevice;
     private float mq;
 
-    Route(RemoteDevice viaDevice, RemoteDevice toDevice) {
+    Route(String viaDevice, String toDevice) {
         this.viaDevice = viaDevice;
         this.toDevice = toDevice;
         this.mq = 0.0f;
@@ -20,12 +21,18 @@ class Route implements Comparable<Route> {
         this.mq = mq;
     }
 
-    RemoteDevice getViaDevice() {
+    String getViaDevice() {
         return viaDevice;
     }
 
-    RemoteDevice getToDevice() {
+    String getToDevice() {
         return toDevice;
+    }
+
+    @Override
+    public int hashCode() {
+        // TODO: Is there a better way to hash strings?
+        return (viaDevice + toDevice).hashCode();
     }
 
     @Override

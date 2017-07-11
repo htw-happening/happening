@@ -1,5 +1,7 @@
 package blue.happening.simulation.entities;
 
+import java.util.ConcurrentModificationException;
+
 import blue.happening.mesh.Message;
 import blue.happening.mesh.RemoteDevice;
 
@@ -21,13 +23,23 @@ public class MockRemoteDevice extends RemoteDevice {
     }
 
     public boolean sendMessage(Message message) {
-        synchronized (device.getNetworkGraph().getEdges()) {
+        return sendMessageWithRetries(message, 3);
+    }
+
+    private boolean sendMessageWithRetries(Message message, int retries) {
+        try {
             for (Connection connection : device.getNetworkGraph().getEdges()) {
                 if (connection.getToDevice().getName().equals(getUuid()) &&
                         connection.getFromDevice().getName().equals(message.getPreviousHop())) {
                     connection.queueMessage(message);
                     return true;
                 }
+            }
+        } catch (ConcurrentModificationException e) {
+            if (retries > 0) {
+                return sendMessageWithRetries(message, --retries);
+            } else {
+                e.printStackTrace();
             }
         }
         return false;
