@@ -49,6 +49,11 @@ public class BlueDashboard {
             }
 
             @Override
+            public void logMessage(int packageType, int action) {
+
+            }
+
+            @Override
             public void onMessageReceived(final byte[] bytes, HappeningClient happeningClient) {
                 Log.d(TAG, "HappeningCallback - onMessageReceived");
 

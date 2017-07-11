@@ -55,6 +55,14 @@ public class Swiper {
             }
 
             @Override
+            public void logMessage(int packageType, int action) {
+                Log.d(TAG, "logMessage: " + action);
+                switch (action){
+                    case 1:
+                }
+            }
+
+            @Override
             public void onMessageReceived(byte[] bytes, HappeningClient happeningClient) {
                 Log.d(getClass().getSimpleName(), "HappeningCallback - onMessageReceived");
                 final ColorPackage colorPackage = ColorPackage.fromBytes(bytes);
