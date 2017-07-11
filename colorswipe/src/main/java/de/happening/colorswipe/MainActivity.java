@@ -92,6 +92,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public boolean onFling(MotionEvent start, MotionEvent finish, float velocityX, float velocityY) {
 
+        Swiper swiper = Swiper.getInstance();
+
         float xDiff = Math.abs(Math.abs(start.getRawX()) - Math.abs(finish.getRawX()));
         float yDiff = Math.abs(Math.abs(start.getRawY()) - Math.abs(finish.getRawY()));
 
@@ -102,12 +104,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             Log.d(TAG, "onFling: horizontal");
             if (start.getRawX() < finish.getRawX()) {
                 //right
+                swiper.broadCastMyColor(Swiper.Direction.RIGHT);
                 Log.d(TAG, "onFling: right");
             } else {
                 //left
+                swiper.broadCastMyColor(Swiper.Direction.LEFT);
                 Log.d(TAG, "onFling: left");
+
             }
-            Swiper.getInstance().broadCastMyColor();
         }
         else{
             //vertical
@@ -122,8 +126,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             Swiper.getInstance().setNewRandomColor();
             textView.setBackgroundColor(Swiper.getInstance().getMyColor());
         }
-
-
         return true;
 
     }

@@ -4,6 +4,8 @@ package de.happening.colorswipe;
 import android.util.Log;
 
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import blue.happening.HappeningClient;
 import blue.happening.sdk.Happening;
@@ -16,6 +18,13 @@ public class Swiper {
     private int myIndex = 0;
     private int myColor = 0;
     private String TAG = getClass().getSimpleName();
+
+    public static final int MIN_INDEX = 1;
+    public static final int MAX_INDEX = 4;
+
+    public enum Direction{
+        LEFT, RIGHT
+    }
 
     public static Swiper getInstance() {
         if (instance == null) instance = new Swiper();
@@ -46,14 +55,31 @@ public class Swiper {
             @Override
             public void onMessageReceived(byte[] bytes, HappeningClient happeningClient) {
                 Log.d(getClass().getSimpleName(), "HappeningCallback - onMessageReceived");
+                final ColorPackage colorPackage = ColorPackage.fromBytes(bytes);
+                if (colorPackage.getTo() == getMyIndex()){
+                    Log.d(TAG, "onMessageReceived: CHANGE MY COLOR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                    setMyColor(colorPackage.getColor());
+                    Timer timer = new Timer();
+                    TimerTask timerTask = new TimerTask() {
+                        @Override
+                        public void run() {
+                            Log.d(TAG, "run: REBROADCAST COLOR");
+                            broadCastMyColor(colorPackage.getDirection());
+                        }
+                    };
+                    timer.schedule(timerTask, 1000);
+                }
             }
         });
-
     }
 
     public void setMyIndex(int myIndex) {
         Log.d(getClass().getSimpleName(), "setMyIndex: " + myIndex);
         this.myIndex = myIndex;
+    }
+
+    public int getMyIndex() {
+        return myIndex;
     }
 
     public int getMyColor() {
@@ -65,8 +91,17 @@ public class Swiper {
         MainActivity.getInstance().updateColor();
     }
 
-    public void broadCastMyColor() {
+    public void broadCastMyColor(Direction direction) {
         Log.d(TAG, "broadCastMyColor()");
+        ColorPackage colorPackage = null;
+        if (direction == Direction.LEFT){
+            colorPackage = new ColorPackage(getMyIndex(), getMyIndex() - 1, direction, getMyColor());
+        }
+        if (direction == Direction.RIGHT){
+            colorPackage = new ColorPackage(getMyIndex(), getMyIndex() + 1, direction, getMyColor());
+        }
+
+        happening.sendMessage(colorPackage.toBytes());
     }
 
 

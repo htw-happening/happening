@@ -13,11 +13,13 @@ public class ColorPackage implements Serializable {
 
     private int from;
     private int to;
-        private int color;
+    private int color;
+    private Swiper.Direction direction;
 
-    public ColorPackage(int from, int to, int color) {
+    public ColorPackage(int from, int to, Swiper.Direction direction, int color) {
         this.from = from;
         this.to = to;
+        this.direction = direction;
         this.color = color;
     }
 
@@ -31,6 +33,10 @@ public class ColorPackage implements Serializable {
 
     public int getColor() {
         return color;
+    }
+
+    public Swiper.Direction getDirection() {
+        return direction;
     }
 
     public byte[] toBytes() {

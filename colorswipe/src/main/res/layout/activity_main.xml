@@ -22,4 +22,23 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true" />
+
+
+    <!--<TextView-->
+        <!--android:id="@+id/textView_myColor"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="250dp"-->
+        <!--android:text="my"-->
+        <!--android:layout_below="@+id/spinner"-->
+        <!--android:layout_alignParentStart="true" />-->
+
+    <!--<TextView-->
+        <!--android:id="@+id/textView_lastColor"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="last"-->
+        <!--android:layout_below="@+id/textView_myColor"-->
+        <!--android:layout_alignParentStart="true"-->
+        <!--android:layout_alignParentBottom="true" />-->
+
 </RelativeLayout>
