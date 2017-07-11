@@ -1,11 +1,7 @@
 package blue.happening.simulation.entities;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Observable;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 
 import blue.happening.mesh.MeshDevice;
@@ -96,6 +92,11 @@ public class Device extends Observable {
     }
 
     public void toggleEnabled() {
+        if (isEnabled) {
+            networkGraph.removeEdges(this);
+        } else {
+            networkGraph.addEdges(this);
+        }
         isEnabled = !isEnabled;
     }
 
