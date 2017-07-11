@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     TextView textView;
     private String TAG = getClass().getSimpleName();
     private GestureDetector gDetector;
+    private int idCounter = 0;
 
     public static MainActivity getInstance() {
         return instance;
@@ -172,6 +173,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private TextView createAnimationObject(Swiper.Packet packetType) {
         RelativeLayout layout = (RelativeLayout) findViewById(R.id.layout);
         TextView obj = new TextView(MyApplication.getAppContext());
+
+        idCounter = idCounter + 1;
+        obj.setId(idCounter);
+//        Log.d("REMOVE", "COUNTER " + idCounter);
+
+        for (int i = 0; i < layout.getChildCount(); i++) {
+            View current = layout.getChildAt(i);
+            if (current.getId() < idCounter - 25) {
+//                Log.d("REMOVE", "VIEW " + current.getId() + " child count " + layout.getChildCount());
+                layout.removeViewAt(i);
+            }
+        }
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(70, 70);
         switch (packetType) {
