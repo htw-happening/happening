@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="animation_obj_size">70sp</dimen>
-    <dimen name="animation_obj_margin">130sp</dimen>
-    <dimen name="animation_obj_margin_start">-70sp</dimen>
+    <dimen name="animation_swipe_obj_size">70sp</dimen>
+    <dimen name="animation_swipe_obj_margin">140sp</dimen>
+    <dimen name="animation_swipe_margin_start">-70sp</dimen>
+
+    <dimen name="animation_ogm_obj_size">25sp</dimen>
+    <dimen name="animation_ogm_obj_margin">40sp</dimen>
+    <dimen name="animation_ogm_obj_margin_start">-25sp</dimen>
 </resources>

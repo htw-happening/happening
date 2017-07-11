@@ -28,6 +28,10 @@ public class Swiper {
         LEFT, RIGHT
     }
 
+    public enum Packet{
+        OGM_OBJECT, SWIPE_OBJECT
+    }
+
     public static Swiper getInstance() {
         if (instance == null) instance = new Swiper();
         return instance;
@@ -65,7 +69,7 @@ public class Swiper {
                     TimerTask timerTask = new TimerTask() {
                         @Override
                         public void run() {
-                            MainActivity.getInstance().startAnimation(colorPackage.getDirection(), receivedColor);
+                            MainActivity.getInstance().startAnimation(colorPackage.getDirection(), receivedColor, Packet.SWIPE_OBJECT);
                             Log.d(TAG, "run: REBROADCAST COLOR");
                             broadCastColor(colorPackage.getDirection(), receivedColor);
                         }
