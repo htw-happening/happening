@@ -1,17 +1,18 @@
 package de.happening.colorswipe;
 
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, GestureDetector.OnGestureListener {
 
@@ -103,9 +104,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (start.getRawX() < finish.getRawX()) {
                 //right
                 Log.d(TAG, "onFling: right");
+                startAnimation(R.id.animate, R.anim.slide_left_right, "#FF00FF");
+
+
             } else {
                 //left
                 Log.d(TAG, "onFling: left");
+                startAnimation(R.id.animate, R.anim.slide_right_left, "#FF00FF");
+
             }
             Swiper.getInstance().broadCastMyColor();
         }
@@ -132,4 +138,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public boolean onTouchEvent(MotionEvent me) {
         return gDetector.onTouchEvent(me);
     }
+
+    private void startAnimation(int objectId, int animation, String color) {
+        TextView view = (TextView) findViewById(objectId);
+        view.setBackgroundColor(Color.parseColor(color));
+
+        Animation animate = AnimationUtils.loadAnimation(getApplicationContext(), animation);
+        view.startAnimation(animate);
+    }
+
 }
