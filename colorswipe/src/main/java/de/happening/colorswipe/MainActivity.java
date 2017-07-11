@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 //right
                 swiper.broadCastMyColor(Swiper.Direction.RIGHT);
                 Log.d(TAG, "onFling: right");
-                startAnimation(R.id.animate, R.anim.slide_left_right, "#FF00FF");
+                startAnimation(R.id.animateObject, Swiper.Direction.RIGHT, "#FF00FF");
 
 
             } else {
@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 swiper.broadCastMyColor(Swiper.Direction.LEFT);
                 Log.d(TAG, "onFling: left");
 
-                startAnimation(R.id.animate, R.anim.slide_right_left, "#FF00FF");
+                startAnimation(R.id.animateObject, Swiper.Direction.LEFT, "#FF00FF");
 
             }
         }
@@ -141,12 +141,24 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return gDetector.onTouchEvent(me);
     }
 
-    private void startAnimation(int objectId, int animation, String color) {
+    private void startAnimation(int objectId, Swiper.Direction direction, String color) {
         TextView view = (TextView) findViewById(objectId);
         view.setBackgroundColor(Color.parseColor(color));
 
-        Animation animate = AnimationUtils.loadAnimation(getApplicationContext(), animation);
-        view.startAnimation(animate);
+        Animation animate = null;
+        switch (direction) {
+            case LEFT:
+                animate = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_right_left);
+                view.startAnimation(animate);
+                break;
+            case RIGHT:
+                animate = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_left_right);
+                view.startAnimation(animate);
+                break;
+            default:
+                break;
+        }
+
     }
 
 }
