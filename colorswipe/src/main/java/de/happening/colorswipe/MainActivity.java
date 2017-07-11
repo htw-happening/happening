@@ -36,24 +36,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
 
-//        textView = (TextView) findViewById(R.id.textView);
-//        textView.setBackgroundColor(Swiper.getInstance().getMyColor());
+        textView = (TextView) findViewById(R.id.textView);
+        textView.setBackgroundColor(Swiper.getInstance().getMyColor());
 
         gDetector = new GestureDetector(this);
     }
 
     public static MainActivity getInstance() {
         return instance;
-    }
-
-    public void updateColor(){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                textView.setBackgroundColor(Swiper.getInstance().getMyColor());
-
-            }
-        });
     }
 
     public void onItemSelected(AdapterView<?> parent, View view,
@@ -104,14 +94,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             Log.d(TAG, "onFling: horizontal");
             if (start.getRawX() < finish.getRawX()) {
                 //right
-                swiper.broadCastMyColor(Swiper.Direction.RIGHT);
+                swiper.broadCastColor(Swiper.Direction.RIGHT, swiper.getMyColor());
                 Log.d(TAG, "onFling: right");
                 startAnimation(R.id.animateObject, Swiper.Direction.RIGHT, Swiper.getInstance().getMyColor());
 
 
             } else {
                 //left
-                swiper.broadCastMyColor(Swiper.Direction.LEFT);
+                swiper.broadCastColor(Swiper.Direction.LEFT, swiper.getMyColor());
                 Log.d(TAG, "onFling: left");
 
                 startAnimation(R.id.animateObject, Swiper.Direction.LEFT, Swiper.getInstance().getMyColor());
