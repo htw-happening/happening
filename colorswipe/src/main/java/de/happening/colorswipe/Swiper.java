@@ -3,6 +3,7 @@ package de.happening.colorswipe;
 
 import android.util.Log;
 
+import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -46,16 +47,19 @@ public class Swiper {
             @Override
             public void onClientAdded(HappeningClient happeningClient) {
                 Log.d(getClass().getSimpleName(), "HappeningCallback - onClientAdded");
+                checkClients();
             }
 
             @Override
             public void onClientUpdated(HappeningClient happeningClient) {
                 Log.d(getClass().getSimpleName(), "HappeningCallback - onClientUpdated");
+                checkClients();
             }
 
             @Override
             public void onClientRemoved(HappeningClient happeningClient) {
                 Log.d(getClass().getSimpleName(), "HappeningCallback - onClientRemoved");
+                checkClients();
             }
 
             @Override
@@ -63,8 +67,18 @@ public class Swiper {
                 Log.d(TAG, "logMessage: " + action);
                 switch (packageType){
                     case 1:
-                        MainActivity.getInstance().startAnimation(Direction.RIGHT, generateColor(), Packet.OGM_OBJECT);
-                        break;
+                        /*
+                        from Meshhandler
+                        public static final int MESSAGE_ACTION_ARRIVED = 0;
+                        public static final int MESSAGE_ACTION_RECEIVED = 1;
+                        public static final int MESSAGE_ACTION_DROPPED = 2;
+                        public static final int MESSAGE_ACTION_FORWARDED = 3;
+
+                         */
+                        if (action == 0) {
+                            MainActivity.getInstance().startAnimation(Direction.RIGHT, generateColor(), Packet.OGM_OBJECT);
+                            break;
+                        }
                     default:
                         MainActivity.getInstance().startAnimation(Direction.RIGHT, 0xFF000000, Packet.OGM_OBJECT);
                         break;
@@ -91,6 +105,10 @@ public class Swiper {
                 }
             }
         });
+    }
+
+    void checkClients(){
+//        List<HappeningClient> happeningClients
     }
 
 
