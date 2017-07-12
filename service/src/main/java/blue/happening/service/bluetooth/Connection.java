@@ -3,6 +3,8 @@ package blue.happening.service.bluetooth;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
+import org.acra.ACRA;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -78,11 +80,15 @@ public class Connection {
                     if (packageHandler.getPayloadSize() > MAXBYTESIZE || packageHandler.getPayloadSize() < 0){
                         Log.e(TAG, "Closing Reader cause PayloadSize was too big or negative ("+packageHandler.getPayloadSize()+") -> Connection seems to be broken");
                         shutdown();
+                        return;
                     }
-                    buffer = new byte[packageHandler.getPayloadSize()];
+                    buffer = new byte[1];
 
-                    inputStream.read(buffer);
-                    packageHandler.addContent(buffer);
+                    for (int i = 0; i < packageHandler.getPayloadSize(); i++) {
+                        inputStream.read(buffer);
+                        packageHandler.addContent(buffer[0]);
+                    }
+
                     Package aPackage = packageHandler.getPackage();
                     System.out.println(TAG + " " + getName() + " package received " + aPackage.getData().length + " bytes");
                     packageHandler.clear();
@@ -91,12 +97,14 @@ public class Connection {
                     }
 
                 } catch (IOException e) {
-                    Log.e(TAG, "Reader closed of " + device + " cause of IO Error");
+                    Log.e(TAG, "Reader closed of " + device + " cause of IO Error " + e.toString());
+                    ACRA.getErrorReporter().handleException(e);
                     shutdown();
                     return;
                 }
                 catch (OutOfMemoryError outOfMemoryErrore){
-                    Log.e(TAG, "Writer Closed of " + device + " casue of OutOfMemoryError");
+                    Log.e(TAG, "Writer Closed of " + device + " casue of OutOfMemoryError ");
+                    ACRA.getErrorReporter().handleException(outOfMemoryErrore);
                     shutdown();
                 }
             }

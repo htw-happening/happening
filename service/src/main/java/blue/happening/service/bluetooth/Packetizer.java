@@ -8,6 +8,7 @@ public class Packetizer {
 
     private byte[] data = new byte[0];
     private int payloadSize = 0;
+    private int index = 0;
 
     public Packetizer() {
 
@@ -28,16 +29,20 @@ public class Packetizer {
     public Packetizer createNewFromMeta(byte[] metadata) {
         final ByteBuffer bb2 = ByteBuffer.wrap(metadata);
         this.payloadSize = bb2.getInt();
+        this.data = new byte[this.payloadSize];
+        this.index = 0;
         return this;
     }
 
-    public void addContent(byte[] data) {
-        this.data = new byte[data.length];
-        System.arraycopy(data, 0, this.data, 0, payloadSize);
+    public void addContent(byte data) {
+        this.data[index] = data;
+        this.index++;
     }
 
     public byte[] getContent() {
-        return this.data;
+        byte[] copy = new byte[this.data.length];
+        System.arraycopy(this.data, 0, copy, 0, this.data.length);
+        return copy;
     }
 
     public Package getPackage() {
@@ -47,6 +52,7 @@ public class Packetizer {
     public void clear() {
         this.data = new byte[0];
         this.payloadSize = 0;
+        this.index = 0;
     }
 
     public int getPayloadSize() {
