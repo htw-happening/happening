@@ -24,9 +24,9 @@ public class HappeningDemo {
         final int deviceCount = 16;
         final int messageDelay = 500;
         final float delayVariance = 0.1f;
-        final float messageLoss = 0.3f;
+        final float messageLoss = 0f;
         final double speedMin = 0.0D;
-        final double speedMax = 2.0D;
+        final double speedMax = 0.0D;
         final double width = 1000;
         final double height = 1000;
         MeshHandler.INITIAL_MESSAGE_TQ = 255;

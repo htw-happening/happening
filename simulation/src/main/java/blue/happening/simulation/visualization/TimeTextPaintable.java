@@ -26,27 +26,24 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.text.DecimalFormat;
+import java.util.Locale;
 
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
-import jsl.modeling.ModelElement;
 
 
 // TODO: this file need some serious clean up.
 public class TimeTextPaintable<V, E> implements Paintable {
 
     private final BasicVisualizationServer<V, E> visualizationServer;
-    private int x;
-    private int y;
     private Font font;
     private FontMetrics metrics;
-    private int swidth;
-    private int sheight;
-    private DecimalFormat twoDecimalFormat = new DecimalFormat("#.00");
 
-    public TimeTextPaintable(BasicVisualizationServer<V, E> visualizationServer) {
+    private long startTime = 0;
+
+    TimeTextPaintable(BasicVisualizationServer<V, E> visualizationServer) {
         this.visualizationServer = visualizationServer;
+        this.startTime = System.currentTimeMillis();
     }
 
     @Override
@@ -57,11 +54,15 @@ public class TimeTextPaintable<V, E> implements Paintable {
             metrics = g.getFontMetrics(font);
         }
 
-        String str = twoDecimalFormat.format(ModelElement.getTime());
-        swidth = metrics.stringWidth(str);
-        sheight = metrics.getMaxAscent() + metrics.getMaxDescent();
-        x = (d.width - swidth) / 2;
-        y = (int) (d.height - sheight * 1.5);
+        int time = (int) (System.currentTimeMillis() - startTime);
+        int minutes = time / (60 * 1000);
+        int seconds = (time / 1000) % 60;
+        String str = String.format(Locale.ENGLISH, "%d:%02d", minutes, seconds);
+
+        int swidth = metrics.stringWidth(str);
+        int sheight = metrics.getMaxAscent() + metrics.getMaxDescent();
+        int x = (d.width - swidth) / 2;
+        int y = (int) (d.height - sheight * 1.5);
         g.setFont(font);
         Color oldColor = g.getColor();
         g.setColor(Color.BLACK);
