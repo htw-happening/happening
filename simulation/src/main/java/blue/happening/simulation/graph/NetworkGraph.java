@@ -629,6 +629,10 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
         return containsEdge(edge);
     }
 
+    public VertexProperties<V, E> getVertexProperties(final V vertex) {
+        return verticesProperties.get(vertex);
+    }
+
     /**
      * Returns the initial x-axis coordinate of {@code vertex}.
      *

@@ -20,14 +20,14 @@ public class HappeningDemo {
     public static void main(String[] args) throws InterruptedException {
 
         // configuration
-        final int deviceCount = 4;
+        final int deviceCount = 50;
         final int messageDelay = 500;
         final int replicationLength = 10000;
         final float messageLoss = 0.0F;
-        final double speedMin = 0.0D;
-        final double speedMax = 0.1D;
-        final double txRadius = 80D;
-        final double rxRadius = 80D;
+        final double speedMin = 1.0D;
+        final double speedMax = 4.0D;
+        final double txRadius = 180D;
+        final double rxRadius = 180D;
         final double noopInterval = 1D;
         final long noopSleep = 50L;
         MeshHandler.INITIAL_MESSAGE_TQ = 255;
@@ -59,7 +59,6 @@ public class HappeningDemo {
         final double verticalPadding = (frameHeight - (verticalStep * (root - 1))) / 2;
         final double horizontalPadding = (frameWidth - (horizontalStep * (root - 1))) / 2;
         final RectangularBoundary<Device, Connection> bound = new RectangularBoundary<>(0, 0, frameWidth, frameHeight);
-        final MobilityPattern<Device, Connection> pattern = new RandomDSMobilityPattern<>(bound, speedMin, speedMax);
 
         for (int i = 0; i < root; i++) {
             for (int j = 0; j < root; j++) {
@@ -69,6 +68,7 @@ public class HappeningDemo {
                     device.setMessageLoss(messageLoss);
                     double sx = horizontalPadding + (i * horizontalStep);
                     double sy = verticalPadding + (j * verticalStep);
+                    MobilityPattern<Device, Connection> pattern = new RandomDSMobilityPattern<>(bound, speedMin, speedMax);
                     graph.addVertex(device, sx, sy, pattern, txRadius, rxRadius);
                     deviceIndex++;
                 }

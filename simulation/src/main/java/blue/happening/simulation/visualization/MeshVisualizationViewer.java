@@ -39,8 +39,7 @@ public class MeshVisualizationViewer<Device, Connection>
         setForeground(Color.WHITE);
 
         // add time counter
-        // addPostRenderPaintable(new TimeTextPaintable(this, blue.happening.simulation.graph));
-        addPostRenderPaintable(new TimeTextPaintable<Device, Connection>(this));
+        addPostRenderPaintable(new TimeTextPaintable<>(this));
 
         // add mouse zoom
         final AbstractModalGraphMouse graphMouse = new MeshModalGraphMouse<String, Number>();
