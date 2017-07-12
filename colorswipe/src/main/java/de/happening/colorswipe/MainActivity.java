@@ -15,6 +15,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, GestureDetector.OnGestureListener {
 
@@ -94,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     @Override
-    public boolean onFling(MotionEvent start, MotionEvent finish, float velocityX, float velocityY) {
+    public boolean onFling(final MotionEvent start, final MotionEvent finish, float velocityX, float velocityY) {
 
         Swiper swiper = Swiper.getInstance();
 
@@ -106,21 +108,32 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (xDiff > yDiff) {
             //horizonatal
             Log.d(TAG, "onFling: horizontal");
+            final int colorToBroadcast = swiper.getMyColor();
+            Timer timer = new Timer();
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    if (start.getRawX() < finish.getRawX()) {
+                        //right
+                        Swiper.getInstance().broadCastColor(Swiper.Direction.RIGHT, colorToBroadcast);
+                    } else {
+                        //left
+                        Swiper.getInstance().broadCastColor(Swiper.Direction.LEFT, colorToBroadcast);
+                    }
+
+                }
+            };
+            timer.schedule(timerTask, 900);
+
+
             if (start.getRawX() < finish.getRawX()) {
                 //right
-                swiper.broadCastColor(Swiper.Direction.RIGHT, swiper.getMyColor());
-                Log.d(TAG, "onFling: right");
-
                 startAnimation(Swiper.Direction.RIGHT, Swiper.getInstance().getMyColor(), Swiper.Packet.SWIPE_OBJECT);
-//                startAnimation(Swiper.Direction.RIGHT, Swiper.getInstance().getMyColor(), Swiper.Packet.OGM_OBJECT);
             } else {
                 //left
-                swiper.broadCastColor(Swiper.Direction.LEFT, swiper.getMyColor());
-                Log.d(TAG, "onFling: left");
-
                 startAnimation(Swiper.Direction.LEFT, Swiper.getInstance().getMyColor(), Swiper.Packet.SWIPE_OBJECT);
-//                startAnimation(Swiper.Direction.LEFT, Swiper.getInstance().getMyColor(), Swiper.Packet.OGM_OBJECT);
             }
+
         } else {
             //vertical
             Log.d(TAG, "onFling: vertial");

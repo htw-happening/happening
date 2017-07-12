@@ -21,6 +21,7 @@ public class MeshVisualizerFrame<V, E> extends JFrame {
     public MeshVisualizerFrame(final NetworkGraph<V, E> graph) {
         super(graph.getName());
         this.graph = graph;
+        this.setTitle("Happening Mesh Simulation");
 
         // add blue.happening.simulation.visualization panel
         final Dimension dimension = new Dimension(getContentPane().getWidth(), getContentPane().getHeight());
