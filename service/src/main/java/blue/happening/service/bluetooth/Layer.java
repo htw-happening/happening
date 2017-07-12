@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 
+import org.acra.ACRA;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,7 +58,6 @@ public class Layer extends blue.happening.mesh.Layer {
         this.macAddress = android.provider.Settings.Secure.getString(context.getContentResolver(), "bluetooth_address");
         bluetoothStateReceiver = new BluetoothStateReceiver();
         Log.i(TAG, "*********************** I am " + bluetoothAdapter.getName() + " | " + macAddress + " ***********************");
-
     }
 
     public static Layer getInstance() {
@@ -252,6 +253,7 @@ public class Layer extends blue.happening.mesh.Layer {
                 }
             } catch (IOException e) {
                 Log.e(TAG, "accept() has been interrupted, cause: " + e.getMessage());
+                ACRA.getErrorReporter().handleException(e);
             }
             if (d) Log.i(TAG, "Server stopped");
         }
@@ -264,6 +266,7 @@ public class Layer extends blue.happening.mesh.Layer {
                     serverSocket.close();
                 } catch (IOException e) {
                     Log.e(TAG, "close of server failed", e);
+                    ACRA.getErrorReporter().handleException(e);
                 }
             }
         }

@@ -3,6 +3,8 @@ package blue.happening.service.bluetooth;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
+import org.acra.ACRA;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -91,12 +93,14 @@ public class Connection {
                     }
 
                 } catch (IOException e) {
-                    Log.e(TAG, "Reader closed of " + device + " cause of IO Error");
+                    Log.e(TAG, "Reader closed of " + device + " cause of IO Error " + e.toString());
+                    ACRA.getErrorReporter().handleException(e);
                     shutdown();
                     return;
                 }
                 catch (OutOfMemoryError outOfMemoryErrore){
-                    Log.e(TAG, "Writer Closed of " + device + " casue of OutOfMemoryError");
+                    Log.e(TAG, "Writer Closed of " + device + " casue of OutOfMemoryError ");
+                    ACRA.getErrorReporter().handleException(outOfMemoryErrore);
                     shutdown();
                 }
             }
