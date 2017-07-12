@@ -3,6 +3,7 @@ package de.happening.colorswipe;
 
 import android.util.Log;
 
+import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -46,16 +47,19 @@ public class Swiper {
             @Override
             public void onClientAdded(HappeningClient happeningClient) {
                 Log.d(getClass().getSimpleName(), "HappeningCallback - onClientAdded");
+                checkClients();
             }
 
             @Override
             public void onClientUpdated(HappeningClient happeningClient) {
                 Log.d(getClass().getSimpleName(), "HappeningCallback - onClientUpdated");
+                checkClients();
             }
 
             @Override
             public void onClientRemoved(HappeningClient happeningClient) {
                 Log.d(getClass().getSimpleName(), "HappeningCallback - onClientRemoved");
+                checkClients();
             }
 
             @Override
@@ -91,6 +95,10 @@ public class Swiper {
                 }
             }
         });
+    }
+
+    void checkClients(){
+//        List<HappeningClient> happeningClients
     }
 
 

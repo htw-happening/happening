@@ -267,8 +267,11 @@ public class DevicePanel extends JPanel {
         DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel) table.getModel();
         List<MeshDevice> neighbours = neighbourTableModel.getNeighbours();
         int indexOfExisting = neighbours.indexOf(neighbour);
-        neighbours.set(indexOfExisting, neighbour);
-        table.updateUI();
+        try {
+            neighbours.set(indexOfExisting, neighbour);
+            table.updateUI();
+        } catch (IndexOutOfBoundsException ignored) {
+        }
     }
 
     private void removeNeighbour(MeshDevice neighbour) {

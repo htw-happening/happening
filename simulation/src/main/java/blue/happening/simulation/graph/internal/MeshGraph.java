@@ -9,7 +9,7 @@ import blue.happening.simulation.graph.NetworkGraph;
 public class MeshGraph extends NetworkGraph<Device, Connection> {
 
     public MeshGraph() {
-        super(new DeviceEdgePool());
+        super("Happening Mesh", new DeviceEdgePool());
         addObserver(new MeshGraphObserver());
     }
 

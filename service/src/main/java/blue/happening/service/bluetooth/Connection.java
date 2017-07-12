@@ -80,11 +80,15 @@ public class Connection {
                     if (packageHandler.getPayloadSize() > MAXBYTESIZE || packageHandler.getPayloadSize() < 0){
                         Log.e(TAG, "Closing Reader cause PayloadSize was too big or negative ("+packageHandler.getPayloadSize()+") -> Connection seems to be broken");
                         shutdown();
+                        return;
                     }
-                    buffer = new byte[packageHandler.getPayloadSize()];
+                    buffer = new byte[1];
 
-                    inputStream.read(buffer);
-                    packageHandler.addContent(buffer);
+                    for (int i = 0; i < packageHandler.getPayloadSize(); i++) {
+                        inputStream.read(buffer);
+                        packageHandler.addContent(buffer[0]);
+                    }
+
                     Package aPackage = packageHandler.getPackage();
                     System.out.println(TAG + " " + getName() + " package received " + aPackage.getData().length + " bytes");
                     packageHandler.clear();
