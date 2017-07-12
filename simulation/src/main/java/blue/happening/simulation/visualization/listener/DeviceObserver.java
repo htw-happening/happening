@@ -91,6 +91,8 @@ public class DeviceObserver implements Observer {
         DEVICE_UNCLICKED,
         SEND_MESSAGE,
         RECEIVE_MESSAGE,
-        NETWORK_STATS_UPDATED
+        NETWORK_STATS_UPDATED,
+        OGM_LOG_ITEM_ADDED,
+        UCM_LOG_ITEM_ADDED
     }
 }
