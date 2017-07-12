@@ -31,7 +31,7 @@ public class Layer extends blue.happening.mesh.Layer {
     private Context context = null;
 
     private BluetoothAdapter bluetoothAdapter = null;
-    private PairingRequest pairingRequest;
+//    private PairingRequest pairingRequest;
     private IDeviceFinder deviceFinder;
 
     private ArrayList<Device> scannedDevices;
@@ -99,8 +99,8 @@ public class Layer extends blue.happening.mesh.Layer {
 
         this.deviceFinder.registerCallback(this);
         this.deviceFinder.start();
-        this.pairingRequest = new PairingRequest();
-        this.context.registerReceiver(pairingRequest, new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST));
+//        this.pairingRequest = new PairingRequest();
+//        this.context.registerReceiver(pairingRequest, new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST));
         this.connectSink = new AutoConnectSink();
         this.connectSink.start();
         this.acceptor = new Server();
@@ -124,7 +124,7 @@ public class Layer extends blue.happening.mesh.Layer {
                 device.connection.shutdown();
             }
         }
-        context.unregisterReceiver(pairingRequest);
+//        context.unregisterReceiver(pairingRequest);
         bluetoothStateReceiver.stop();
         connectSink.interrupt();
         this.scannedDevices.clear();
