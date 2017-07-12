@@ -18,7 +18,6 @@ public class Swiper {
     private Happening happening;
     private int myIndex = 0;
     private int myColor = 0;
-    private int receivedColor = 0;
 
     private String TAG = getClass().getSimpleName();
 
@@ -65,8 +64,10 @@ public class Swiper {
             @Override
             public void logMessage(int packageType, int action) {
                 Log.d(TAG, "logMessage: " + action);
+                Log.d(TAG, "logMessage: PACKAGETYPE: "+ packageType);
                 switch (packageType){
-                    case 1:
+
+                    case 1: //OGM
                         /*
                         from Meshhandler
                         public static final int MESSAGE_ACTION_ARRIVED = 0;
@@ -79,8 +80,14 @@ public class Swiper {
                             MainActivity.getInstance().startAnimation(Direction.RIGHT, generateColor(), Packet.OGM_OBJECT);
                             break;
                         }
-                    default:
+                        break;
+                    case 2: //UCM
+
                         MainActivity.getInstance().startAnimation(Direction.RIGHT, 0xFF000000, Packet.OGM_OBJECT);
+
+                        break;
+
+                    default:
                         break;
                 }
             }
@@ -91,14 +98,15 @@ public class Swiper {
                 final ColorPackage colorPackage = ColorPackage.fromBytes(bytes);
                 if (colorPackage.getTo() == getMyIndex()){
                     Log.d(TAG, "onMessageReceived: CHANGE MY COLOR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                    receivedColor = colorPackage.getColor();
+                    final int currentReceivedColor = colorPackage.getColor();
+                    MainActivity.getInstance().startAnimation(colorPackage.getDirection(), currentReceivedColor, Packet.SWIPE_OBJECT);
+
                     Timer timer = new Timer();
                     TimerTask timerTask = new TimerTask() {
                         @Override
                         public void run() {
-                            MainActivity.getInstance().startAnimation(colorPackage.getDirection(), receivedColor, Packet.SWIPE_OBJECT);
                             Log.d(TAG, "run: REBROADCAST COLOR");
-                            broadCastColor(colorPackage.getDirection(), receivedColor);
+                            broadCastColor(colorPackage.getDirection(), currentReceivedColor);
                         }
                     };
                     timer.schedule(timerTask, 900);
