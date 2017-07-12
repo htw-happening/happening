@@ -75,6 +75,10 @@ public class Device extends Observable {
         this.messageDelay = messageDelay;
     }
 
+    public void setMessageLoss(float messageLoss) {
+        mockLayer.setMessageLoss(messageLoss);
+    }
+
     public double getTxRadius() {
         return isEnabled ? txRadius : 0;
     }

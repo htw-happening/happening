@@ -189,8 +189,7 @@ public class VaryingVariableDemo {
         System.out.println("# Replication Length \t\t= " + replicationLength);
         System.out.println("# Number of Replications \t= " + nReplications);
         System.out.println("#");
-        System.out
-                .println("# width (and height),edge count,edge rate,edge duration");
+        System.out.println("# width (and height),edge count,edge rate,edge duration");
 
         for (int width = 10; width <= 1000; width += 10) {
 
@@ -226,8 +225,7 @@ public class VaryingVariableDemo {
         System.out.println("# Replication Length \t\t= " + replicationLength);
         System.out.println("# Number of Replications \t= " + nReplications);
         System.out.println("#");
-        System.out.println(
-                "# vertices, radius, speed, width, edge count,edge rate,edge duration");
+        System.out.println("# vertices, radius, speed, width, edge count,edge rate,edge duration");
 
         for (int vertices = 100; vertices >= 10; vertices -= 10) {
             for (int radius = 100; radius >= 100; radius -= 10) {
@@ -270,26 +268,20 @@ public class VaryingVariableDemo {
 
             super();
 
-            final StringStringNetworkGraph graph = new StringStringNetworkGraph(
-                    getModel());
+            final StringStringNetworkGraph graph = new StringStringNetworkGraph(getModel());
 
-            final RectangularBoundary<String, String> bound = new RectangularBoundary<String, String>(
-                    0, 0, width, height);
-            MobilityPattern<String, String> pattern = new RandomDSMobilityPattern<String, String>(
-                    bound, speedMin, speedMax);
+            final RectangularBoundary<String, String> bound = new RectangularBoundary<>(0, 0, width, height);
+            MobilityPattern<String, String> pattern = new RandomDSMobilityPattern<>(bound, speedMin, speedMax);
             final Random random = new Random();
             for (int i = 0; i < nVertices; i++) {
-                final double initialX =
-                        bound.getX() + (random.nextDouble() * (bound.getWidth()));
-                final double initialY =
-                        bound.getY() + (random.nextDouble() * (bound.getHeight()));
-                graph
-                        .addVertex("" + i, initialX, initialY, pattern, txRadius, rxRadius);
+                final double initialX = bound.getX() + (random.nextDouble() * (bound.getWidth()));
+                final double initialY = bound.getY() + (random.nextDouble() * (bound.getHeight()));
+                graph.addVertex("" + i, initialX, initialY, pattern, txRadius, rxRadius);
             }
 
-            edgeCount = new EdgeCountStatistician<String, String>(graph);
-            edgeRate = new EdgeCreationRateStatistician<String, String>(graph);
-            edgeDuration = new EdgeDurationStatistician<String, String>(graph);
+            edgeCount = new EdgeCountStatistician<>(graph);
+            edgeRate = new EdgeCreationRateStatistician<>(graph);
+            edgeDuration = new EdgeDurationStatistician<>(graph);
 
             // set experimental settings
             setSaveExperimentStatisticsOption(true);

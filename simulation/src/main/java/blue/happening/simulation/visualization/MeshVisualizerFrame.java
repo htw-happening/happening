@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import javax.swing.JFrame;
 
 import blue.happening.simulation.graph.NetworkGraph;
-import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 
 
 public class MeshVisualizerFrame<V, E> extends JFrame {
@@ -19,11 +18,10 @@ public class MeshVisualizerFrame<V, E> extends JFrame {
         this.graph = graph;
 
         // add blue.happening.simulation.visualization panel
-        Dimension preferredSize = new Dimension(10000, 10000);
-        this.visualizerPanel = new MeshVisualizationViewer<>(graph, preferredSize);
-        getContentPane().add(new GraphZoomScrollPane(visualizerPanel));
-        // new JComponentRepaintAction(blue.happening.simulation.graph, "test", visualizerPanel, 0.01);
-        new TimedJComponenetRepainter(visualizerPanel, 15);
+        Dimension dimension = new Dimension(getContentPane().getWidth(), getContentPane().getHeight());
+        this.visualizerPanel = new MeshVisualizationViewer<>(graph, dimension);
+        getContentPane().add(visualizerPanel);
+        new TimedJComponentRepainter(visualizerPanel, 15);
 
         // add device panel
         DevicePanel panel = new DevicePanel();

@@ -20,18 +20,16 @@ public class HappeningDemo {
     public static void main(String[] args) throws InterruptedException {
 
         // configuration
-        final int deviceCount = 20;
+        final int deviceCount = 4;
         final int messageDelay = 500;
-        final float messageLoss = 0.1f;
-        final double speedMin = 0.0D;
-        final double speedMax = 1.0D;
-        final double width = 1000;
-        final double txRadius = 100;
-        final double rxRadius = 100;
-        final double height = 1000;
         final int replicationLength = 10000;
-        final double noopInterval = 1;
-        final long noopSleep = 50;
+        final float messageLoss = 0.0F;
+        final double speedMin = 0.0D;
+        final double speedMax = 0.1D;
+        final double txRadius = 80D;
+        final double rxRadius = 80D;
+        final double noopInterval = 1D;
+        final long noopSleep = 50L;
         MeshHandler.INITIAL_MESSAGE_TQ = 255;
         MeshHandler.INITIAL_MESSAGE_TTL = 5;
         MeshHandler.HOP_PENALTY = 15;
@@ -44,34 +42,38 @@ public class HappeningDemo {
         // create a custom graph with Vertex: Device and Edge: Connection
         MeshGraph graph = new MeshGraph();
 
+        // enable visualization frame and panel
+        MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<>(graph);
+
         // create message delivery executor service
         ScheduledExecutorService postman = Executors.newSingleThreadScheduledExecutor();
 
-        // construct a bound; boundary of the canvas
-        RectangularBoundary<Device, Connection> bound = new RectangularBoundary<>(0, 0, width, height);
-
-        // construct a random mobility pattern that conforms to that bound
-        MobilityPattern<Device, Connection> pattern = new RandomDSMobilityPattern<>(bound, speedMin, speedMax);
-
         // initialize devices and place them on the in the scene
         int deviceIndex = 0;
-        int dimension = (int) Math.ceil(Math.sqrt(deviceCount));
-        for (int i = 0; i < dimension; i++) {
-            for (int j = 0; j < dimension; j++) {
+        final double frameHeight = frame.getVisualizerPanel().getHeight();
+        final double frameWidth = frame.getVisualizerPanel().getWidth();
+        final int root = (int) Math.ceil(Math.sqrt(deviceCount));
+        final double radius = Math.min(txRadius, rxRadius);
+        final double verticalStep = Math.min(radius, frameHeight / (root + 1));
+        final double horizontalStep = Math.min(radius, frameWidth / (root + 1));
+        final double verticalPadding = (frameHeight - (verticalStep * (root - 1))) / 2;
+        final double horizontalPadding = (frameWidth - (horizontalStep * (root - 1))) / 2;
+        final RectangularBoundary<Device, Connection> bound = new RectangularBoundary<>(0, 0, frameWidth, frameHeight);
+        final MobilityPattern<Device, Connection> pattern = new RandomDSMobilityPattern<>(bound, speedMin, speedMax);
+
+        for (int i = 0; i < root; i++) {
+            for (int j = 0; j < root; j++) {
                 if (deviceIndex < deviceCount) {
                     Device device = new Device("Device_" + deviceIndex, graph, postman);
                     device.setMessageDelay(messageDelay);
-                    device.getMockLayer().setMessageLoss(messageLoss);
-                    device.setTxRadius(txRadius);
-                    device.setRxRadius(rxRadius);
-                    graph.addVertex(device, 100 + (i * 100), 100 + (j * 100), pattern, 0, 0);
+                    device.setMessageLoss(messageLoss);
+                    double sx = horizontalPadding + (i * horizontalStep);
+                    double sy = verticalPadding + (j * verticalStep);
+                    graph.addVertex(device, sx, sy, pattern, txRadius, rxRadius);
                     deviceIndex++;
                 }
             }
         }
-
-        // enable visualization frame and panel
-        MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<>(graph);
 
         // introduce noop events to slow down simulation
         new NOOPAction(graph, noopInterval, noopSleep);

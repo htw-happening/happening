@@ -47,7 +47,7 @@ public class SimpleVisualizerFrame<V, E> extends JFrame {
                 preferredSize);
         getContentPane().add(new GraphZoomScrollPane(visualizerPanel));
         // new JComponentRepaintAction(blue.happening.simulation.graph, "test", visualizerPanel, 0.01);
-        new TimedJComponenetRepainter(visualizerPanel, 15);
+        new TimedJComponentRepainter(visualizerPanel, 15);
 
         // add buttons panel
         ButtonsPanel<V, E> buttonsPanel = new ButtonsPanel<V, E>(visualizerPanel);

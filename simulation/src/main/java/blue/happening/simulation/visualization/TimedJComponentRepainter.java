@@ -27,9 +27,9 @@ import java.util.TimerTask;
 import javax.swing.JComponent;
 
 
-public class TimedJComponenetRepainter {
+public class TimedJComponentRepainter {
 
-    public TimedJComponenetRepainter(final JComponent component, long period) {
+    public TimedJComponentRepainter(final JComponent component, long period) {
 
         Timer timer = new Timer();
         TimerTask repaintTask = new TimerTask() {
@@ -41,7 +41,5 @@ public class TimedJComponenetRepainter {
         };
 
         timer.schedule(repaintTask, 0, period);
-
     }
-
 }

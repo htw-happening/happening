@@ -85,27 +85,19 @@ public class EdgeDurationStatistician<V, E> {
     private class EdgeDurationMeterObserver extends NetworkGraphObserver<V, E> {
 
         @Override
-        protected void addedEdge(final NetworkGraph<V, E> networkGraph,
-                                 final E edge) {
+        protected void addedEdge(final NetworkGraph<V, E> networkGraph, final E edge) {
 
             final double startTime = ModelElement.getTime();
             startTimes.put(edge, startTime);
         }
 
-        ;
-
         @Override
-        protected void removedEdge(final NetworkGraph<V, E> networkGraph,
-                                   final E edge) {
+        protected void removedEdge(final NetworkGraph<V, E> networkGraph, final E edge) {
 
             final double startTime = startTimes.remove(edge);
             final double endTime = ModelElement.getTime();
 
             duration.setValue(endTime - startTime);
         }
-
-        ;
-
     }
-
 }
