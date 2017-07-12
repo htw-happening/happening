@@ -78,6 +78,7 @@ public class Connection {
                     if (packageHandler.getPayloadSize() > MAXBYTESIZE || packageHandler.getPayloadSize() < 0){
                         Log.e(TAG, "Closing Reader cause PayloadSize was too big or negative ("+packageHandler.getPayloadSize()+") -> Connection seems to be broken");
                         shutdown();
+                        return;
                     }
                     buffer = new byte[packageHandler.getPayloadSize()];
 
