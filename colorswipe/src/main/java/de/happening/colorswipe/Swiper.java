@@ -67,8 +67,18 @@ public class Swiper {
                 Log.d(TAG, "logMessage: " + action);
                 switch (packageType){
                     case 1:
-                        MainActivity.getInstance().startAnimation(Direction.RIGHT, generateColor(), Packet.OGM_OBJECT);
-                        break;
+                        /*
+                        from Meshhandler
+                        public static final int MESSAGE_ACTION_ARRIVED = 0;
+                        public static final int MESSAGE_ACTION_RECEIVED = 1;
+                        public static final int MESSAGE_ACTION_DROPPED = 2;
+                        public static final int MESSAGE_ACTION_FORWARDED = 3;
+
+                         */
+                        if (action == 0) {
+                            MainActivity.getInstance().startAnimation(Direction.RIGHT, generateColor(), Packet.OGM_OBJECT);
+                            break;
+                        }
                     default:
                         MainActivity.getInstance().startAnimation(Direction.RIGHT, 0xFF000000, Packet.OGM_OBJECT);
                         break;
