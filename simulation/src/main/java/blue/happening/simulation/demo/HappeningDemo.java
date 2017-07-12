@@ -2,7 +2,6 @@ package blue.happening.simulation.demo;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadLocalRandom;
 
 import blue.happening.mesh.MeshHandler;
 import blue.happening.simulation.entities.Connection;
@@ -21,14 +20,18 @@ public class HappeningDemo {
     public static void main(String[] args) throws InterruptedException {
 
         // configuration
-        final int deviceCount = 160;
+        final int deviceCount = 20;
         final int messageDelay = 500;
-        final float delayVariance = 0.1f;
-        final float messageLoss = 0.3f;
+        final float messageLoss = 0.1f;
         final double speedMin = 0.0D;
         final double speedMax = 1.0D;
         final double width = 1000;
+        final double txRadius = 100;
+        final double rxRadius = 100;
         final double height = 1000;
+        final int replicationLength = 10000;
+        final double noopInterval = 1;
+        final long noopSleep = 50;
         MeshHandler.INITIAL_MESSAGE_TQ = 255;
         MeshHandler.INITIAL_MESSAGE_TTL = 5;
         MeshHandler.HOP_PENALTY = 15;
@@ -57,13 +60,10 @@ public class HappeningDemo {
             for (int j = 0; j < dimension; j++) {
                 if (deviceIndex < deviceCount) {
                     Device device = new Device("Device_" + deviceIndex, graph, postman);
-                    int min = Math.round(messageDelay * (1 - delayVariance));
-                    int max = Math.round(messageDelay * (1 + delayVariance));
-                    int delay = ThreadLocalRandom.current().nextInt(min, max);
-                    device.setMessageDelay(delay);
+                    device.setMessageDelay(messageDelay);
                     device.getMockLayer().setMessageLoss(messageLoss);
-                    device.setTxRadius(100);
-                    device.setRxRadius(100);
+                    device.setTxRadius(txRadius);
+                    device.setRxRadius(rxRadius);
                     graph.addVertex(device, 100 + (i * 100), 100 + (j * 100), pattern, 0, 0);
                     deviceIndex++;
                 }
@@ -74,13 +74,13 @@ public class HappeningDemo {
         MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<>(graph);
 
         // introduce noop events to slow down simulation
-        new NOOPAction(graph, 1, 50);
+        new NOOPAction(graph, noopInterval, noopSleep);
 
         // create replication
         Replication replication = new Replication(graph.getModel());
 
         // set replication length
-        replication.setLengthOfReplication(10000);
+        replication.setLengthOfReplication(replicationLength);
 
         // run replication
         replication.runAll();
