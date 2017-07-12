@@ -1,8 +1,5 @@
 package blue.happening.mesh;
 
-import java.util.HashSet;
-
-
 public abstract class RemoteDevice implements IRemoteDevice {
 
     private final String uuid;
@@ -10,14 +7,12 @@ public abstract class RemoteDevice implements IRemoteDevice {
     private SlidingWindow echoSlidingWindow;
     private SlidingWindow receiveSlidingWindow;
     private MeshDevice meshDevice;
-    private HashSet<String> neighbourUuids;
 
     public RemoteDevice(String uuid) {
         this.uuid = uuid;
         meshDevice = new MeshDevice();
         meshDevice.setUuid(uuid);
         lastSeen = System.currentTimeMillis();
-        neighbourUuids = new HashSet<>();
         echoSlidingWindow = new SlidingWindow();
         receiveSlidingWindow = new SlidingWindow();
     }
@@ -45,22 +40,6 @@ public abstract class RemoteDevice implements IRemoteDevice {
     boolean isExpired() {
         long expirationMillis = MeshHandler.DEVICE_EXPIRATION * 1000L;
         return System.currentTimeMillis() - lastSeen > expirationMillis;
-    }
-
-    HashSet<String> getNeighbourUuids() {
-        return neighbourUuids;
-    }
-
-    final boolean isReachable() {
-        return neighbourUuids.size() > 0;
-    }
-
-    public final boolean isNeighbour() {
-        return neighbourUuids.contains(uuid);
-    }
-
-    void mergeNeighbours(RemoteDevice remoteDevice) {
-        neighbourUuids.addAll(remoteDevice.getNeighbourUuids());
     }
 
     public final float getEq() {

@@ -1,5 +1,7 @@
 package blue.happening.simulation.entities;
 
+import java.util.UUID;
+
 import blue.happening.mesh.IMeshHandlerCallback;
 import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.MeshHandler;
@@ -41,13 +43,22 @@ class MockMeshHandlerCallback implements IMeshHandlerCallback {
         device.notifyDeviceObserver(DeviceObserver.Events.NETWORK_STATS_UPDATED, networkStats);
     }
 
+    private UUID messageId;
+
     @Override
     public void logMessage(Message message, int status) {
+        if(status == MeshHandler.MESSAGE_ACTION_ARRIVED || status == MeshHandler.MESSAGE_ACTION_FORWARDED){
+            messageId = UUID.randomUUID();
+        }
+        LogItem logItem = new LogItem(message, status, messageId);
         switch (message.getType()) {
             case MeshHandler.MESSAGE_TYPE_OGM:
-                device.getOgmLog().push(message, status);
+                device.getOgmLog().push(logItem);
+                device.notifyDeviceObserver(DeviceObserver.Events.OGM_LOG_ITEM_ADDED, logItem);
             case MeshHandler.MESSAGE_TYPE_UCM:
-                device.getUcmLog().push(message, status);
+                device.getUcmLog().push(logItem);
+                device.notifyDeviceObserver(DeviceObserver.Events.UCM_LOG_ITEM_ADDED, logItem);
+                break;
         }
     }
 }

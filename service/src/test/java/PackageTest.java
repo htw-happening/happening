@@ -56,15 +56,17 @@ public class PackageTest {
             handler.createNewFromMeta(buffer);
             System.out.println("created meta package " + handler);
             System.out.println("read payload ");
-            buffer = new byte[handler.getPayloadSize()];
+            buffer = new byte[1];
             try {
-                inputStream.read(buffer);
+                for (int i = 0; i < handler.getPayloadSize(); i++) {
+                    inputStream.read(buffer);
+                    System.out.println("read " + Arrays.toString(buffer));
+                    handler.addContent(buffer[0]);
+                    System.out.println("Added to packetizer " + handler);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.println("read " + Arrays.toString(buffer));
-            handler.addContent(buffer);
-            System.out.println("Added to packetizer " + handler);
             System.out.println("Done");
             other = handler.getPackage();
             System.out.println(handler + " " + other);

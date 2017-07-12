@@ -5,7 +5,7 @@ public interface IRemoteDevice extends Comparable<IRemoteDevice> {
 
     public String getUuid();
 
-    public boolean isNeighbour();
+    // public boolean isNeighbour();
 
     public float getTq();
 

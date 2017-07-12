@@ -15,7 +15,7 @@ public class MeshVisualizerFrame<V, E> extends JFrame {
     private final MeshVisualizationViewer<V, E> visualizerPanel;
 
     public MeshVisualizerFrame(NetworkGraph<V, E> graph) {
-        super("Graph " + graph.getName());
+        super(graph.getName());
         this.graph = graph;
         this.setTitle("Happening Mesh Simulation");
 

@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 
+import org.acra.ACRA;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +33,7 @@ public class Layer extends blue.happening.mesh.Layer {
     private Context context = null;
 
     private BluetoothAdapter bluetoothAdapter = null;
-    private PairingRequest pairingRequest;
+//    private PairingRequest pairingRequest;
     private IDeviceFinder deviceFinder;
 
     private ArrayList<Device> scannedDevices;
@@ -56,7 +58,6 @@ public class Layer extends blue.happening.mesh.Layer {
         this.macAddress = android.provider.Settings.Secure.getString(context.getContentResolver(), "bluetooth_address");
         bluetoothStateReceiver = new BluetoothStateReceiver();
         Log.i(TAG, "*********************** I am " + bluetoothAdapter.getName() + " | " + macAddress + " ***********************");
-
     }
 
     public static Layer getInstance() {
@@ -99,8 +100,8 @@ public class Layer extends blue.happening.mesh.Layer {
 
         this.deviceFinder.registerCallback(this);
         this.deviceFinder.start();
-        this.pairingRequest = new PairingRequest();
-        this.context.registerReceiver(pairingRequest, new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST));
+//        this.pairingRequest = new PairingRequest();
+//        this.context.registerReceiver(pairingRequest, new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST));
         this.connectSink = new AutoConnectSink();
         this.connectSink.start();
         this.acceptor = new Server();
@@ -124,7 +125,7 @@ public class Layer extends blue.happening.mesh.Layer {
                 device.connection.shutdown();
             }
         }
-        context.unregisterReceiver(pairingRequest);
+//        context.unregisterReceiver(pairingRequest);
         bluetoothStateReceiver.stop();
         connectSink.interrupt();
         this.scannedDevices.clear();

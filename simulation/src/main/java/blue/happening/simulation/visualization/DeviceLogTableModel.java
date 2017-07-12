@@ -6,24 +6,25 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import blue.happening.mesh.MeshDevice;
+import blue.happening.simulation.entities.LogItem;
 
-public class DeviceNeighbourTableModel extends AbstractTableModel {
+public class DeviceLogTableModel extends AbstractTableModel {
     //Two arrays used for the table data
-    private String[] columnNames = {"UUID", "TQ", "Last Seen (secs ago)"};
+    private String[] columnNames = {"Source", "Previous Hop", "Destination", "#", "TTL", "TQ"};
 
-    private List<MeshDevice> neighbours = new ArrayList<>();
+    private List<LogItem> logs = new ArrayList<>();
 
-    public DeviceNeighbourTableModel(List<MeshDevice> neighbours) {
-        this.neighbours.addAll(neighbours);
+    public DeviceLogTableModel(List<LogItem> logs) {
+        this.logs.addAll(logs);
     }
 
-    public List<MeshDevice> getNeighbours() {
-        return neighbours;
+    public List<LogItem> getLogs() {
+        return logs;
     }
 
     @Override
     public int getRowCount() {
-        return neighbours.size();
+        return logs.size();
     }
 
     @Override
@@ -33,22 +34,28 @@ public class DeviceNeighbourTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int row, int column) {
-        MeshDevice neighbour;
+        LogItem logItem;
         try {
-            neighbour = neighbours.get(row);
+            logItem = logs.get(row);
         } catch (IndexOutOfBoundsException e) {
             return null;
         }
-        if (neighbour == null) {
+        if (logItem == null) {
             return null;
         }
         switch (column) {
             case 0:
-                return neighbour.getUuid();
+                return logItem.getMessage().getSource();
             case 1:
-                return neighbour.getQuality();
+                return logItem.getMessage().getPreviousHop();
             case 2:
-                return (Math.round((System.currentTimeMillis() - neighbour.getLastSeen()) / 1000));
+                return logItem.getMessage().getDestination();
+            case 3:
+                return logItem.getMessage().getSequence();
+            case 4:
+                return logItem.getMessage().getTtl();
+            case 5:
+                return logItem.getMessage().getTq();
             default:
                 return null;
         }

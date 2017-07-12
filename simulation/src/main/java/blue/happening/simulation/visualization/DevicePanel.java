@@ -304,14 +304,26 @@ public class DevicePanel extends JPanel {
         DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel) table.getModel();
         List<MeshDevice> neighbours = neighbourTableModel.getNeighbours();
         int indexOfExisting = neighbours.indexOf(neighbour);
-        neighbours.set(indexOfExisting, neighbour);
-        table.updateUI();
+        try {
+            neighbours.set(indexOfExisting, neighbour);
+            table.updateUI();
+        } catch (IndexOutOfBoundsException ignored) {
+        }
     }
 
     private void removeNeighbour(MeshDevice neighbour) {
         DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel) table.getModel();
         neighbourTableModel.getNeighbours().remove(neighbour);
         table.updateUI();
+    private void setOgmLog(Device device){
+        DeviceLogTableModel deviceLogTableModel = new DeviceLogTableModel(device.getOgmLog().getLogs());
+        logTable.setModel(deviceLogTableModel);
+        logTable.updateUI();
+        logTable.setVisible(true);
+    }
+
+    private void updateOgmLog(LogItem log) {
+
     }
 
     public void setDevice(Device device) {
@@ -319,6 +331,7 @@ public class DevicePanel extends JPanel {
         updateMessageLossSlider(device);
         updatePackageDelay(device);
         setNeighbourList(device);
+        setOgmLog(device);
         clearNetworkStats();
         deviceLabel.setText(device.getName());
         logTablePanel.setVisible(true);
