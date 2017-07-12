@@ -1,6 +1,5 @@
 package blue.happening.simulation.visualization;
 
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,6 +27,7 @@ import blue.happening.mesh.RemoteDevice;
 import blue.happening.mesh.statistics.Stat;
 import blue.happening.mesh.statistics.StatsResult;
 import blue.happening.simulation.entities.Device;
+import blue.happening.simulation.entities.LogItem;
 
 
 public class DevicePanel extends JPanel {
@@ -35,11 +35,12 @@ public class DevicePanel extends JPanel {
     private static final int PANEL_WIDTH = 150;
     private static final int PANEL_HEIGHT = 200;
     private static final int TIME_WINDOW_SIZE = 25;
-    private static final Color BACKGROUND_COLOR = new Color(229, 229, 229, 100);
     private JLabel statsOgmIn, statsOgmOut, statsUcmIn, statsUcmOut;
     private JLabel deviceLabel;
     private JTable table;
     private JPanel tablePanel;
+    private JTable ogmLogTable;
+    private JTable ucmLogTable;
     private JButton sendButton;
     private JPanel logTablePanel;
     private JSlider packageDropSlider;
@@ -66,7 +67,6 @@ public class DevicePanel extends JPanel {
         sendButton.setEnabled(false);
 
         JPanel btnPanel = new JPanel(new FlowLayout());
-        btnPanel.setBackground(BACKGROUND_COLOR);
         btnPanel.setOpaque(false);
         btnPanel.add(deviceLabel);
         btnPanel.add(disableButton);
@@ -119,10 +119,10 @@ public class DevicePanel extends JPanel {
 
         // Network Stats
 
-        String[] settings = {"Data Count", "Messages Count"};
+        String[] settings = {"Number of Messages", "Size of Messages (bytes)"};
 
         JComboBox<String> selectStats = new JComboBox<>(settings);
-        selectStats.setSelectedIndex(1);
+        selectStats.setSelectedIndex(0);
         selectStats.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -159,12 +159,18 @@ public class DevicePanel extends JPanel {
 
         // Message Logging
 
-        JTable logTable = new JTable();
-        logTable.setAutoCreateRowSorter(true);
+        ogmLogTable = new JTable();
+        ogmLogTable.setAutoCreateRowSorter(true);
+
+        ucmLogTable = new JTable();
+        ucmLogTable.setAutoCreateRowSorter(true);
 
         logTablePanel = new JPanel();
         logTablePanel.setLayout(new BoxLayout(logTablePanel, BoxLayout.Y_AXIS));
-        logTablePanel.add(new JScrollPane(logTable));
+        logTablePanel.add(new JLabel("OGM Logs"));
+        logTablePanel.add(new JScrollPane(ogmLogTable));
+        logTablePanel.add(new JLabel("UCM Logs"));
+        logTablePanel.add(new JScrollPane(ucmLogTable));
         logTablePanel.setVisible(false);
         logTablePanel.setOpaque(false);
 
@@ -315,11 +321,13 @@ public class DevicePanel extends JPanel {
         DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel) table.getModel();
         neighbourTableModel.getNeighbours().remove(neighbour);
         table.updateUI();
+    }
+
     private void setOgmLog(Device device){
         DeviceLogTableModel deviceLogTableModel = new DeviceLogTableModel(device.getOgmLog().getLogs());
-        logTable.setModel(deviceLogTableModel);
-        logTable.updateUI();
-        logTable.setVisible(true);
+        ogmLogTable.setModel(deviceLogTableModel);
+        ogmLogTable.updateUI();
+        ogmLogTable.setVisible(true);
     }
 
     private void updateOgmLog(LogItem log) {
