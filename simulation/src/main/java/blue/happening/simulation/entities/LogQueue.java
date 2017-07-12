@@ -1,38 +1,27 @@
 package blue.happening.simulation.entities;
 
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.ArrayList;
+import java.util.List;
 
-import blue.happening.mesh.Message;
 
+public class LogQueue {
+    private int capacity;
 
-class LogQueue extends ArrayBlockingQueue<LogQueue.LogItem> {
+    private List<LogItem> logs;
 
     public LogQueue(int capacity) {
-        super(capacity);
+        this.capacity = capacity;
+        logs = new ArrayList<>();
     }
 
-    public boolean push(Message message, int status) {
-        if (remainingCapacity() == 0) {
-            poll();
-        }
-        return offer(new LogItem(message, status));
+    public List<LogItem> getLogs(){
+        return logs;
     }
 
-    class LogItem {
-        private Message message;
-        private int status;
-
-        LogItem(Message message, int status) {
-            this.message = message;
-            this.status = status;
+    public boolean push(LogItem item) {
+        if(this.logs.size()>capacity-1){
+            logs.remove(logs.get(0));
         }
-
-        public Message getMessage() {
-            return message;
-        }
-
-        public int getStatus() {
-            return status;
-        }
+        return logs.add(item);
     }
 }
