@@ -253,7 +253,6 @@ public class Layer extends blue.happening.mesh.Layer {
                 }
             } catch (IOException e) {
                 Log.e(TAG, "accept() has been interrupted, cause: " + e.getMessage());
-                ACRA.getErrorReporter().handleException(e);
             }
             if (d) Log.i(TAG, "Server stopped");
         }
@@ -266,7 +265,6 @@ public class Layer extends blue.happening.mesh.Layer {
                     serverSocket.close();
                 } catch (IOException e) {
                     Log.e(TAG, "close of server failed", e);
-                    ACRA.getErrorReporter().handleException(e);
                 }
             }
         }
