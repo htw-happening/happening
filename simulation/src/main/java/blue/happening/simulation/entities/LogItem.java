@@ -8,11 +8,13 @@ public class LogItem {
     private Message message;
     private int status;
     private UUID id;
+    private long ts;
 
     LogItem(Message message, int status, UUID id) {
         this.message = message;
         this.status = status;
         this.id = id;
+        this.ts = System.currentTimeMillis();
     }
 
     public Message getMessage() {
