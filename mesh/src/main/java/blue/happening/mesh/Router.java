@@ -51,8 +51,10 @@ class Router extends Observable {
     }
 
     private void routeOgm(Message message) throws RoutingException {
-        RemoteDevice existingDevice = routingTable.get(message.getSource());
-        if (existingDevice != null) {
+        //TODO check why we send the message only to exisitng devices, shouldn't it be broadcasted to all devices?!?
+        //RemoteDevice existingDevice = routingTable.get(message.getSource());
+        //if (existingDevice != null) {
+            // TODO Why are we checking if it is a Broadcast address, can't we just broadcast all OGM messages?
             if (message.getDestination().equals(MeshHandler.BROADCAST_ADDRESS)) {
                 if (shouldOGMBeForwarded(message)) {
                     broadcastMessage(message);
@@ -195,6 +197,7 @@ class Router extends Observable {
         for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
             if (shouldOGMBeEchoedTo(message, remoteDevice.getUuid()) ||
                     shouldOGMBeBroadcastTo(message, remoteDevice.getUuid())) {
+                // TODO Set remotedevice as originator instaed of broadcast adress?
                 remoteDevice.sendMessage(preparedMessage);
                 trigger(Events.OGM_SENT, preparedMessage);
                 ogmSent = true;
