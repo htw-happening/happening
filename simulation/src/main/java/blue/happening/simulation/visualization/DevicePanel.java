@@ -381,6 +381,13 @@ public class DevicePanel extends JPanel {
                     break;
                 case NETWORK_STATS_UPDATED:
                     updateNetworkStats((StatsResult) event.getOptions());
+                    break;
+                case OGM_LOG_ITEM_ADDED:
+                    updateOgmLog((LogItem) event.getOptions());
+                    break;
+                case UCM_LOG_ITEM_ADDED:
+                    updateUcmLog((LogItem) event.getOptions());
+                    break;
             }
         } else {
             setDevice(device);
