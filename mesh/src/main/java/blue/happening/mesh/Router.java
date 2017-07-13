@@ -64,7 +64,7 @@ class Router extends Observable {
             } else {
                 throw new RoutingException("OGM needs broadcast destination");
             }
-        }
+        //}
         slideWindows(message);
     }
 
