@@ -27,6 +27,7 @@ public class MeshHandler {
     public static final int MESSAGE_ACTION_RECEIVED = 1;
     public static final int MESSAGE_ACTION_DROPPED = 2;
     public static final int MESSAGE_ACTION_FORWARDED = 3;
+    public static final int MESSAGE_ACTION_SENT = 4;
 
     private static final int INITIAL_MIN_SEQUENCE = 0;
     private static final int INITIAL_MAX_SEQUENCE = 1024;
