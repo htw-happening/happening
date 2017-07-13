@@ -297,22 +297,21 @@ public class DevicePanel extends JPanel {
         DeviceNeighbourTableModel neighbourTableModel = new DeviceNeighbourTableModel(neighbours);
         table.setModel(neighbourTableModel);
         table.getSelectionModel().addListSelectionListener(new SharedListSelectionHandler());
-        table.updateUI();
     }
 
     private void addNeighbour(MeshDevice neighbour) {
         DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel) table.getModel();
         neighbourTableModel.getNeighbours().add(neighbour);
-        table.updateUI();
+        neighbourTableModel.fireTableDataChanged();
     }
 
     private void updateNeighbour(MeshDevice neighbour) {
         DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel) table.getModel();
         List<MeshDevice> neighbours = neighbourTableModel.getNeighbours();
         int indexOfExisting = neighbours.indexOf(neighbour);
-        try {
+        try{
             neighbours.set(indexOfExisting, neighbour);
-            table.updateUI();
+            neighbourTableModel.fireTableRowsUpdated(indexOfExisting, indexOfExisting);
         } catch (IndexOutOfBoundsException ignored) {
         }
     }
@@ -320,17 +319,33 @@ public class DevicePanel extends JPanel {
     private void removeNeighbour(MeshDevice neighbour) {
         DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel) table.getModel();
         neighbourTableModel.getNeighbours().remove(neighbour);
-        table.updateUI();
+        neighbourTableModel.fireTableDataChanged();
     }
 
-    private void setOgmLog(Device device){
-        DeviceLogTableModel deviceLogTableModel = new DeviceLogTableModel(device.getOgmLog().getLogs());
+    private void setOgmLog(Device device) {
+        DeviceLogTableModel deviceLogTableModel = new DeviceLogTableModel(device.getOgmLog().getLogs(), device);
         ogmLogTable.setModel(deviceLogTableModel);
-        ogmLogTable.updateUI();
         ogmLogTable.setVisible(true);
+        ogmLogTable.updateUI();
     }
 
     private void updateOgmLog(LogItem log) {
+        DeviceLogTableModel deviceLogTableModel = (DeviceLogTableModel) ogmLogTable.getModel();
+        if(deviceLogTableModel.getLogs().contains(log)){
+            deviceLogTableModel.getLogs().set(deviceLogTableModel.getLogs().indexOf(log),log);
+        } else {
+            deviceLogTableModel.getLogs().add(log);
+        }
+        deviceLogTableModel.fireTableDataChanged();
+    }
+
+    private void setUcmLog(Device device) {
+        DeviceLogTableModel deviceLogTableModel = new DeviceLogTableModel(device.getUcmLog().getLogs(), device);
+        ucmLogTable.setModel(deviceLogTableModel);
+        ucmLogTable.setVisible(true);
+    }
+
+    private void updateUcmLog(LogItem options) {
 
     }
 
