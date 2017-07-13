@@ -34,6 +34,6 @@ public class LogItem {
         } else if (!(object instanceof LogItem)) {
             return false;
         }
-        return ((LogItem) object).getId().equals(getId());
+        return ((LogItem) object).getId() == getId();
     }
 }
