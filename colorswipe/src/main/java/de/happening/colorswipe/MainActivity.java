@@ -41,11 +41,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         instance = this;
-
-        Log.d(TAG, "onCreate: ");
-
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.spinner_array, android.R.layout.simple_spinner_item);
@@ -59,22 +55,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         int id = sharedPrefs.getInt(KEY_PREFS_SPINNER_ID, 1);
         spinner.setSelection(id-1);
         Swiper.getInstance().setMyIndex(id);
-
-
         textView = (TextView) findViewById(R.id.textView);
         textView.setBackgroundColor(Swiper.getInstance().getMyColor());
-
         gDetector = new GestureDetector(this);
-    }
-
-    public void updateColor() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                textView.setBackgroundColor(Swiper.getInstance().getMyColor());
-
-            }
-        });
     }
 
     public void onItemSelected(AdapterView<?> parent, View view,
