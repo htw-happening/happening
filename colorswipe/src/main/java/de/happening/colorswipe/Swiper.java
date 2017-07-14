@@ -45,26 +45,26 @@ public class Swiper {
         happening.register(MyApplication.getAppContext(), new HappeningCallback() {
             @Override
             public void onClientAdded(HappeningClient happeningClient) {
-                Log.d(getClass().getSimpleName(), "HappeningCallback - onClientAdded");
-                checkClients();
+//                Log.d(getClass().getSimpleName(), "HappeningCallback - onClientAdded");
+//                checkClients();
             }
 
             @Override
             public void onClientUpdated(HappeningClient happeningClient) {
-                Log.d(getClass().getSimpleName(), "HappeningCallback - onClientUpdated");
-                checkClients();
+//                Log.d(getClass().getSimpleName(), "HappeningCallback - onClientUpdated");
+//                checkClients();
             }
 
             @Override
             public void onClientRemoved(HappeningClient happeningClient) {
-                Log.d(getClass().getSimpleName(), "HappeningCallback - onClientRemoved");
-                checkClients();
+//                Log.d(getClass().getSimpleName(), "HappeningCallback - onClientRemoved");
+//                checkClients();
             }
 
             @Override
             public void logMessage(int packageType, int action) {
-                Log.d(TAG, "logMessage: " + action);
-                Log.d(TAG, "logMessage: PACKAGETYPE: "+ packageType);
+//                Log.d(TAG, "logMessage: " + action);
+//                Log.d(TAG, "logMessage: PACKAGETYPE: "+ packageType);
                 switch (packageType){
 
                     case 1: //OGM
@@ -74,7 +74,6 @@ public class Swiper {
                         public static final int MESSAGE_ACTION_RECEIVED = 1;
                         public static final int MESSAGE_ACTION_DROPPED = 2;
                         public static final int MESSAGE_ACTION_FORWARDED = 3;
-
                          */
                         if (action == 0) {
                             MainActivity.getInstance().startAnimation(Direction.RIGHT, generateColor(), Packet.OGM_OBJECT);
@@ -94,10 +93,10 @@ public class Swiper {
 
             @Override
             public void onMessageReceived(byte[] bytes, HappeningClient happeningClient) {
-                Log.d(getClass().getSimpleName(), "HappeningCallback - onMessageReceived");
+//                Log.d(getClass().getSimpleName(), "HappeningCallback - onMessageReceived");
                 final ColorPackage colorPackage = ColorPackage.fromBytes(bytes);
                 if (colorPackage.getTo() == getMyIndex()){
-                    Log.d(TAG, "onMessageReceived: CHANGE MY COLOR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                    Log.d(TAG, "onMessageReceived: CHANGE MY COLOR!! " + colorPackage.toString());
                     final int currentReceivedColor = colorPackage.getColor();
                     MainActivity.getInstance().startAnimation(colorPackage.getDirection(), currentReceivedColor, Packet.SWIPE_OBJECT);
 
@@ -134,7 +133,7 @@ public class Swiper {
         return myColor;
     }
 
-    public void broadCastColor(Direction direction, int color) {
+    public void broadCastColor(final Direction direction, final int color) {
         Log.d(TAG, "broadCastColor()");
         ColorPackage colorPackage = null;
         if (direction == Direction.LEFT){
@@ -149,7 +148,7 @@ public class Swiper {
             Log.d(TAG, "broadCastColor: getTo: " + colorPackage.getTo());
             return;
         }
-
+        Log.d(TAG, "broadCastColor: "+colorPackage.toString());
         happening.sendMessage(colorPackage.toBytes());
     }
 
