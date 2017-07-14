@@ -11,10 +11,10 @@ import java.io.Serializable;
 
 public class ColorPackage implements Serializable {
 
-    private int from;
-    private int to;
-    private int color;
-    private Swiper.Direction direction;
+    private final int from;
+    private final int to;
+    private final int color;
+    private final Swiper.Direction direction;
 
     public ColorPackage(int from, int to, Swiper.Direction direction, int color) {
         this.from = from;
@@ -37,6 +37,11 @@ public class ColorPackage implements Serializable {
 
     public Swiper.Direction getDirection() {
         return direction;
+    }
+
+    @Override
+    public String toString() {
+        return "Color Package - direction: " + direction + " | from: " + from  + " | to: " + to + " | color: " + color;
     }
 
     public byte[] toBytes() {

@@ -60,8 +60,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         gDetector = new GestureDetector(this);
     }
 
-    public void onItemSelected(AdapterView<?> parent, View view,
-                               int pos, long id) {
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         Swiper.getInstance().setMyIndex(pos + 1);
         prefsEditor.putInt(KEY_PREFS_SPINNER_ID, pos+1);
         prefsEditor.commit();
@@ -100,8 +99,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         Swiper swiper = Swiper.getInstance();
 
-        float xDiff = Math.abs(Math.abs(start.getRawX()) - Math.abs(finish.getRawX()));
-        float yDiff = Math.abs(Math.abs(start.getRawY()) - Math.abs(finish.getRawY()));
+        final float startX = start.getRawX();
+        final float startY = start.getRawY();
+        final float finishX = finish.getRawX();
+        final float finishY = finish.getRawY();
+
+        final float xDiff = Math.abs(Math.abs(startX) - Math.abs(finishX));
+        final float yDiff = Math.abs(Math.abs(startY) - Math.abs(finishY));
 
         Log.d(TAG, "onFling: xDiff " + xDiff + " | yDiff " + yDiff);
 
@@ -113,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             TimerTask timerTask = new TimerTask() {
                 @Override
                 public void run() {
-                    if (start.getRawX() < finish.getRawX()) {
+                    if (startX < finishX) {
                         //right
                         Swiper.getInstance().broadCastColor(Swiper.Direction.RIGHT, colorToBroadcast);
                     } else {
@@ -126,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             timer.schedule(timerTask, 900);
 
 
-            if (start.getRawX() < finish.getRawX()) {
+            if (startX < finishX) {
                 //right
                 startAnimation(Swiper.Direction.RIGHT, Swiper.getInstance().getMyColor(), Swiper.Packet.SWIPE_OBJECT);
             } else {
