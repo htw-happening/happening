@@ -21,29 +21,30 @@ public class HappeningDemo {
 
         // configuration
         final int deviceCount = 50;
-        final int messageDelay = 500;
+        final int messageDelay = 200;
         final int replicationLength = 10000;
         final float messageLoss = 0.0F;
-        final double speedMin = 1.0D;
-        final double speedMax = 4.0D;
-        final double txRadius = 180D;
-        final double rxRadius = 180D;
+        final double speedMin = 0.5D;
+        final double speedMax = 2.5D;
+        final double txRadius = 100D;
+        final double rxRadius = 100D;
         final double noopInterval = 1D;
-        final long noopSleep = 50L;
+        final long noopSleep = 500L;
+        final double repaintHz = 60D;
         MeshHandler.INITIAL_MESSAGE_TQ = 255;
         MeshHandler.INITIAL_MESSAGE_TTL = 5;
         MeshHandler.HOP_PENALTY = 15;
-        MeshHandler.OGM_INTERVAL = 5;
+        MeshHandler.OGM_INTERVAL = 15;
         MeshHandler.PURGE_INTERVAL = 200;
         MeshHandler.NETWORK_STAT_INTERVAL = 1;
         MeshHandler.SLIDING_WINDOW_SIZE = 12;
-        MeshHandler.DEVICE_EXPIRATION = 200;
+        MeshHandler.DEVICE_EXPIRATION = 20;
 
         // create a custom graph with Vertex: Device and Edge: Connection
         MeshGraph graph = new MeshGraph();
 
         // enable visualization frame and panel
-        MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<>(graph);
+        MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<>(graph, repaintHz);
 
         // create message delivery executor service
         ScheduledExecutorService postman = Executors.newSingleThreadScheduledExecutor();

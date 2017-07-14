@@ -18,7 +18,7 @@ public class MeshVisualizerFrame<V, E> extends JFrame {
     private final NetworkGraph<V, E> graph;
     private final MeshVisualizationViewer<V, E> visualizerPanel;
 
-    public MeshVisualizerFrame(final NetworkGraph<V, E> graph) {
+    public MeshVisualizerFrame(final NetworkGraph<V, E> graph, double repaintHz) {
         super(graph.getName());
         this.graph = graph;
         this.setTitle("Happening Mesh Simulation");
@@ -27,7 +27,7 @@ public class MeshVisualizerFrame<V, E> extends JFrame {
         final Dimension dimension = new Dimension(getContentPane().getWidth(), getContentPane().getHeight());
         visualizerPanel = new MeshVisualizationViewer<>(graph, dimension);
         getContentPane().add(visualizerPanel);
-        new TimedJComponentRepainter(visualizerPanel, 15);
+        new TimedJComponentRepainter(visualizerPanel, (long) (1000 / repaintHz));
 
         visualizerPanel.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent evt) {
