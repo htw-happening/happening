@@ -27,6 +27,7 @@ public class MeshHandler {
     public static final int MESSAGE_ACTION_RECEIVED = 1;
     public static final int MESSAGE_ACTION_DROPPED = 2;
     public static final int MESSAGE_ACTION_FORWARDED = 3;
+    public static final int MESSAGE_ACTION_SENT = 4;
 
     private static final int INITIAL_MIN_SEQUENCE = 0;
     private static final int INITIAL_MAX_SEQUENCE = 1024;
@@ -112,11 +113,18 @@ public class MeshHandler {
         @Override
         public void run() {
             try {
+                // TODO instaed of setting BROADCAST_ADRESS can we not just set the device as destination?
+
+
                 Message message = new Message(uuid, BROADCAST_ADDRESS, sequence, MESSAGE_TYPE_OGM, null);
                 for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
                     remoteDevice.sendMessage(message);
                     remoteDevice.getEchoSlidingWindow().slideSequence(sequence);
+
+                    meshHandlerCallback.logMessage(message, MESSAGE_ACTION_SENT);
                 }
+                // TODO routeMessage should be used instead of sending to devices by itself
+                //router.routeMessage(message);
                 sequence++;
             } catch (Exception e) {
                 e.printStackTrace();

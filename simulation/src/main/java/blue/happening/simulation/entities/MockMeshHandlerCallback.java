@@ -47,7 +47,9 @@ class MockMeshHandlerCallback implements IMeshHandlerCallback {
 
     @Override
     public void logMessage(Message message, int status) {
-        if(status == MeshHandler.MESSAGE_ACTION_ARRIVED || status == MeshHandler.MESSAGE_ACTION_FORWARDED){
+        if (status == MeshHandler.MESSAGE_ACTION_ARRIVED ||
+                status == MeshHandler.MESSAGE_ACTION_FORWARDED ||
+                status == MeshHandler.MESSAGE_ACTION_SENT) {
             messageId = UUID.randomUUID();
         }
         LogItem logItem = new LogItem(message, status, messageId);
