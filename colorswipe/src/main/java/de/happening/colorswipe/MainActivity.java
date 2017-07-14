@@ -1,5 +1,7 @@
 package de.happening.colorswipe;
 
+import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -26,6 +28,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private GestureDetector gDetector;
     private int idCounter = 0;
 
+    public static final String KEY_PREFS_SPINNER_ID = "spinner_id";
+    private static final String APP_SHARED_PREFS = MainActivity.class.getSimpleName();
+    private SharedPreferences sharedPrefs;
+    private SharedPreferences.Editor prefsEditor;
+
     public static MainActivity getInstance() {
         return instance;
     }
@@ -34,11 +41,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         instance = this;
-
-        Log.d(TAG, "onCreate: ");
-
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.spinner_array, android.R.layout.simple_spinner_item);
@@ -46,25 +49,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
 
+        this.sharedPrefs = getSharedPreferences(APP_SHARED_PREFS, Activity.MODE_PRIVATE);
+        this.prefsEditor = sharedPrefs.edit();
+
+        int id = sharedPrefs.getInt(KEY_PREFS_SPINNER_ID, 1);
+        spinner.setSelection(id-1);
+        Swiper.getInstance().setMyIndex(id);
         textView = (TextView) findViewById(R.id.textView);
         textView.setBackgroundColor(Swiper.getInstance().getMyColor());
-
         gDetector = new GestureDetector(this);
-    }
-
-    public void updateColor() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                textView.setBackgroundColor(Swiper.getInstance().getMyColor());
-
-            }
-        });
     }
 
     public void onItemSelected(AdapterView<?> parent, View view,
                                int pos, long id) {
         Swiper.getInstance().setMyIndex(pos + 1);
+        prefsEditor.putInt(KEY_PREFS_SPINNER_ID, pos+1);
+        prefsEditor.commit();
     }
 
     public void onNothingSelected(AdapterView<?> parent) {

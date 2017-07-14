@@ -64,7 +64,11 @@ public class DeviceNeighbourTableModel extends AbstractTableModel {
     //functionality based on the data type
     @Override
     public Class getColumnClass(int c) {
-        return getValueAt(0, c).getClass();
+        if(getValueAt(0,c) != null){
+            return getValueAt(0, c).getClass();
+        } else {
+            return null;
+        }
     }
 
     @Override

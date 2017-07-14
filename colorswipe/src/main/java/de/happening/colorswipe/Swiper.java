@@ -144,6 +144,12 @@ public class Swiper {
             colorPackage = new ColorPackage(getMyIndex(), getMyIndex() + 1, direction, color);
         }
 
+        if (colorPackage.getTo() > MAX_INDEX || colorPackage.getTo() < MIN_INDEX){
+            Log.d(TAG, "broadCastColor: END OF LINE! Do not rebroadcast");
+            Log.d(TAG, "broadCastColor: getTo: " + colorPackage.getTo());
+            return;
+        }
+
         happening.sendMessage(colorPackage.toBytes());
     }
 
