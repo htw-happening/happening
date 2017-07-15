@@ -46,6 +46,9 @@ public class HappeningDemo {
         // enable visualization frame and panel
         MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<>(graph, repaintHz);
 
+        // create a mesh runner executor service
+        ScheduledExecutorService runner = Executors.newSingleThreadScheduledExecutor();
+
         // create message delivery executor service
         ScheduledExecutorService postman = Executors.newSingleThreadScheduledExecutor();
 
@@ -64,7 +67,7 @@ public class HappeningDemo {
         for (int i = 0; i < root; i++) {
             for (int j = 0; j < root; j++) {
                 if (deviceIndex < deviceCount) {
-                    Device device = new Device("Device_" + deviceIndex, graph, postman);
+                    Device device = new Device("Device_" + deviceIndex, graph, postman, runner);
                     device.setMessageDelay(messageDelay);
                     device.setMessageLoss(messageLoss);
                     double sx = horizontalPadding + (i * horizontalStep);

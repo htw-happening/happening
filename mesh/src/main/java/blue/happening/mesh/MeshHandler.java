@@ -47,6 +47,10 @@ public class MeshHandler {
     private NetworkStats ogmStats;
 
     public MeshHandler(String uuid) {
+        this(uuid, Executors.newSingleThreadScheduledExecutor());
+    }
+
+    public MeshHandler(String uuid, ScheduledExecutorService executor) {
         this.uuid = uuid;
         sequence = ThreadLocalRandom.current().nextInt(INITIAL_MIN_SEQUENCE, INITIAL_MAX_SEQUENCE);
         routingTable = new RoutingTable();
@@ -61,7 +65,6 @@ public class MeshHandler {
 
         router.addObserver(new RouterObserver());
 
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(
                 new OGMRunner(),
                 ThreadLocalRandom.current().nextInt(OGM_INTERVAL),
