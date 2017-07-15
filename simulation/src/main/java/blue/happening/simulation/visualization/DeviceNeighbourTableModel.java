@@ -54,14 +54,13 @@ public class DeviceNeighbourTableModel extends AbstractTableModel {
         }
     }
 
-    //Used by the JTable object to set the column names
+    // Used by the JTable object to set the column names
     @Override
     public String getColumnName(int column) {
         return columnNames[column];
     }
 
-    //Used by the JTable object to render different
-    //functionality based on the data type
+    // Used by the JTable object to render functionality based on data type
     @Override
     public Class getColumnClass(int c) {
         if(getValueAt(0,c) != null){

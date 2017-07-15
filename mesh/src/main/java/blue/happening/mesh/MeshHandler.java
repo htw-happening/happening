@@ -9,7 +9,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import blue.happening.mesh.statistics.NetworkStats;
-
 import blue.happening.mesh.statistics.StatsResult;
 
 public class MeshHandler {
@@ -123,11 +122,10 @@ public class MeshHandler {
                 for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
                     remoteDevice.sendMessage(message);
                     remoteDevice.getEchoSlidingWindow().slideSequence(sequence);
-
                     meshHandlerCallback.logMessage(message, MESSAGE_ACTION_SENT);
                 }
                 // TODO routeMessage should be used instead of sending to devices by itself
-                //router.routeMessage(message);
+                // router.routeMessage(message);
                 sequence++;
             } catch (Exception e) {
                 e.printStackTrace();

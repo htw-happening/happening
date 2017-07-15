@@ -430,8 +430,6 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
         }
     }
 
-    ;
-
     /**
      * Adds {@code vertex} to this blue.happening.simulation.graph at coordinates (0,0),
      * {@link StationaryMobilityPattern}, and TX and RX radii of
@@ -450,8 +448,6 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
         final double rxRadius = Double.MIN_VALUE;
         return addVertex(vertex, sx, sy, mobilityPattern, txRadius, rxRadius);
     }
-
-    ;
 
     /**
      * Adds {@code vertex} to this blue.happening.simulation.graph at coordinates ({@code sx},{@code sy}),
@@ -489,8 +485,6 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
         }
         return wasAdded;
     }
-
-    ;
 
     /**
      * @see DirectedGraph#removeVertex(Object)

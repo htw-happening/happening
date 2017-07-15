@@ -89,5 +89,4 @@ public final class RandomDSMobilityPattern<V, E> implements MobilityPattern<V, E
 
         return new DSWaypoint<>(sxf, syf, speed);
     }
-
 }
