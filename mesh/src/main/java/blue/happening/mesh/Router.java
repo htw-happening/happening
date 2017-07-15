@@ -197,7 +197,6 @@ class Router extends Observable {
         for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
             if (shouldOGMBeEchoedTo(message, remoteDevice.getUuid()) ||
                     shouldOGMBeBroadcastTo(message, remoteDevice.getUuid())) {
-                // TODO Set remotedevice as originator instaed of broadcast adress?
                 remoteDevice.sendMessage(preparedMessage);
                 trigger(Events.OGM_SENT, preparedMessage);
                 ogmSent = true;
