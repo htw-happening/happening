@@ -20,22 +20,22 @@ public class HappeningDemo {
     public static void main(String[] args) throws InterruptedException {
 
         // configuration
-        final int deviceCount = 50;
-        final int messageDelay = 200;
+        final int deviceCount = 24;
+        final int messageDelay = 320;
         final int replicationLength = 10000;
-        final float messageLoss = 0.0F;
+        final float messageLoss = 0.1F;
         final double speedMin = 0.5D;
-        final double speedMax = 2.5D;
+        final double speedMax = 1.5D;
         final double txRadius = 100D;
         final double rxRadius = 100D;
         final double noopInterval = 1D;
-        final long noopSleep = 500L;
-        final double repaintHz = 60D;
+        final long noopSleep = 50L;
+        final double repaintHz = 30D;
         MeshHandler.INITIAL_MESSAGE_TQ = 255;
         MeshHandler.INITIAL_MESSAGE_TTL = 5;
         MeshHandler.HOP_PENALTY = 15;
-        MeshHandler.OGM_INTERVAL = 15;
-        MeshHandler.PURGE_INTERVAL = 200;
+        MeshHandler.OGM_INTERVAL = 5;
+        MeshHandler.PURGE_INTERVAL = 50;
         MeshHandler.NETWORK_STAT_INTERVAL = 1;
         MeshHandler.SLIDING_WINDOW_SIZE = 12;
         MeshHandler.DEVICE_EXPIRATION = 20;
