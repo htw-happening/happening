@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Swiper.getInstance().setMyIndex(id);
         imageView = (ImageView) findViewById(R.id.imageView);
         textView = (TextView) findViewById(R.id.textView);
-//        imageView.setBackgroundColor(Swiper.getInstance().getMyColor());
+        textView.setBackgroundColor(Swiper.getInstance().getMyColor());
         gDetector = new GestureDetector(this);
     }
 
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Log.d(TAG, "onFling: up");
             }
             Swiper.getInstance().setNewRandomColor();
-            imageView.setBackgroundColor(Swiper.getInstance().getMyColor());
+            textView.setBackgroundColor(Swiper.getInstance().getMyColor());
         }
         return true;
 
