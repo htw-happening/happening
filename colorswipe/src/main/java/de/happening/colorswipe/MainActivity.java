@@ -12,6 +12,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -23,7 +24,8 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, GestureDetector.OnGestureListener {
 
     private static MainActivity instance;
-    TextView textView;
+    private ImageView imageView;
+    private TextView textView;
     private String TAG = getClass().getSimpleName();
     private GestureDetector gDetector;
     private int idCounter = 0;
@@ -55,8 +57,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         int id = sharedPrefs.getInt(KEY_PREFS_SPINNER_ID, 1);
         spinner.setSelection(id-1);
         Swiper.getInstance().setMyIndex(id);
+        imageView = (ImageView) findViewById(R.id.imageView);
         textView = (TextView) findViewById(R.id.textView);
-        textView.setBackgroundColor(Swiper.getInstance().getMyColor());
+//        imageView.setBackgroundColor(Swiper.getInstance().getMyColor());
         gDetector = new GestureDetector(this);
     }
 
@@ -149,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Log.d(TAG, "onFling: up");
             }
             Swiper.getInstance().setNewRandomColor();
-            textView.setBackgroundColor(Swiper.getInstance().getMyColor());
+            imageView.setBackgroundColor(Swiper.getInstance().getMyColor());
         }
         return true;
 
