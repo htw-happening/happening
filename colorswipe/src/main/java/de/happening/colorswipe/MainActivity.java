@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private String TAG = getClass().getSimpleName();
     private GestureDetector gDetector;
     private int idCounter = 0;
+    private static final long DOUBLE_TAP_TIME_DIFF = 400;
+    private long lastTap = System.currentTimeMillis();
 
     public static final String KEY_PREFS_SPINNER_ID = "spinner_id";
     private static final String APP_SHARED_PREFS = MainActivity.class.getSimpleName();
@@ -57,10 +59,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         int id = sharedPrefs.getInt(KEY_PREFS_SPINNER_ID, 1);
         spinner.setSelection(id-1);
         Swiper.getInstance().setMyIndex(id);
+        Swiper.getInstance().setStaticColor();
         imageView = (ImageView) findViewById(R.id.imageView);
         textView = (TextView) findViewById(R.id.textView);
         textView.setBackgroundColor(Swiper.getInstance().getMyColor());
         gDetector = new GestureDetector(this);
+        
     }
 
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
@@ -84,6 +88,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
+        Log.d(TAG, "onSingleTapUp");
+        long diff = System.currentTimeMillis() - lastTap;
+        Log.d(TAG, "onSingleTapUp: diff " + diff);
+        if (diff < DOUBLE_TAP_TIME_DIFF){
+            Log.d(TAG, "onSingleTapUp: Double Tap Triggered");
+            Swiper.getInstance().setStaticColor();
+            textView.setBackgroundColor(Swiper.getInstance().getMyColor());
+
+        }
+        lastTap = System.currentTimeMillis();
         return false;
     }
 
@@ -143,13 +157,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         } else {
             //vertical
-            Log.d(TAG, "onFling: vertial");
+//            Log.d(TAG, "onFling: vertial");
             if (start.getRawY() < finish.getRawY()) {
                 //down
-                Log.d(TAG, "onFling: down");
+//                Log.d(TAG, "onFling: down");
             } else {
                 //up
-                Log.d(TAG, "onFling: up");
+//                Log.d(TAG, "onFling: up");
             }
             Swiper.getInstance().setNewRandomColor();
             textView.setBackgroundColor(Swiper.getInstance().getMyColor());
