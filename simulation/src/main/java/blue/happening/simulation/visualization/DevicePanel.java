@@ -7,6 +7,7 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -17,6 +18,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -33,9 +35,11 @@ import blue.happening.simulation.entities.LogItem;
 
 public class DevicePanel extends JPanel {
 
-    private static final int PANEL_WIDTH = 150;
-    private static final int PANEL_HEIGHT = 200;
+    private static final int PANEL_WIDTH = 500;
+    private static final int PANEL_HEIGHT = 1000;
     private static final int TIME_WINDOW_SIZE = 25;
+    private TitledBorder title;
+    private JPanel devicePanel;
     private JLabel statsOgmIn, statsOgmOut, statsUcmIn, statsUcmOut;
     private JLabel deviceLabel;
     private JTable table;
@@ -44,10 +48,11 @@ public class DevicePanel extends JPanel {
     private JTable ucmLogTable;
     private JButton sendButton;
     private JPanel logTablePanel;
+    private JButton disableButton;
     private JSlider packageDropSlider;
     private JSlider packageDelaySlider;
     private List<RemoteDevice> selectedDevices;
-    private boolean messageCount = true;
+    private static boolean messageCount = true;
 
     private Device device;
     private NetworkStatsPanel ogmNetworkStats;
@@ -63,7 +68,8 @@ public class DevicePanel extends JPanel {
         // Button Panel
 
         deviceLabel = new JLabel("Current device", JLabel.LEFT);
-        JButton disableButton = new JButton("Toggle device");
+        disableButton = new JButton("Disable Device");
+        sendButton = new JButton("Send Message");
         JButton resetButton = new JButton("Reset Demo");
         sendButton = new JButton("Send message");
         sendButton.setEnabled(false);
@@ -81,25 +87,38 @@ public class DevicePanel extends JPanel {
         sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.Y_AXIS));
         sliderPanel.setOpaque(false);
 
-        packageDropSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
+        devicePanel = new JPanel();
+        devicePanel.setLayout(new BoxLayout(devicePanel, BoxLayout.Y_AXIS));
+        devicePanel.setOpaque(false);
+
+        title = BorderFactory.createTitledBorder("Device");
+        devicePanel.setBorder(title);
+        devicePanel.setVisible(false);
+
+        devicePanel.add(disableButton, LEFT_ALIGNMENT);
+        packageDropSlider = new JSlider(JSlider.HORIZONTAL,
+                0, 100, 0);
         packageDropSlider.setMajorTickSpacing(10);
         packageDropSlider.setMinorTickSpacing(10);
         packageDropSlider.setPaintTicks(true);
         packageDropSlider.setPaintLabels(true);
         packageDropSlider.setOpaque(false);
         packageDropSlider.setEnabled(false);
-        sliderPanel.add(new JLabel("Package Drop Rate", JLabel.CENTER));
-        sliderPanel.add(packageDropSlider);
+        devicePanel.add(new JLabel("Package Drop Rate", JLabel.CENTER));
+        devicePanel.add(packageDropSlider);
 
-        packageDelaySlider = new JSlider(JSlider.HORIZONTAL, 0, 1000, 0);
+        packageDelaySlider = new JSlider(JSlider.HORIZONTAL,
+                0, 1000, 0);
         packageDelaySlider.setMajorTickSpacing(100);
         packageDelaySlider.setMinorTickSpacing(100);
         packageDelaySlider.setPaintTicks(true);
         packageDelaySlider.setPaintLabels(true);
         packageDelaySlider.setOpaque(false);
         packageDelaySlider.setEnabled(false);
-        sliderPanel.add(new JLabel("Package Send Delay", JLabel.CENTER));
-        sliderPanel.add(packageDelaySlider);
+        devicePanel.add(new JLabel("Package Send Delay", JLabel.CENTER));
+        devicePanel.add(packageDelaySlider);
+
+        sliderPanel.add(devicePanel);
 
         // Devices Panel
 
@@ -128,8 +147,7 @@ public class DevicePanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 messageCount = !messageCount;
-                ogmNetworkStats.clear();
-                ucmNetworkStats.clear();
+                clearNetworkStats();
             }
         });
 
@@ -144,6 +162,7 @@ public class DevicePanel extends JPanel {
         JPanel statsPanel = new JPanel();
         statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.Y_AXIS));
         statsPanel.setOpaque(false);
+        statsPanel.add(new JLabel("Y-Axis:"));
         statsPanel.add(selectStats);
 
         statsPanel.add(new JLabel("OGM Stats"));
@@ -182,16 +201,16 @@ public class DevicePanel extends JPanel {
 
         // Tabs
 
-        tabbedPane.addTab("Mesh Settings", sliderPanel);
+        tabbedPane.addTab("Settings", sliderPanel);
         tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 
-        tabbedPane.addTab("Neighbour Devices", devicesPanel);
+        tabbedPane.addTab("Devices", devicesPanel);
         tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
 
-        tabbedPane.addTab("Network Stats", statsPanel);
+        tabbedPane.addTab("Stats", statsPanel);
         tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 
-        tabbedPane.addTab("Message Logs", logPanel);
+        tabbedPane.addTab("Logs", logPanel);
         tabbedPane.setMnemonicAt(3, KeyEvent.VK_4);
 
         add(tabbedPane);
@@ -235,6 +254,7 @@ public class DevicePanel extends JPanel {
             public void actionPerformed(ActionEvent actionEvent) {
                 if (device != null) {
                     device.toggleEnabled();
+                    disableButton.setText(device.isEnabled() ? "Disable Device" : "Enable Device");
                 }
             }
         });
@@ -351,9 +371,17 @@ public class DevicePanel extends JPanel {
         DeviceLogTableModel deviceLogTableModel = new DeviceLogTableModel(device.getUcmLog().getLogs(), device);
         ucmLogTable.setModel(deviceLogTableModel);
         ucmLogTable.setVisible(true);
+        ucmLogTable.updateUI();
     }
 
-    private void updateUcmLog(LogItem options) {
+    private void updateUcmLog(LogItem log) {
+        DeviceLogTableModel deviceLogTableModel = (DeviceLogTableModel) ucmLogTable.getModel();
+        if (deviceLogTableModel.getLogs().contains(log)) {
+            deviceLogTableModel.getLogs().set(deviceLogTableModel.getLogs().indexOf(log), log);
+        } else {
+            deviceLogTableModel.getLogs().add(log);
+        }
+        deviceLogTableModel.fireTableDataChanged();
 
     }
 
@@ -363,11 +391,16 @@ public class DevicePanel extends JPanel {
         updatePackageDelay(device);
         setNeighbourList(device);
         setOgmLog(device);
+        setUcmLog(device);
         clearNetworkStats();
         deviceLabel.setText(device.getName());
+        title.setTitle(device.getName());
+        devicePanel.updateUI();
+        devicePanel.setVisible(true);
         logTablePanel.setVisible(true);
         packageDropSlider.setEnabled(true);
         packageDelaySlider.setEnabled(true);
+        disableButton.setText(device.isEnabled() ? "Disable Device" : "Enable Device");
     }
 
     private void clearNetworkStats() {
