@@ -1,14 +1,16 @@
 ## Todos
 
+### wichtig
 - [ ] Bluetooth 2.0 Scanner ohne Paring Request
-- [ ] "De"-Pair und teste Verbindungen nochmal
 - [ ] Meshhandler stable machen (ACRA)
+- [ ] "De"-Pair und teste Verbindungen nochmal
+- [ ] Poster fertig machen / drucken
+- [ ] Vortrag am Start haben
+- [ ] Standbau - Brett / Handys
+- [ ] Alive Leute neue Service schicken inkl neuem Plugin
+### unwichtig
 - [ ] Flackern der Visualisierung wegbekommen
 - [ ] Visualisierung - dynaischen Hinzufügen und Entfernen von Clients
 - [ ] Visualisierung - Reset
-- [ ] Poster fertig machen / drucken
-- [ ] Standbau - Brett / Handys
-- [ ] Vortrag am Start haben
-- [ ] Alive Leute neue Service schicken inkl neuem Plugin
 - [ ] Klickie Bunti - CorlorSwiper
 - [ ] Klickie Bunti - Chat 
