@@ -98,7 +98,7 @@ public class MeshHandler {
     public boolean sendMessage(byte[] message, String uuid) {
         RemoteDevice remoteDevice = routingTable.get(uuid);
         if (remoteDevice == null) {
-            System.out.println("Mesh handler couldn't find " + uuid + " in routing table");
+            System.out.println("Mesh handler could not find " + uuid + " in routing table");
             return false;
         } else {
             Message ucm = new Message(this.uuid, uuid, INITIAL_MIN_SEQUENCE, MESSAGE_TYPE_UCM, message);
@@ -172,18 +172,18 @@ public class MeshHandler {
         public void update(Observable observable, Object o) {
             Router.Event event = (Router.Event) o;
             switch (event.getType()) {
-                case OGM_SENT:
+                case Router.OGM_SENT:
                     ogmStats.addOutGoingMessage((Message) event.getOptions());
                     meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_FORWARDED);
                     break;
-                case UCM_SENT:
+                case Router.UCM_SENT:
                     ucmStats.addOutGoingMessage((Message) event.getOptions());
                     meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_FORWARDED);
                     break;
-                case OGM_DROPPED:
+                case Router.OGM_DROPPED:
                     meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_DROPPED);
                     break;
-                case UCM_DROPPED:
+                case Router.UCM_DROPPED:
                     meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_DROPPED);
                     break;
 
@@ -210,7 +210,7 @@ public class MeshHandler {
             try {
                 message = Message.fromBytes(bytes);
                 if (message == null) {
-                    throw new Exception("Could'nt parse message");
+                    throw new Exception("Could not parse message");
                 }
             } catch (Exception e) {
                 System.out.println("Message broken: " + e.getMessage());
