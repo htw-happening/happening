@@ -14,13 +14,6 @@ public class MeshGraph extends NetworkGraph<Device, Connection> {
         addObserver(new MeshGraphObserver());
     }
 
-    @Override
-    public boolean addVertex(Device vertex, double sx, double sy, MobilityPattern<Device, Connection> mobilityPattern, double txRadius, double rxRadius) {
-        vertex.setTxRadius(txRadius);
-        vertex.setRxRadius(rxRadius);
-        return super.addVertex(vertex, sx, sy, mobilityPattern, 0, 0);
-    }
-
     private static class DeviceEdgePool implements EdgePool<Device, Connection> {
 
         @Override

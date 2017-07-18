@@ -21,7 +21,6 @@
 
 package blue.happening.simulation.graph.internal;
 
-import blue.happening.simulation.entities.Device;
 import blue.happening.simulation.graph.NetworkGraph;
 import blue.happening.simulation.mobility.MobilityPattern;
 import jsl.modeling.SchedulingElement;
@@ -50,6 +49,9 @@ public class VertexProperties<V, E> extends SchedulingElement {
     private final Variable tStart;
     private final Variable tEnd;
 
+    private final Variable txRadius;
+    private final Variable rxRadius;
+
     private final MobilityPattern<V, E> mobilityPattern;
 
     public VertexProperties(final NetworkGraph<V, E> graph, final String name,
@@ -71,13 +73,15 @@ public class VertexProperties<V, E> extends SchedulingElement {
         this.tStart = new Variable(this);
         this.tEnd = new Variable(this);
 
+        this.txRadius = new Variable(this, txRadius);
+        this.rxRadius = new Variable(this, rxRadius);
+
         this.mobilityPattern = mobilityPattern;
     }
 
     @Override
     protected void initialize() {
-        final VertexArrivalAction<V, E> action = new VertexArrivalAction<V, E>(
-                this);
+        final VertexArrivalAction<V, E> action = new VertexArrivalAction<>(this);
         super.initialize();
         scheduleEvent(action, 0);
     }
@@ -114,17 +118,15 @@ public class VertexProperties<V, E> extends SchedulingElement {
         return tEnd;
     }
 
+    public Variable getTxRadius() {
+        return txRadius;
+    }
+
+    public Variable getRxRadius() {
+        return rxRadius;
+    }
+
     public MobilityPattern<V, E> getMobilityPattern() {
         return mobilityPattern;
-    }
-
-    public double getTxRadius() {
-        Device device = (Device) vertex;
-        return device.getTxRadius();
-    }
-
-    public double getRxRadius() {
-        Device device = (Device) vertex;
-        return device.getRxRadius();
     }
 }

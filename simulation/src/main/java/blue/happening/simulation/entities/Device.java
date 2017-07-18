@@ -7,6 +7,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.MeshHandler;
 import blue.happening.simulation.graph.NetworkGraph;
+import blue.happening.simulation.graph.internal.VertexProperties;
 import blue.happening.simulation.visualization.listener.DeviceObserver;
 
 
@@ -15,8 +16,6 @@ public class Device extends Observable {
     private String name;
     private MeshHandler meshHandler;
     private int messageDelay;
-    private double txRadius;
-    private double rxRadius;
     private boolean isEnabled = true;
     private boolean isClicked = false;
     private boolean isNeighbour = false;
@@ -79,27 +78,16 @@ public class Device extends Observable {
         mockLayer.setMessageLoss(messageLoss);
     }
 
-    public double getTxRadius() {
-        return isEnabled ? txRadius : 0;
-    }
-
-    public void setTxRadius(double txRadius) {
-        this.txRadius = txRadius;
-    }
-
-    public double getRxRadius() {
-        return isEnabled ? rxRadius : 0;
-    }
-
-    public void setRxRadius(double rxRadius) {
-        this.rxRadius = rxRadius;
-    }
-
     public void toggleEnabled() {
+        VertexProperties<Device, Connection> properties = networkGraph.getVertexProperties(this);
         if (isEnabled) {
             networkGraph.removeEdges(this);
+            properties.getRxRadius().setValue(0);
+            properties.getTxRadius().setValue(0);
         } else {
             networkGraph.addEdges(this);
+            properties.getRxRadius().setValue(properties.getRxRadius().getInitialValue());
+            properties.getTxRadius().setValue(properties.getTxRadius().getInitialValue());
         }
         isEnabled = !isEnabled;
     }

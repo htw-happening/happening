@@ -887,7 +887,7 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
      */
     public double getRadiusTx(final V vertex) {
         final VertexProperties<V, E> properties = verticesProperties.get(vertex);
-        final double radiusTx = properties.getTxRadius();
+        final double radiusTx = properties.getTxRadius().getValue();
         return radiusTx;
     }
 
@@ -899,7 +899,7 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
      */
     public double getRadiusRx(final V vertex) {
         final VertexProperties<V, E> properties = verticesProperties.get(vertex);
-        final double radiusRx = properties.getRxRadius();
+        final double radiusRx = properties.getRxRadius().getValue();
         return radiusRx;
     }
 
@@ -917,8 +917,8 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
                 .get(fromVertex);
         final VertexProperties<V, E> toProperties = verticesProperties
                 .get(toVertex);
-        final double fromTx = fromProperties.getTxRadius();
-        final double toRx = toProperties.getRxRadius();
+        final double fromTx = fromProperties.getTxRadius().getValue();
+        final double toRx = toProperties.getRxRadius().getValue();
         return Math.max(fromTx, toRx);
     }
 
@@ -936,8 +936,8 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
                 .get(fromVertex);
         final VertexProperties<V, E> toProperties = verticesProperties
                 .get(toVertex);
-        final double fromRx = fromProperties.getRxRadius();
-        final double toTx = toProperties.getTxRadius();
+        final double fromRx = fromProperties.getRxRadius().getValue();
+        final double toTx = toProperties.getTxRadius().getValue();
         return Math.max(fromRx, toTx);
     }
 
