@@ -61,8 +61,8 @@ public class Happening {
         }
 
         @Override
-        public void logMessage(int packageType, int action){
-            appCallback.logMessage(packageType, action);
+        public void onMessageLogged(int packageType, int action){
+            appCallback.onMessageLogged(packageType, action);
         }
 
         @Override

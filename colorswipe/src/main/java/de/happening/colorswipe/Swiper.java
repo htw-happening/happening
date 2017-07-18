@@ -49,25 +49,18 @@ public class Swiper {
             }
 
             @Override
-            public void logMessage(int packageType, int action) {
-//                Log.d(TAG, "logMessage: " + action);
-//                Log.d(TAG, "logMessage: PACKAGETYPE: "+ packageType);
-                switch (packageType) {
+            public void onMessageLogged(int packageType, int action) {
+//                Log.d(TAG, "onMessageLogged: " + action);
+//                Log.d(TAG, "onMessageLogged: PACKAGETYPE: "+ packageType);
+                switch (packageType){
 
-                    case 1: //OGM
-                        /*
-                        from Meshhandler
-                        public static final int MESSAGE_ACTION_ARRIVED = 0;
-                        public static final int MESSAGE_ACTION_RECEIVED = 1;
-                        public static final int MESSAGE_ACTION_DROPPED = 2;
-                        public static final int MESSAGE_ACTION_FORWARDED = 3;
-                         */
-                        if (action == 0) {
+                    case MESSAGE_TYPE_OGM:
+                        if (action == MESSAGE_ACTION_ARRIVED) {
                             MainActivity.getInstance().startAnimation(Direction.RIGHT, generateColor(), Packet.OGM_OBJECT);
                             break;
                         }
                         break;
-                    case 2: //UCM
+                    case MESSAGE_TYPE_UCM:
 
                         MainActivity.getInstance().startAnimation(Direction.RIGHT, 0xFF000000, Packet.OGM_OBJECT);
 

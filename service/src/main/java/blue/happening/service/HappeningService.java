@@ -140,14 +140,14 @@ public class HappeningService extends Service {
 
             @Override
             public void onNetworkStatsUpdated(StatsResult networkStats) {
-
+                // Callback for network stats
             }
 
             @Override
-            public void logMessage(Message msg, int action) {
+            public void onMessageLogged(Message msg, int action) {
                 for (IHappeningCallback callback : callbacks.values()) {
                     try {
-                        callback.logMessage(msg.getType(), action);
+                        callback.onMessageLogged(msg.getType(), action);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
