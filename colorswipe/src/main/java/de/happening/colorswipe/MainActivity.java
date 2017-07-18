@@ -64,11 +64,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         textView = (TextView) findViewById(R.id.textView);
         textView.setBackgroundColor(Swiper.getInstance().getMyColor());
         gDetector = new GestureDetector(this);
-        
+
     }
 
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         Swiper.getInstance().setMyIndex(pos + 1);
+
+        Swiper.getInstance().setStaticColor();
+        textView = (TextView) findViewById(R.id.textView);
+        textView.setBackgroundColor(Swiper.getInstance().getMyColor());
+
         prefsEditor.putInt(KEY_PREFS_SPINNER_ID, pos+1);
         prefsEditor.commit();
     }
