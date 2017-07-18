@@ -1,6 +1,7 @@
 package blue.happening.mesh;
 
 import java.util.Observable;
+import java.util.concurrent.ThreadLocalRandom;
 
 class Router extends Observable {
 
@@ -11,10 +12,12 @@ class Router extends Observable {
 
     private RoutingTable routingTable;
     private String uuid;
+    private int sequence;
 
     Router(RoutingTable routingTable, String uuid) {
         this.routingTable = routingTable;
         this.uuid = uuid;
+        sequence = ThreadLocalRandom.current().nextInt(MeshHandler.INITIAL_MIN_SEQUENCE, MeshHandler.INITIAL_MAX_SEQUENCE);
     }
 
     /**
@@ -58,7 +61,7 @@ class Router extends Observable {
     private void routeOgm(Message message) throws RoutingException {
         if (message.getDestination().equals(MeshHandler.BROADCAST_ADDRESS)) {
             if (shouldOGMBeForwarded(message)) {
-                broadcastMessage(message);
+                broadcastOGM(message);
             } else {
                 trigger(OGM_DROPPED, message);
             }
@@ -66,6 +69,21 @@ class Router extends Observable {
             throw new RoutingException("OGM needs broadcast destination");
         }
         slideWindows(message);
+    }
+
+    void dispatchOgm() throws RoutingException {
+        Message message = new Message(uuid, MeshHandler.BROADCAST_ADDRESS, sequence, MeshHandler.MESSAGE_TYPE_OGM, null);
+        boolean ogmSent = false;
+        for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
+            remoteDevice.sendMessage(message);
+            remoteDevice.getEchoSlidingWindow().slideSequence(sequence);
+            ogmSent = true;
+            trigger(OGM_SENT, message);
+        }
+        if (!ogmSent) {
+            trigger(OGM_DROPPED, message);
+        }
+        sequence++;
     }
 
     /**
@@ -79,7 +97,7 @@ class Router extends Observable {
         } else if (message.getDestination().equals(uuid)) {
             return message;
         } else {
-            forwardMessage(message);
+            forwardUCM(message);
             return null;
         }
     }
@@ -177,7 +195,7 @@ class Router extends Observable {
         return preparedMessage;
     }
 
-    private void forwardMessage(Message message) throws RoutingException {
+    private void forwardUCM(Message message) throws RoutingException {
         Message preparedMessage = prepareMessage(message);
         RemoteDevice destination = routingTable.get(message.getDestination());
         for (Route route : routingTable.getBestRoutesTo(destination)) {
@@ -191,7 +209,7 @@ class Router extends Observable {
         trigger(UCM_DROPPED, preparedMessage);
     }
 
-    private void broadcastMessage(Message message) throws RoutingException {
+    private void broadcastOGM(Message message) throws RoutingException {
         Message preparedMessage = prepareMessage(message);
         boolean ogmSent = false;
         for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {

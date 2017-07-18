@@ -28,20 +28,18 @@ public class MeshHandler {
     public static final int MESSAGE_ACTION_FORWARDED = 3;
     public static final int MESSAGE_ACTION_SENT = 4;
 
-    private static final int INITIAL_MIN_SEQUENCE = 0;
-    private static final int INITIAL_MAX_SEQUENCE = 1024;
+    static final int INITIAL_MIN_SEQUENCE = 0;
+    static final int INITIAL_MAX_SEQUENCE = 1024;
 
     public static final int MESSAGE_TYPE_OGM = 1;
     public static final int MESSAGE_TYPE_UCM = 2;
     static final String BROADCAST_ADDRESS = "BROADCAST";
-
 
     private final RoutingTable routingTable;
     private final Router router;
     private final ILayerCallback layerCallback;
     private final String uuid;
     private IMeshHandlerCallback meshHandlerCallback;
-    private int sequence;
     private NetworkStats ucmStats;
     private NetworkStats ogmStats;
 
@@ -51,7 +49,6 @@ public class MeshHandler {
 
     public MeshHandler(String uuid, ScheduledExecutorService executor) {
         this.uuid = uuid;
-        sequence = ThreadLocalRandom.current().nextInt(INITIAL_MIN_SEQUENCE, INITIAL_MAX_SEQUENCE);
         routingTable = new RoutingTable();
         router = new Router(routingTable, uuid);
         layerCallback = new LayerCallback();
@@ -115,15 +112,7 @@ public class MeshHandler {
         @Override
         public void run() {
             try {
-                Message message = new Message(uuid, BROADCAST_ADDRESS, sequence, MESSAGE_TYPE_OGM, null);
-                for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
-                    remoteDevice.sendMessage(message);
-                    remoteDevice.getEchoSlidingWindow().slideSequence(sequence);
-                    meshHandlerCallback.logMessage(message, MESSAGE_ACTION_SENT);
-                }
-                // TODO: routeMessage should be used instead of sending to devices by itself
-                // router.routeMessage(message);
-                sequence++;
+                router.dispatchOgm();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -134,10 +123,7 @@ public class MeshHandler {
         @Override
         public void run() {
             try {
-                for (RemoteDevice remoteDevice : routingTable.getExpiredRemoteDevices()) {
-                    routingTable.remove(remoteDevice.getUuid());
-                }
-                routingTable.flush();
+                routingTable.flushExpiredRemoteDevices();
             } catch (Exception e) {
                 e.printStackTrace();
             }
