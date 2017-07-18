@@ -51,10 +51,6 @@ public abstract class RemoteDevice implements IRemoteDevice {
     }
 
     public final float getTq() {
-        float tolerance = ((float) Math.round(getEq() - 1f / MeshHandler.SLIDING_WINDOW_SIZE * 100) / 100);
-        if (tolerance > getRq()) {
-            System.out.println("CALCULATE TQ: EQ (" + getEq() + ") SHOULD NEVER BE GREATER THAN RQ (" + getRq() + ")");
-        }
         return Math.min(getEq() / getRq(), 1);
     }
 

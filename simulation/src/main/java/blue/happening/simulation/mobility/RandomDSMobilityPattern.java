@@ -35,17 +35,14 @@ import blue.happening.simulation.graph.NetworkGraph;
  * @param <E> the type of edge
  * @author Semyon Fishman (sf69@drexel.edu)
  */
-public final class RandomDSMobilityPattern<V, E>
-        implements MobilityPattern<V, E> {
+public final class RandomDSMobilityPattern<V, E> implements MobilityPattern<V, E> {
 
-    private final double sxfMin;
-    private final double sxfMax;
-    private final double syfMin;
-    private final double syfMax;
     private final double speedMin;
     private final double speedMax;
+    private double nudge;
 
     private final Random random;
+    private final RectangularBoundary<V, E> boundary;
 
     /**
      * Constructs a new {@code RandomDSMobilityPattern} that will generate
@@ -63,51 +60,33 @@ public final class RandomDSMobilityPattern<V, E>
     public RandomDSMobilityPattern(final RectangularBoundary<V, E> boundary,
                                    final double speedMin, final double speedMax) {
 
-        this(boundary.getX(), boundary.getX() + boundary.getWidth(),
-                boundary.getY(), boundary.getY() + boundary.getHeight(), speedMin,
-                speedMax);
-    }
-
-    /**
-     * Constructs a new {@code RandomDSMobilityPattern} that will generate
-     * {@code DSWaypoint}s with random x-axis final displacements between
-     * {@code sxfMin} (inclusive) and {@code sxfMax} (exclusive), random y-axis
-     * final displacements between {@code syfMin} (inclusive) and {@code syfMax}
-     * (exclusive), and random speeds between {@code speedMin} (inclusive) and
-     * {@code speedMax} (exclusive).
-     * <p>
-     * The random ranges are uniformly distributed.
-     *
-     * @param sxfMin   minimum x-axis displacement (inclusive)
-     * @param sxfMax   maximum x-axis displacement (exclusive)
-     * @param syfMin   minimum y-axis displacement (inclusive)
-     * @param syfMax   maximum y-axis displacement (exclusive)
-     * @param speedMin minimum speed (inclusive)
-     * @param speedMax maximum speed (exclusive)
-     */
-    public RandomDSMobilityPattern(final double sxfMin, final double sxfMax,
-                                   final double syfMin, final double syfMax, final double speedMin,
-                                   final double speedMax) {
-        this.sxfMin = sxfMin;
-        this.sxfMax = sxfMax;
-        this.syfMin = syfMin;
-        this.syfMax = syfMax;
+        this.boundary = boundary;
         this.speedMin = speedMin;
         this.speedMax = speedMax;
-
         this.random = new Random();
     }
 
-    @Override
-    public Waypoint<V, E> nextWaypoint(final NetworkGraph<V, E> networkGraph,
-                                       final V vertex) {
-
-        final double sxf = sxfMin + (random.nextDouble() * (sxfMax - sxfMin));
-        final double syf = syfMin + (random.nextDouble() * (syfMax - syfMin));
-        final double speed =
-                speedMin + (random.nextDouble() * (speedMax - speedMin));
-
-        return new DSWaypoint<V, E>(sxf, syf, speed);
+    public void nudge() {
+        nudge += 1f;
     }
 
+    public RectangularBoundary<V, E> getBoundary() {
+        return boundary;
+    }
+
+    @Override
+    public Waypoint<V, E> nextWaypoint(final NetworkGraph<V, E> networkGraph, final V vertex) {
+
+        double sxfMin = boundary.getX();
+        double sxfMax = boundary.getX() + boundary.getWidth();
+        double syfMin = boundary.getY();
+        double syfMax = boundary.getY() + boundary.getHeight();
+
+        double sxf = sxfMin + (random.nextDouble() * (sxfMax - sxfMin));
+        double syf = syfMin + (random.nextDouble() * (syfMax - syfMin));
+        double speed = nudge + speedMin + random.nextDouble() * (speedMax + -speedMin);
+        nudge = Math.max(0f, nudge - 1f);
+
+        return new DSWaypoint<>(sxf, syf, speed);
+    }
 }

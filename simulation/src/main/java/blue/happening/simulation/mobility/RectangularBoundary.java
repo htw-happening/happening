@@ -34,10 +34,10 @@ import blue.happening.simulation.graph.internal.Motion;
  */
 public class RectangularBoundary<V, E> implements Boundary<V, E> {
 
-    final double x;
-    final double y;
-    final double width;
-    final double height;
+    double x;
+    double y;
+    double width;
+    double height;
 
     /**
      * Constructs a new {@code RectangularBoundary} whose upper-left corner is
@@ -127,6 +127,10 @@ public class RectangularBoundary<V, E> implements Boundary<V, E> {
         return x;
     }
 
+    public void setX(double x) {
+        this.x = x;
+    }
+
     /**
      * Returns the y-axis upper-left corner of this {@code rectangularBoundary}.
      *
@@ -135,6 +139,10 @@ public class RectangularBoundary<V, E> implements Boundary<V, E> {
      */
     public double getY() {
         return y;
+    }
+
+    public void setY(double y) {
+        this.y = y;
     }
 
     /**
@@ -146,6 +154,10 @@ public class RectangularBoundary<V, E> implements Boundary<V, E> {
         return width;
     }
 
+    public void setWidth(double width) {
+        this.width = width;
+    }
+
     /**
      * Returns the height of this {@code rectangularBoundary}.
      *
@@ -153,6 +165,10 @@ public class RectangularBoundary<V, E> implements Boundary<V, E> {
      */
     public double getHeight() {
         return height;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
     }
 
     /**

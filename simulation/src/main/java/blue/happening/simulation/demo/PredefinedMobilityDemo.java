@@ -34,6 +34,9 @@ public class PredefinedMobilityDemo {
         // create a custom graph with Vertex: Device and Edge: Connection
         MeshGraph graph = new MeshGraph();
 
+        // create a mesh runner executor service
+        ScheduledExecutorService runner = Executors.newSingleThreadScheduledExecutor();
+
         // create message delivery executor service
         ScheduledExecutorService postman = Executors.newSingleThreadScheduledExecutor();
 
@@ -74,14 +77,13 @@ public class PredefinedMobilityDemo {
         mobilityPatterns.add(predefinedMobilityPattern3);
 
         for (int i = 0; i < mobilityPatterns.size(); i++) {
-            graph.addVertex(new Device("Test_" + i + "_" + i, graph, postman),
+            graph.addVertex(new Device("Test_" + i + "_" + i, graph, postman, runner),
                     100 + (i * 100), 100 + (i * 100), mobilityPatterns.get(i), txRadius,
                     rxRadius);
         }
 
         // Enable blue.happening.simulation.visualization frame and panel
-        MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<Device, Connection>(
-                graph);
+        MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<>(graph, 60D);
 
         // introduce noop events to slow down simulation; blue.happening.simulation.graph, interval, sleep
         new NOOPAction(graph, 1, 50);

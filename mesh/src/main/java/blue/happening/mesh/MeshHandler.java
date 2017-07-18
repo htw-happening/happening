@@ -9,7 +9,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import blue.happening.mesh.statistics.NetworkStats;
-
 import blue.happening.mesh.statistics.StatsResult;
 
 public class MeshHandler {
@@ -47,6 +46,10 @@ public class MeshHandler {
     private NetworkStats ogmStats;
 
     public MeshHandler(String uuid) {
+        this(uuid, Executors.newSingleThreadScheduledExecutor());
+    }
+
+    public MeshHandler(String uuid, ScheduledExecutorService executor) {
         this.uuid = uuid;
         sequence = ThreadLocalRandom.current().nextInt(INITIAL_MIN_SEQUENCE, INITIAL_MAX_SEQUENCE);
         routingTable = new RoutingTable();
@@ -61,7 +64,6 @@ public class MeshHandler {
 
         router.addObserver(new RouterObserver());
 
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(
                 new OGMRunner(),
                 ThreadLocalRandom.current().nextInt(OGM_INTERVAL),
@@ -96,7 +98,7 @@ public class MeshHandler {
     public boolean sendMessage(byte[] message, String uuid) {
         RemoteDevice remoteDevice = routingTable.get(uuid);
         if (remoteDevice == null) {
-            System.out.println("Mesh handler couldn't find " + uuid + " in routing table");
+            System.out.println("Mesh handler could not find " + uuid + " in routing table");
             return false;
         } else {
             Message ucm = new Message(this.uuid, uuid, INITIAL_MIN_SEQUENCE, MESSAGE_TYPE_UCM, message);
@@ -113,18 +115,14 @@ public class MeshHandler {
         @Override
         public void run() {
             try {
-                // TODO instaed of setting BROADCAST_ADRESS can we not just set the device as destination?
-
-
                 Message message = new Message(uuid, BROADCAST_ADDRESS, sequence, MESSAGE_TYPE_OGM, null);
                 for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
                     remoteDevice.sendMessage(message);
                     remoteDevice.getEchoSlidingWindow().slideSequence(sequence);
-
                     meshHandlerCallback.logMessage(message, MESSAGE_ACTION_SENT);
                 }
-                // TODO routeMessage should be used instead of sending to devices by itself
-                //router.routeMessage(message);
+                // TODO: routeMessage should be used instead of sending to devices by itself
+                // router.routeMessage(message);
                 sequence++;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -138,7 +136,6 @@ public class MeshHandler {
             try {
                 for (RemoteDevice remoteDevice : routingTable.getExpiredRemoteDevices()) {
                     routingTable.remove(remoteDevice.getUuid());
-                    System.out.println("Remote device " + remoteDevice + " expired");
                 }
                 routingTable.flush();
             } catch (Exception e) {
@@ -175,18 +172,18 @@ public class MeshHandler {
         public void update(Observable observable, Object o) {
             Router.Event event = (Router.Event) o;
             switch (event.getType()) {
-                case OGM_SENT:
+                case Router.OGM_SENT:
                     ogmStats.addOutGoingMessage((Message) event.getOptions());
                     meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_FORWARDED);
                     break;
-                case UCM_SENT:
+                case Router.UCM_SENT:
                     ucmStats.addOutGoingMessage((Message) event.getOptions());
                     meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_FORWARDED);
                     break;
-                case OGM_DROPPED:
+                case Router.OGM_DROPPED:
                     meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_DROPPED);
                     break;
-                case UCM_DROPPED:
+                case Router.UCM_DROPPED:
                     meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_DROPPED);
                     break;
 
@@ -213,7 +210,7 @@ public class MeshHandler {
             try {
                 message = Message.fromBytes(bytes);
                 if (message == null) {
-                    throw new Exception("Could'nt parse message");
+                    throw new Exception("Could not parse message");
                 }
             } catch (Exception e) {
                 System.out.println("Message broken: " + e.getMessage());

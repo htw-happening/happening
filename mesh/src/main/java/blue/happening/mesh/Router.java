@@ -4,6 +4,11 @@ import java.util.Observable;
 
 class Router extends Observable {
 
+    static final int OGM_SENT = 1;
+    static final int UCM_SENT = 2;
+    static final int OGM_DROPPED = 3;
+    static final int UCM_DROPPED = 4;
+
     private RoutingTable routingTable;
     private String uuid;
 
@@ -51,20 +56,15 @@ class Router extends Observable {
     }
 
     private void routeOgm(Message message) throws RoutingException {
-        //TODO check why we send the message only to exisitng devices, shouldn't it be broadcasted to all devices?!?
-        //RemoteDevice existingDevice = routingTable.get(message.getSource());
-        //if (existingDevice != null) {
-            // TODO Why are we checking if it is a Broadcast address, can't we just broadcast all OGM messages?
-            if (message.getDestination().equals(MeshHandler.BROADCAST_ADDRESS)) {
-                if (shouldOGMBeForwarded(message)) {
-                    broadcastMessage(message);
-                } else {
-                    trigger(Events.OGM_DROPPED, message);
-                }
+        if (message.getDestination().equals(MeshHandler.BROADCAST_ADDRESS)) {
+            if (shouldOGMBeForwarded(message)) {
+                broadcastMessage(message);
             } else {
-                throw new RoutingException("OGM needs broadcast destination");
+                trigger(OGM_DROPPED, message);
             }
-        //}
+        } else {
+            throw new RoutingException("OGM needs broadcast destination");
+        }
         slideWindows(message);
     }
 
@@ -184,11 +184,11 @@ class Router extends Observable {
             if (shouldUCMBeForwardedTo(message, route.getViaDevice())) {
                 RemoteDevice viaDevice = routingTable.get(route.getViaDevice());
                 viaDevice.sendMessage(preparedMessage);
-                trigger(Events.UCM_SENT, preparedMessage);
+                trigger(UCM_SENT, preparedMessage);
                 return;
             }
         }
-        trigger(Events.UCM_DROPPED, preparedMessage);
+        trigger(UCM_DROPPED, preparedMessage);
     }
 
     private void broadcastMessage(Message message) throws RoutingException {
@@ -197,14 +197,13 @@ class Router extends Observable {
         for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
             if (shouldOGMBeEchoedTo(message, remoteDevice.getUuid()) ||
                     shouldOGMBeBroadcastTo(message, remoteDevice.getUuid())) {
-                // TODO Set remotedevice as originator instaed of broadcast adress?
                 remoteDevice.sendMessage(preparedMessage);
-                trigger(Events.OGM_SENT, preparedMessage);
+                trigger(OGM_SENT, preparedMessage);
                 ogmSent = true;
             }
         }
         if (!ogmSent) {
-            trigger(Events.OGM_DROPPED, preparedMessage);
+            trigger(OGM_DROPPED, preparedMessage);
         }
     }
 
@@ -214,32 +213,25 @@ class Router extends Observable {
         }
     }
 
-    private void trigger(Events arg, Object options) {
+    private void trigger(int type, Object options) {
         setChanged();
-        notifyObservers(new Event(arg, options));
-    }
-
-    enum Events {
-        OGM_SENT,
-        UCM_SENT,
-        OGM_DROPPED,
-        UCM_DROPPED
+        notifyObservers(new Event(type, options));
     }
 
     class Event {
-        private Events type;
+        private int type;
         private Object options;
 
-        Event(Events type, Object options) {
+        Event(int type, Object options) {
             this.type = type;
             this.options = options;
         }
 
-        public Events getType() {
+        int getType() {
             return type;
         }
 
-        public Object getOptions() {
+        Object getOptions() {
             return options;
         }
     }

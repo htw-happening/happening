@@ -48,7 +48,7 @@ public class DeviceLogTableModel extends AbstractTableModel {
         if (message.getSource().equals(device.getName())) {
             reasons.add("<->");
         }
-        if(reasons.size()==0){
+        if (reasons.size() == 0) {
             reasons.add("#");
         }
         return reasons;
@@ -72,15 +72,15 @@ public class DeviceLogTableModel extends AbstractTableModel {
                         List<String> dropReasons = getDropReasons(logItem.getMessage());
                         String reasons = "";
                         Iterator<String> i = dropReasons.iterator();
-                        while (i.hasNext()){
-                            reasons+=i.next();
-                            if(i.hasNext()){
-                                reasons+=", ";
+                        while (i.hasNext()) {
+                            reasons += i.next();
+                            if (i.hasNext()) {
+                                reasons += ", ";
                             }
                         }
                         return "x (" + reasons + ")";
                     case MeshHandler.MESSAGE_ACTION_FORWARDED:
-                        if(logItem.getMessage().getPreviousHop().equals(logItem.getMessage().getSource()) ){
+                        if (logItem.getMessage().getPreviousHop().equals(logItem.getMessage().getSource())) {
                             return "->";
                         } else {
                             return "-->";

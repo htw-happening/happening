@@ -56,8 +56,6 @@ public class DisplacementLayout<V, E> extends AbstractLayout<V, E> {
         return transformer.transform(v);
     }
 
-    ;
-
     private static class DisplacementTransformer<V, E>
             implements Transformer<V, Point2D> {
 
@@ -73,7 +71,5 @@ public class DisplacementLayout<V, E> extends AbstractLayout<V, E> {
             double y = graph.getDisplacementY(vertex);
             return new Point2D.Double(x, y);
         }
-
     }
-
 }

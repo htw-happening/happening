@@ -78,8 +78,7 @@ public class DevicePanel extends JPanel {
         sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.Y_AXIS));
         sliderPanel.setOpaque(false);
 
-        packageDropSlider = new JSlider(JSlider.HORIZONTAL,
-                0, 100, 0);
+        packageDropSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
         packageDropSlider.setMajorTickSpacing(10);
         packageDropSlider.setMinorTickSpacing(10);
         packageDropSlider.setPaintTicks(true);
@@ -89,8 +88,7 @@ public class DevicePanel extends JPanel {
         sliderPanel.add(new JLabel("Package Drop Rate", JLabel.CENTER));
         sliderPanel.add(packageDropSlider);
 
-        packageDelaySlider = new JSlider(JSlider.HORIZONTAL,
-                0, 1000, 0);
+        packageDelaySlider = new JSlider(JSlider.HORIZONTAL, 0, 1000, 0);
         packageDelaySlider.setMajorTickSpacing(100);
         packageDelaySlider.setMinorTickSpacing(100);
         packageDelaySlider.setPaintTicks(true);
@@ -309,7 +307,7 @@ public class DevicePanel extends JPanel {
         DeviceNeighbourTableModel neighbourTableModel = (DeviceNeighbourTableModel) table.getModel();
         List<MeshDevice> neighbours = neighbourTableModel.getNeighbours();
         int indexOfExisting = neighbours.indexOf(neighbour);
-        try{
+        try {
             neighbours.set(indexOfExisting, neighbour);
             neighbourTableModel.fireTableRowsUpdated(indexOfExisting, indexOfExisting);
         } catch (IndexOutOfBoundsException ignored) {
@@ -331,8 +329,8 @@ public class DevicePanel extends JPanel {
 
     private void updateOgmLog(LogItem log) {
         DeviceLogTableModel deviceLogTableModel = (DeviceLogTableModel) ogmLogTable.getModel();
-        if(deviceLogTableModel.getLogs().contains(log)){
-            deviceLogTableModel.getLogs().set(deviceLogTableModel.getLogs().indexOf(log),log);
+        if (deviceLogTableModel.getLogs().contains(log)) {
+            deviceLogTableModel.getLogs().set(deviceLogTableModel.getLogs().indexOf(log), log);
         } else {
             deviceLogTableModel.getLogs().add(log);
         }

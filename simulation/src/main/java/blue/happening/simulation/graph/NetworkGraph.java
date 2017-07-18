@@ -430,8 +430,6 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
         }
     }
 
-    ;
-
     /**
      * Adds {@code vertex} to this blue.happening.simulation.graph at coordinates (0,0),
      * {@link StationaryMobilityPattern}, and TX and RX radii of
@@ -450,8 +448,6 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
         final double rxRadius = Double.MIN_VALUE;
         return addVertex(vertex, sx, sy, mobilityPattern, txRadius, rxRadius);
     }
-
-    ;
 
     /**
      * Adds {@code vertex} to this blue.happening.simulation.graph at coordinates ({@code sx},{@code sy}),
@@ -489,8 +485,6 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
         }
         return wasAdded;
     }
-
-    ;
 
     /**
      * @see DirectedGraph#removeVertex(Object)
@@ -627,6 +621,10 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
     public boolean containsEdge(V fromVertex, V toVertex) {
         E edge = edgePool.getEdge(fromVertex, toVertex);
         return containsEdge(edge);
+    }
+
+    public VertexProperties<V, E> getVertexProperties(final V vertex) {
+        return verticesProperties.get(vertex);
     }
 
     /**
@@ -889,7 +887,7 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
      */
     public double getRadiusTx(final V vertex) {
         final VertexProperties<V, E> properties = verticesProperties.get(vertex);
-        final double radiusTx = properties.getTxRadius();
+        final double radiusTx = properties.getTxRadius().getValue();
         return radiusTx;
     }
 
@@ -901,7 +899,7 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
      */
     public double getRadiusRx(final V vertex) {
         final VertexProperties<V, E> properties = verticesProperties.get(vertex);
-        final double radiusRx = properties.getRxRadius();
+        final double radiusRx = properties.getRxRadius().getValue();
         return radiusRx;
     }
 
@@ -919,8 +917,8 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
                 .get(fromVertex);
         final VertexProperties<V, E> toProperties = verticesProperties
                 .get(toVertex);
-        final double fromTx = fromProperties.getTxRadius();
-        final double toRx = toProperties.getRxRadius();
+        final double fromTx = fromProperties.getTxRadius().getValue();
+        final double toRx = toProperties.getRxRadius().getValue();
         return Math.max(fromTx, toRx);
     }
 
@@ -938,8 +936,8 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
                 .get(fromVertex);
         final VertexProperties<V, E> toProperties = verticesProperties
                 .get(toVertex);
-        final double fromRx = fromProperties.getRxRadius();
-        final double toTx = toProperties.getTxRadius();
+        final double fromRx = fromProperties.getRxRadius().getValue();
+        final double toTx = toProperties.getTxRadius().getValue();
         return Math.max(fromRx, toTx);
     }
 

@@ -59,10 +59,10 @@ public class TimeTextPaintable<V, E> implements Paintable {
         int seconds = (time / 1000) % 60;
         String str = String.format(Locale.ENGLISH, "%d:%02d", minutes, seconds);
 
-        int swidth = metrics.stringWidth(str);
-        int sheight = metrics.getMaxAscent() + metrics.getMaxDescent();
-        int x = (d.width - swidth) / 2;
-        int y = (int) (d.height - sheight * 1.5);
+        int sWidth = metrics.stringWidth(str);
+        int sHeight = metrics.getMaxAscent() + metrics.getMaxDescent();
+        int x = (d.width - sWidth) / 2;
+        int y = (int) (d.height - sHeight * 1.5);
         g.setFont(font);
         Color oldColor = g.getColor();
         g.setColor(Color.BLACK);
@@ -74,5 +74,4 @@ public class TimeTextPaintable<V, E> implements Paintable {
     public boolean useTransform() {
         return false;
     }
-
 }

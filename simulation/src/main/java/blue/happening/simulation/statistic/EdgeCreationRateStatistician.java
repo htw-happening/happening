@@ -80,19 +80,14 @@ public class EdgeCreationRateStatistician<V, E> {
         }
 
         @Override
-        protected void addedEdge(final NetworkGraph<V, E> networkGraph,
-                                 final E edge) {
+        protected void addedEdge(final NetworkGraph<V, E> networkGraph, final E edge) {
             counter++;
         }
-
-        ;
 
         @Override
         protected void afterReplication(ModelElement m, Object arg) {
             final double time = m.getCurrentReplication().getTime();
             samlpes.add(counter / time);
         }
-
     }
-
 }
