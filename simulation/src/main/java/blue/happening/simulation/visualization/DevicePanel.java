@@ -26,6 +26,7 @@ import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.RemoteDevice;
 import blue.happening.mesh.statistics.Stat;
 import blue.happening.mesh.statistics.StatsResult;
+import blue.happening.simulation.demo.HappeningDemo;
 import blue.happening.simulation.entities.Device;
 import blue.happening.simulation.entities.LogItem;
 
@@ -63,6 +64,7 @@ public class DevicePanel extends JPanel {
 
         deviceLabel = new JLabel("Current device", JLabel.LEFT);
         JButton disableButton = new JButton("Toggle device");
+        JButton resetButton = new JButton("Reset Demo");
         sendButton = new JButton("Send message");
         sendButton.setEnabled(false);
 
@@ -70,6 +72,7 @@ public class DevicePanel extends JPanel {
         btnPanel.setOpaque(false);
         btnPanel.add(deviceLabel);
         btnPanel.add(disableButton);
+        btnPanel.add(resetButton);
         btnPanel.add(sendButton);
 
         // Slider Panel
@@ -233,6 +236,13 @@ public class DevicePanel extends JPanel {
                 if (device != null) {
                     device.toggleEnabled();
                 }
+            }
+        });
+
+        resetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                HappeningDemo.getInstance().reset();
             }
         });
     }
