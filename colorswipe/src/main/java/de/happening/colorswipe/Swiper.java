@@ -3,7 +3,6 @@ package de.happening.colorswipe;
 
 import android.util.Log;
 
-import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -62,9 +61,9 @@ public class Swiper {
             }
 
             @Override
-            public void logMessage(int packageType, int action) {
-                Log.d(TAG, "logMessage: " + action);
-                Log.d(TAG, "logMessage: PACKAGETYPE: "+ packageType);
+            public void onMessageLogged(int packageType, int action) {
+                Log.d(TAG, "onMessageLogged: " + action);
+                Log.d(TAG, "onMessageLogged: PACKAGETYPE: "+ packageType);
                 switch (packageType){
 
                     case 1: //OGM
