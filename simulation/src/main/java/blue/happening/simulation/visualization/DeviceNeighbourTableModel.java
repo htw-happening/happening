@@ -9,7 +9,8 @@ import blue.happening.mesh.MeshDevice;
 
 public class DeviceNeighbourTableModel extends AbstractTableModel {
     //Two arrays used for the table data
-    private String[] columnNames = {"UUID", "TQ", "Last Seen (secs ago)"};
+    private String[] columnNames = {"Identifier", "Quality", "Seconds ago"};
+    private Class[] columnClasses = {String.class, Float.class, Integer.class};
 
     private List<MeshDevice> neighbours = new ArrayList<>();
 
@@ -54,21 +55,16 @@ public class DeviceNeighbourTableModel extends AbstractTableModel {
         }
     }
 
-    //Used by the JTable object to set the column names
+    // Used by the JTable object to set the column names
     @Override
     public String getColumnName(int column) {
         return columnNames[column];
     }
 
-    //Used by the JTable object to render different
-    //functionality based on the data type
+    // Used by the JTable object to render functionality based on data type
     @Override
-    public Class getColumnClass(int c) {
-        if(getValueAt(0,c) != null){
-            return getValueAt(0, c).getClass();
-        } else {
-            return null;
-        }
+    public Class getColumnClass(int column) {
+        return columnClasses[column];
     }
 
     @Override

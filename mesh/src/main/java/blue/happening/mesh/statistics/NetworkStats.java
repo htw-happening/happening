@@ -23,11 +23,11 @@ public class NetworkStats {
         out.addMessage(message);
     }
 
-    public Stat getOutgoingStat(){
+    public Stat getOutgoingStat() {
         return out.copy();
     }
 
-    public void updateTs(double ts){
+    public void updateTs(double ts) {
         in.updateTs(ts);
         out.updateTs(ts);
     }

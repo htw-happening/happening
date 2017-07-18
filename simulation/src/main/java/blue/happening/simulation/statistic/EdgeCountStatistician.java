@@ -90,16 +90,11 @@ public class EdgeCountStatistician<V, E> {
             counter.increment();
         }
 
-        ;
-
         @Override
         protected void removedEdge(final NetworkGraph<V, E> networkGraph,
                                    final E edge) {
             counter.decrement();
             counter.getAcrossReplicationStatistic();
         }
-
-        ;
     }
-
 }

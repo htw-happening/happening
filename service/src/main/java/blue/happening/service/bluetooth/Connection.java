@@ -98,13 +98,13 @@ public class Connection {
 
                 } catch (IOException e) {
                     Log.e(TAG, "Reader closed of " + device + " cause of IO Error " + e.toString());
-                    ACRA.getErrorReporter().handleException(e);
+//                    ACRA.getErrorReporter().handleException(e);
                     shutdown();
                     return;
                 }
                 catch (OutOfMemoryError outOfMemoryErrore){
                     Log.e(TAG, "Writer Closed of " + device + " casue of OutOfMemoryError ");
-                    ACRA.getErrorReporter().handleException(outOfMemoryErrore);
+//                    ACRA.getErrorReporter().handleException(outOfMemoryErrore);
                     shutdown();
                 }
             }
