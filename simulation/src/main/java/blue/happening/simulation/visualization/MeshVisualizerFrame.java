@@ -44,6 +44,7 @@ public class MeshVisualizerFrame<V, E> extends JFrame {
 
         // add device panel
         DevicePanel panel = new DevicePanel();
+        panel.setPreferredSize(new Dimension(500, 1000));
         add(panel, BorderLayout.EAST);
         graph.setDevicePanel(panel);
 
