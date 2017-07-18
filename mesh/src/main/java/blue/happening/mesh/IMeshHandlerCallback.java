@@ -15,5 +15,5 @@ public interface IMeshHandlerCallback {
 
     void onNetworkStatsUpdated(StatsResult networkStats);
 
-    void logMessage(Message msg, int action);
+    void onMessageLogged(Message msg, int action);
 }

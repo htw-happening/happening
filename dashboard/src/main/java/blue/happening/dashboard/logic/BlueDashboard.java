@@ -49,8 +49,8 @@ public class BlueDashboard {
             }
 
             @Override
-            public void logMessage(int packageType, int action) {
-
+            public void onMessageLogged(int packageType, int action) {
+                // Callback to log mesh messages
             }
 
             @Override

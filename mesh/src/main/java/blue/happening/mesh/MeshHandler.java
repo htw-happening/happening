@@ -160,17 +160,17 @@ public class MeshHandler {
             switch (event.getType()) {
                 case Router.OGM_SENT:
                     ogmStats.addOutGoingMessage((Message) event.getOptions());
-                    meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_FORWARDED);
+                    meshHandlerCallback.onMessageLogged((Message) event.getOptions(), MESSAGE_ACTION_FORWARDED);
                     break;
                 case Router.UCM_SENT:
                     ucmStats.addOutGoingMessage((Message) event.getOptions());
-                    meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_FORWARDED);
+                    meshHandlerCallback.onMessageLogged((Message) event.getOptions(), MESSAGE_ACTION_FORWARDED);
                     break;
                 case Router.OGM_DROPPED:
-                    meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_DROPPED);
+                    meshHandlerCallback.onMessageLogged((Message) event.getOptions(), MESSAGE_ACTION_DROPPED);
                     break;
                 case Router.UCM_DROPPED:
-                    meshHandlerCallback.logMessage((Message) event.getOptions(), MESSAGE_ACTION_DROPPED);
+                    meshHandlerCallback.onMessageLogged((Message) event.getOptions(), MESSAGE_ACTION_DROPPED);
                     break;
 
             }
@@ -209,7 +209,7 @@ public class MeshHandler {
                 ucmStats.addInComingMessage(message);
             }
 
-            meshHandlerCallback.logMessage(message, MESSAGE_ACTION_ARRIVED);
+            meshHandlerCallback.onMessageLogged(message, MESSAGE_ACTION_ARRIVED);
 
             try {
                 propagate = router.routeMessage(message);
@@ -221,7 +221,7 @@ public class MeshHandler {
             if (propagate != null) {
                 MeshDevice source = routingTable.get(message.getSource()).getMeshDevice();
                 meshHandlerCallback.onMessageReceived(message.getBody(), source);
-                meshHandlerCallback.logMessage(message, MESSAGE_ACTION_RECEIVED);
+                meshHandlerCallback.onMessageLogged(message, MESSAGE_ACTION_RECEIVED);
             }
 
             // Check whether message is an echo OGM

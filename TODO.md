@@ -6,7 +6,7 @@
 - [ ] "De"-Pair und teste Verbindungen nochmal
 - [ ] Poster fertig machen / drucken
 - [ ] Vortrag am Start haben
-- [ ] Standbau - Brett / Handys
+- [ ] Standbau - Brett / Handys / Klettverschluss
 - [ ] Alive Leute neue Service schicken inkl neuem Plugin
 ### unwichtig
 - [ ] Flackern der Visualisierung wegbekommen
@@ -14,3 +14,4 @@
 - [ ] Visualisierung - Reset
 - [ ] Klickie Bunti - CorlorSwiper
 - [ ] Klickie Bunti - Chat 
+- [ ] Backup Video falls der ColorSwiper auf der Showtime abschmiert 

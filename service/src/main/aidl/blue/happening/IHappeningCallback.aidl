@@ -11,7 +11,7 @@ interface IHappeningCallback {
 
     void onClientRemoved(in HappeningClient client);
 
-    void logMessage(in int packageType, in int action);
+    void onMessageLogged(in int packageType, in int action);
 
     void onMessageReceived(in byte[] message, in HappeningClient source);
 }
