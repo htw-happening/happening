@@ -33,7 +33,7 @@ public class Layer extends blue.happening.mesh.Layer {
     private Context context = null;
 
     private BluetoothAdapter bluetoothAdapter = null;
-//    private PairingRequest pairingRequest;
+    private PairingRequest pairingRequest;
     private IDeviceFinder deviceFinder;
 
     private ArrayList<Device> scannedDevices;
@@ -41,7 +41,6 @@ public class Layer extends blue.happening.mesh.Layer {
     private ServerManager serverManager = null;
     private AutoConnectSink connectSink = null;
     private String macAddress = "";
-    private boolean autoConnect = true;
     private BluetoothStateReceiver bluetoothStateReceiver;
     public STATE state = STATE.WRITING;
 
@@ -57,6 +56,7 @@ public class Layer extends blue.happening.mesh.Layer {
         this.bluetoothAdapter = bluetoothManager.getAdapter();
         this.macAddress = android.provider.Settings.Secure.getString(context.getContentResolver(), "bluetooth_address");
         bluetoothStateReceiver = new BluetoothStateReceiver();
+        this.pairingRequest = new PairingRequest();
         Log.i(TAG, "*********************** I am " + bluetoothAdapter.getName() + " | " + macAddress + " ***********************");
     }
 
@@ -74,11 +74,11 @@ public class Layer extends blue.happening.mesh.Layer {
         return scannedDevices;
     }
 
-    public void setAutoConnect(boolean value) {
-        this.autoConnect = value;
-    }
-
     public void start() {
+
+        if(!bluetoothAdapter.isEnabled()){
+            return;
+        }
 
         if(bluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
             Log.d(TAG, "start: NOT SCAN_MODE_CONNECTABLE_DISCOVERABLE --> Switch on Discoverable!");
@@ -88,7 +88,6 @@ public class Layer extends blue.happening.mesh.Layer {
             context.startActivity(makeMeVisible);
         }
 
-        // TODO: 06.06.17 check autoconnect bool
         if (isAdvertisingSupported()) {
             Log.d(TAG, "start: isAdvertisingSupported TRUE");
             this.deviceFinder = new LeDeviceFinder();
@@ -100,15 +99,14 @@ public class Layer extends blue.happening.mesh.Layer {
 
         this.deviceFinder.registerCallback(this);
         this.deviceFinder.start();
-//        this.pairingRequest = new PairingRequest();
-//        this.context.registerReceiver(pairingRequest, new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST));
+        this.context.registerReceiver(pairingRequest, new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST));
         this.connectSink = new AutoConnectSink();
         this.connectSink.start();
         this.acceptor = new Server();
         this.acceptor.start();
-        bluetoothStateReceiver.start();
-        serverManager = new ServerManager();
-        serverManager.start();
+        this.bluetoothStateReceiver.start();
+        this.serverManager = new ServerManager();
+        this.serverManager.start();
     }
 
 
@@ -119,15 +117,19 @@ public class Layer extends blue.happening.mesh.Layer {
         if (acceptor != null) {
             acceptor.cancel();
         }
-        serverManager.stop();
+        if (serverManager != null){
+            serverManager.stop();
+        }
         for (Device device : scannedDevices) {
             if (device != null && device.getState() == Device.STATE.CONNECTED) {
                 device.connection.shutdown();
             }
         }
-//        context.unregisterReceiver(pairingRequest);
+        context.unregisterReceiver(pairingRequest);
         bluetoothStateReceiver.stop();
-        connectSink.interrupt();
+        if (connectSink != null){
+            connectSink.interrupt();
+        }
         this.scannedDevices.clear();
     }
 

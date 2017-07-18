@@ -44,16 +44,6 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
         return bestRoutes;
     }
 
-    List<RemoteDevice> getExpiredRemoteDevices() {
-        List<RemoteDevice> expiredRemoteDevices = new ArrayList<>();
-        for (RemoteDevice device : values()) {
-            if (device.isExpired()) {
-                expiredRemoteDevices.add(device);
-            }
-        }
-        return expiredRemoteDevices;
-    }
-
     List<MeshDevice> getReachableMeshDevices() {
         List<MeshDevice> meshDevices = new ArrayList<>();
         for (Map.Entry<String, RemoteDevice> entry : entrySet()) {
@@ -119,12 +109,21 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
     @Override
     public RemoteDevice put(String uuid, RemoteDevice remoteDevice) {
         RemoteDevice existing = super.put(uuid, remoteDevice);
-        if (existing == null || !isReachable(existing)) {
-            meshHandlerCallback.onDeviceAdded(remoteDevice.getMeshDevice());
-        } else {
+        if (isReachable(existing)) {
             meshHandlerCallback.onDeviceUpdated(remoteDevice.getMeshDevice());
+        } else {
+            meshHandlerCallback.onDeviceAdded(remoteDevice.getMeshDevice());
         }
         return existing;
+    }
+
+    boolean flushExpiredRemoteDevices() {
+        for (RemoteDevice device : values()) {
+            if (device.isExpired()) {
+                remove(device);
+            }
+        }
+        return flush();
     }
 
     void removeRoutesVia(RemoteDevice remoteDevice) {
@@ -157,10 +156,12 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
     }
 
     private boolean isReachable(RemoteDevice remoteDevice) {
-        for (Route route : routes) {
-            RemoteDevice toDevice = get(route.getToDevice());
-            if (toDevice.equals(remoteDevice)) {
-                return true;
+        if (remoteDevice != null) {
+            for (Route route : routes) {
+                RemoteDevice toDevice = get(route.getToDevice());
+                if (toDevice.equals(remoteDevice)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -192,12 +193,21 @@ public class RoutingTable extends ConcurrentHashMap<String, RemoteDevice> {
         return existing;
     }
 
-    void flush() {
+
+    /**
+     * Remove all devices that are not reachable
+     *
+     * @return Whether at least one device has been flushed
+     */
+    boolean flush() {
+        boolean flushed = false;
         for (String key : Collections.list(keys())) {
             RemoteDevice remoteDevice = get(key);
             if (!isReachable(remoteDevice)) {
-                super.remove(key);
+                RemoteDevice removedDevice = super.remove(key);
+                flushed |= remoteDevice == null;
             }
         }
+        return flushed;
     }
 }
