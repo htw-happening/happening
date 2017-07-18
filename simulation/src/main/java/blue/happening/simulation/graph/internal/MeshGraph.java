@@ -4,7 +4,6 @@ import blue.happening.simulation.entities.Connection;
 import blue.happening.simulation.entities.Device;
 import blue.happening.simulation.graph.EdgePool;
 import blue.happening.simulation.graph.NetworkGraph;
-import blue.happening.simulation.mobility.MobilityPattern;
 
 
 public class MeshGraph extends NetworkGraph<Device, Connection> {

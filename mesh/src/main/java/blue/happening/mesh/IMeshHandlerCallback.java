@@ -1,7 +1,6 @@
 package blue.happening.mesh;
 
 
-import blue.happening.mesh.statistics.Stat;
 import blue.happening.mesh.statistics.StatsResult;
 
 public interface IMeshHandlerCallback {

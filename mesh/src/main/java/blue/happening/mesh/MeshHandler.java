@@ -121,7 +121,7 @@ public class MeshHandler {
                     remoteDevice.getEchoSlidingWindow().slideSequence(sequence);
                     meshHandlerCallback.logMessage(message, MESSAGE_ACTION_SENT);
                 }
-                // TODO routeMessage should be used instead of sending to devices by itself
+                // TODO: routeMessage should be used instead of sending to devices by itself
                 // router.routeMessage(message);
                 sequence++;
             } catch (Exception e) {
