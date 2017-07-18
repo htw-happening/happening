@@ -24,6 +24,10 @@ public class Swiper {
     public static final int MIN_INDEX = 1;
     public static final int MAX_INDEX = 4;
 
+    private static final int[] STATIC_COLOR_TABLE = {
+        0xffff0000, 0xff00ff00, 0xff0000ff, 0xffcccc00
+    };
+
     public enum Direction{
         LEFT, RIGHT
     }
@@ -96,7 +100,7 @@ public class Swiper {
 //                Log.d(getClass().getSimpleName(), "HappeningCallback - onMessageReceived");
                 final ColorPackage colorPackage = ColorPackage.fromBytes(bytes);
                 if (colorPackage.getTo() == getMyIndex()){
-                    Log.d(TAG, "onMessageReceived: CHANGE MY COLOR!! " + colorPackage.toString());
+//                    Log.d(TAG, "onMessageReceived: CHANGE MY COLOR!! " + colorPackage.toString());
                     final int currentReceivedColor = colorPackage.getColor();
                     MainActivity.getInstance().startAnimation(colorPackage.getDirection(), currentReceivedColor, Packet.SWIPE_OBJECT);
 
@@ -104,7 +108,7 @@ public class Swiper {
                     TimerTask timerTask = new TimerTask() {
                         @Override
                         public void run() {
-                            Log.d(TAG, "run: REBROADCAST COLOR");
+//                            Log.d(TAG, "run: REBROADCAST COLOR");
                             broadCastColor(colorPackage.getDirection(), currentReceivedColor);
                         }
                     };
@@ -133,8 +137,12 @@ public class Swiper {
         return myColor;
     }
 
+    public void setStaticColor(){
+        this.myColor = STATIC_COLOR_TABLE[getMyIndex() - 1];
+    }
+
     public void broadCastColor(final Direction direction, final int color) {
-        Log.d(TAG, "broadCastColor()");
+//        Log.d(TAG, "broadCastColor()");
         ColorPackage colorPackage = null;
         if (direction == Direction.LEFT){
             colorPackage = new ColorPackage(getMyIndex(), getMyIndex() - 1, direction, color);
@@ -144,11 +152,11 @@ public class Swiper {
         }
 
         if (colorPackage.getTo() > MAX_INDEX || colorPackage.getTo() < MIN_INDEX){
-            Log.d(TAG, "broadCastColor: END OF LINE! Do not rebroadcast");
-            Log.d(TAG, "broadCastColor: getTo: " + colorPackage.getTo());
+//            Log.d(TAG, "broadCastColor: END OF LINE! Do not rebroadcast");
+//            Log.d(TAG, "broadCastColor: getTo: " + colorPackage.getTo());
             return;
         }
-        Log.d(TAG, "broadCastColor: "+colorPackage.toString());
+//        Log.d(TAG, "broadCastColor: "+colorPackage.toString());
         happening.sendMessage(colorPackage.toBytes());
     }
 
