@@ -29,8 +29,10 @@ import blue.happening.mesh.RemoteDevice;
 import blue.happening.mesh.statistics.Stat;
 import blue.happening.mesh.statistics.StatsResult;
 import blue.happening.simulation.demo.HappeningDemo;
+import blue.happening.simulation.entities.Connection;
 import blue.happening.simulation.entities.Device;
 import blue.happening.simulation.entities.LogItem;
+import blue.happening.simulation.graph.NetworkGraph;
 
 
 public class DevicePanel extends JPanel {
@@ -47,19 +49,26 @@ public class DevicePanel extends JPanel {
     private JTable ogmLogTable;
     private JTable ucmLogTable;
     private JButton sendButton;
+    private JButton resetButton;
     private JPanel logTablePanel;
     private JButton disableButton;
     private JSlider packageDropSlider;
     private JSlider packageDelaySlider;
     private List<RemoteDevice> selectedDevices;
-    private static boolean messageCount = true;
+    private boolean messageCount;
 
     private Device device;
+    private HappeningDemo demo;
     private NetworkStatsPanel ogmNetworkStats;
     private NetworkStatsPanel ucmNetworkStats;
+    private NetworkGraph<Device, Connection> graph;
 
     DevicePanel() {
+        messageCount = true;
         selectedDevices = new ArrayList<>();
+        demo = HappeningDemo.getInstance();
+        graph = demo.getGraph();
+
         setSize(PANEL_WIDTH, PANEL_HEIGHT);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
@@ -70,7 +79,7 @@ public class DevicePanel extends JPanel {
         deviceLabel = new JLabel("Current device", JLabel.LEFT);
         disableButton = new JButton("Disable Device");
         sendButton = new JButton("Send Message");
-        JButton resetButton = new JButton("Reset Demo");
+        resetButton = new JButton("Reset Demo");
         sendButton = new JButton("Send message");
         sendButton.setEnabled(false);
 
@@ -86,6 +95,7 @@ public class DevicePanel extends JPanel {
         final JPanel sliderPanel = new JPanel();
         sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.Y_AXIS));
         sliderPanel.setOpaque(false);
+        sliderPanel.add(resetButton);
 
         devicePanel = new JPanel();
         devicePanel.setLayout(new BoxLayout(devicePanel, BoxLayout.Y_AXIS));
@@ -262,7 +272,7 @@ public class DevicePanel extends JPanel {
         resetButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                HappeningDemo.getInstance().reset();
+                demo.reset();
             }
         });
     }
