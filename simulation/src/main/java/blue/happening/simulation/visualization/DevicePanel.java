@@ -58,7 +58,6 @@ public class DevicePanel extends JPanel {
     private boolean messageCount;
 
     private Device device;
-    private HappeningDemo demo;
     private NetworkStatsPanel ogmNetworkStats;
     private NetworkStatsPanel ucmNetworkStats;
     private NetworkGraph<Device, Connection> graph;
@@ -66,8 +65,7 @@ public class DevicePanel extends JPanel {
     DevicePanel() {
         messageCount = true;
         selectedDevices = new ArrayList<>();
-        demo = HappeningDemo.getInstance();
-        graph = demo.getGraph();
+        graph = HappeningDemo.getGraph();
 
         setSize(PANEL_WIDTH, PANEL_HEIGHT);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -272,7 +270,7 @@ public class DevicePanel extends JPanel {
         resetButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                demo.reset();
+                System.out.println("demo.reset();");
             }
         });
     }

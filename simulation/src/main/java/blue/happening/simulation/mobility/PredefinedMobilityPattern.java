@@ -21,6 +21,8 @@
 
 package blue.happening.simulation.mobility;
 
+import java.util.List;
+
 import blue.happening.simulation.graph.NetworkGraph;
 import jsl.modeling.Replication;
 
@@ -43,7 +45,7 @@ import jsl.modeling.Replication;
 public class PredefinedMobilityPattern<V, E> implements MobilityPattern<V, E> {
 
     private final boolean repeat;
-    private final Waypoint<V, E>[] waypoints;
+    private final List<Waypoint<V, E>> waypoints;
     private final StationaryMobilityPattern<V, E> staticMobilityPattern;
     private int index = 0;
 
@@ -56,15 +58,14 @@ public class PredefinedMobilityPattern<V, E> implements MobilityPattern<V, E> {
      * @param repeat    set {@code true} to repeat, {@code false} otherwise
      * @param waypoints the set of {@code waypoint}s to run through
      */
-    public PredefinedMobilityPattern(boolean repeat,
-                                     Waypoint<V, E>... waypoints) {
+    public PredefinedMobilityPattern(boolean repeat, List<Waypoint<V, E>> waypoints) {
         if (waypoints == null)
             throw new NullPointerException();
-        if (waypoints.length == 0)
+        if (waypoints.size() == 0)
             throw new IllegalArgumentException(
                     "at least one waypoints must be provided");
-        for (int i = 0; i < waypoints.length; i++) {
-            if (waypoints[i] == null)
+        for (int i = 0; i < waypoints.size(); i++) {
+            if (waypoints.get(i) == null)
                 throw new NullPointerException("Waypoint index " + i + " is null");
         }
 
@@ -74,16 +75,14 @@ public class PredefinedMobilityPattern<V, E> implements MobilityPattern<V, E> {
     }
 
     @Override
-    public Waypoint<V, E> nextWaypoint(NetworkGraph<V, E> networkGraph,
-                                       V vertex) {
-        if (index == waypoints.length) {
+    public Waypoint<V, E> nextWaypoint(NetworkGraph<V, E> networkGraph, V vertex) {
+        if (index == waypoints.size()) {
             if (!repeat)
                 return staticMobilityPattern.nextWaypoint(networkGraph, vertex);
             else
                 index = 0;
         }
         index++;
-        return waypoints[index - 1];
+        return waypoints.get(index - 1);
     }
-
 }

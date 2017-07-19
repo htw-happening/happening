@@ -12,6 +12,7 @@ import blue.happening.simulation.mobility.DTWaypoint;
 import blue.happening.simulation.mobility.MobilityPattern;
 import blue.happening.simulation.mobility.PredefinedMobilityPattern;
 import blue.happening.simulation.mobility.RectangularBoundary;
+import blue.happening.simulation.mobility.Waypoint;
 import blue.happening.simulation.visualization.MeshVisualizerFrame;
 import blue.happening.simulation.visualization.NOOPAction;
 import jsl.modeling.Replication;
@@ -45,39 +46,35 @@ public class PredefinedMobilityDemo {
                 0, 0, width, height);
 
         // construct a random mobility pattern that conforms to that bound
-        DTWaypoint[] dtwaypoints0 = {
-                new DTWaypoint<String, String>(200, 100, 1),
-                new DTWaypoint<String, String>(200, 100, 1)};
-        MobilityPattern<Device, Connection> predefinedMobilityPattern0 = new PredefinedMobilityPattern<Device, Connection>(
-                true, dtwaypoints0);
+        List<Waypoint<Device, Connection>> dtwaypoints0 = new ArrayList<>();
+        dtwaypoints0.add(new DTWaypoint<Device, Connection>(200, 100, 1));
+        dtwaypoints0.add(new DTWaypoint<Device, Connection>(200, 100, 1));
+        MobilityPattern<Device, Connection> predefinedMobilityPattern0 = new PredefinedMobilityPattern<>(true, dtwaypoints0);
 
-        DTWaypoint[] dtwaypoints1 = {
-                new DTWaypoint<String, String>(300, 100, 20),
-                new DTWaypoint<String, String>(200, 100, 20),
-                new DTWaypoint<String, String>(300, 100, 20)};
-        MobilityPattern<Device, Connection> predefinedMobilityPattern1 = new PredefinedMobilityPattern<Device, Connection>(
-                true, dtwaypoints1);
+        List<Waypoint<Device, Connection>> dtwaypoints1 = new ArrayList<>();
+        dtwaypoints1.add(new DTWaypoint<Device, Connection>(300, 100, 20));
+        dtwaypoints1.add(new DTWaypoint<Device, Connection>(200, 100, 20));
+        dtwaypoints1.add(new DTWaypoint<Device, Connection>(300, 100, 20));
+        MobilityPattern<Device, Connection> predefinedMobilityPattern1 = new PredefinedMobilityPattern<>(true, dtwaypoints1);
 
-        DTWaypoint[] dtwaypoints2 = {
-                new DTWaypoint<String, String>(400, 100, 80),
-                new DTWaypoint<String, String>(200, 100, 80)};
-        MobilityPattern<Device, Connection> predefinedMobilityPattern2 = new PredefinedMobilityPattern<Device, Connection>(
-                true, dtwaypoints2);
+        List<Waypoint<Device, Connection>> dtwaypoints2 = new ArrayList<>();
+        dtwaypoints2.add(new DTWaypoint<Device, Connection>(400, 100, 80));
+        dtwaypoints2.add(new DTWaypoint<Device, Connection>(200, 100, 80));
+        MobilityPattern<Device, Connection> predefinedMobilityPattern2 = new PredefinedMobilityPattern<>(true, dtwaypoints2);
 
-        DTWaypoint[] dtwaypoints3 = {
-                new DTWaypoint<String, String>(500, 100, 1),
-                new DTWaypoint<String, String>(500, 100, 1)};
-        MobilityPattern<Device, Connection> predefinedMobilityPattern3 = new PredefinedMobilityPattern<Device, Connection>(
-                true, dtwaypoints3);
+        List<Waypoint<Device, Connection>> dtwaypoints3 = new ArrayList<>();
+        dtwaypoints3.add(new DTWaypoint<Device, Connection>(500, 100, 1));
+        dtwaypoints3.add(new DTWaypoint<Device, Connection>(500, 100, 1));
+        MobilityPattern<Device, Connection> predefinedMobilityPattern3 = new PredefinedMobilityPattern<>(true, dtwaypoints3);
 
-        List<MobilityPattern<Device, Connection>> mobilityPatterns = new ArrayList();
+        List<MobilityPattern<Device, Connection>> mobilityPatterns = new ArrayList<>();
         mobilityPatterns.add(predefinedMobilityPattern0);
         mobilityPatterns.add(predefinedMobilityPattern1);
         mobilityPatterns.add(predefinedMobilityPattern2);
         mobilityPatterns.add(predefinedMobilityPattern3);
 
         for (int i = 0; i < mobilityPatterns.size(); i++) {
-            graph.addVertex(new Device("Test_" + i + "_" + i, graph, postman, runner),
+            graph.addVertex(new Device("Test_" + i + "_" + i, graph, postman, runner, 100, 0),
                     100 + (i * 100), 100 + (i * 100), mobilityPatterns.get(i), txRadius, rxRadius);
         }
 
