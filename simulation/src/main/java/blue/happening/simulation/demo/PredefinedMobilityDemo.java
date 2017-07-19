@@ -45,41 +45,40 @@ public class PredefinedMobilityDemo {
                 0, 0, width, height);
 
         // construct a random mobility pattern that conforms to that bound
-        @SuppressWarnings("rawtypes") DTWaypoint[] dtwaypoints = {
+        DTWaypoint[] dtwaypoints0 = {
                 new DTWaypoint<String, String>(200, 100, 1),
                 new DTWaypoint<String, String>(200, 100, 1)};
-        MobilityPattern<Device, Connection> predefinedMobilityPattern = new PredefinedMobilityPattern<Device, Connection>(
-                true, dtwaypoints);
+        MobilityPattern<Device, Connection> predefinedMobilityPattern0 = new PredefinedMobilityPattern<Device, Connection>(
+                true, dtwaypoints0);
 
-        @SuppressWarnings("rawtypes") DTWaypoint[] dtwaypoints1 = {
+        DTWaypoint[] dtwaypoints1 = {
                 new DTWaypoint<String, String>(300, 100, 20),
                 new DTWaypoint<String, String>(200, 100, 20),
                 new DTWaypoint<String, String>(300, 100, 20)};
         MobilityPattern<Device, Connection> predefinedMobilityPattern1 = new PredefinedMobilityPattern<Device, Connection>(
                 true, dtwaypoints1);
 
-        @SuppressWarnings("rawtypes") DTWaypoint[] dtwaypoints2 = {
+        DTWaypoint[] dtwaypoints2 = {
                 new DTWaypoint<String, String>(400, 100, 80),
                 new DTWaypoint<String, String>(200, 100, 80)};
         MobilityPattern<Device, Connection> predefinedMobilityPattern2 = new PredefinedMobilityPattern<Device, Connection>(
                 true, dtwaypoints2);
 
-        @SuppressWarnings("rawtypes") DTWaypoint[] dtwaypoints3 = {
+        DTWaypoint[] dtwaypoints3 = {
                 new DTWaypoint<String, String>(500, 100, 1),
                 new DTWaypoint<String, String>(500, 100, 1)};
         MobilityPattern<Device, Connection> predefinedMobilityPattern3 = new PredefinedMobilityPattern<Device, Connection>(
                 true, dtwaypoints3);
 
         List<MobilityPattern<Device, Connection>> mobilityPatterns = new ArrayList();
-        mobilityPatterns.add(predefinedMobilityPattern);
+        mobilityPatterns.add(predefinedMobilityPattern0);
         mobilityPatterns.add(predefinedMobilityPattern1);
         mobilityPatterns.add(predefinedMobilityPattern2);
         mobilityPatterns.add(predefinedMobilityPattern3);
 
         for (int i = 0; i < mobilityPatterns.size(); i++) {
             graph.addVertex(new Device("Test_" + i + "_" + i, graph, postman, runner),
-                    100 + (i * 100), 100 + (i * 100), mobilityPatterns.get(i), txRadius,
-                    rxRadius);
+                    100 + (i * 100), 100 + (i * 100), mobilityPatterns.get(i), txRadius, rxRadius);
         }
 
         // Enable blue.happening.simulation.visualization frame and panel
