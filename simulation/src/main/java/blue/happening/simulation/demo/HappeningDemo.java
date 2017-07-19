@@ -48,6 +48,8 @@ public class HappeningDemo {
         MeshHandler.NETWORK_STAT_INTERVAL = 1;
         MeshHandler.SLIDING_WINDOW_SIZE = 12;
         MeshHandler.DEVICE_EXPIRATION = 20;
+        MeshHandler.INITIAL_MIN_SEQUENCE = 0;
+        MeshHandler.INITIAL_MAX_SEQUENCE = 1024;
 
         // create a mesh runner executor service
         runner = Executors.newSingleThreadScheduledExecutor();
