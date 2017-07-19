@@ -22,32 +22,48 @@ import jsl.modeling.Replication;
 public class HappeningDemo {
 
     // configuration
-    private static int deviceCount = 24;
-    private static int messageDelay = 320;
-    private static int replicationLength = 500;
-    private static float messageLoss = 0.1F;
-    private static double speedMin = 0.5D;
-    private static double speedMax = 1.5D;
-    private static double txRadius = 100D;
-    private static double rxRadius = 100D;
-    private static double noopInterval = 1D;
-    private static long noopSleep = 50L;
-    private static double repaintHz = 30D;
-    private static HappeningDemo instance;
-    private final ScheduledExecutorService runner;
-    private final ScheduledExecutorService postman;
+    int deviceCount;
+    int messageDelay;
+    int replicationLength;
+    float messageLoss;
+    double speedMin;
+    double speedMax;
+    double txRadius;
+    double rxRadius;
+    double noopInterval;
+    long noopSleep;
+    double repaintHz;
+
+    final ScheduledExecutorService runner;
+    final ScheduledExecutorService postman;
     private NetworkGraph<Device, Connection> graph;
     private Replication replication;
 
-    private HappeningDemo() {
+    private static HappeningDemo instance;
+
+    HappeningDemo() {
         MeshHandler.INITIAL_MESSAGE_TQ = 255;
         MeshHandler.INITIAL_MESSAGE_TTL = 5;
         MeshHandler.HOP_PENALTY = 15;
-        MeshHandler.OGM_INTERVAL = 5;
-        MeshHandler.PURGE_INTERVAL = 50;
+        MeshHandler.OGM_INTERVAL = 4;
+        MeshHandler.PURGE_INTERVAL = 12;
         MeshHandler.NETWORK_STAT_INTERVAL = 1;
         MeshHandler.SLIDING_WINDOW_SIZE = 12;
-        MeshHandler.DEVICE_EXPIRATION = 20;
+        MeshHandler.DEVICE_EXPIRATION = 16;
+        MeshHandler.INITIAL_MIN_SEQUENCE = 0;
+        MeshHandler.INITIAL_MAX_SEQUENCE = 1024;
+
+        this.deviceCount = 50;
+        this.messageDelay = 240;
+        this.replicationLength = 5000;
+        this.messageLoss = 0.0F;
+        this.speedMin = 0.25D;
+        this.speedMax = 2.0D;
+        this.txRadius = 100D;
+        this.rxRadius = 100D;
+        this.noopInterval = 1D;
+        this.noopSleep = 50L;
+        this.repaintHz = 30D;
 
         // create a mesh runner executor service
         runner = Executors.newSingleThreadScheduledExecutor();
@@ -67,7 +83,7 @@ public class HappeningDemo {
         getInstance().start();
     }
 
-    private NetworkGraph<Device, Connection> createGraph() {
+    NetworkGraph<Device, Connection> createGraph() {
         // create a custom graph with Vertex: Device and Edge: Connection
         MeshGraph graph = new MeshGraph();
 
@@ -75,7 +91,7 @@ public class HappeningDemo {
         MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<>(graph, repaintHz);
 
         // initialize devices and place them on the in the scene
-        int deviceIndex = 0;
+
         final double frameHeight = frame.getVisualizerPanel().getHeight();
         final double frameWidth = frame.getVisualizerPanel().getWidth();
         final int root = (int) Math.ceil(Math.sqrt(deviceCount));
@@ -86,6 +102,7 @@ public class HappeningDemo {
         final double horizontalPadding = (frameWidth - (horizontalStep * (root - 1))) / 2;
         final RectangularBoundary<Device, Connection> bound = new RectangularBoundary<>(0, 0, frameWidth, frameHeight);
 
+        int deviceIndex = 0;
         for (int i = 0; i < root; i++) {
             for (int j = 0; j < root; j++) {
                 if (deviceIndex < deviceCount) {
