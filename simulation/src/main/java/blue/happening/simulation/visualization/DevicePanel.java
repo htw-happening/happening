@@ -359,37 +359,37 @@ public class DevicePanel extends JPanel {
     }
 
     private void setOgmLog(Device device) {
-        DeviceLogTableModel deviceLogTableModel = new DeviceLogTableModel(device.getOgmLog().getLogs(), device);
-        ogmLogTable.setModel(deviceLogTableModel);
+        DeviceLogTableModel ogmLogTableModel = new DeviceLogTableModel(device.getOgmLog().getLogs(), device);
+        ogmLogTable.setModel(ogmLogTableModel);
         ogmLogTable.setVisible(true);
         ogmLogTable.updateUI();
     }
 
     private void updateOgmLog(LogItem log) {
-        DeviceLogTableModel deviceLogTableModel = (DeviceLogTableModel) ogmLogTable.getModel();
-        if (deviceLogTableModel.getLogs().contains(log)) {
-            deviceLogTableModel.getLogs().set(deviceLogTableModel.getLogs().indexOf(log), log);
+        DeviceLogTableModel ogmLogTableModel = (DeviceLogTableModel) ogmLogTable.getModel();
+        if (ogmLogTableModel.getLogs().contains(log)) {
+            ogmLogTableModel.getLogs().set(ogmLogTableModel.getLogs().indexOf(log), log);
         } else {
-            deviceLogTableModel.getLogs().add(log);
+            ogmLogTableModel.getLogs().add(log);
         }
-        deviceLogTableModel.fireTableDataChanged();
+        ogmLogTableModel.fireTableDataChanged();
     }
 
     private void setUcmLog(Device device) {
-        DeviceLogTableModel deviceLogTableModel = new DeviceLogTableModel(device.getUcmLog().getLogs(), device);
-        ucmLogTable.setModel(deviceLogTableModel);
+        DeviceLogTableModel ucmLogTableModel = new DeviceLogTableModel(device.getUcmLog().getLogs(), device);
+        ucmLogTable.setModel(ucmLogTableModel);
         ucmLogTable.setVisible(true);
         ucmLogTable.updateUI();
     }
 
     private void updateUcmLog(LogItem log) {
-        DeviceLogTableModel deviceLogTableModel = (DeviceLogTableModel) ucmLogTable.getModel();
-        if (deviceLogTableModel.getLogs().contains(log)) {
-            deviceLogTableModel.getLogs().set(deviceLogTableModel.getLogs().indexOf(log), log);
+        DeviceLogTableModel ucmLogTableModel = (DeviceLogTableModel) ucmLogTable.getModel();
+        if (ucmLogTableModel.getLogs().contains(log)) {
+            ucmLogTableModel.getLogs().set(ucmLogTableModel.getLogs().indexOf(log), log);
         } else {
-            deviceLogTableModel.getLogs().add(log);
+            ucmLogTableModel.getLogs().add(log);
         }
-        deviceLogTableModel.fireTableDataChanged();
+        ucmLogTableModel.fireTableDataChanged();
 
     }
 

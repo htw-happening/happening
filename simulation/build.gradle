@@ -8,3 +8,13 @@ dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.8.2'
     compile project(":mesh")
 }
+
+jar {
+    manifest {
+        attributes "Main-Class": "blue.happening.simulation.demo.HappeningDemo"
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
