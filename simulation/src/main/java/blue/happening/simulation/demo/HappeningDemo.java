@@ -75,7 +75,7 @@ public class HappeningDemo {
         MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<>(graph, repaintHz);
 
         // initialize devices and place them on the in the scene
-        int deviceIndex = 0;
+
         final double frameHeight = frame.getVisualizerPanel().getHeight();
         final double frameWidth = frame.getVisualizerPanel().getWidth();
         final int root = (int) Math.ceil(Math.sqrt(deviceCount));
@@ -86,6 +86,7 @@ public class HappeningDemo {
         final double horizontalPadding = (frameWidth - (horizontalStep * (root - 1))) / 2;
         final RectangularBoundary<Device, Connection> bound = new RectangularBoundary<>(0, 0, frameWidth, frameHeight);
 
+        int deviceIndex = 0;
         for (int i = 0; i < root; i++) {
             for (int j = 0; j < root; j++) {
                 if (deviceIndex < deviceCount) {
