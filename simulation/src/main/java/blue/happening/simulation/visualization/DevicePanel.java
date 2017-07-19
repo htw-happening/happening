@@ -420,25 +420,29 @@ public class DevicePanel extends JPanel {
 
     public void updateDevice(Device device, Device.DeviceChangedEvent event) {
         if (event != null) {
-            switch (event.getType()) {
-                case NEIGHBOUR_ADDED:
-                    addNeighbour((MeshDevice) event.getOptions());
-                    break;
-                case NEIGHBOUR_UPDATED:
-                    updateNeighbour((MeshDevice) event.getOptions());
-                    break;
-                case NEIGHBOUR_REMOVED:
-                    removeNeighbour((MeshDevice) event.getOptions());
-                    break;
-                case NETWORK_STATS_UPDATED:
-                    updateNetworkStats((StatsResult) event.getOptions());
-                    break;
-                case OGM_LOG_ITEM_ADDED:
-                    updateOgmLog((LogItem) event.getOptions());
-                    break;
-                case UCM_LOG_ITEM_ADDED:
-                    updateUcmLog((LogItem) event.getOptions());
-                    break;
+            try {
+                switch (event.getType()) {
+                    case NEIGHBOUR_ADDED:
+                        addNeighbour((MeshDevice) event.getOptions());
+                        break;
+                    case NEIGHBOUR_UPDATED:
+                        updateNeighbour((MeshDevice) event.getOptions());
+                        break;
+                    case NEIGHBOUR_REMOVED:
+                        removeNeighbour((MeshDevice) event.getOptions());
+                        break;
+                    case NETWORK_STATS_UPDATED:
+                        updateNetworkStats((StatsResult) event.getOptions());
+                        break;
+                    case OGM_LOG_ITEM_ADDED:
+                        updateOgmLog((LogItem) event.getOptions());
+                        break;
+                    case UCM_LOG_ITEM_ADDED:
+                        updateUcmLog((LogItem) event.getOptions());
+                        break;
+                }
+            } catch (ClassCastException e) {
+                e.printStackTrace();
             }
         } else {
             setDevice(device);
