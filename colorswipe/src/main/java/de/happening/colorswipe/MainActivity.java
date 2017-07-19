@@ -186,7 +186,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-//                TextView view = (TextView) findViewById(objectId);
                 TextView obj = createAnimationObject(packetType);
                 obj.setBackgroundColor(color);
 
@@ -215,12 +214,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         idCounter = idCounter + 1;
         obj.setId(idCounter);
-//        Log.d("REMOVE", "COUNTER " + idCounter);
 
         for (int i = 0; i < layout.getChildCount(); i++) {
             View current = layout.getChildAt(i);
             if (current.getId() < idCounter - 25) {
-//                Log.d("REMOVE", "VIEW " + current.getId() + " child count " + layout.getChildCount());
                 layout.removeViewAt(i);
             }
         }
