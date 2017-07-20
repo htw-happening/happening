@@ -41,20 +41,18 @@ class Router extends Observable {
     }
 
     private void slideWindows(Message message) throws RoutingException {
-        SlidingWindow window;
         if (isEchoOGM(message)) {
             RemoteDevice previous = routingTable.get(message.getPreviousHop());
-            if (previous == null)
+            if (previous == null) {
                 throw new RoutingException("slideWindows: Previous hop has left " + message.getPreviousHop());
-            window = previous.getEchoSlidingWindow();
+            }
+            previous.getEchoSlidingWindow().slideAndAddSequence(message.getSequence());
         } else {
             RemoteDevice source = routingTable.get(message.getSource());
-            if (source == null)
+            if (source == null) {
                 throw new RoutingException("slideWindows: Message source has left " + message.getSource());
-            window = source.getReceiveSlidingWindow();
-        }
-        if (window != null) {
-            window.slideSequence(message.getSequence());
+            }
+            source.getReceiveSlidingWindow().slideAndAddSequence(message.getSequence());
         }
     }
 

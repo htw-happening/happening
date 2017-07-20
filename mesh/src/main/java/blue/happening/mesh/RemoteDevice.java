@@ -51,7 +51,12 @@ public abstract class RemoteDevice implements IRemoteDevice {
     }
 
     public final float getTq() {
-        return Math.min(getEq() / getRq(), 1);
+        if (getEq() / getRq() > 1) {
+            System.out.println("Eq (" + getEq() + ") should not exceed Rq (" + getRq() + ")");
+            return 1f;
+        } else {
+            return getEq() / getRq();
+        }
     }
 
     MeshDevice getMeshDevice() {
