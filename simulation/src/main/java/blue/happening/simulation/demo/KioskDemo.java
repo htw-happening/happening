@@ -27,6 +27,11 @@ public class KioskDemo extends HappeningDemo {
 
         class MobilityFactory<V, E> {
             private List<MobilityPattern<V, E>> patterns = new ArrayList<>();
+            private boolean onRepeat;
+
+            public MobilityFactory(boolean onRepeat) {
+                this.onRepeat = onRepeat;
+            }
 
             private MobilityFactory<V, E> addWaypoints(String... waypoints) {
                 List<Waypoint<V, E>> waypointList = new ArrayList<>();
@@ -39,7 +44,7 @@ public class KioskDemo extends HappeningDemo {
                         waypointList.add(new DTWaypoint<V, E>(sxf, syf, travelTime));
                     }
                 }
-                patterns.add(new PredefinedMobilityPattern<>(true, waypointList));
+                patterns.add(new PredefinedMobilityPattern<>(onRepeat, waypointList));
                 return this;
             }
 
@@ -48,11 +53,12 @@ public class KioskDemo extends HappeningDemo {
             }
         }
 
-        List<MobilityPattern<Device, Connection>> patterns = new MobilityFactory<Device, Connection>()
-                .addWaypoints("0, 0, 0")
-                .addWaypoints("50, 0, 0", "10, 0, 30", "10, 0, 60", "50, 0, 30")
+        List<MobilityPattern<Device, Connection>> newNeighbour = new MobilityFactory<Device, Connection>(false)
+                .addWaypoints(" 0, 0, 0")
+                .addWaypoints("50, 0, 0", "10, 0, 30")
                 .getPatterns();
 
+        List<MobilityPattern<Device, Connection>> patterns = newNeighbour;
         for (int i = 0; i < patterns.size(); i++) {
             Device device = new Device("Device_" + i, getGraph(), postman, runner, messageDelay, messageLoss);
             MobilityPattern<Device, Connection> pattern = patterns.get(i);
