@@ -55,10 +55,17 @@ public class KioskDemo extends HappeningDemo {
 
         List<MobilityPattern<Device, Connection>> newNeighbour = new MobilityFactory<Device, Connection>(false)
                 .addWaypoints(" 0, 0, 0")
-                .addWaypoints("50, 0, 0", "10, 0, 30")
+                .addWaypoints("50, 0, 0", "20, 0, 30")
                 .getPatterns();
 
-        List<MobilityPattern<Device, Connection>> patterns = newNeighbour;
+
+        List<MobilityPattern<Device, Connection>> newRemote = new MobilityFactory<Device, Connection>(false)
+                .addWaypoints(" 0, 0, 0")
+                .addWaypoints("20, 0, 0")
+                .addWaypoints("80, 0, 0", "40, 0, 30")
+                .getPatterns();
+
+        List<MobilityPattern<Device, Connection>> patterns = newRemote;
         for (int i = 0; i < patterns.size(); i++) {
             Device device = new Device("Device_" + i, getGraph(), postman, runner, messageDelay, messageLoss);
             MobilityPattern<Device, Connection> pattern = patterns.get(i);
