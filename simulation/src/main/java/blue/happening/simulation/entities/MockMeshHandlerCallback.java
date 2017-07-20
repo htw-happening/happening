@@ -57,6 +57,7 @@ class MockMeshHandlerCallback implements IMeshHandlerCallback {
             case MeshHandler.MESSAGE_TYPE_OGM:
                 device.getOgmLog().push(logItem);
                 device.notifyDeviceObserver(DeviceObserver.Events.OGM_LOG_ITEM_ADDED, logItem);
+                break;
             case MeshHandler.MESSAGE_TYPE_UCM:
                 device.getUcmLog().push(logItem);
                 device.notifyDeviceObserver(DeviceObserver.Events.UCM_LOG_ITEM_ADDED, logItem);
