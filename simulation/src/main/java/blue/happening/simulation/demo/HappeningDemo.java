@@ -49,11 +49,11 @@ public abstract class HappeningDemo {
         MeshHandler.SLIDING_WINDOW_SIZE = 12;
         MeshHandler.DEVICE_EXPIRATION = 16;
         MeshHandler.INITIAL_MIN_SEQUENCE = 0;
-        MeshHandler.INITIAL_MAX_SEQUENCE = 1024;
+        MeshHandler.INITIAL_MAX_SEQUENCE = 16384;
 
         this.deviceCount = 50;
         this.messageDelay = 240;
-        this.replicationLength = 5000;
+        this.replicationLength = 2000;
         this.warmUpLength = 0;
         this.messageLoss = 0.0F;
         this.speedMin = 0.25D;
