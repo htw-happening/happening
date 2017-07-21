@@ -47,6 +47,10 @@ class MockMeshHandlerCallback implements IMeshHandlerCallback {
 
     @Override
     public void onMessageLogged(Message message, int status) {
+        //TODO check why UCM messages are added twice into UCM log
+        if(status == MeshHandler.MESSAGE_ACTION_RECEIVED && message.getType() == MeshHandler.MESSAGE_TYPE_UCM){
+            System.out.println(device.getName()+" received " + new String(message.getBody()));
+        }
         if (status == MeshHandler.MESSAGE_ACTION_ARRIVED ||
                 status == MeshHandler.MESSAGE_ACTION_FORWARDED ||
                 status == MeshHandler.MESSAGE_ACTION_SENT) {
@@ -57,6 +61,7 @@ class MockMeshHandlerCallback implements IMeshHandlerCallback {
             case MeshHandler.MESSAGE_TYPE_OGM:
                 device.getOgmLog().push(logItem);
                 device.notifyDeviceObserver(DeviceObserver.Events.OGM_LOG_ITEM_ADDED, logItem);
+                break;
             case MeshHandler.MESSAGE_TYPE_UCM:
                 device.getUcmLog().push(logItem);
                 device.notifyDeviceObserver(DeviceObserver.Events.UCM_LOG_ITEM_ADDED, logItem);

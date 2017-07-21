@@ -14,6 +14,8 @@ import blue.happening.simulation.entities.LogItem;
 public class DeviceLogTableModel extends AbstractTableModel {
     //Two arrays used for the table data
     private String[] columnNames = {"", "Source", "Previous Hop", "Destination", "#", "TTL", "TQ"};
+    private Class[] columnClasses = {String.class, String.class, String.class, String.class,
+            Integer.class, Integer.class, Integer.class};
 
     private List<LogItem> logs = new ArrayList<>();
     private Device device;
@@ -121,8 +123,8 @@ public class DeviceLogTableModel extends AbstractTableModel {
     //Used by the JTable object to render different
     //functionality based on the data type
     @Override
-    public Class getColumnClass(int c) {
-        return getValueAt(0, c).getClass();
+    public Class getColumnClass(int column) {
+        return columnClasses[column];
     }
 
     @Override

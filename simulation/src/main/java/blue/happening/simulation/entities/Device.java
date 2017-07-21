@@ -25,12 +25,16 @@ public class Device extends Observable {
     private LogQueue ucmLog;
     private LogQueue ogmLog;
 
-    public Device(String name, NetworkGraph<Device, Connection> networkGraph, ScheduledExecutorService postman, ScheduledExecutorService runner) {
+    public Device(String name, NetworkGraph<Device, Connection> networkGraph,
+                  ScheduledExecutorService postman, ScheduledExecutorService runner,
+                  int messageDelay, float messageLoss) {
         addObserver(new DeviceObserver(networkGraph));
         this.name = name;
         this.networkGraph = networkGraph;
         this.postman = postman;
+        this.messageDelay = messageDelay;
         mockLayer = new MockLayer();
+        mockLayer.setMessageLoss(messageLoss);
         meshHandler = new MeshHandler(this.name, runner);
         meshHandler.registerLayer(mockLayer);
         meshHandler.registerCallback(new MockMeshHandlerCallback(this));

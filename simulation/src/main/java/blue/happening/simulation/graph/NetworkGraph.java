@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import blue.happening.simulation.entities.Device;
 import blue.happening.simulation.graph.internal.AbstractSchedulingElementGraph;
 import blue.happening.simulation.graph.internal.Motion;
 import blue.happening.simulation.graph.internal.VertexProperties;
@@ -236,7 +235,7 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
 
     // UI gewurschtel
     private DevicePanel devicePanel = null;
-    private Device clickedDevice = null;
+    private V clickedDevice = null;
 
     /**
      * Constructs a new {@code NetworkGraph} with {@code parent} ModelElement
@@ -357,7 +356,6 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
         this.verticesProperties = new HashMap<V, VertexProperties<V, E>>();
         this.edgePool = edgePool;
         logger.debug("Graph instantiated.");
-
     }
 
     /**
@@ -405,6 +403,7 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
     protected void initialize() {
         removeAllEdges();
         addStartEdges();
+        this.clickedDevice = lastAddedVertex;
     }
 
     private void removeAllEdges() {
@@ -1037,11 +1036,11 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
         this.devicePanel = devicePanel;
     }
 
-    public Device getClickedDevice() {
+    public V getClickedDevice() {
         return clickedDevice;
     }
 
-    public void setClickedDevice(Device clickedDevice) {
+    public void setClickedDevice(V clickedDevice) {
         this.clickedDevice = clickedDevice;
     }
 }

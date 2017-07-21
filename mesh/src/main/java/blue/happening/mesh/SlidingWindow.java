@@ -7,10 +7,14 @@ class SlidingWindow extends HashSet<Integer> {
 
     private Integer sequence;
 
+    void slideAndAddSequence(int sequence) {
+        slideSequence(sequence);
+        add(sequence);
+    }
+
     void slideSequence(int sequence) {
         if (isSequenceOutOfWindow(sequence)) {
             this.sequence = sequence;
-            add(sequence);
         }
         removeOutedated();
     }

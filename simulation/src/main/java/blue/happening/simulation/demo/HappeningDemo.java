@@ -10,38 +10,37 @@ import blue.happening.simulation.entities.Connection;
 import blue.happening.simulation.entities.Device;
 import blue.happening.simulation.graph.NetworkGraph;
 import blue.happening.simulation.graph.internal.MeshGraph;
-import blue.happening.simulation.mobility.MobilityPattern;
-import blue.happening.simulation.mobility.RandomDSMobilityPattern;
-import blue.happening.simulation.mobility.RectangularBoundary;
 import blue.happening.simulation.visualization.MeshVisualizerFrame;
 import blue.happening.simulation.visualization.NOOPAction;
 import jsl.modeling.IterativeProcess;
 import jsl.modeling.Replication;
 
 
-public class HappeningDemo {
+@SuppressWarnings("WeakerAccess")
+public abstract class HappeningDemo {
 
-    // configuration
     int deviceCount;
     int messageDelay;
     int replicationLength;
+    int warmUpLength;
     float messageLoss;
     double speedMin;
     double speedMax;
     double txRadius;
     double rxRadius;
+    double minRadius;
     double noopInterval;
     long noopSleep;
     double repaintHz;
 
     final ScheduledExecutorService runner;
     final ScheduledExecutorService postman;
-    private NetworkGraph<Device, Connection> graph;
+    private static NetworkGraph<Device, Connection> graph;
     private Replication replication;
+    private MeshVisualizerFrame<Device, Connection> frame;
 
-    private static HappeningDemo instance;
-    private boolean reset;
-    private boolean pause;
+    private static boolean reset;
+    private static boolean pause;
 
 
     HappeningDemo() {
@@ -54,11 +53,12 @@ public class HappeningDemo {
         MeshHandler.SLIDING_WINDOW_SIZE = 12;
         MeshHandler.DEVICE_EXPIRATION = 16;
         MeshHandler.INITIAL_MIN_SEQUENCE = 0;
-        MeshHandler.INITIAL_MAX_SEQUENCE = 1024;
+        MeshHandler.INITIAL_MAX_SEQUENCE = 16384;
 
         this.deviceCount = 10;
         this.messageDelay = 240;
-        this.replicationLength = Integer.MAX_VALUE;
+        this.replicationLength = 2000;
+        this.warmUpLength = 0;
         this.messageLoss = 0.0F;
         this.speedMin = 0.25D;
         this.speedMax = 2.0D;
@@ -68,77 +68,28 @@ public class HappeningDemo {
         this.noopSleep = 50L;
         this.repaintHz = 30D;
 
-        this.pause = false;
+        pause = false;
 
-        // create a mesh runner executor service
+        minRadius = Math.min(txRadius, rxRadius);
         runner = Executors.newSingleThreadScheduledExecutor();
-
-        // create message delivery executor service
         postman = Executors.newSingleThreadScheduledExecutor();
     }
 
-    public static HappeningDemo getInstance() {
-        if (instance == null) {
-            instance = new HappeningDemo();
-        }
-        return instance;
-    }
+    abstract void populateGraph();
 
-    public static void main(String[] args) throws InterruptedException {
-        getInstance().start();
-    }
-
-    NetworkGraph<Device, Connection> createGraph() {
-        // create a custom graph with Vertex: Device and Edge: Connection
-        MeshGraph graph = new MeshGraph();
-
-        // enable visualization frame and panel
-        MeshVisualizerFrame<Device, Connection> frame = new MeshVisualizerFrame<>(graph, repaintHz);
-
-        // initialize devices and place them on the in the scene
-
-        final double frameHeight = frame.getVisualizerPanel().getHeight();
-        final double frameWidth = frame.getVisualizerPanel().getWidth();
-        final int root = (int) Math.ceil(Math.sqrt(deviceCount));
-        final double radius = Math.min(txRadius, rxRadius);
-        final double verticalStep = Math.min(radius, frameHeight / (root + 1));
-        final double horizontalStep = Math.min(radius, frameWidth / (root + 1));
-        final double verticalPadding = (frameHeight - (verticalStep * (root - 1))) / 2;
-        final double horizontalPadding = (frameWidth - (horizontalStep * (root - 1))) / 2;
-        final RectangularBoundary<Device, Connection> bound = new RectangularBoundary<>(0, 0, frameWidth, frameHeight);
-
-        int deviceIndex = 0;
-        for (int i = 0; i < root; i++) {
-            for (int j = 0; j < root; j++) {
-                if (deviceIndex < deviceCount) {
-                    Device device = new Device("Device_" + deviceIndex, graph, postman, runner);
-                    device.setMessageDelay(messageDelay);
-                    device.setMessageLoss(messageLoss);
-                    double sx = horizontalPadding + (i * horizontalStep);
-                    double sy = verticalPadding + (j * verticalStep);
-                    MobilityPattern<Device, Connection> pattern = new RandomDSMobilityPattern<>(bound, speedMin, speedMax);
-                    graph.addVertex(device, sx, sy, pattern, txRadius, rxRadius);
-                    deviceIndex++;
-                }
-            }
-        }
-
-        // introduce noop events to slow down simulation
-        new NOOPAction(graph, noopInterval, noopSleep);
-
-        return graph;
-    }
-
-    private Replication createReplication(final NetworkGraph<Device, Connection> graph) {
-        Replication replication = new Replication(graph.getModel());
+    private void createReplication() {
+        replication = new Replication(graph.getModel());
         replication.setLengthOfReplication(replicationLength);
+        replication.setLengthOfWarmUp(warmUpLength);
         replication.addObserver(new Observer() {
             @Override
             public void update(Observable observable, Object object) {
                 IterativeProcess ip = (IterativeProcess) observable;
                 if (ip.isRunning() && pause) {
                     while (pause) {
-                        System.out.println("pause");
+                        getPostman().shutdownNow();
+                        getRunner().shutdownNow();
+                        // TODO: 21.07.17 Start again after pause loop 
                     }
                 }
                 if (ip.isRunning() && reset) {
@@ -147,26 +98,28 @@ public class HappeningDemo {
                     ip.initialize();
                 }
                 if (ip.isEnded()) {
-                    getInstance().getPostman().shutdownNow();
-                    getInstance().getRunner().shutdownNow();
+                    getPostman().shutdownNow();
+                    getRunner().shutdownNow();
                 }
             }
         });
-        return replication;
     }
 
-    private void start() {
-        graph = createGraph();
-        replication = createReplication(graph);
+    public void start() {
+        graph = new MeshGraph();
+        frame = new MeshVisualizerFrame<>(graph, repaintHz);
+        new NOOPAction(graph, noopInterval, noopSleep);
+        populateGraph();
+        createReplication();
         replication.runAll();
     }
 
-    public void reset() {
+    public static void reset() {
         pause = false;
         reset = true;
     }
 
-    public void pause() {
+    public static void pause() {
         pause = !pause;
     }
 
@@ -178,8 +131,12 @@ public class HappeningDemo {
         return postman;
     }
 
-    public NetworkGraph<Device, Connection> getGraph() {
+    public static NetworkGraph<Device, Connection> getGraph() {
         return graph;
+    }
+
+    public MeshVisualizerFrame<Device, Connection> getFrame() {
+        return frame;
     }
 
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#5E2B97</color>
-    <color name="colorPrimaryDark">#522A85</color>
+    <color name="colorPrimary">#007999</color>
+    <color name="colorPrimaryDark">#006087</color>
     <color name="colorAccent">#E8C83C</color>
 
     <color name="mobile_white">#F8F9FA</color>

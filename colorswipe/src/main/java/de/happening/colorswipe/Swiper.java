@@ -61,9 +61,7 @@ public class Swiper {
                         }
                         break;
                     case MESSAGE_TYPE_UCM:
-
-                        MainActivity.getInstance().startAnimation(Direction.RIGHT, 0xFF000000, Packet.OGM_OBJECT);
-
+                        MainActivity.getInstance().startAnimation(Direction.RIGHT, 0xFF444444, Packet.OGM_OBJECT);
                         break;
 
                     default:

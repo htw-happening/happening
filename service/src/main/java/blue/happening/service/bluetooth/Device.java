@@ -12,7 +12,7 @@ import blue.happening.mesh.RemoteDevice;
 
 public class Device extends RemoteDevice {
 
-    private static final int[] DELAYS = {0, 1, 2, 3, 5, 10, 15, 30, 60, 90};
+    private static final int[] DELAYS = {0, 1, 2, 3, 5, 10, 15, 25, 35, 60};
     public Connection connection;
     private String TAG = getClass().getSimpleName();
     private boolean d = true;

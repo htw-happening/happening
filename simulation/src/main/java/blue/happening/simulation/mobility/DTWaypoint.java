@@ -36,14 +36,13 @@ import blue.happening.simulation.graph.internal.Motion;
  * @param <E> the type of edge
  * @author Semyon Fishman (sf69@drexel.edu)
  */
-public final class DTWaypoint<V, E> implements Waypoint<V, E> {
+public class DTWaypoint<V, E> implements Waypoint<V, E> {
 
     private final double sxf;
     private final double syf;
     private final double travelTime;
 
-    public DTWaypoint(final double sxf, final double syf,
-                      final double travelTime) {
+    public DTWaypoint(final double sxf, final double syf, final double travelTime) {
         this.sxf = sxf;
         this.syf = syf;
         this.travelTime = travelTime;
@@ -66,4 +65,11 @@ public final class DTWaypoint<V, E> implements Waypoint<V, E> {
         return travelTime;
     }
 
+    public double getSxf() {
+        return sxf;
+    }
+
+    public double getSyf() {
+        return syf;
+    }
 }
