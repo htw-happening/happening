@@ -60,11 +60,11 @@ public class TimeTextPaintable<V, E> implements Paintable {
         int minutes = time / (60 * 1000);
         int seconds = (time / 1000) % 60;
 
-        String modelTime = new DecimalFormat("#.00").format(ModelElement.getTime());
+        String modelTime = new DecimalFormat("#").format(ModelElement.getTime());
 
         String realTime = String.format(Locale.ENGLISH, "%d:%02d", minutes, seconds);
 
-        String str = modelTime + "@" + realTime;
+        String str = realTime + " (" + modelTime + ")";
         int sWidth = metrics.stringWidth(str);
         int sHeight = metrics.getMaxAscent() + metrics.getMaxDescent();
         int x = (d.width - sWidth) / 2;

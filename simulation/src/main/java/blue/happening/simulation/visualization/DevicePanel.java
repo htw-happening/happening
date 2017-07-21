@@ -50,6 +50,7 @@ public class DevicePanel extends JPanel {
     private JTable ucmLogTable;
     private JButton sendButton;
     private JButton resetButton;
+    private JButton pauseButton;
     private JPanel logTablePanel;
     private JButton disableButton;
     private JSlider packageDropSlider;
@@ -80,6 +81,7 @@ public class DevicePanel extends JPanel {
         disableButton = new JButton("Disable Device");
         sendButton = new JButton("Send Message");
         resetButton = new JButton("Reset Demo");
+        pauseButton = new JButton("Pause Demo");
         sendButton = new JButton("Send message");
         sendButton.setEnabled(false);
 
@@ -96,6 +98,7 @@ public class DevicePanel extends JPanel {
         sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.Y_AXIS));
         sliderPanel.setOpaque(false);
         sliderPanel.add(resetButton);
+        sliderPanel.add(pauseButton);
 
         devicePanel = new JPanel();
         devicePanel.setLayout(new BoxLayout(devicePanel, BoxLayout.Y_AXIS));
@@ -273,6 +276,12 @@ public class DevicePanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 demo.reset();
+            }
+        });
+        pauseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                demo.pause();
             }
         });
     }

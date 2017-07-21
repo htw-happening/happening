@@ -40,6 +40,9 @@ public class HappeningDemo {
     private Replication replication;
 
     private static HappeningDemo instance;
+    private boolean reset;
+    private boolean pause;
+
 
     HappeningDemo() {
         MeshHandler.INITIAL_MESSAGE_TQ = 255;
@@ -53,9 +56,9 @@ public class HappeningDemo {
         MeshHandler.INITIAL_MIN_SEQUENCE = 0;
         MeshHandler.INITIAL_MAX_SEQUENCE = 1024;
 
-        this.deviceCount = 50;
+        this.deviceCount = 10;
         this.messageDelay = 240;
-        this.replicationLength = 5000;
+        this.replicationLength = Integer.MAX_VALUE;
         this.messageLoss = 0.0F;
         this.speedMin = 0.25D;
         this.speedMax = 2.0D;
@@ -64,6 +67,8 @@ public class HappeningDemo {
         this.noopInterval = 1D;
         this.noopSleep = 50L;
         this.repaintHz = 30D;
+
+        this.pause = false;
 
         // create a mesh runner executor service
         runner = Executors.newSingleThreadScheduledExecutor();
@@ -124,16 +129,26 @@ public class HappeningDemo {
         return graph;
     }
 
-    private Replication createReplication(NetworkGraph<Device, Connection> graph) {
+    private Replication createReplication(final NetworkGraph<Device, Connection> graph) {
         Replication replication = new Replication(graph.getModel());
         replication.setLengthOfReplication(replicationLength);
         replication.addObserver(new Observer() {
             @Override
             public void update(Observable observable, Object object) {
                 IterativeProcess ip = (IterativeProcess) observable;
+                if (ip.isRunning() && pause) {
+                    while (pause) {
+                        System.out.println("pause");
+                    }
+                }
+                if (ip.isRunning() && reset) {
+                    reset = false;
+                    ip.end();
+                    ip.initialize();
+                }
                 if (ip.isEnded()) {
-                    getInstance().getPostman().shutdown();
-                    getInstance().getRunner().shutdown();
+                    getInstance().getPostman().shutdownNow();
+                    getInstance().getRunner().shutdownNow();
                 }
             }
         });
@@ -147,7 +162,12 @@ public class HappeningDemo {
     }
 
     public void reset() {
-        System.out.println("ended: " + replication.isEnded());
+        pause = false;
+        reset = true;
+    }
+
+    public void pause() {
+        pause = !pause;
     }
 
     private ScheduledExecutorService getRunner() {
@@ -162,7 +182,4 @@ public class HappeningDemo {
         return graph;
     }
 
-    public Replication getReplication() {
-        return replication;
-    }
 }
