@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.UUID;
 
 
 public class Message implements Serializable {
@@ -20,6 +21,7 @@ public class Message implements Serializable {
     private int type;
     private int sequence;
     private int ttl;
+    private transient UUID uuid;
 
     public Message(String source, String destination, int sequence, int type,
                    byte[] body) {
@@ -37,12 +39,15 @@ public class Message implements Serializable {
         this.tq = tq;
         this.ttl = ttl;
         this.body = body;
+        this.uuid = UUID.randomUUID();
     }
 
     public static Message fromBytes(byte[] bytes) {
         try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
              ObjectInput in = new ObjectInputStream(bis)) {
-            return (Message) in.readObject();
+            Message message = (Message) in.readObject();
+            message.setUuid(UUID.randomUUID());
+            return message;
         } catch (IOException | ClassNotFoundException e) {
             return null;
         }
@@ -90,6 +95,14 @@ public class Message implements Serializable {
 
     void setTtl(int ttl) {
         this.ttl = ttl;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    void setUuid(UUID uuid) {
+        this.uuid = uuid;
     }
 
     public byte[] toBytes() {

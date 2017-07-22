@@ -190,6 +190,7 @@ class Router extends Observable {
         }
         preparedMessage.setTtl(message.getTtl() - 1);
         preparedMessage.setPreviousHop(uuid);
+        preparedMessage.setUuid(message.getUuid());
         return preparedMessage;
     }
 

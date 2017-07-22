@@ -43,18 +43,11 @@ class MockMeshHandlerCallback implements IMeshHandlerCallback {
         device.notifyDeviceObserver(DeviceObserver.Events.NETWORK_STATS_UPDATED, networkStats);
     }
 
-    private UUID messageId;
-
     @Override
     public void onMessageLogged(Message message, int status) {
         //TODO check why UCM messages are added twice into UCM log
         if (status == MeshHandler.MESSAGE_ACTION_RECEIVED && message.getType() == MeshHandler.MESSAGE_TYPE_UCM) {
             System.out.println(device.getName() + " received " + new String(message.getBody()));
-        }
-        if (status == MeshHandler.MESSAGE_ACTION_ARRIVED ||
-                status == MeshHandler.MESSAGE_ACTION_FORWARDED ||
-                status == MeshHandler.MESSAGE_ACTION_SENT) {
-            messageId = UUID.randomUUID();
         }
 
         LogItem logItem;
@@ -65,11 +58,11 @@ class MockMeshHandlerCallback implements IMeshHandlerCallback {
             logQueue = device.getUcmLog();
         }
 
-        if (status == MeshHandler.MESSAGE_ACTION_DROPPED && logQueue.containsKey(messageId)) {
-            logItem = logQueue.get(messageId);
+        if (logQueue.containsKey(message.getUuid())) {
+            logItem = logQueue.get(message.getUuid());
             logItem.setStatus(status);
         } else {
-            logItem = new LogItem(message, status, messageId);
+            logItem = new LogItem(message, status, message.getUuid());
         }
 
         switch (message.getType()) {
