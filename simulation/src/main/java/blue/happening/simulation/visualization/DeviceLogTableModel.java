@@ -64,11 +64,12 @@ public class DeviceLogTableModel extends AbstractTableModel {
         if (logItem == null) {
             return null;
         }
+        Message message = logItem.getMessage();
         switch (column) {
             case 0:
                 switch (logItem.getStatus()) {
                     case MeshHandler.MESSAGE_ACTION_DROPPED:
-                        List<String> dropReasons = getDropReasons(logItem.getMessage());
+                        List<String> dropReasons = getDropReasons(message);
                         String reasons = "";
                         Iterator<String> i = dropReasons.iterator();
                         while (i.hasNext()) {
@@ -79,7 +80,8 @@ public class DeviceLogTableModel extends AbstractTableModel {
                         }
                         return "DROP" + (dropReasons.size() == 0 ? "" : " (" + reasons + ")");
                     case MeshHandler.MESSAGE_ACTION_FORWARDED:
-                        if (logItem.getMessage().getPreviousHop().equals(logItem.getMessage().getSource())) {
+                        if (message.getType() == MeshHandler.MESSAGE_TYPE_OGM &&
+                                message.getPreviousHop().equals(message.getSource())) {
                             return "ECHO";
                         } else {
                             return "FORWARD";
@@ -94,17 +96,17 @@ public class DeviceLogTableModel extends AbstractTableModel {
                         return "";
                 }
             case 1:
-                return logItem.getMessage().getSource();
+                return message.getSource();
             case 2:
-                return logItem.getMessage().getPreviousHop();
+                return message.getPreviousHop();
             case 3:
-                return logItem.getMessage().getDestination();
+                return message.getDestination();
             case 4:
-                return logItem.getMessage().getSequence();
+                return message.getSequence();
             case 5:
-                return logItem.getMessage().getTtl();
+                return message.getTtl();
             case 6:
-                return logItem.getMessage().getTq();
+                return message.getTq();
             default:
                 System.out.println("NOPE");
                 return null;
