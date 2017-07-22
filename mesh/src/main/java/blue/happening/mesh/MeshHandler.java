@@ -156,20 +156,22 @@ public class MeshHandler {
         @Override
         public void update(Observable observable, Object o) {
             Router.Event event = (Router.Event) o;
+            Message message = (Message) event.getOptions();
+            boolean sent = message.getSource().equals(uuid);
             switch (event.getType()) {
                 case Router.OGM_SENT:
                     ogmStats.addOutGoingMessage((Message) event.getOptions());
-                    meshHandlerCallback.onMessageLogged((Message) event.getOptions(), MESSAGE_ACTION_SENT);
+                    meshHandlerCallback.onMessageLogged(message, sent ? MESSAGE_ACTION_SENT : MESSAGE_ACTION_FORWARDED);
                     break;
                 case Router.UCM_SENT:
-                    ucmStats.addOutGoingMessage((Message) event.getOptions());
-                    meshHandlerCallback.onMessageLogged((Message) event.getOptions(), MESSAGE_ACTION_FORWARDED);
+                    ucmStats.addOutGoingMessage(message);
+                    meshHandlerCallback.onMessageLogged(message, sent ? MESSAGE_ACTION_SENT : MESSAGE_ACTION_FORWARDED);
                     break;
                 case Router.OGM_DROPPED:
-                    meshHandlerCallback.onMessageLogged((Message) event.getOptions(), MESSAGE_ACTION_DROPPED);
+                    meshHandlerCallback.onMessageLogged(message, MESSAGE_ACTION_DROPPED);
                     break;
                 case Router.UCM_DROPPED:
-                    meshHandlerCallback.onMessageLogged((Message) event.getOptions(), MESSAGE_ACTION_DROPPED);
+                    meshHandlerCallback.onMessageLogged(message, MESSAGE_ACTION_DROPPED);
                     break;
 
             }
