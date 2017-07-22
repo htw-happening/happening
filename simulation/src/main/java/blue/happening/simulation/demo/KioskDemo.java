@@ -1,8 +1,9 @@
 package blue.happening.simulation.demo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
 
@@ -53,36 +54,66 @@ public class KioskDemo extends HappeningDemo {
         }
 
         MobilityFactory<Device, Connection> factory = new MobilityFactory<>();
-        HashMap<String, List<MobilityPattern<Device, Connection>>> patterns = new HashMap<>();
+        Map<String, List<MobilityPattern<Device, Connection>>> patterns = new TreeMap<>();
 
-        patterns.put("newNeighbour", factory
+        patterns.put("1a new neighbour", factory
                 .addWaypoints(" 0, 0, 0")
                 .addWaypoints("50, 0, 0", "50, 0, 10", "20, 0, 20")
                 .getPatterns());
 
-        patterns.put("newMultihop", factory
+        patterns.put("2a new multihop", factory
                 .addWaypoints("10, 0, 0")
                 .addWaypoints("30, 0, 0")
-                .addWaypoints("90, 0, 0", "90, 0, 10", "50, 0, 20")
+                .addWaypoints("70, 0, 0", "70, 0, 10", "50, 0, 20")
                 .getPatterns());
 
-        patterns.put("alsoNeighbour", factory
+        patterns.put("3a also neighbour", factory
                 .addWaypoints("35,  5, 0")
                 .addWaypoints("50, 10, 0")
-                .addWaypoints("75, 10, 0", "75, 10, 10", "50, 0, 5")
+                .addWaypoints("70, 10, 0", "70, 10, 10", "50, 0, 5")
                 .getPatterns());
 
-        patterns.put("alsoMultihop", factory
+        patterns.put("4a also multihop", factory
                 .addWaypoints(" 0, 10, 0")
                 .addWaypoints("10,  0, 0", "10,  0, 10", "15,  5, 10")
                 .addWaypoints("10, 20, 0", "10, 20, 10", "15, 15, 10")
                 .getPatterns());
 
-        patterns.put("newRoute", factory
+        patterns.put("5a new route", factory
                 .addWaypoints(" 0, 10, 0")
                 .addWaypoints("15,  2, 0")
                 .addWaypoints("15, 18, 0")
                 .addWaypoints("35, 18, 0", "35, 18, 10", "30, 10, 10")
+                .getPatterns());
+
+        patterns.put("1b neighbour lost", factory
+                .addWaypoints(" 0, 0, 0")
+                .addWaypoints("20, 0, 0", "20, 0, 10", "50, 0, 10", "20, 0, 10")
+                .getPatterns());
+
+        patterns.put("2b lost multihop", factory
+                .addWaypoints("10, 0, 0")
+                .addWaypoints("30, 0, 0")
+                .addWaypoints("50, 0, 0", "50, 0, 10", "70, 0, 20", "50, 0, 10")
+                .getPatterns());
+
+        patterns.put("3b only multihop", factory
+                .addWaypoints("35,  5, 0")
+                .addWaypoints("50, 10, 0")
+                .addWaypoints("50,  0, 0", "50, 0, 10", "70, 10, 5", "70, 10, 10", "50, 0, 10")
+                .getPatterns());
+
+        patterns.put("4b only neighbour", factory
+                .addWaypoints(" 0, 10, 0")
+                .addWaypoints("15,  5, 0", "15,  5, 10", "10,  0, 10", "10,  0, 20", "15,  5, 10")
+                .addWaypoints("15, 15, 0", "15, 15, 10", "10, 20, 10", "10, 20, 20", "15, 15, 10")
+                .getPatterns());
+
+        patterns.put("5b lost route", factory
+                .addWaypoints(" 0, 10, 0")
+                .addWaypoints("15,  2, 0")
+                .addWaypoints("15, 18, 0")
+                .addWaypoints("30, 10, 0", "30, 10, 20", "35, 18, 10", "35, 18, 15", "30, 10, 10")
                 .getPatterns());
 
         String[] choices = patterns.keySet().toArray(new String[patterns.size()]);
