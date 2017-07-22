@@ -4,6 +4,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import blue.happening.mesh.MeshHandler;
 import blue.happening.simulation.entities.Connection;
@@ -73,6 +74,19 @@ public abstract class HappeningDemo {
         minRadius = Math.min(txRadius, rxRadius);
         runner = Executors.newSingleThreadScheduledExecutor();
         postman = Executors.newSingleThreadScheduledExecutor();
+
+        runner.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                while (pause) {
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }, 0, 50, TimeUnit.MILLISECONDS);
     }
 
     abstract void populateGraph();
@@ -86,10 +100,13 @@ public abstract class HappeningDemo {
             public void update(Observable observable, Object object) {
                 IterativeProcess ip = (IterativeProcess) observable;
                 if (ip.isRunning() && pause) {
+                    // TODO: prevent runner scheduling explosion after resume (ND)
                     while (pause) {
-                        getPostman().shutdownNow();
-                        getRunner().shutdownNow();
-                        // TODO: 21.07.17 Start again after pause loop 
+                        try {
+                            Thread.sleep(50);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
                 if (ip.isRunning() && reset) {
