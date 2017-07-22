@@ -159,7 +159,7 @@ public class MeshHandler {
             switch (event.getType()) {
                 case Router.OGM_SENT:
                     ogmStats.addOutGoingMessage((Message) event.getOptions());
-                    meshHandlerCallback.onMessageLogged((Message) event.getOptions(), MESSAGE_ACTION_FORWARDED);
+                    meshHandlerCallback.onMessageLogged((Message) event.getOptions(), MESSAGE_ACTION_SENT);
                     break;
                 case Router.UCM_SENT:
                     ucmStats.addOutGoingMessage((Message) event.getOptions());
