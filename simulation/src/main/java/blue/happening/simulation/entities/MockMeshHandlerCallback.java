@@ -48,22 +48,37 @@ class MockMeshHandlerCallback implements IMeshHandlerCallback {
     @Override
     public void onMessageLogged(Message message, int status) {
         //TODO check why UCM messages are added twice into UCM log
-        if(status == MeshHandler.MESSAGE_ACTION_RECEIVED && message.getType() == MeshHandler.MESSAGE_TYPE_UCM){
-            System.out.println(device.getName()+" received " + new String(message.getBody()));
+        if (status == MeshHandler.MESSAGE_ACTION_RECEIVED && message.getType() == MeshHandler.MESSAGE_TYPE_UCM) {
+            System.out.println(device.getName() + " received " + new String(message.getBody()));
         }
         if (status == MeshHandler.MESSAGE_ACTION_ARRIVED ||
                 status == MeshHandler.MESSAGE_ACTION_FORWARDED ||
                 status == MeshHandler.MESSAGE_ACTION_SENT) {
             messageId = UUID.randomUUID();
         }
-        LogItem logItem = new LogItem(message, status, messageId);
+
+        LogItem logItem;
+        LogQueue logQueue;
+        if (message.getType() == MeshHandler.MESSAGE_TYPE_OGM) {
+            logQueue = device.getOgmLog();
+        } else {
+            logQueue = device.getUcmLog();
+        }
+
+        if (status == MeshHandler.MESSAGE_ACTION_DROPPED && logQueue.containsKey(messageId)) {
+            logItem = logQueue.get(messageId);
+            logItem.setStatus(status);
+        } else {
+            logItem = new LogItem(message, status, messageId);
+        }
+
         switch (message.getType()) {
             case MeshHandler.MESSAGE_TYPE_OGM:
-                device.getOgmLog().push(logItem);
+                device.getOgmLog().put(logItem);
                 device.notifyDeviceObserver(DeviceObserver.Events.OGM_LOG_ITEM_ADDED, logItem);
                 break;
             case MeshHandler.MESSAGE_TYPE_UCM:
-                device.getUcmLog().push(logItem);
+                device.getUcmLog().put(logItem);
                 device.notifyDeviceObserver(DeviceObserver.Events.UCM_LOG_ITEM_ADDED, logItem);
                 break;
         }

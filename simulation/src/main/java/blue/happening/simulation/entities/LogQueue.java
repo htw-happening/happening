@@ -1,27 +1,29 @@
 package blue.happening.simulation.entities;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 
-public class LogQueue {
+public class LogQueue extends HashMap<UUID, LogItem> {
     private int capacity;
 
-    private List<LogItem> logs;
-
-    public LogQueue(int capacity) {
+    LogQueue(int capacity) {
         this.capacity = capacity;
-        logs = new ArrayList<>();
     }
 
     public List<LogItem> getLogs() {
-        return logs;
+        List<LogItem> values = new ArrayList<>(values());
+        Collections.sort(values);
+        return values;
     }
 
-    public boolean push(LogItem item) {
-        if (this.logs.size() > capacity - 1) {
-            logs.remove(logs.get(0));
+    public LogItem put(LogItem item) {
+        if (size() > capacity - 1) {
+            remove(get(0));
         }
-        return logs.add(item);
+        return super.put(item.getId(), item);
     }
 }

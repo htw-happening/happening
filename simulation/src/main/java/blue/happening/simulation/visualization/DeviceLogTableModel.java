@@ -48,10 +48,7 @@ public class DeviceLogTableModel extends AbstractTableModel {
             reasons.add("TTL");
         }
         if (message.getSource().equals(device.getName())) {
-            reasons.add("<->");
-        }
-        if (reasons.size() == 0) {
-            reasons.add("#");
+            reasons.add("ECHO");
         }
         return reasons;
     }
@@ -80,19 +77,19 @@ public class DeviceLogTableModel extends AbstractTableModel {
                                 reasons += ", ";
                             }
                         }
-                        return "x (" + reasons + ")";
+                        return "DROP" + (dropReasons.size() == 0 ? "" : " (" + reasons + ")");
                     case MeshHandler.MESSAGE_ACTION_FORWARDED:
                         if (logItem.getMessage().getPreviousHop().equals(logItem.getMessage().getSource())) {
-                            return "->";
+                            return "ECHO";
                         } else {
-                            return "-->";
+                            return "FORWARD";
                         }
                     case MeshHandler.MESSAGE_ACTION_ARRIVED:
-                        return "<-";
+                        return "ARRIVE";
                     case MeshHandler.MESSAGE_ACTION_RECEIVED:
-                        return "<-";
+                        return "RECEIVE";
                     case MeshHandler.MESSAGE_ACTION_SENT:
-                        return "->";
+                        return "SEND";
                     default:
                         return "";
                 }
