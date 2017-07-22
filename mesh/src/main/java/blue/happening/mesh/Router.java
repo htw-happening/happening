@@ -71,15 +71,10 @@ class Router extends Observable {
 
     void dispatchOgm() throws RoutingException {
         Message message = new Message(uuid, MeshHandler.BROADCAST_ADDRESS, sequence, MeshHandler.MESSAGE_TYPE_OGM, null);
-        boolean ogmSent = false;
         for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
             remoteDevice.sendMessage(message);
             remoteDevice.getEchoSlidingWindow().slideSequence(sequence);
-            ogmSent = true;
             trigger(OGM_SENT, message);
-        }
-        if (!ogmSent) {
-            trigger(OGM_DROPPED, message);
         }
         sequence++;
     }
@@ -210,17 +205,12 @@ class Router extends Observable {
 
     private void broadcastOGM(Message message) throws RoutingException {
         Message preparedMessage = prepareMessage(message);
-        boolean ogmSent = false;
         for (RemoteDevice remoteDevice : routingTable.getNeighbours()) {
             if (shouldOGMBeEchoedTo(message, remoteDevice.getUuid()) ||
                     shouldOGMBeBroadcastTo(message, remoteDevice.getUuid())) {
                 remoteDevice.sendMessage(preparedMessage);
                 trigger(OGM_SENT, preparedMessage);
-                ogmSent = true;
             }
-        }
-        if (!ogmSent) {
-            trigger(OGM_DROPPED, preparedMessage);
         }
     }
 
