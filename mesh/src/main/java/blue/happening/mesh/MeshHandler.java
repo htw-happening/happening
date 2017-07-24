@@ -21,7 +21,7 @@ public class MeshHandler {
     public static int NETWORK_STAT_INTERVAL = 1;
     public static int SLIDING_WINDOW_SIZE = 12;
     public static int DEVICE_EXPIRATION = 200;
-    public static int INITIAL_MIN_SEQUENCE = Integer.MIN_VALUE;
+    public static int INITIAL_MIN_SEQUENCE = 0;
     public static int INITIAL_MAX_SEQUENCE = Integer.MAX_VALUE;
 
     public static final int MESSAGE_ACTION_ARRIVED = 0;
