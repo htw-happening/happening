@@ -1,6 +1,10 @@
 package de.happening.colorswipe;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -64,6 +68,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         textView = (TextView) findViewById(R.id.textView);
         textView.setBackgroundColor(Swiper.getInstance().getMyColor());
         gDetector = new GestureDetector(this);
+
+        Context context = getApplicationContext();
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+
+        if (bluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+            Log.d(TAG, "start: NOT SCAN_MODE_CONNECTABLE_DISCOVERABLE --> Switch on Discoverable!");
+            Intent makeMeVisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+            makeMeVisible.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            makeMeVisible.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0); //infinity
+            context.startActivity(makeMeVisible);
+        }
 
     }
 
