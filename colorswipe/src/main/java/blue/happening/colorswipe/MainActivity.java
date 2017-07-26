@@ -80,6 +80,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
+    @Override
+    protected void onDestroy() {
+        Swiper.getInstance().getHappening().deregister();
+        super.onDestroy();
+    }
+
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         Swiper.getInstance().setMyIndex(pos + 1);
 
