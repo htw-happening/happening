@@ -1,4 +1,4 @@
-package de.happening.colorswipe;
+package blue.happening.colorswipe;
 
 
 import android.util.Log;
