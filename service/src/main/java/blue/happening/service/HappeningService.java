@@ -3,6 +3,7 @@ package blue.happening.service;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.Process;
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
@@ -93,8 +94,7 @@ public class HappeningService extends Service {
         @Override
         public void restartService() throws RemoteException {
             Log.v(TAG, "restartService");
-            stopService();
-            startService();
+            android.os.Process.killProcess(Process.myPid());
         }
 
         @Override
