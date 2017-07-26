@@ -73,12 +73,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
 
-        if (bluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-            Log.d(TAG, "start: NOT SCAN_MODE_CONNECTABLE_DISCOVERABLE --> Switch on Discoverable!");
-            Intent makeMeVisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-            makeMeVisible.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            makeMeVisible.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0); //infinity
-            context.startActivity(makeMeVisible);
+        if (!bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, RESULT_OK);
         }
 
     }
