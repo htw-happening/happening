@@ -2,18 +2,18 @@
 
 ### wichtig
 - [x] Bluetooth 2.0 Scanner ohne Paring Request
-- [-] Meshhandler stable machen (ACRA)
+- [x] Meshhandler stable machen (ACRA)
 - [x] "De"-Pair und teste Verbindungen nochmal
 - [ ] Poster fertig machen / drucken
 - [ ] Vortrag am Start haben
 - [ ] Standbau - Brett / Handys / Klettverschluss
-- [ ] Alive Leute neue Service schicken inkl neuem Plugin
+- [x] Alive Leute neue Service schicken inkl neuem Plugin
 ### unwichtig
-- [-] Flackern der Visualisierung wegbekommen
-- [ ] Visualisierung - dynaischen Hinzufügen und Entfernen von Clients
-- [ ] Visualisierung - Reset
+- [x] Flackern der Visualisierung wegbekommen
+- [x] Visualisierung - dynaischen Hinzufügen und Entfernen von Clients
+- [x] Visualisierung - Reset
 - [x] Klickie Bunti - CorlorSwiper
-- [ ] Klickie Bunti - Chat
+- [x] Klickie Bunti - Chat
 - [ ] Backup Video falls der ColorSwiper auf der Showtime abschmiert
 
 ## Simulation

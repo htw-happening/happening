@@ -12,7 +12,13 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import blue.happening.sdk.Happening;
 
+/**
+ * This class represents a device in the happening network. You get a list of the clients
+ * via {@link Happening#getClients getClients }or by implementing the
+ * different {@link IHappeningCallback HappeningCallback methods}.
+ */
 public class HappeningClient implements Parcelable, Serializable {
 
     private String uuid;
@@ -44,17 +50,31 @@ public class HappeningClient implements Parcelable, Serializable {
         return 0;
     }
 
+    /**
+     * Marshalling
+     * @param out
+     * @param flags
+     */
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeString(uuid);
         out.writeString(name);
     }
 
+    /**
+     * Demarshalling
+     * @param in
+     */
     public void readFromParcel(Parcel in) {
         uuid = in.readString();
         name = in.readString();
     }
 
+    /**
+     * Deserialization
+     * @param bytes
+     * @return
+     */
     public static HappeningClient fromBytes(byte[] bytes) {
         try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
              ObjectInput in = new ObjectInputStream(bis)) {
@@ -64,6 +84,10 @@ public class HappeningClient implements Parcelable, Serializable {
         }
     }
 
+    /**
+     * Serialization
+     * @return
+     */
     public byte[] toBytes() {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              ObjectOutput out = new ObjectOutputStream(bos)) {
@@ -74,10 +98,18 @@ public class HappeningClient implements Parcelable, Serializable {
         }
     }
 
+    /**
+     * Getting the unique ID for this client in the network.
+     * @return uuid
+     */
     public String getUuid() {
         return uuid;
     }
 
+    /**
+     * Getting the name for this client.
+     * @return
+     */
     public String getName() {
         return name;
     }
