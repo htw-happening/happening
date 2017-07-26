@@ -1,4 +1,4 @@
-package de.happening.colorswipe;
+package blue.happening.colorswipe;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

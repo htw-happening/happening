@@ -1,6 +1,10 @@
-package de.happening.colorswipe;
+package blue.happening.colorswipe;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -64,6 +68,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         textView = (TextView) findViewById(R.id.textView);
         textView.setBackgroundColor(Swiper.getInstance().getMyColor());
         gDetector = new GestureDetector(this);
+
+        Context context = getApplicationContext();
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+
+        if (!bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, RESULT_OK);
+        }
 
     }
 

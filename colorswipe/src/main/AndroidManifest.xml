@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="de.happening.colorswipe">
+    package="blue.happening.colorswipe">
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
     <application
         android:name=".MyApplication"
         android:allowBackup="true"

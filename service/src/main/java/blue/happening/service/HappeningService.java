@@ -33,6 +33,7 @@ public class HappeningService extends Service {
     private static final String HAPPENING_APP_ID = "HAPPENING_APP_ID";
     private static final int START_MODE = START_STICKY;
     private static final boolean ALLOW_REBIND = true;
+    private static final boolean ALLOW_TOAST = false;
     private static HashMap<String, IHappeningCallback> callbacks = new HashMap<>();
     private final String TAG = getClass().getSimpleName();
     private StatsLogTimer statsLogTimer;
@@ -207,7 +208,7 @@ public class HappeningService extends Service {
         Intent intents = new Intent(getBaseContext(), MainActivity.class);
         intents.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intents);
-        Toast.makeText(this, "Happening started", Toast.LENGTH_SHORT).show();
+        if (ALLOW_TOAST) Toast.makeText(this, "Happening started", Toast.LENGTH_SHORT).show();
         return START_MODE;
     }
 
@@ -217,7 +218,7 @@ public class HappeningService extends Service {
     @Override
     public void onDestroy() {
         Log.v(this.getClass().getSimpleName(), "onDestroy");
-        Toast.makeText(this, "Happening stopped", Toast.LENGTH_SHORT).show();
+        if (ALLOW_TOAST) Toast.makeText(this, "Happening stopped", Toast.LENGTH_SHORT).show();
         statsLogTimer.stop();
         super.onDestroy();
     }
@@ -229,7 +230,7 @@ public class HappeningService extends Service {
     public IBinder onBind(Intent intent) {
         Log.v(this.getClass().getSimpleName(), "onBind");
         String appId = intent.getStringExtra(HAPPENING_APP_ID);
-        Toast.makeText(this, (appId == null ? "Something" : appId) + " bound", Toast.LENGTH_LONG).show();
+        if (ALLOW_TOAST) Toast.makeText(this, (appId == null ? "Something" : appId) + " bound", Toast.LENGTH_LONG).show();
         return binder;
     }
 
@@ -240,7 +241,7 @@ public class HappeningService extends Service {
     public void onRebind(Intent intent) {
         super.onRebind(intent);
         String appId = intent.getStringExtra(HAPPENING_APP_ID);
-        Toast.makeText(this, (appId == null ? "Something" : appId) + " rebound", Toast.LENGTH_LONG).show();
+        if (ALLOW_TOAST) Toast.makeText(this, (appId == null ? "Something" : appId) + " rebound", Toast.LENGTH_LONG).show();
         Log.v(this.getClass().getSimpleName(), "onRebind");
     }
 
@@ -251,7 +252,7 @@ public class HappeningService extends Service {
     public boolean onUnbind(Intent intent) {
         Log.v(this.getClass().getSimpleName(), "onUnbind");
         String appId = intent.getStringExtra(HAPPENING_APP_ID);
-        Toast.makeText(this, (appId == null ? "Something" : appId) + " unbound", Toast.LENGTH_LONG).show();
+        if (ALLOW_TOAST) Toast.makeText(this, (appId == null ? "Something" : appId) + " unbound", Toast.LENGTH_LONG).show();
         return ALLOW_REBIND;
     }
 
