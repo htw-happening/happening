@@ -1,5 +1,6 @@
 package blue.happening.simulation.visualization;
 
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,10 +30,8 @@ import blue.happening.mesh.RemoteDevice;
 import blue.happening.mesh.statistics.Stat;
 import blue.happening.mesh.statistics.StatsResult;
 import blue.happening.simulation.demo.HappeningDemo;
-import blue.happening.simulation.entities.Connection;
 import blue.happening.simulation.entities.Device;
 import blue.happening.simulation.entities.LogItem;
-import blue.happening.simulation.graph.NetworkGraph;
 
 
 public class DevicePanel extends JPanel {
@@ -49,8 +48,9 @@ public class DevicePanel extends JPanel {
     private JTable ogmLogTable;
     private JTable ucmLogTable;
     private JButton sendButton;
-    private JButton resetButton;
     private JButton pauseButton;
+    private JButton loopButton;
+    private JButton demoButton;
     private JPanel logTablePanel;
     private JButton disableButton;
     private JSlider packageDropSlider;
@@ -61,12 +61,10 @@ public class DevicePanel extends JPanel {
     private Device device;
     private NetworkStatsPanel ogmNetworkStats;
     private NetworkStatsPanel ucmNetworkStats;
-    private NetworkGraph<Device, Connection> graph;
 
     DevicePanel() {
         messageCount = true;
         selectedDevices = new ArrayList<>();
-        graph = HappeningDemo.getGraph();
 
         setSize(PANEL_WIDTH, PANEL_HEIGHT);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -76,18 +74,14 @@ public class DevicePanel extends JPanel {
         // Button Panel
 
         deviceLabel = new JLabel("Current device", JLabel.LEFT);
-        disableButton = new JButton("Disable Device");
-        sendButton = new JButton("Send Message");
-        resetButton = new JButton("Reset Demo");
-        pauseButton = new JButton("Pause Demo");
+        disableButton = new JButton("Disable device");
         sendButton = new JButton("Send message");
         sendButton.setEnabled(false);
 
-        JPanel btnPanel = new JPanel(new FlowLayout());
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         btnPanel.setOpaque(false);
         btnPanel.add(deviceLabel);
         btnPanel.add(disableButton);
-        btnPanel.add(resetButton);
         btnPanel.add(sendButton);
 
         // Slider Panel
@@ -95,8 +89,16 @@ public class DevicePanel extends JPanel {
         final JPanel sliderPanel = new JPanel();
         sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.Y_AXIS));
         sliderPanel.setOpaque(false);
-        sliderPanel.add(resetButton);
-        sliderPanel.add(pauseButton);
+        final JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        controlPanel.setMaximumSize(new Dimension((int) getSize().getWidth(), 64));
+        controlPanel.setOpaque(false);
+        pauseButton = new JButton("Pause");
+        loopButton = new JButton("Shuffle");
+        demoButton = new JButton("Demo…");
+        controlPanel.add(loopButton);
+        controlPanel.add(pauseButton);
+        controlPanel.add(demoButton);
+        sliderPanel.add(controlPanel);
 
         devicePanel = new JPanel();
         devicePanel.setLayout(new BoxLayout(devicePanel, BoxLayout.Y_AXIS));
@@ -107,8 +109,7 @@ public class DevicePanel extends JPanel {
         devicePanel.setVisible(false);
 
         devicePanel.add(disableButton, LEFT_ALIGNMENT);
-        packageDropSlider = new JSlider(JSlider.HORIZONTAL,
-                0, 100, 0);
+        packageDropSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
         packageDropSlider.setMajorTickSpacing(10);
         packageDropSlider.setMinorTickSpacing(10);
         packageDropSlider.setPaintTicks(true);
@@ -118,8 +119,7 @@ public class DevicePanel extends JPanel {
         devicePanel.add(new JLabel("Package Drop Rate", JLabel.CENTER));
         devicePanel.add(packageDropSlider);
 
-        packageDelaySlider = new JSlider(JSlider.HORIZONTAL,
-                0, 1000, 0);
+        packageDelaySlider = new JSlider(JSlider.HORIZONTAL, 0, 1000, 0);
         packageDelaySlider.setMajorTickSpacing(100);
         packageDelaySlider.setMinorTickSpacing(100);
         packageDelaySlider.setPaintTicks(true);
@@ -212,13 +212,13 @@ public class DevicePanel extends JPanel {
 
         // Tabs
 
-        tabbedPane.addTab("Settings", sliderPanel);
+        tabbedPane.addTab("Control", sliderPanel);
         tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 
         tabbedPane.addTab("Devices", devicesPanel);
         tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
 
-        tabbedPane.addTab("Stats", statsPanel);
+        tabbedPane.addTab("Traffic", statsPanel);
         tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 
         tabbedPane.addTab("Logs", logPanel);
@@ -233,7 +233,7 @@ public class DevicePanel extends JPanel {
             public void stateChanged(ChangeEvent e) {
                 JSlider source = (JSlider) e.getSource();
                 if (device != null) {
-                    device.getMockLayer().setMessageLoss((float) source.getValue() / 100);
+                    device.setMessageLoss((float) source.getValue() / 100);
                 }
             }
         });
@@ -270,17 +270,42 @@ public class DevicePanel extends JPanel {
             }
         });
 
-        resetButton.addActionListener(new ActionListener() {
+        loopButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                HappeningDemo.reset();
+                if (HappeningDemo.isLoop()) {
+                    loopButton.setText("Loop");
+                    HappeningDemo.setLoop(false);
+                } else {
+                    loopButton.setText("Shuffle");
+                    HappeningDemo.setLoop(true);
+                }
             }
         });
 
         pauseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                HappeningDemo.pause();
+                if (HappeningDemo.isPaused()) {
+                    pauseButton.setText("Pause");
+                    HappeningDemo.setPause(false);
+                } else {
+                    pauseButton.setText("Play");
+                    HappeningDemo.setPause(true);
+                }
+            }
+        });
+
+        demoButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                HappeningDemo.setPause(true);
+                String selection = (String) JOptionPane.showInputDialog(null, "Choose now...",
+                        "Select kiosk demo", JOptionPane.QUESTION_MESSAGE, null, HappeningDemo.getPatternKeys(),
+                        HappeningDemo.getPatternKeys()[0]);
+                HappeningDemo.setPattern(selection);
+                HappeningDemo.setPause(false);
+                HappeningDemo.setInterrupt(true);
             }
         });
     }

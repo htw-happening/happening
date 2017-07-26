@@ -46,7 +46,7 @@ public class PredefinedMobilityPattern<V, E> implements MobilityPattern<V, E> {
 
     private final boolean repeat;
     private final List<Waypoint<V, E>> waypoints;
-    private final StationaryMobilityPattern<V, E> staticMobilityPattern;
+    private final MobilityPattern<V, E> fallbackPattern;
     private int index = 0;
 
     /**
@@ -58,12 +58,11 @@ public class PredefinedMobilityPattern<V, E> implements MobilityPattern<V, E> {
      * @param repeat    set {@code true} to repeat, {@code false} otherwise
      * @param waypoints the set of {@code waypoint}s to run through
      */
-    public PredefinedMobilityPattern(boolean repeat, List<Waypoint<V, E>> waypoints) {
+    public PredefinedMobilityPattern(boolean repeat, List<Waypoint<V, E>> waypoints, MobilityPattern<V, E> fallbackPattern) {
         if (waypoints == null)
             throw new NullPointerException();
         if (waypoints.size() == 0)
-            throw new IllegalArgumentException(
-                    "at least one waypoints must be provided");
+            throw new IllegalArgumentException("At least one waypoint must be provided");
         for (int i = 0; i < waypoints.size(); i++) {
             if (waypoints.get(i) == null)
                 throw new NullPointerException("Waypoint index " + i + " is null");
@@ -71,18 +70,27 @@ public class PredefinedMobilityPattern<V, E> implements MobilityPattern<V, E> {
 
         this.repeat = repeat;
         this.waypoints = waypoints;
-        this.staticMobilityPattern = new StationaryMobilityPattern<V, E>();
+        this.fallbackPattern = fallbackPattern;
     }
 
     @Override
     public Waypoint<V, E> nextWaypoint(NetworkGraph<V, E> networkGraph, V vertex) {
         if (index == waypoints.size()) {
             if (!repeat)
-                return staticMobilityPattern.nextWaypoint(networkGraph, vertex);
+                return fallbackPattern.nextWaypoint(networkGraph, vertex);
             else
                 index = 0;
         }
         index++;
         return waypoints.get(index - 1);
+    }
+
+    @Override
+    public Waypoint<V, E> getStartpoint(NetworkGraph<V, E> networkGraph, V vertex) {
+        try {
+            return waypoints.get(0);
+        } catch (IndexOutOfBoundsException ignored) {
+            return null;
+        }
     }
 }

@@ -28,10 +28,11 @@ import javax.swing.JComponent;
 
 
 public class TimedJComponentRepainter {
+    Timer timer;
 
     public TimedJComponentRepainter(final JComponent component, long period) {
 
-        Timer timer = new Timer();
+        timer = new Timer();
         TimerTask repaintTask = new TimerTask() {
 
             @Override
@@ -41,5 +42,9 @@ public class TimedJComponentRepainter {
         };
 
         timer.schedule(repaintTask, 0, period);
+    }
+
+    public void cancel() {
+        timer.cancel();
     }
 }

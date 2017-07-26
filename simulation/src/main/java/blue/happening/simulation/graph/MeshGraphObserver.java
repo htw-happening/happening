@@ -1,9 +1,7 @@
-package blue.happening.simulation.graph.internal;
+package blue.happening.simulation.graph;
 
 import blue.happening.simulation.entities.Connection;
 import blue.happening.simulation.entities.Device;
-import blue.happening.simulation.graph.NetworkGraph;
-import blue.happening.simulation.graph.NetworkGraphObserver;
 
 
 class MeshGraphObserver extends NetworkGraphObserver<Device, Connection> {

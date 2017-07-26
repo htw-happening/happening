@@ -46,7 +46,7 @@ import jsl.modeling.Replication;
  *
  * @author Semyon Fishman (sf69@drexel.edu)
  */
-public class RandomBoundedDemo {
+public class BoundedDemo {
 
     public static void main(String[] args) throws InterruptedException {
 

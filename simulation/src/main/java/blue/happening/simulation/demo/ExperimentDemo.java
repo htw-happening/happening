@@ -43,7 +43,7 @@ import jsl.modeling.Experiment;
  *
  * @author Semyon Fishman (sf69@drexel.edu)
  */
-public class VaryingVariableDemo {
+public class ExperimentDemo {
 
     public static void main(String[] args) throws IOException {
         /*

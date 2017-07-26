@@ -2,6 +2,7 @@ package blue.happening.simulation.demo;
 
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -9,12 +10,11 @@ import java.util.concurrent.TimeUnit;
 import blue.happening.mesh.MeshHandler;
 import blue.happening.simulation.entities.Connection;
 import blue.happening.simulation.entities.Device;
-import blue.happening.simulation.graph.NetworkGraph;
-import blue.happening.simulation.graph.internal.MeshGraph;
+import blue.happening.simulation.graph.MeshGraph;
 import blue.happening.simulation.visualization.MeshVisualizerFrame;
-import blue.happening.simulation.visualization.NOOPAction;
 import jsl.modeling.IterativeProcess;
 import jsl.modeling.Replication;
+import jsl.modeling.conditions.ConditionIfc;
 
 
 @SuppressWarnings("WeakerAccess")
@@ -29,36 +29,34 @@ public abstract class HappeningDemo {
     double speedMax;
     double txRadius;
     double rxRadius;
-    double minRadius;
     double noopInterval;
     long noopSleep;
-    double repaintHz;
 
-    final ScheduledExecutorService runner;
-    final ScheduledExecutorService postman;
-    private static NetworkGraph<Device, Connection> graph;
-    private Replication replication;
-    private MeshVisualizerFrame<Device, Connection> frame;
+    private static ScheduledExecutorService runner;
+    private static MeshGraph graph;
+    private static MeshVisualizerFrame frame;
+    private static String pattern = null;
+    private static String[] patternKeys;
 
-    private static boolean reset;
+    private static boolean loop;
     private static boolean pause;
-
+    private static boolean interrupt;
 
     HappeningDemo() {
         MeshHandler.INITIAL_MESSAGE_TQ = 255;
         MeshHandler.INITIAL_MESSAGE_TTL = 5;
         MeshHandler.HOP_PENALTY = 15;
-        MeshHandler.OGM_INTERVAL = 4;
-        MeshHandler.PURGE_INTERVAL = 12;
+        MeshHandler.OGM_INTERVAL = 3;
+        MeshHandler.PURGE_INTERVAL = 8;
         MeshHandler.NETWORK_STAT_INTERVAL = 1;
         MeshHandler.SLIDING_WINDOW_SIZE = 12;
-        MeshHandler.DEVICE_EXPIRATION = 16;
+        MeshHandler.DEVICE_EXPIRATION = 8;
         MeshHandler.INITIAL_MIN_SEQUENCE = 0;
-        MeshHandler.INITIAL_MAX_SEQUENCE = 16384;
+        MeshHandler.INITIAL_MAX_SEQUENCE = 9999;
 
         this.deviceCount = 10;
         this.messageDelay = 240;
-        this.replicationLength = 2000;
+        this.replicationLength = 420;
         this.warmUpLength = 0;
         this.messageLoss = 0.0F;
         this.speedMin = 0.25D;
@@ -67,14 +65,14 @@ public abstract class HappeningDemo {
         this.rxRadius = 100D;
         this.noopInterval = 1D;
         this.noopSleep = 50L;
-        this.repaintHz = 30D;
+    }
 
-        pause = false;
+    abstract MeshGraph createGraph(String patternKey);
 
-        minRadius = Math.min(txRadius, rxRadius);
-        runner = Executors.newSingleThreadScheduledExecutor();
-        postman = Executors.newSingleThreadScheduledExecutor();
+    abstract String[] createPatternKeys();
 
+    ScheduledExecutorService createRunner() {
+        ScheduledExecutorService runner = Executors.newSingleThreadScheduledExecutor();
         runner.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -87,12 +85,19 @@ public abstract class HappeningDemo {
                 }
             }
         }, 0, 50, TimeUnit.MILLISECONDS);
+        return runner;
     }
 
-    abstract void populateGraph();
 
-    private void createReplication() {
-        replication = new Replication(graph.getModel());
+    private void runReplication() {
+        Replication replication = new Replication(graph.getModel());
+        if (pattern.equals("0A endless crowd")) {
+            replicationLength = 10000;
+        } else if (pattern.equals("0B random crowd")) {
+            replicationLength = 2500;
+        } else {
+            replicationLength = 500;
+        }
         replication.setLengthOfReplication(replicationLength);
         replication.setLengthOfWarmUp(warmUpLength);
         replication.addObserver(new Observer() {
@@ -108,52 +113,108 @@ public abstract class HappeningDemo {
                             e.printStackTrace();
                         }
                     }
-                }
-                if (ip.isRunning() && reset) {
-                    reset = false;
-                    ip.end();
-                    ip.initialize();
-                }
-                if (ip.isEnded()) {
-                    getPostman().shutdownNow();
-                    getRunner().shutdownNow();
+                } else if (interrupt) {
+                    interrupt = false;
+                    if (ip.isRunning()) {
+                        ip.setEndCondition(new ConditionIfc() {
+                            @Override
+                            public void setName(String s) {
+                            }
+
+                            @Override
+                            public String getName() {
+                                return "Interrupt";
+                            }
+
+                            @Override
+                            public void evaluate() {
+                            }
+
+                            @Override
+                            public boolean isSet() {
+                                return true;
+                            }
+
+                            @Override
+                            public void clear() {
+                            }
+
+                            @Override
+                            public void set() {
+                            }
+                        });
+                    }
+                } else if (ip.isEnded()) {
+                    for (Connection connection : graph.getEdges()) {
+                        connection.destroy();
+                    }
                 }
             }
         });
+        replication.runAll();
+        graph = null;
     }
 
     public void start() {
-        graph = new MeshGraph();
-        frame = new MeshVisualizerFrame<>(graph, repaintHz);
-        new NOOPAction(graph, noopInterval, noopSleep);
-        populateGraph();
-        createReplication();
-        replication.runAll();
+        frame = new MeshVisualizerFrame();
+
+        while (true) {
+            runner = createRunner();
+            graph = createGraph(pattern);
+            if (patternKeys == null) {
+                patternKeys = createPatternKeys();
+            }
+            if (!loop) {
+                pattern = patternKeys[1 + new Random().nextInt(patternKeys.length - 1)];
+            }
+            frame.init();
+            for (Device device : graph.getVertices()) {
+                device.setClicked(true);
+                break;
+            }
+            runReplication();
+            runner.shutdownNow();
+            frame.destroy();
+        }
     }
 
-    public static void reset() {
-        pause = false;
-        reset = true;
+    public static void setInterrupt(boolean interrupt) {
+        HappeningDemo.interrupt = interrupt;
     }
 
-    public static void pause() {
-        pause = !pause;
+    public static void setPause(boolean pause) {
+        HappeningDemo.pause = pause;
     }
 
-    private ScheduledExecutorService getRunner() {
+    public static boolean isPaused() {
+        return pause;
+    }
+
+    public static boolean isLoop() {
+        return loop;
+    }
+
+    public static void setLoop(boolean loop) {
+        HappeningDemo.loop = loop;
+    }
+
+    public static ScheduledExecutorService getRunner() {
         return runner;
     }
 
-    private ScheduledExecutorService getPostman() {
-        return postman;
-    }
-
-    public static NetworkGraph<Device, Connection> getGraph() {
+    public static MeshGraph getGraph() {
         return graph;
     }
 
-    public MeshVisualizerFrame<Device, Connection> getFrame() {
+    public static MeshVisualizerFrame getFrame() {
         return frame;
     }
 
+    public static String[] getPatternKeys() {
+        return patternKeys;
+    }
+
+    public static void setPattern(String pattern) {
+        HappeningDemo.pattern = pattern;
+    }
 }

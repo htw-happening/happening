@@ -40,11 +40,9 @@ import jsl.modeling.Replication;
  * @param <E> the type of edge
  * @author Semyon Fishman (sf69@drexel.edu)
  */
-public final class StationaryMobilityPattern<V, E>
-        implements MobilityPattern<V, E> {
+public final class StationaryMobilityPattern<V, E> implements MobilityPattern<V, E> {
 
-    private final Waypoint<V, E> stationaryWaypoint = new VTWaypoint<V, E>(0, 0,
-            Double.POSITIVE_INFINITY);
+    private final Waypoint<V, E> stationaryWaypoint = new VTWaypoint<V, E>(0, 0, Double.POSITIVE_INFINITY);
 
     /**
      * Constructs a new {@code StationaryMobilityPattern} object.
@@ -53,9 +51,12 @@ public final class StationaryMobilityPattern<V, E>
     }
 
     @Override
-    public Waypoint<V, E> nextWaypoint(NetworkGraph<V, E> networkGraph,
-                                       V vertex) {
+    public Waypoint<V, E> nextWaypoint(NetworkGraph<V, E> networkGraph, V vertex) {
         return stationaryWaypoint;
     }
 
+    @Override
+    public Waypoint<V, E> getStartpoint(NetworkGraph<V, E> networkGraph, V vertex) {
+        return null;
+    }
 }

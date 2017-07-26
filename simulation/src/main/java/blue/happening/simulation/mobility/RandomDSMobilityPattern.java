@@ -89,4 +89,9 @@ public final class RandomDSMobilityPattern<V, E> implements MobilityPattern<V, E
 
         return new DSWaypoint<>(sxf, syf, speed);
     }
+
+    @Override
+    public Waypoint<V, E> getStartpoint(NetworkGraph<V, E> networkGraph, V vertex) {
+        return null;
+    }
 }
