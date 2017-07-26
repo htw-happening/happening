@@ -1,9 +1,11 @@
 package blue.happening.colorswipe;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -61,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         this.prefsEditor = sharedPrefs.edit();
 
         int id = sharedPrefs.getInt(KEY_PREFS_SPINNER_ID, 1);
-        spinner.setSelection(id-1);
+        spinner.setSelection(id - 1);
         Swiper.getInstance().setMyIndex(id);
         Swiper.getInstance().setStaticColor();
         imageView = (ImageView) findViewById(R.id.imageView);
@@ -93,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         textView = (TextView) findViewById(R.id.textView);
         textView.setBackgroundColor(Swiper.getInstance().getMyColor());
 
-        prefsEditor.putInt(KEY_PREFS_SPINNER_ID, pos+1);
+        prefsEditor.putInt(KEY_PREFS_SPINNER_ID, pos + 1);
         prefsEditor.commit();
     }
 
@@ -115,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.d(TAG, "onSingleTapUp");
         long diff = System.currentTimeMillis() - lastTap;
         Log.d(TAG, "onSingleTapUp: diff " + diff);
-        if (diff < DOUBLE_TAP_TIME_DIFF){
+        if (diff < DOUBLE_TAP_TIME_DIFF) {
             Log.d(TAG, "onSingleTapUp: Double Tap Triggered");
             Swiper.getInstance().setStaticColor();
             textView.setBackgroundColor(Swiper.getInstance().getMyColor());
@@ -132,6 +134,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onLongPress(MotionEvent e) {
+
+        new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
+                .setTitle("Panic?")
+                .setMessage("Restart!")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        Swiper.getInstance().getHappening().restartHappeningService();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, null).show();
 
     }
 
