@@ -35,7 +35,6 @@ import blue.happening.simulation.graph.internal.VertexProperties;
 import blue.happening.simulation.graph.internal.VerticesDistance;
 import blue.happening.simulation.mobility.MobilityPattern;
 import blue.happening.simulation.mobility.StationaryMobilityPattern;
-import blue.happening.simulation.visualization.DevicePanel;
 import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.util.Graphs;
@@ -214,8 +213,7 @@ import jsl.utilities.reporting.JSL;
  * @param <E> the type of edge
  * @author Semyon Fishman (sf69@drexel.edu)
  */
-public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
-        implements DirectedGraph<V, E> {
+public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E> implements DirectedGraph<V, E> {
 
     // observer constants
     static final int ADDED_VERTEX = JSL.getNextEnumConstant();
@@ -232,10 +230,6 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
     private V lastRemovedVertex = null;
     private E lastAddedEdge = null;
     private E lastRemovedEdge = null;
-
-    // UI gewurschtel
-    private DevicePanel devicePanel = null;
-    private V clickedDevice = null;
 
     /**
      * Constructs a new {@code NetworkGraph} with {@code parent} ModelElement
@@ -381,8 +375,7 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
         logger.debug("Graph instantiated.");
     }
 
-    private static void timeValidationCheck(final double time,
-                                            final VertexProperties<?, ?>... properties) {
+    private static void timeValidationCheck(final double time, final VertexProperties<?, ?>... properties) {
         assert properties != null;
         double tStart = Double.NEGATIVE_INFINITY;
         double tEnd = Double.POSITIVE_INFINITY;
@@ -390,10 +383,13 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
             tStart = Math.max(tStart, prop.getTStart().getValue());
             tEnd = Math.min(tEnd, prop.getTEnd().getValue());
         }
-        if (time < tStart || tEnd < time)
-            throw new IllegalArgumentException(
-                    "invalid time argument: " + time + "; tStart = " + tStart
-                            + ", tEnd = " + tEnd);
+        if (time < tStart || tEnd < time) {
+            try {
+                throw new IllegalArgumentException("invalid time argument: " + time + "; tStart = " + tStart + ", tEnd = " + tEnd);
+            } catch (IllegalArgumentException e) {
+                // e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -403,7 +399,6 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
     protected void initialize() {
         removeAllEdges();
         addStartEdges();
-        this.clickedDevice = lastAddedVertex;
     }
 
     private void removeAllEdges() {
@@ -1026,21 +1021,5 @@ public class NetworkGraph<V, E> extends AbstractSchedulingElementGraph<V, E>
      */
     public E getLastRemovedEdge() {
         return lastRemovedEdge;
-    }
-
-    public DevicePanel getDevicePanel() {
-        return devicePanel;
-    }
-
-    public void setDevicePanel(DevicePanel devicePanel) {
-        this.devicePanel = devicePanel;
-    }
-
-    public V getClickedDevice() {
-        return clickedDevice;
-    }
-
-    public void setClickedDevice(V clickedDevice) {
-        this.clickedDevice = clickedDevice;
     }
 }

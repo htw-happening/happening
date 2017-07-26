@@ -12,8 +12,8 @@ import blue.happening.simulation.entities.Device;
 import blue.happening.simulation.entities.LogItem;
 
 public class DeviceLogTableModel extends AbstractTableModel {
-    //Two arrays used for the table data
-    private String[] columnNames = {"", "Source", "Previous Hop", "Destination", "#", "TTL", "TQ"};
+    // Two arrays used for the table data
+    private String[] columnNames = {"Action", "Source", "Previous", "Destination", "Sequence", "TTL", "TQ"};
     private Class[] columnClasses = {String.class, String.class, String.class, String.class,
             Integer.class, Integer.class, Integer.class};
 

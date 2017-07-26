@@ -3,6 +3,8 @@ package blue.happening.simulation.visualization;
 import java.awt.Color;
 import java.awt.Dimension;
 
+import blue.happening.simulation.entities.Connection;
+import blue.happening.simulation.entities.Device;
 import blue.happening.simulation.graph.NetworkGraph;
 import blue.happening.simulation.visualization.control.MeshModalGraphMouse;
 import blue.happening.simulation.visualization.listener.DeviceMouseListener;
@@ -16,8 +18,7 @@ import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 
 
-public class MeshVisualizationViewer<Device, Connection>
-        extends VisualizationViewer<Device, Connection> {
+public class MeshVisualizationViewer extends VisualizationViewer<Device, Connection> {
 
     private static final long serialVersionUID = 3201919504663243765L;
 
@@ -27,7 +28,6 @@ public class MeshVisualizationViewer<Device, Connection>
     }
 
     private void init() {
-
         // set label render to call toString
         // getRenderContext().setVertexLabelTransformer(new VertexNameLabeller());
         getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Device>());
@@ -49,13 +49,13 @@ public class MeshVisualizationViewer<Device, Connection>
         addGraphMouseListener(new DeviceMouseListener());
 
         // Custom Colors and Labels
-        getRenderContext()
-                .setVertexFillPaintTransformer(new DeviceFillPaintTransformer());
-        getRenderContext()
-                .setEdgeStrokeTransformer(new ConnectionStrokeTransformer());
-        getRenderContext()
-                .setVertexLabelTransformer(new DeviceLabeler());
-        getRenderContext()
-                .setVertexFontTransformer(new DeviceFontTransformer());
+        getRenderContext().setVertexFillPaintTransformer(new DeviceFillPaintTransformer());
+        getRenderContext().setEdgeStrokeTransformer(new ConnectionStrokeTransformer());
+        getRenderContext().setVertexLabelTransformer(new DeviceLabeler());
+        getRenderContext().setVertexFontTransformer(new DeviceFontTransformer());
+    }
+
+    public void setGraph(NetworkGraph<Device, Connection> graph) {
+        getGraphLayout().setGraph(graph);
     }
 }

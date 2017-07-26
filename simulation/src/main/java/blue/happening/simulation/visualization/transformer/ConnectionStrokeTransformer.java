@@ -8,8 +8,7 @@ import java.awt.Stroke;
 import blue.happening.simulation.entities.Connection;
 
 
-public class ConnectionStrokeTransformer<I extends Connection, O extends Stroke>
-        implements Transformer<Connection, Stroke> {
+public class ConnectionStrokeTransformer implements Transformer<Connection, Stroke> {
 
     private final Stroke noStroke = new BasicStroke(0.5f, BasicStroke.CAP_BUTT,
             BasicStroke.JOIN_MITER, 10.0f);

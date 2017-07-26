@@ -4,32 +4,25 @@ import java.util.Observable;
 import java.util.Observer;
 
 import blue.happening.mesh.MeshDevice;
-import blue.happening.simulation.entities.Connection;
+import blue.happening.simulation.demo.HappeningDemo;
 import blue.happening.simulation.entities.Device;
-import blue.happening.simulation.graph.NetworkGraph;
 import blue.happening.simulation.visualization.DevicePanel;
 
 
 public class DeviceObserver implements Observer {
-    private NetworkGraph<Device, Connection> graph;
-    private DevicePanel panel;
 
-    public DeviceObserver(NetworkGraph<Device, Connection> graph) {
-        this.graph = graph;
-    }
-
+    @Override
     public void update(Observable obj, Object arg) {
         Device device = (Device) obj;
         Device.DeviceChangedEvent event = (Device.DeviceChangedEvent) arg;
 
         if (event.getType() == Events.DEVICE_CLICKED) {
-            this.graph.setClickedDevice(device);
+            HappeningDemo.getGraph().setClickedDevice(device);
             setDevicePanel(device);
 
             // Unset all devices that where neighbours of previous device selection
-            for (Object object : device.getNetworkGraph().getVertices()) {
-                Device graphDevice = (Device) object;
-                graphDevice.setNeighbour(false);
+            for (Device vertex : HappeningDemo.getGraph().getVertices()) {
+                vertex.setNeighbour(false);
             }
 
             // Set devices that are neighbour of selected device
@@ -58,10 +51,9 @@ public class DeviceObserver implements Observer {
 
     private Device findGraphDevice(MeshDevice meshDevice) {
         Device foundGraphDevice = null;
-        for (Object object : this.graph.getVertices()) {
-            Device graphDevice = (Device) object;
-            if (graphDevice.getName().equals(meshDevice.getUuid())) {
-                foundGraphDevice = graphDevice;
+        for (Device device : HappeningDemo.getGraph().getVertices()) {
+            if (device.getName().equals(meshDevice.getUuid())) {
+                foundGraphDevice = device;
                 break;
             }
         }
@@ -69,13 +61,14 @@ public class DeviceObserver implements Observer {
     }
 
     private void setDevicePanel(Device device) {
-        panel = device.getNetworkGraph().getDevicePanel();
+        DevicePanel panel = HappeningDemo.getFrame().getDevicePanel();
         if (panel != null) {
             panel.setDevice(device);
         }
     }
 
     private void updateDevicePanel(Device device, Device.DeviceChangedEvent event) {
+        DevicePanel panel = HappeningDemo.getFrame().getDevicePanel();
         if (panel != null) {
             panel.updateDevice(device, event);
         }
@@ -89,8 +82,6 @@ public class DeviceObserver implements Observer {
         IS_NOT_NEIGHBOUR_ANYMORE,
         DEVICE_CLICKED,
         DEVICE_UNCLICKED,
-        SEND_MESSAGE,
-        RECEIVE_MESSAGE,
         NETWORK_STATS_UPDATED,
         OGM_LOG_ITEM_ADDED,
         UCM_LOG_ITEM_ADDED

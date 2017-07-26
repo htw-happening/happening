@@ -8,8 +8,7 @@ import java.awt.Paint;
 import blue.happening.simulation.entities.Device;
 
 
-public class DeviceFillPaintTransformer<I extends Device, O extends Paint>
-        implements Transformer<Device, Paint> {
+public class DeviceFillPaintTransformer implements Transformer<Device, Paint> {
 
     @Override
     public Paint transform(Device device) {

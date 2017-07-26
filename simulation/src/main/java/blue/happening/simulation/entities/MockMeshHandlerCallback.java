@@ -1,7 +1,5 @@
 package blue.happening.simulation.entities;
 
-import java.util.UUID;
-
 import blue.happening.mesh.IMeshHandlerCallback;
 import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.MeshHandler;

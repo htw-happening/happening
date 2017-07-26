@@ -7,6 +7,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import blue.happening.mesh.Message;
+import blue.happening.simulation.demo.HappeningDemo;
+import blue.happening.simulation.graph.MeshGraph;
 
 public class Connection {
 
@@ -41,9 +43,14 @@ public class Connection {
         }
     }
 
+    public void destroy() {
+        deliverance.clear();
+    }
+
     public int getStatus() {
         purge();
-        Device clickedDevice = fromDevice.getNetworkGraph().getClickedDevice();
+        MeshGraph graph = HappeningDemo.getGraph();
+        Device clickedDevice = graph == null ? null : graph.getClickedDevice();
         MessageDelivery delivery = deliverance.peek();
         if (delivery == null) {
             return IDLE;
@@ -80,7 +87,7 @@ public class Connection {
         for (MessageDelivery delivery : deliverance) {
             delay += delivery.getDelay();
         }
-        ScheduledFuture future = getToDevice().getPostman().schedule(runnable, delay, TimeUnit.MILLISECONDS);
+        ScheduledFuture future = getToDevice().getRunner().schedule(runnable, delay, TimeUnit.MILLISECONDS);
         deliverance.offer(new MessageDelivery(future, message, lost));
     }
 

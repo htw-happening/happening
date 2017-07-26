@@ -35,8 +35,7 @@ import blue.happening.simulation.graph.NetworkGraph;
  * @param <E> the type of edge
  * @author Semyon Fishman (sf69@drexel.edu)
  */
-public final class RandomVTMobilityPattern<V, E>
-        implements MobilityPattern<V, E> {
+public final class RandomVTMobilityPattern<V, E> implements MobilityPattern<V, E> {
 
     private final double vxMin;
     private final double vxMax;
@@ -89,4 +88,8 @@ public final class RandomVTMobilityPattern<V, E>
         return new VTWaypoint<V, E>(vx, vy, travelTime);
     }
 
+    @Override
+    public Waypoint<V, E> getStartpoint(NetworkGraph<V, E> networkGraph, V vertex) {
+        return null;
+    }
 }

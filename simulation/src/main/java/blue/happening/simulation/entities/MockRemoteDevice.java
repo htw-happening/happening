@@ -4,6 +4,7 @@ import java.util.ConcurrentModificationException;
 
 import blue.happening.mesh.Message;
 import blue.happening.mesh.RemoteDevice;
+import blue.happening.simulation.demo.HappeningDemo;
 
 
 public class MockRemoteDevice extends RemoteDevice {
@@ -28,7 +29,7 @@ public class MockRemoteDevice extends RemoteDevice {
 
     private boolean sendMessageWithRetries(Message message, int retries) {
         try {
-            for (Connection connection : device.getNetworkGraph().getEdges()) {
+            for (Connection connection : HappeningDemo.getGraph().getEdges()) {
                 if (connection.getToDevice().getName().equals(getUuid()) &&
                         connection.getFromDevice().getName().equals(message.getPreviousHop())) {
                     connection.queueMessage(message);
@@ -47,6 +48,6 @@ public class MockRemoteDevice extends RemoteDevice {
 
     @Override
     public boolean remove() {
-        return device.getNetworkGraph().removeVertex(device);
+        return HappeningDemo.getGraph().removeVertex(device);
     }
 }

@@ -6,7 +6,8 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import blue.happening.mesh.MeshDevice;
 import blue.happening.mesh.MeshHandler;
-import blue.happening.simulation.graph.NetworkGraph;
+import blue.happening.simulation.demo.HappeningDemo;
+import blue.happening.simulation.graph.MeshGraph;
 import blue.happening.simulation.graph.internal.VertexProperties;
 import blue.happening.simulation.visualization.listener.DeviceObserver;
 
@@ -17,21 +18,16 @@ public class Device extends Observable {
     private MeshHandler meshHandler;
     private int messageDelay;
     private boolean isEnabled = true;
-    private boolean isClicked = false;
     private boolean isNeighbour = false;
     private MockLayer mockLayer;
-    private NetworkGraph<Device, Connection> networkGraph;
-    private ScheduledExecutorService postman;
+    private ScheduledExecutorService runner;
     private LogQueue ucmLog;
     private LogQueue ogmLog;
 
-    public Device(String name, NetworkGraph<Device, Connection> networkGraph,
-                  ScheduledExecutorService postman, ScheduledExecutorService runner,
-                  int messageDelay, float messageLoss) {
-        addObserver(new DeviceObserver(networkGraph));
+    public Device(String name, ScheduledExecutorService runner, int messageDelay, float messageLoss) {
+        addObserver(new DeviceObserver());
         this.name = name;
-        this.networkGraph = networkGraph;
-        this.postman = postman;
+        this.runner = runner;
         this.messageDelay = messageDelay;
         mockLayer = new MockLayer();
         mockLayer.setMessageLoss(messageLoss);
@@ -43,15 +39,18 @@ public class Device extends Observable {
     }
 
     public boolean isClicked() {
-        return isClicked;
+        MeshGraph graph = HappeningDemo.getGraph();
+        Device clicked = graph == null ? null : graph.getClickedDevice();
+        return clicked != null && clicked.equals(this);
     }
 
     public void setClicked(boolean clicked) {
-        boolean wasClicked = isClicked;
-        isClicked = clicked;
-        if (!wasClicked && isClicked) {
+        boolean wasClicked = isClicked();
+        if (!wasClicked && clicked) {
+            HappeningDemo.getGraph().setClickedDevice(this);
             notifyDeviceObserver(DeviceObserver.Events.DEVICE_CLICKED, null);
-        } else if (wasClicked && !isClicked) {
+        } else if (wasClicked && !clicked) {
+            HappeningDemo.getGraph().setClickedDevice(null);
             notifyDeviceObserver(DeviceObserver.Events.DEVICE_UNCLICKED, null);
         }
     }
@@ -83,13 +82,14 @@ public class Device extends Observable {
     }
 
     public void toggleEnabled() {
-        VertexProperties<Device, Connection> properties = networkGraph.getVertexProperties(this);
+        MeshGraph graph = HappeningDemo.getGraph();
+        VertexProperties<Device, Connection> properties = graph.getVertexProperties(this);
         if (isEnabled) {
-            networkGraph.removeEdges(this);
+            graph.removeEdges(this);
             properties.getRxRadius().setValue(0);
             properties.getTxRadius().setValue(0);
         } else {
-            networkGraph.addEdges(this);
+            graph.addEdges(this);
             properties.getRxRadius().setValue(properties.getRxRadius().getInitialValue());
             properties.getTxRadius().setValue(properties.getTxRadius().getInitialValue());
         }
@@ -104,12 +104,8 @@ public class Device extends Observable {
         return this.name;
     }
 
-    public NetworkGraph<Device, Connection> getNetworkGraph() {
-        return networkGraph;
-    }
-
-    public ScheduledExecutorService getPostman() {
-        return postman;
+    public ScheduledExecutorService getRunner() {
+        return runner;
     }
 
     public List<MeshDevice> getDevices() {
@@ -157,6 +153,11 @@ public class Device extends Observable {
         else if (o == this)
             return true;
         return this.name.equals(((Device) o).name);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.name.hashCode();
     }
 
     public class DeviceChangedEvent {
