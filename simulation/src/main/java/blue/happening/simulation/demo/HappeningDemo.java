@@ -32,7 +32,7 @@ public abstract class HappeningDemo {
     private static ScheduledExecutorService runner;
     private static MeshGraph graph;
     private static MeshVisualizerFrame frame;
-    private static String pattern = "static_crowd";
+    private static String pattern = "random_crowd";
     private static String[] patternKeys;
 
     private static boolean loop;
@@ -55,8 +55,8 @@ public abstract class HappeningDemo {
         this.messageDelay = 240;
         this.warmUpLength = 0;
         this.messageLoss = 0.1F;
-        this.txRadius = 180D;
-        this.rxRadius = 180D;
+        this.txRadius = 100D;
+        this.rxRadius = 100D;
         this.noopInterval = 1D;
         this.noopSleep = 50L;
     }

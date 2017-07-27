@@ -24,16 +24,14 @@ public class KioskDemo extends HappeningDemo {
     private List<MobilityPattern<Device, Connection>> getPattern(String patternKey) {
         final double frameHeight = getFrame().getContentPane().getHeight();
         final double frameWidth = getFrame().getContentPane().getWidth() / 2;
-        final double vPadding = frameHeight * 0.1f;
-        final double vSpace = frameHeight - 2 * vPadding;
-        final double hPadding = frameWidth * 0.1f;
-        final double hSpace = frameWidth - 2 * hPadding;
 
         class MobilityFactory<V, E> {
             private List<MobilityPattern<V, E>> patterns = new ArrayList<>();
             private RectangularBoundary<V, E> bound = new RectangularBoundary<>(0, 0, frameWidth, frameHeight);
 
             private MobilityFactory<V, E> addPredefinedDevice(String... waypoints) {
+                final double vPadding = frameHeight * 0.3f;
+                final double hPadding = frameWidth * 0.6f;
                 List<Waypoint<V, E>> waypointList = new ArrayList<>();
                 for (String waypoint : waypoints) {
                     String[] args = waypoint.replace(" ", "").split(",");
@@ -50,13 +48,17 @@ public class KioskDemo extends HappeningDemo {
             }
 
             private MobilityFactory<V, E> addRandomDevices(int count, double minSpeed, double maxSpeed) {
+                final double vPadding = frameHeight * 0.2f;
+                final double hPadding = frameWidth * 0.3f;
+                final double vSpace = frameHeight - vPadding;
+                final double hSpace = frameWidth - hPadding;
                 final int root = (int) Math.ceil(Math.sqrt(count));
                 int deviceIndex = 0;
                 for (int i = 0; i < root; i++) {
                     for (int j = 0; j < root; j++) {
                         if (deviceIndex < count) {
-                            double sxf = hPadding + (i * Math.min(150, hSpace / root));
-                            double syf = vPadding + (j * Math.min(150, vSpace / root));
+                            double sxf = hPadding + (i * Math.min(99, hSpace / root));
+                            double syf = vPadding + (j * Math.min(99, vSpace / root));
                             MobilityPattern<V, E> mobilityPattern = new RandomDSMobilityPattern<>(bound, minSpeed, maxSpeed);
                             mobilityPattern.setStartpoint(new DTWaypoint<V, E>(sxf, syf, 10));
                             patterns.add(mobilityPattern);
