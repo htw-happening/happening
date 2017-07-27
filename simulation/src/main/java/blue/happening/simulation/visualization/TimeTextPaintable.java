@@ -27,7 +27,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.text.DecimalFormat;
-import java.util.Locale;
 
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
@@ -56,15 +55,17 @@ public class TimeTextPaintable<V, E> implements Paintable {
             metrics = g.getFontMetrics(font);
         }
 
+        /*
         int time = (int) (System.currentTimeMillis() - startTime);
         int minutes = time / (60 * 1000);
         int seconds = (time / 1000) % 60;
+        */
+
+        // String realTime = String.format(Locale.ENGLISH, "%d:%02d", minutes, seconds);
 
         String modelTime = new DecimalFormat("#").format(ModelElement.getTime());
 
-        String realTime = String.format(Locale.ENGLISH, "%d:%02d", minutes, seconds);
-
-        String str = realTime + " (" + modelTime + ")";
+        String str = modelTime;
         int sWidth = metrics.stringWidth(str);
         int sHeight = metrics.getMaxAscent() + metrics.getMaxDescent();
         int x = (d.width - sWidth) / 2;
