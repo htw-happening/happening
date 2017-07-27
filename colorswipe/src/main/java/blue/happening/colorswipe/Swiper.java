@@ -146,6 +146,10 @@ public class Swiper {
         this.myColor = generateColor();
     }
 
+    public Happening getHappening() {
+        return happening;
+    }
+
 
     public enum Direction {
         LEFT, RIGHT
