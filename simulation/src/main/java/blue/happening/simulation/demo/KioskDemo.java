@@ -86,7 +86,7 @@ public class KioskDemo extends HappeningDemo {
 
             case "massive_crowd":
                 return factory
-                        .addRandomDevices(96 + new Random().nextInt(64), 0.1D, 1.0D)
+                        .addRandomDevices(64 + new Random().nextInt(96), 0.15D, 0.85D)
                         .getPatterns();
 
             case "random_crowd":
