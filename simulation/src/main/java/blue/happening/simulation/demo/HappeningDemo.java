@@ -148,7 +148,7 @@ public abstract class HappeningDemo {
 
         while (true) {
             runner = createRunner();
-            if (pattern != null && pattern.contains("durable") && pattern.contains("massive")) {
+            if (pattern != null && pattern.contains("durable") && pattern.contains("large")) {
                 replicationLength = 50000;
             } else if (pattern != null && pattern.contains("crowd")) {
                 replicationLength = 5000;
