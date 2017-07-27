@@ -2,8 +2,10 @@ package blue.happening.simulation.visualization;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Window;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.lang.reflect.Method;
 
 import javax.swing.JFrame;
 
@@ -22,9 +24,13 @@ public class MeshVisualizerFrame extends JFrame {
 
     public MeshVisualizerFrame() {
         super("Happening Simulation");
+        Dimension screenDimension = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        if (screenDimension == null) screenDimension = new Dimension(1600, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        enableOSXFullscreen(this);
         setVisible(true);
-        getContentPane().setPreferredSize(new Dimension(1600, 1000));
+        getContentPane().setPreferredSize(screenDimension);
+        requestToggleFullScreen(this);
         pack();
     }
 
@@ -59,5 +65,32 @@ public class MeshVisualizerFrame extends JFrame {
 
     public DevicePanel getDevicePanel() {
         return devicePanel;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static void enableOSXFullscreen(Window window) {
+        try {
+            Class util = Class.forName("com.apple.eawt.FullScreenUtilities");
+            Class params[] = new Class[]{Window.class, Boolean.TYPE};
+            Method method = util.getMethod("setWindowCanFullScreen", params);
+            method.invoke(util, window, true);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static void requestToggleFullScreen(Window window)
+    {
+        try {
+            Class appClass = Class.forName("com.apple.eawt.Application");
+            Class params[] = new Class[]{};
+            Method getApplication = appClass.getMethod("getApplication", params);
+            Object application = getApplication.invoke(appClass);
+            Method requestToggleFulLScreen = application.getClass().getMethod("requestToggleFullScreen", Window.class);
+            requestToggleFulLScreen.invoke(application, window);
+        } catch (Exception e) {
+            System.out.println("An exception occurred while trying to toggle full screen mode");
+        }
     }
 }
