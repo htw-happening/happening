@@ -30,7 +30,6 @@ public class MeshVisualizerFrame extends JFrame {
         enableOSXFullscreen(this);
         setVisible(true);
         getContentPane().setPreferredSize(screenDimension);
-        requestToggleFullScreen(this);
         pack();
     }
 
