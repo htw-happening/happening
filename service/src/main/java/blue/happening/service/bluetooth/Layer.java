@@ -24,7 +24,9 @@ import blue.happening.MyApplication;
 
 public class Layer extends blue.happening.mesh.Layer {
 
-    static final String SERVICE_UUID = "11111111-0000-0000-0000-000005e971cf";
+    static final String SERVICE_UUID = "11111111-0000-0000-0000-000005e971cf"; // the original one - same as alive (1.apk)
+//    static final String SERVICE_UUID = "11111111-0000-0000-0000-000005e971ce";    // (2.apk)
+//    static final String SERVICE_UUID = "11111111-0000-0000-0000-000005e971cd";    // (3.apk)
     static final String RANDOM_READ_UUID = "00001111-0000-1000-8000-00805f9b34fb";
     @SuppressLint("StaticFieldLeak")
     private static Layer instance = null;
