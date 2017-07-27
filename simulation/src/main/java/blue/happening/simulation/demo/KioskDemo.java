@@ -53,7 +53,7 @@ public class KioskDemo extends HappeningDemo {
                 return this;
             }
 
-            private MobilityFactory<V, E> addRandomDevices(int count) {
+            private MobilityFactory<V, E> addRandomDevices(int count, double speedMin, double speedMax) {
                 final int root = (int) Math.ceil(Math.sqrt(count));
                 int deviceIndex = 0;
                 for (int i = 0; i < root; i++) {
@@ -82,68 +82,76 @@ public class KioskDemo extends HappeningDemo {
         MobilityFactory<Device, Connection> factory = new MobilityFactory<>();
         patterns = new TreeMap<>();
 
-        patterns.put("0A endless crowd", factory
-                .addRandomDevices(16)
+        patterns.put("durable_crowd", factory
+                .addRandomDevices(20, 0.25D, 2.0D)
                 .getPatterns());
 
-        patterns.put("0B random crowd", factory
-                .addRandomDevices(4 + new Random().nextInt(12))
+        patterns.put("random_crowd", factory
+                .addRandomDevices(4 + new Random().nextInt(12), 0.2D, 1.8D)
                 .getPatterns());
 
-        patterns.put("1A new neighbour", factory
+        patterns.put("static_crowd", factory
+                .addRandomDevices(8 + new Random().nextInt(16), 0.0D, 0.0D)
+                .getPatterns());
+
+        patterns.put("slow_crowd", factory
+                .addRandomDevices(8 + new Random().nextInt(16), 0.1D, 0.3D)
+                .getPatterns());
+
+        patterns.put("new_neighbour", factory
                 .addPredefinedDevice("  0, 0,  0")
                 .addPredefinedDevice("120, 0, 20", "80, 0, 20")
                 .getPatterns());
 
-        patterns.put("1B neighbour lost", factory
+        patterns.put("neighbour_lost", factory
                 .addPredefinedDevice(" 0, 0,  0")
                 .addPredefinedDevice("80, 0, 20", "120, 0, 20", "80, 0, 20")
                 .getPatterns());
 
-        patterns.put("2A new multihop", factory
+        patterns.put("new_multihop", factory
                 .addPredefinedDevice("  0, 0,  0")
                 .addPredefinedDevice(" 80, 0,  0")
                 .addPredefinedDevice("200, 0, 20", "160, 0, 20")
                 .getPatterns());
 
-        patterns.put("2B lost multihop", factory
+        patterns.put("lost_multihop", factory
                 .addPredefinedDevice("  0, 0,  0")
                 .addPredefinedDevice(" 80, 0,  0")
                 .addPredefinedDevice("160, 0, 20", "200, 0, 20")
                 .getPatterns());
 
-        patterns.put("3A also neighbour", factory
+        patterns.put("also_neighbour", factory
                 .addPredefinedDevice(" 0,   0,  0")
                 .addPredefinedDevice(" 0,  80,  0")
                 .addPredefinedDevice("80, 120, 20", "80, 40, 20")
                 .getPatterns());
 
-        patterns.put("3B only multihop", factory
+        patterns.put("only_multihop", factory
                 .addPredefinedDevice(" 0,  0,  0")
                 .addPredefinedDevice(" 0, 80,  0")
                 .addPredefinedDevice("80, 40, 20", "80, 120, 20")
                 .getPatterns());
 
-        patterns.put("4A also multihop", factory
+        patterns.put("also_multihop", factory
                 .addPredefinedDevice(" 0,  60,  0")
                 .addPredefinedDevice("60,   0, 20", "80,  20, 20")
                 .addPredefinedDevice("60, 120, 20", "80, 100, 20")
                 .getPatterns());
 
-        patterns.put("4B only neighbour", factory
+        patterns.put("only_neighbour", factory
                 .addPredefinedDevice(" 0,  60,  0")
                 .addPredefinedDevice("80,  20, 20", "60,   0, 20")
                 .addPredefinedDevice("80, 100, 20", "60, 120, 20")
                 .getPatterns());
 
-        patterns.put("5A new route", factory
+        patterns.put("new_route", factory
                 .addPredefinedDevice(" 0, 40,  0")
                 .addPredefinedDevice("80,  0,  0")
                 .addPredefinedDevice("80, 80,  0")
                 .addPredefinedDevice("160, 80, 20", "160, 40, 20")
                 .getPatterns());
 
-        patterns.put("5B lost route", factory
+        patterns.put("lost_route", factory
                 .addPredefinedDevice("  0, 40,  0")
                 .addPredefinedDevice(" 80,  0,  0")
                 .addPredefinedDevice(" 80, 80,  0")
@@ -161,10 +169,10 @@ public class KioskDemo extends HappeningDemo {
         try {
             patternList = patterns.get(patternKey);
         } catch (NullPointerException e) {
-            patternList = patterns.get("0B random crowd");
+            patternList = patterns.values().iterator().next();
         }
         for (int i = 0; i < patternList.size(); i++) {
-            Device device = new Device("Device_" + i, HappeningDemo.getRunner(), messageDelay, messageLoss);
+            Device device = new Device("device_" + i, HappeningDemo.getRunner(), messageDelay, messageLoss);
             MobilityPattern<Device, Connection> p = patternList.get(i);
             DTWaypoint<Device, Connection> initial = (DTWaypoint<Device, Connection>) p.getStartpoint(graph, device);
             graph.addVertex(device, initial.getSxf(), initial.getSyf(), p, txRadius, rxRadius);

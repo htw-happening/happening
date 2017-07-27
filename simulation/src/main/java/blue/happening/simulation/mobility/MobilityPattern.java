@@ -64,4 +64,6 @@ public interface MobilityPattern<V, E> {
     Waypoint<V, E> nextWaypoint(NetworkGraph<V, E> networkGraph, V vertex);
 
     Waypoint<V, E> getStartpoint(NetworkGraph<V, E> networkGraph, V vertex);
+
+    void nudge(double width, double height);
 }

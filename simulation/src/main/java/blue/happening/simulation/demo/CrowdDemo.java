@@ -35,10 +35,10 @@ public class CrowdDemo extends HappeningDemo {
         for (int i = 0; i < root; i++) {
             for (int j = 0; j < root; j++) {
                 if (deviceIndex < deviceCount) {
-                    Device device = new Device("Device_" + deviceIndex, HappeningDemo.getRunner(), messageDelay, messageLoss);
+                    Device device = new Device("device_" + deviceIndex, HappeningDemo.getRunner(), messageDelay, messageLoss);
                     double sx = horizontalPadding + (i * horizontalStep);
                     double sy = verticalPadding + (j * verticalStep);
-                    MobilityPattern<Device, Connection> pattern = new RandomDSMobilityPattern<>(bound, speedMin, speedMax);
+                    MobilityPattern<Device, Connection> pattern = new RandomDSMobilityPattern<>(bound, 0.25D, 0.75D);
                     graph.addVertex(device, sx, sy, pattern, txRadius, rxRadius);
                     deviceIndex++;
                 }

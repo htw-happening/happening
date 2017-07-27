@@ -25,8 +25,6 @@ public abstract class HappeningDemo {
     int replicationLength;
     int warmUpLength;
     float messageLoss;
-    double speedMin;
-    double speedMax;
     double txRadius;
     double rxRadius;
     double noopInterval;
@@ -58,9 +56,7 @@ public abstract class HappeningDemo {
         this.messageDelay = 240;
         this.replicationLength = 420;
         this.warmUpLength = 0;
-        this.messageLoss = 0.0F;
-        this.speedMin = 0.25D;
-        this.speedMax = 2.0D;
+        this.messageLoss = 0.1F;
         this.txRadius = 100D;
         this.rxRadius = 100D;
         this.noopInterval = 1D;
@@ -91,10 +87,10 @@ public abstract class HappeningDemo {
 
     private void runReplication() {
         Replication replication = new Replication(graph.getModel());
-        if (pattern.equals("0A endless crowd")) {
-            replicationLength = 10000;
-        } else if (pattern.equals("0B random crowd")) {
-            replicationLength = 2500;
+        if (pattern.contains("durable")) {
+            replicationLength = 25000;
+        } else if (pattern.contains("crowd")) {
+            replicationLength = 4000;
         } else {
             replicationLength = 500;
         }
@@ -164,13 +160,13 @@ public abstract class HappeningDemo {
             if (patternKeys == null) {
                 patternKeys = createPatternKeys();
             }
-            if (!loop) {
-                pattern = patternKeys[1 + new Random().nextInt(patternKeys.length - 1)];
-            }
             frame.init();
             for (Device device : graph.getVertices()) {
                 device.setClicked(true);
                 break;
+            }
+            if (!loop) {
+                pattern = patternKeys[1 + new Random().nextInt(patternKeys.length - 1)];
             }
             runReplication();
             runner.shutdownNow();
@@ -212,6 +208,10 @@ public abstract class HappeningDemo {
 
     public static String[] getPatternKeys() {
         return patternKeys;
+    }
+
+    public static String getPattern() {
+        return pattern;
     }
 
     public static void setPattern(String pattern) {

@@ -9,6 +9,6 @@ public class DeviceLabeler implements Transformer<Device, String> {
 
     @Override
     public String transform(Device device) {
-        return device.toString().replaceFirst("^Device_", "");
+        return device.toString().replaceFirst("^device_", "");
     }
 }

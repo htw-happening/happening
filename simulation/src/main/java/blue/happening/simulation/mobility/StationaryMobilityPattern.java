@@ -59,4 +59,8 @@ public final class StationaryMobilityPattern<V, E> implements MobilityPattern<V,
     public Waypoint<V, E> getStartpoint(NetworkGraph<V, E> networkGraph, V vertex) {
         return null;
     }
+
+    @Override
+    public void nudge(double width, double height) {
+    }
 }

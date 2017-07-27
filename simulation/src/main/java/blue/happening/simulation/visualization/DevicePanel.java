@@ -1,5 +1,6 @@
 package blue.happening.simulation.visualization;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -26,6 +27,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import blue.happening.mesh.MeshDevice;
+import blue.happening.mesh.MeshHandler;
 import blue.happening.mesh.RemoteDevice;
 import blue.happening.mesh.statistics.Stat;
 import blue.happening.mesh.statistics.StatsResult;
@@ -39,7 +41,8 @@ public class DevicePanel extends JPanel {
     private static final int PANEL_WIDTH = 500;
     private static final int PANEL_HEIGHT = 1000;
     private static final int TIME_WINDOW_SIZE = 25;
-    private TitledBorder title;
+    private TitledBorder deviceTitle;
+    private TitledBorder demoTitle;
     private JPanel devicePanel;
     private JLabel statsOgmIn, statsOgmOut, statsUcmIn, statsUcmOut;
     private JLabel deviceLabel;
@@ -50,11 +53,17 @@ public class DevicePanel extends JPanel {
     private JButton sendButton;
     private JButton pauseButton;
     private JButton loopButton;
+    private JButton nextButton;
     private JButton demoButton;
     private JPanel logTablePanel;
     private JButton disableButton;
     private JSlider packageDropSlider;
     private JSlider packageDelaySlider;
+    private JSlider ogmIntervalSlider;
+    private JSlider purgeIntervalSlider;
+    private JSlider deviceExpirationSlider;
+    private JSlider initialTtlSlider;
+    private JSlider hopPenaltySlider;
     private List<RemoteDevice> selectedDevices;
     private boolean messageCount;
 
@@ -74,14 +83,12 @@ public class DevicePanel extends JPanel {
         // Button Panel
 
         deviceLabel = new JLabel("Current device", JLabel.LEFT);
-        disableButton = new JButton("Disable device");
         sendButton = new JButton("Send message");
         sendButton.setEnabled(false);
 
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        final JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         btnPanel.setOpaque(false);
         btnPanel.add(deviceLabel);
-        btnPanel.add(disableButton);
         btnPanel.add(sendButton);
 
         // Slider Panel
@@ -89,26 +96,40 @@ public class DevicePanel extends JPanel {
         final JPanel sliderPanel = new JPanel();
         sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.Y_AXIS));
         sliderPanel.setOpaque(false);
+
         final JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         controlPanel.setMaximumSize(new Dimension((int) getSize().getWidth(), 64));
         controlPanel.setOpaque(false);
+        loopButton = new JButton("Loop");
         pauseButton = new JButton("Pause");
-        loopButton = new JButton("Shuffle");
-        demoButton = new JButton("Demo…");
+        nextButton = new JButton("Next");
+        demoButton = new JButton("Select Demo");
         controlPanel.add(loopButton);
         controlPanel.add(pauseButton);
+        controlPanel.add(nextButton);
         controlPanel.add(demoButton);
+
+        demoTitle = BorderFactory.createTitledBorder(
+                HappeningDemo.getPattern() == null ? "Demo" : HappeningDemo.getPattern());
+        controlPanel.setBorder(demoTitle);
         sliderPanel.add(controlPanel);
 
         devicePanel = new JPanel();
         devicePanel.setLayout(new BoxLayout(devicePanel, BoxLayout.Y_AXIS));
         devicePanel.setOpaque(false);
 
-        title = BorderFactory.createTitledBorder("Device");
-        devicePanel.setBorder(title);
+        deviceTitle = BorderFactory.createTitledBorder("Device");
+        devicePanel.setBorder(deviceTitle);
         devicePanel.setVisible(false);
 
-        devicePanel.add(disableButton, LEFT_ALIGNMENT);
+        JPanel deviceButtonWrapper = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        deviceButtonWrapper.setBorder(BorderFactory.createEmptyBorder());
+        deviceButtonWrapper.setBackground(new Color(0, 0, 0, 0));
+        disableButton = new JButton("Disable");
+        deviceButtonWrapper.add(disableButton);
+        deviceButtonWrapper.setMaximumSize(new Dimension((int) getSize().getWidth(), 32));
+        devicePanel.add(deviceButtonWrapper);
+
         packageDropSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
         packageDropSlider.setMajorTickSpacing(10);
         packageDropSlider.setMinorTickSpacing(10);
@@ -116,7 +137,7 @@ public class DevicePanel extends JPanel {
         packageDropSlider.setPaintLabels(true);
         packageDropSlider.setOpaque(false);
         packageDropSlider.setEnabled(false);
-        devicePanel.add(new JLabel("Package Drop Rate", JLabel.CENTER));
+        devicePanel.add(new JLabel("Message Loss"));
         devicePanel.add(packageDropSlider);
 
         packageDelaySlider = new JSlider(JSlider.HORIZONTAL, 0, 1000, 0);
@@ -126,10 +147,57 @@ public class DevicePanel extends JPanel {
         packageDelaySlider.setPaintLabels(true);
         packageDelaySlider.setOpaque(false);
         packageDelaySlider.setEnabled(false);
-        devicePanel.add(new JLabel("Package Send Delay", JLabel.CENTER));
+        devicePanel.add(new JLabel("Message Delay"));
         devicePanel.add(packageDelaySlider);
 
         sliderPanel.add(devicePanel);
+
+        final JPanel globalPanel = new JPanel();
+        globalPanel.setLayout(new BoxLayout(globalPanel, BoxLayout.Y_AXIS));
+        globalPanel.setBorder(BorderFactory.createTitledBorder("Global Settings"));
+        globalPanel.setOpaque(false);
+
+        ogmIntervalSlider = new JSlider(JSlider.HORIZONTAL, 0, 16, MeshHandler.OGM_INTERVAL);
+        ogmIntervalSlider.setMajorTickSpacing(4);
+        ogmIntervalSlider.setMinorTickSpacing(1);
+        ogmIntervalSlider.setPaintTicks(true);
+        ogmIntervalSlider.setPaintLabels(true);
+        globalPanel.add(new JLabel("OGM Interval", JLabel.CENTER));
+        globalPanel.add(ogmIntervalSlider);
+
+        purgeIntervalSlider = new JSlider(JSlider.HORIZONTAL, 0, 64, MeshHandler.PURGE_INTERVAL);
+        purgeIntervalSlider.setMajorTickSpacing(16);
+        purgeIntervalSlider.setMinorTickSpacing(4);
+        purgeIntervalSlider.setPaintTicks(true);
+        purgeIntervalSlider.setPaintLabels(true);
+        globalPanel.add(new JLabel("Purge Interval", JLabel.CENTER));
+        globalPanel.add(purgeIntervalSlider);
+
+        deviceExpirationSlider = new JSlider(JSlider.HORIZONTAL, 0, 64, MeshHandler.DEVICE_EXPIRATION);
+        deviceExpirationSlider.setMajorTickSpacing(16);
+        deviceExpirationSlider.setMinorTickSpacing(4);
+        deviceExpirationSlider.setPaintTicks(true);
+        deviceExpirationSlider.setPaintLabels(true);
+        globalPanel.add(new JLabel("Device Expiration", JLabel.CENTER));
+        globalPanel.add(deviceExpirationSlider);
+
+        initialTtlSlider = new JSlider(JSlider.HORIZONTAL, 0, 16, MeshHandler.INITIAL_MESSAGE_TTL);
+        initialTtlSlider.setMajorTickSpacing(4);
+        initialTtlSlider.setMinorTickSpacing(1);
+        initialTtlSlider.setPaintTicks(true);
+        initialTtlSlider.setPaintLabels(true);
+        globalPanel.add(new JLabel("Initial TTL", JLabel.CENTER));
+        globalPanel.add(initialTtlSlider);
+
+        hopPenaltySlider = new JSlider(JSlider.HORIZONTAL, 0, 256, MeshHandler.HOP_PENALTY);
+        hopPenaltySlider.setMajorTickSpacing(64);
+        hopPenaltySlider.setMinorTickSpacing(16);
+        hopPenaltySlider.setPaintTicks(true);
+        hopPenaltySlider.setPaintLabels(true);
+        globalPanel.add(new JLabel("Hop Penalty", JLabel.CENTER));
+        globalPanel.add(hopPenaltySlider);
+
+        sliderPanel.add(globalPanel);
 
         // Devices Panel
 
@@ -142,7 +210,7 @@ public class DevicePanel extends JPanel {
         tablePanel.setVisible(false);
         tablePanel.setOpaque(false);
 
-        JPanel devicesPanel = new JPanel();
+        final JPanel devicesPanel = new JPanel();
         devicesPanel.setLayout(new BoxLayout(devicesPanel, BoxLayout.Y_AXIS));
         devicesPanel.setOpaque(false);
         devicesPanel.add(btnPanel);
@@ -170,7 +238,7 @@ public class DevicePanel extends JPanel {
         statsUcmIn = new JLabel();
         statsUcmOut = new JLabel();
 
-        JPanel statsPanel = new JPanel();
+        final JPanel statsPanel = new JPanel();
         statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.Y_AXIS));
         statsPanel.setOpaque(false);
         statsPanel.add(new JLabel("Y-Axis:"));
@@ -205,7 +273,7 @@ public class DevicePanel extends JPanel {
         logTablePanel.setVisible(false);
         logTablePanel.setOpaque(false);
 
-        JPanel logPanel = new JPanel();
+        final JPanel logPanel = new JPanel();
         logPanel.setLayout(new BoxLayout(logPanel, BoxLayout.Y_AXIS));
         logPanel.setOpaque(false);
         logPanel.add(logTablePanel);
@@ -248,10 +316,106 @@ public class DevicePanel extends JPanel {
             }
         });
 
+        ogmIntervalSlider.addChangeListener(new ChangeListener() {
+            private boolean iPaused = false;
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                JSlider source = (JSlider) e.getSource();
+                if (source.getValueIsAdjusting()) {
+                    HappeningDemo.setPause(true);
+                    iPaused = true;
+                } else {
+                    MeshHandler.OGM_INTERVAL = Math.max(1, source.getValue());
+                    if (iPaused) {
+                        HappeningDemo.setPause(false);
+                        iPaused = false;
+                    }
+                }
+            }
+        });
+
+        purgeIntervalSlider.addChangeListener(new ChangeListener() {
+            private boolean iPaused = false;
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                JSlider source = (JSlider) e.getSource();
+                if (source.getValueIsAdjusting()) {
+                    HappeningDemo.setPause(true);
+                    iPaused = true;
+                } else {
+                    MeshHandler.PURGE_INTERVAL = Math.max(1, source.getValue());
+                    if (iPaused) {
+                        HappeningDemo.setPause(false);
+                        iPaused = false;
+                    }
+                }
+            }
+        });
+
+        deviceExpirationSlider.addChangeListener(new ChangeListener() {
+            private boolean iPaused = false;
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                JSlider source = (JSlider) e.getSource();
+                if (source.getValueIsAdjusting()) {
+                    HappeningDemo.setPause(true);
+                    iPaused = true;
+                } else {
+                    MeshHandler.DEVICE_EXPIRATION = source.getValue();
+                    if (iPaused) {
+                        HappeningDemo.setPause(false);
+                        iPaused = false;
+                    }
+                }
+            }
+        });
+
+        initialTtlSlider.addChangeListener(new ChangeListener() {
+            private boolean iPaused = false;
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                JSlider source = (JSlider) e.getSource();
+                if (source.getValueIsAdjusting()) {
+                    HappeningDemo.setPause(true);
+                    iPaused = true;
+                } else {
+                    MeshHandler.INITIAL_MESSAGE_TTL = source.getValue();
+                    if (iPaused) {
+                        HappeningDemo.setPause(false);
+                        iPaused = false;
+                    }
+                }
+            }
+        });
+
+        hopPenaltySlider.addChangeListener(new ChangeListener() {
+            private boolean iPaused = false;
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                JSlider source = (JSlider) e.getSource();
+                if (source.getValueIsAdjusting()) {
+                    HappeningDemo.setPause(true);
+                    iPaused = true;
+                } else {
+                    MeshHandler.HOP_PENALTY = Math.min(source.getValue(), 255);
+                    if (iPaused) {
+                        HappeningDemo.setPause(false);
+                        iPaused = false;
+                    }
+                }
+            }
+        });
+
         sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                String s = (String) JOptionPane.showInputDialog(tabbedPane, "Your Message:", "Send Message", JOptionPane.PLAIN_MESSAGE, null, null, "Hallo");
+                String s = (String) JOptionPane.showInputDialog(tabbedPane, "Message",
+                        "Send Message", JOptionPane.PLAIN_MESSAGE, null, null, "Hallo");
                 for (RemoteDevice remotedevice : selectedDevices) {
                     if (device != null) {
                         device.getMeshHandler().sendMessage(s.getBytes(), remotedevice.getUuid());
@@ -265,7 +429,7 @@ public class DevicePanel extends JPanel {
             public void actionPerformed(ActionEvent actionEvent) {
                 if (device != null) {
                     device.toggleEnabled();
-                    disableButton.setText(device.isEnabled() ? "Disable Device" : "Enable Device");
+                    disableButton.setText(device.isEnabled() ? "Disable" : "Enable");
                 }
             }
         });
@@ -296,12 +460,23 @@ public class DevicePanel extends JPanel {
             }
         });
 
+        nextButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if (HappeningDemo.isPaused()) {
+                    pauseButton.setText("Pause");
+                    HappeningDemo.setPause(false);
+                }
+                HappeningDemo.setInterrupt(true);
+            }
+        });
+
         demoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 HappeningDemo.setPause(true);
-                String selection = (String) JOptionPane.showInputDialog(null, "Choose now...",
-                        "Select kiosk demo", JOptionPane.QUESTION_MESSAGE, null, HappeningDemo.getPatternKeys(),
+                String selection = (String) JOptionPane.showInputDialog(tabbedPane, "Demo",
+                        "Select Demo", JOptionPane.QUESTION_MESSAGE, null, HappeningDemo.getPatternKeys(),
                         HappeningDemo.getPatternKeys()[0]);
                 HappeningDemo.setPattern(selection);
                 HappeningDemo.setPause(false);
@@ -437,13 +612,13 @@ public class DevicePanel extends JPanel {
         setUcmLog(device);
         clearNetworkStats();
         deviceLabel.setText(device.getName());
-        title.setTitle(device.getName());
+        deviceTitle.setTitle(device.getName());
         devicePanel.updateUI();
         devicePanel.setVisible(true);
         logTablePanel.setVisible(true);
         packageDropSlider.setEnabled(true);
         packageDelaySlider.setEnabled(true);
-        disableButton.setText(device.isEnabled() ? "Disable Device" : "Enable Device");
+        disableButton.setText(device.isEnabled() ? "Disable" : "Enable");
     }
 
     private void clearNetworkStats() {

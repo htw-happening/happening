@@ -12,8 +12,6 @@ import blue.happening.simulation.entities.Connection;
 import blue.happening.simulation.entities.Device;
 import blue.happening.simulation.graph.internal.VertexProperties;
 import blue.happening.simulation.mobility.MobilityPattern;
-import blue.happening.simulation.mobility.RandomDSMobilityPattern;
-import blue.happening.simulation.mobility.RectangularBoundary;
 
 
 public class MeshVisualizerFrame extends JFrame {
@@ -26,13 +24,12 @@ public class MeshVisualizerFrame extends JFrame {
         super("Happening Simulation");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
-        getContentPane().setPreferredSize(new Dimension(1280, 720));
+        getContentPane().setPreferredSize(new Dimension(1600, 1000));
         pack();
     }
 
     public void init() {
-        // final Dimension dimension = new Dimension(getContentPane().getWidth(), getContentPane().getHeight());
-        Dimension dimension = new Dimension(500, 720);
+        Dimension dimension = new Dimension(getContentPane().getWidth() - 500, getContentPane().getHeight());
         visualizerPanel = new MeshVisualizationViewer(HappeningDemo.getGraph(), dimension);
         getContentPane().add(visualizerPanel);
         repainter = new TimedJComponentRepainter(visualizerPanel, 15);
@@ -42,18 +39,13 @@ public class MeshVisualizerFrame extends JFrame {
                 for (Device device : HappeningDemo.getGraph().getVertices()) {
                     VertexProperties<Device, Connection> properties = HappeningDemo.getGraph().getVertexProperties(device);
                     MobilityPattern pattern = properties.getMobilityPattern();
-                    if (pattern instanceof RandomDSMobilityPattern) {
-                        RectangularBoundary boundary = ((RandomDSMobilityPattern) pattern).getBoundary();
-                        boundary.setWidth(evt.getComponent().getWidth());
-                        boundary.setHeight(evt.getComponent().getHeight());
-                        ((RandomDSMobilityPattern) pattern).nudge();
-                    }
+                    pattern.nudge(evt.getComponent().getWidth(), evt.getComponent().getHeight());
                 }
             }
         });
 
         devicePanel = new DevicePanel();
-        devicePanel.setPreferredSize(new Dimension(500, 720));
+        devicePanel.setPreferredSize(new Dimension(500, 1000));
         add(devicePanel, BorderLayout.EAST);
 
         pack();

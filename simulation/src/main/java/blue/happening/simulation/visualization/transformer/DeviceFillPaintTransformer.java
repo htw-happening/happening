@@ -13,11 +13,11 @@ public class DeviceFillPaintTransformer implements Transformer<Device, Paint> {
     @Override
     public Paint transform(Device device) {
         if (!device.isEnabled()) {
-            return Color.RED;
+            return new Color(208, 26, 65);
         } else if (device.isClicked()) {
-            return Color.GREEN;
+            return new Color(85, 165, 50);
         } else if (device.isNeighbour()) {
-            return Color.BLUE;
+            return new Color(5, 140, 185);
         } else {
             return Color.GRAY;
         }

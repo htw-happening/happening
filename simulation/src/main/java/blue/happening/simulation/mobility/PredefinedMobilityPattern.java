@@ -93,4 +93,9 @@ public class PredefinedMobilityPattern<V, E> implements MobilityPattern<V, E> {
             return null;
         }
     }
+
+    @Override
+    public void nudge(double width, double height) {
+        fallbackPattern.nudge(width, height);
+    }
 }

@@ -77,8 +77,7 @@ public final class RandomVTMobilityPattern<V, E> implements MobilityPattern<V, E
     }
 
     @Override
-    public Waypoint<V, E> nextWaypoint(final NetworkGraph<V, E> networkGraph,
-                                       final V vertex) {
+    public Waypoint<V, E> nextWaypoint(final NetworkGraph<V, E> networkGraph, final V vertex) {
 
         final double vx = vxMin + (random.nextDouble() * (vxMax - vxMin));
         final double vy = vyMin + (random.nextDouble() * (vyMax - vyMin));
@@ -91,5 +90,9 @@ public final class RandomVTMobilityPattern<V, E> implements MobilityPattern<V, E
     @Override
     public Waypoint<V, E> getStartpoint(NetworkGraph<V, E> networkGraph, V vertex) {
         return null;
+    }
+
+    @Override
+    public void nudge(double width, double height) {
     }
 }

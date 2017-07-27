@@ -45,14 +45,13 @@ class NetworkStatsPanel {
         XYSeries axis_2 = chart.addSeries("Axis_2", timeValues, initCollection());
 
         in.setMarker(SeriesMarkers.NONE);
-        in.setLineColor(Color.BLUE);
 
         out.setMarker(SeriesMarkers.NONE);
         out.setFillColor(Color.WHITE);
-        out.setLineColor(Color.RED);
+        out.setLineColor(new Color(208, 26, 65));
 
         axis_1.setMarker(SeriesMarkers.NONE);
-        axis_1.setFillColor(Color.RED);
+        axis_1.setFillColor(new Color(208, 26, 65));
         axis_1.setLineColor(Color.WHITE);
         axis_1.setLineWidth(0f);
         axis_1.setShowInLegend(false);
@@ -63,7 +62,6 @@ class NetworkStatsPanel {
         axis_2.setShowInLegend(false);
 
         chartPanel = new XChartPanel<>(chart);
-
     }
 
     private LinkedList<Double> initCollection() {
