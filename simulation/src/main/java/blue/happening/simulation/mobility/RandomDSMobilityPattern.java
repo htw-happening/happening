@@ -100,7 +100,7 @@ public final class RandomDSMobilityPattern<V, E> implements MobilityPattern<V, E
         if (firstNudgeFree) {
             firstNudgeFree = false;
         } else {
-            nudge += 1f;
+            nudge += 0.2f;
         }
     }
 }
