@@ -43,6 +43,7 @@ public final class RandomVTMobilityPattern<V, E> implements MobilityPattern<V, E
     private final double vyMax;
     private final double travelTimeMin;
     private final double travelTimeMax;
+    private Waypoint<V, E> startpoint;
 
     private final Random random;
 
@@ -89,7 +90,12 @@ public final class RandomVTMobilityPattern<V, E> implements MobilityPattern<V, E
 
     @Override
     public Waypoint<V, E> getStartpoint(NetworkGraph<V, E> networkGraph, V vertex) {
-        return null;
+        return startpoint;
+    }
+
+    @Override
+    public void setStartpoint(Waypoint<V, E> startpoint) {
+        this.startpoint = startpoint;
     }
 
     @Override

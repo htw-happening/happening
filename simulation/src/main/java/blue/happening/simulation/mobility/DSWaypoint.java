@@ -74,4 +74,13 @@ public final class DSWaypoint<V, E> implements Waypoint<V, E> {
         return distance / speed;
     }
 
+    @Override
+    public double getSxf() {
+        return 0;
+    }
+
+    @Override
+    public double getSyf() {
+        return 0;
+    }
 }

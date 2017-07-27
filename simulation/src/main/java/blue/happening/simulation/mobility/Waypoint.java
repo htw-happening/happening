@@ -75,4 +75,8 @@ public interface Waypoint<V, E> {
      * @return the travel time
      */
     double getTravelTime(NetworkGraph<V, E> networkGraph, V vertex);
+
+    double getSxf();
+
+    double getSyf();
 }

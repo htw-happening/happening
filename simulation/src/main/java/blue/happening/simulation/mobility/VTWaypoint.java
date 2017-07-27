@@ -64,4 +64,13 @@ public final class VTWaypoint<V, E> implements Waypoint<V, E> {
         return travelTime;
     }
 
+    @Override
+    public double getSxf() {
+        return 0;
+    }
+
+    @Override
+    public double getSyf() {
+        return 0;
+    }
 }

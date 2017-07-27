@@ -2,6 +2,7 @@ package blue.happening.simulation.entities;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -15,9 +16,14 @@ public class LogQueue extends HashMap<UUID, LogItem> {
     }
 
     public List<LogItem> getLogs() {
-        List<LogItem> values = new ArrayList<>(values());
-        Collections.sort(values);
-        return values;
+        try {
+            List<LogItem> values = new ArrayList<>(values());
+            Collections.sort(values);
+            return values;
+        } catch (ConcurrentModificationException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
     public LogItem put(LogItem item) {

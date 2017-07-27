@@ -95,6 +95,10 @@ public class PredefinedMobilityPattern<V, E> implements MobilityPattern<V, E> {
     }
 
     @Override
+    public void setStartpoint(Waypoint<V, E> startpoint) {
+    }
+
+    @Override
     public void nudge(double width, double height) {
         fallbackPattern.nudge(width, height);
     }

@@ -22,7 +22,6 @@ public abstract class HappeningDemo {
 
     int deviceCount;
     int messageDelay;
-    int replicationLength;
     int warmUpLength;
     float messageLoss;
     double txRadius;
@@ -33,7 +32,7 @@ public abstract class HappeningDemo {
     private static ScheduledExecutorService runner;
     private static MeshGraph graph;
     private static MeshVisualizerFrame frame;
-    private static String pattern = null;
+    private static String pattern = "static_crowd";
     private static String[] patternKeys;
 
     private static boolean loop;
@@ -54,11 +53,10 @@ public abstract class HappeningDemo {
 
         this.deviceCount = 10;
         this.messageDelay = 240;
-        this.replicationLength = 420;
         this.warmUpLength = 0;
         this.messageLoss = 0.1F;
-        this.txRadius = 100D;
-        this.rxRadius = 100D;
+        this.txRadius = 180D;
+        this.rxRadius = 180D;
         this.noopInterval = 1D;
         this.noopSleep = 50L;
     }
@@ -85,15 +83,8 @@ public abstract class HappeningDemo {
     }
 
 
-    private void runReplication() {
+    private void runReplication(int replicationLength) {
         Replication replication = new Replication(graph.getModel());
-        if (pattern.contains("durable")) {
-            replicationLength = 25000;
-        } else if (pattern.contains("crowd")) {
-            replicationLength = 4000;
-        } else {
-            replicationLength = 500;
-        }
         replication.setLengthOfReplication(replicationLength);
         replication.setLengthOfWarmUp(warmUpLength);
         replication.addObserver(new Observer() {
@@ -153,9 +144,15 @@ public abstract class HappeningDemo {
 
     public void start() {
         frame = new MeshVisualizerFrame();
+        int replicationLength = 500;
 
         while (true) {
             runner = createRunner();
+            if (pattern != null && pattern.contains("durable")) {
+                replicationLength = 25000;
+            } else if (pattern != null && pattern.contains("crowd")) {
+                replicationLength = 4000;
+            }
             graph = createGraph(pattern);
             if (patternKeys == null) {
                 patternKeys = createPatternKeys();
@@ -168,7 +165,7 @@ public abstract class HappeningDemo {
             if (!loop) {
                 pattern = patternKeys[1 + new Random().nextInt(patternKeys.length - 1)];
             }
-            runReplication();
+            runReplication(replicationLength);
             runner.shutdownNow();
             frame.destroy();
         }

@@ -40,9 +40,11 @@ public final class RandomDSMobilityPattern<V, E> implements MobilityPattern<V, E
     private final double speedMin;
     private final double speedMax;
     private double nudge;
+    private boolean firstNudgeFree = true;
 
     private final Random random;
     private final RectangularBoundary<V, E> boundary;
+    private Waypoint<V, E> startpoint;
 
     /**
      * Constructs a new {@code RandomDSMobilityPattern} that will generate
@@ -75,7 +77,7 @@ public final class RandomDSMobilityPattern<V, E> implements MobilityPattern<V, E
 
         double sxf = sxfMin + (random.nextDouble() * (sxfMax - sxfMin));
         double syf = syfMin + (random.nextDouble() * (syfMax - syfMin));
-        double speed = nudge + speedMin + random.nextDouble() * (speedMax + -speedMin);
+        double speed = nudge + speedMin + random.nextDouble() * (speedMax - speedMin);
         nudge = Math.max(0f, nudge - 1f);
 
         return new DSWaypoint<>(sxf, syf, speed);
@@ -83,13 +85,22 @@ public final class RandomDSMobilityPattern<V, E> implements MobilityPattern<V, E
 
     @Override
     public Waypoint<V, E> getStartpoint(NetworkGraph<V, E> networkGraph, V vertex) {
-        return null;
+        return startpoint;
+    }
+
+    @Override
+    public void setStartpoint(Waypoint<V, E> startpoint) {
+        this.startpoint = startpoint;
     }
 
     @Override
     public void nudge(double width, double height) {
         boundary.setWidth(width);
         boundary.setHeight(height);
-        nudge += 1f;
+        if (firstNudgeFree) {
+            firstNudgeFree = false;
+        } else {
+            nudge += 1f;
+        }
     }
 }

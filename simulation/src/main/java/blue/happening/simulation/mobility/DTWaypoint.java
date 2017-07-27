@@ -65,10 +65,12 @@ public class DTWaypoint<V, E> implements Waypoint<V, E> {
         return travelTime;
     }
 
+    @Override
     public double getSxf() {
         return sxf;
     }
 
+    @Override
     public double getSyf() {
         return syf;
     }
