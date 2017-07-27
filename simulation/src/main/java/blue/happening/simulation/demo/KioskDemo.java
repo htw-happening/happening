@@ -81,12 +81,12 @@ public class KioskDemo extends HappeningDemo {
         switch (patternKey) {
             case "durable_crowd":
                 return factory
-                        .addRandomDevices(20, 0.25D, 2.0D)
+                        .addRandomDevices(16 + new Random().nextInt(24), 0.25D, 2.0D)
                         .getPatterns();
 
             case "random_crowd":
                 return factory
-                        .addRandomDevices(4 + new Random().nextInt(12), 0.2D, 1.8D)
+                        .addRandomDevices(8 + new Random().nextInt(12), 0.2D, 1.8D)
                         .getPatterns();
 
             case "static_crowd":
@@ -96,7 +96,7 @@ public class KioskDemo extends HappeningDemo {
 
             case "slow_crowd":
                 return factory
-                        .addRandomDevices(8 + new Random().nextInt(16), 0.05D, 0.25D)
+                        .addRandomDevices(12 + new Random().nextInt(16), 0.05D, 0.25D)
                         .getPatterns();
 
             case "new_neighbour":
