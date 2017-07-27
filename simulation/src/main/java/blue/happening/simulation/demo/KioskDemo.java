@@ -197,7 +197,7 @@ public class KioskDemo extends HappeningDemo {
     public String[] createPatternKeys() {
         String[] keys = {
                 "durable_crowd",
-                "massive_crowd",
+                "large_crowd",
                 "random_crowd",
                 "static_crowd",
                 "slow_crowd",
