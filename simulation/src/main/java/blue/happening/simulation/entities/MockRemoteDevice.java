@@ -24,7 +24,7 @@ public class MockRemoteDevice extends RemoteDevice {
     }
 
     public boolean sendMessage(Message message) {
-        return sendMessageWithRetries(message, 3);
+        return sendMessageWithRetries(message, 2);
     }
 
     private boolean sendMessageWithRetries(Message message, int retries) {

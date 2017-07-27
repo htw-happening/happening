@@ -84,6 +84,11 @@ public class KioskDemo extends HappeningDemo {
                         .addRandomDevices(16 + new Random().nextInt(24), 0.25D, 2.0D)
                         .getPatterns();
 
+            case "massive_crowd":
+                return factory
+                        .addRandomDevices(96 + new Random().nextInt(64), 0.1D, 1.0D)
+                        .getPatterns();
+
             case "random_crowd":
                 return factory
                         .addRandomDevices(8 + new Random().nextInt(12), 0.2D, 1.8D)
@@ -192,6 +197,7 @@ public class KioskDemo extends HappeningDemo {
     public String[] createPatternKeys() {
         String[] keys = {
                 "durable_crowd",
+                "massive_crowd",
                 "random_crowd",
                 "static_crowd",
                 "slow_crowd",

@@ -148,10 +148,10 @@ public abstract class HappeningDemo {
 
         while (true) {
             runner = createRunner();
-            if (pattern != null && pattern.contains("durable")) {
-                replicationLength = 25000;
+            if (pattern != null && pattern.contains("durable") && pattern.contains("massive")) {
+                replicationLength = 50000;
             } else if (pattern != null && pattern.contains("crowd")) {
-                replicationLength = 4000;
+                replicationLength = 5000;
             }
             graph = createGraph(pattern);
             if (patternKeys == null) {
@@ -163,7 +163,7 @@ public abstract class HappeningDemo {
                 break;
             }
             if (!loop) {
-                pattern = patternKeys[1 + new Random().nextInt(patternKeys.length - 1)];
+                pattern = patternKeys[2 + new Random().nextInt(patternKeys.length - 2)];
             }
             runReplication(replicationLength);
             runner.shutdownNow();
