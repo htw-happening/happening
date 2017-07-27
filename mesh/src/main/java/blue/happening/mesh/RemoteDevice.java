@@ -52,7 +52,7 @@ public abstract class RemoteDevice implements IRemoteDevice {
 
     public final float getTq() {
         if (getEq() / getRq() > 1) {
-            System.out.println("Eq (" + getEq() + ") should not exceed Rq (" + getRq() + ")");
+            // XXX Eq should not exceed Rq
             return 1f;
         } else {
             return getEq() / getRq();
